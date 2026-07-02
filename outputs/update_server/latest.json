@@ -1,0 +1,9 @@
+{
+  "versionName": "4.0-core",
+  "versionCode": 1,
+  "apkUrl": "huiyi-v4.0-release-preconfigured.apk",
+  "releaseNotes": "会意 v4 Core 首版骨架：当前屏幕开挂主流程、我的底色军人模板、语音摘要缺口、OCR/mock 接口、GenericVisualBubbleParser、ContextAssembler、TacticalDecisionEngine、ReplyRouteGenerator、基础 UI Shell。",
+  "forceUpdate": false,
+  "sha256": "1A57423C36E26BD458E44DCB361500826F0083FB4AF978739579FEE61D27A20A",
+  "createdAt": 1783000800000
+}
