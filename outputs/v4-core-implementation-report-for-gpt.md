@@ -1,8 +1,8 @@
 # 会意 v4 Core 实现报告
 
 1. 项目是否新建成功：是，已从零创建 Android Kotlin + Compose 项目，包名 `com.huiyi.v4`。
-2. Git 是否初始化：待初始化/推送步骤执行。
-3. GitHub 是否创建/推送：待执行；当前 GitHub CLI 已登录，可创建私有仓库 `huiyi-v4-core`。
+2. Git 是否初始化：是，当前分支 `main`。
+3. GitHub 是否创建/推送：是，已创建并推送私有仓库 `https://github.com/a663949987-alt/huiyi-v4-core`。
 4. 是否实现后台更新 latest.json：是，见 `outputs/update_server/latest.json`。
 5. 是否实现 UserPersonaCorpus 军人样板：是，内置军人 / 即将转业模板和 6 张经历牌。
 6. 是否实现 VoiceSummaryCard：是，FloatingTacticalPanel 顶部可补语音摘要。
