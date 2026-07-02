@@ -11,14 +11,15 @@ import com.huiyi.v4.domain.model.MessageSource
 data class CurrentScreenCaptureResult(
     val snapshot: CurrentScreenSnapshot,
     val messages: List<MessageNode>,
+    val sampleSource: SampleSource,
     val warning: String? = null
 )
 
-class CurrentScreenCaptureUseCase(
+open class CurrentScreenCaptureUseCase(
     private val serviceProvider: () -> HuiyiAccessibilityService? = { HuiyiAccessibilityService.instance },
     private val parserFactory: (Int) -> GenericVisualBubbleParser = { width -> GenericVisualBubbleParser(screenWidth = width) }
 ) {
-    fun capture(): Result<CurrentScreenCaptureResult> {
+    open fun capture(): Result<CurrentScreenCaptureResult> {
         val service = serviceProvider() ?: return Result.failure(IllegalStateException("无障碍服务未连接。"))
         return service.captureCurrentScreen().mapCatching { snapshot ->
             val bubbles = snapshot.nodes.toVisualBubbles()
@@ -28,6 +29,7 @@ class CurrentScreenCaptureUseCase(
             CurrentScreenCaptureResult(
                 snapshot = snapshot,
                 messages = messages,
+                sampleSource = SampleSource.REAL_DEVICE_ACCESSIBILITY,
                 warning = if (bubbles.size < snapshot.nodes.count { it.readableText != null }) "WARNING: fallback parser filtered low quality nodes." else null
             )
         }

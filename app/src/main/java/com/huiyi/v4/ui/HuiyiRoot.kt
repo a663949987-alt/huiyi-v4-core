@@ -422,6 +422,7 @@ private fun DeveloperSettingsPage(
             Text("开发者设置")
             StatusCard("API 配置", "${BuildConfig.HUIYI_API_BASE_URL} / ${BuildConfig.HUIYI_API_MODEL}")
             Button(onClick = { runtime.exportParserReport() }, modifier = Modifier.fillMaxWidth()) { Text("导出当前屏幕解析报告") }
+            Button(onClick = { runtime.exportRealDeviceEvidencePack() }, modifier = Modifier.fillMaxWidth()) { Text("导出真机当前屏幕证据包") }
             Button(
                 onClick = { runtime.exportTextDebug("latest-context.txt", state.latestPipelineResult?.context.toString()) },
                 modifier = Modifier.fillMaxWidth()
@@ -439,6 +440,18 @@ private fun DeveloperSettingsPage(
                 modifier = Modifier.fillMaxWidth()
             ) { Text("导出无障碍状态报告") }
             StatusCard("最近导出", state.lastDebugExportPath ?: "暂无")
+            StatusCard("证据包 JSON", state.lastEvidenceJsonPath ?: "暂无")
+            Card(modifier = Modifier.fillMaxWidth()) {
+                Column(Modifier.padding(14.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
+                    Text("真机证据包步骤")
+                    Text("1. 打开真实聊天 App。")
+                    Text("2. 进入某个聊天窗口。")
+                    Text("3. 点击会意悬浮球。")
+                    Text("4. 点击“下一句”。")
+                    Text("5. 回到会意 App 开发者页。")
+                    Text("6. 点击“导出真机当前屏幕证据包”。")
+                }
+            }
             StatusCard("updateBaseUrl", BuildConfig.HUIYI_UPDATE_BASE_URL.ifBlank { "未配置" })
         }
     }

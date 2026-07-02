@@ -14,8 +14,10 @@ import com.huiyi.v4.domain.persona.DefaultPersonaCorpus
 import com.huiyi.v4.domain.pipeline.CurrentScreenCaptureUseCase
 import com.huiyi.v4.domain.pipeline.CurrentScreenPipelineResult
 import com.huiyi.v4.domain.pipeline.CurrentScreenPipelineUseCase
+import com.huiyi.v4.domain.pipeline.EvidencePackReportGenerator
 import com.huiyi.v4.domain.pipeline.ParserReportGenerator
 import com.huiyi.v4.domain.pipeline.ReplyAttemptFactory
+import com.huiyi.v4.accessibility.HuiyiAccessibilityService
 import com.huiyi.v4.domain.tactical.ReplyRouteGenerator
 import com.huiyi.v4.domain.tactical.TacticalDecisionEngine
 import com.huiyi.v4.ui.HuiyiDemoState
@@ -35,7 +37,8 @@ data class HuiyiRuntimeState(
     val latestPipelineResult: CurrentScreenPipelineResult? = null,
     val panelVisible: Boolean = false,
     val lastError: String? = null,
-    val lastDebugExportPath: String? = null
+    val lastDebugExportPath: String? = null,
+    val lastEvidenceJsonPath: String? = null
 )
 
 class HuiyiRuntime private constructor(
@@ -126,6 +129,21 @@ class HuiyiRuntime private constructor(
         val written = ParserReportGenerator().writeTo(file, capture).getOrNull()
         mutableState.update { it.copy(lastDebugExportPath = written?.absolutePath) }
         return written
+    }
+
+    fun exportRealDeviceEvidencePack(): Pair<File, File>? {
+        val result = mutableState.value.latestPipelineResult ?: return null
+        val files = EvidencePackReportGenerator()
+            .writeTo(File(appContext.filesDir, "debug"), result, HuiyiAccessibilityService.state.value)
+            .getOrNull()
+            ?: return null
+        mutableState.update {
+            it.copy(
+                lastDebugExportPath = files.markdown.absolutePath,
+                lastEvidenceJsonPath = files.json.absolutePath
+            )
+        }
+        return files.markdown to files.json
     }
 
     fun exportTextDebug(name: String, text: String): File {

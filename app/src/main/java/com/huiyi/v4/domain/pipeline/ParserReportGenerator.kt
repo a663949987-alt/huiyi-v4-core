@@ -14,6 +14,7 @@ class ParserReportGenerator {
                 appendLine("WARNING: $it")
                 appendLine()
             }
+            appendLine("- sample_source: ${result.sampleSource.reportValue}")
             appendLine("- appPackage: ${result.snapshot.appPackage ?: "unknown"}")
             appendLine("- windowTitle: ${result.snapshot.windowTitle ?: "unknown"}")
             appendLine("- screenWidth: ${result.snapshot.screenWidth}")

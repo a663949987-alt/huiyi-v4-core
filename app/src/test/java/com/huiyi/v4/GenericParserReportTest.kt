@@ -8,6 +8,7 @@ import com.huiyi.v4.domain.model.MessageSource
 import com.huiyi.v4.domain.model.VisualBounds
 import com.huiyi.v4.domain.pipeline.CurrentScreenCaptureResult
 import com.huiyi.v4.domain.pipeline.ParserReportGenerator
+import com.huiyi.v4.domain.pipeline.SampleSource
 import org.junit.Assert.assertTrue
 import org.junit.Test
 import java.io.File
@@ -29,7 +30,7 @@ class GenericParserReportTest {
             listOf(VisualBubble("1", "你好", bubbleBounds = VisualBounds(20, 100, 300, 180))),
             MessageSource.ACCESSIBILITY_CURRENT_SCREEN
         )
-        val result = CurrentScreenCaptureResult(snapshot, messages)
+        val result = CurrentScreenCaptureResult(snapshot, messages, SampleSource.LOCAL_VALIDATION_SAMPLE)
         val file = File.createTempFile("current-screen-parser-report-for-gpt", ".md")
 
         ParserReportGenerator().writeTo(file, result).getOrThrow()
