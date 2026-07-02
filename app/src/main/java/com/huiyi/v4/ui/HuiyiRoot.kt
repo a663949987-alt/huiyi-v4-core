@@ -1,5 +1,10 @@
 package com.huiyi.v4.ui
 
+import android.content.Context
+import android.content.Intent
+import android.net.Uri
+import android.provider.Settings
+import android.widget.Toast
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -26,18 +31,26 @@ import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalClipboardManager
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.unit.dp
 import com.huiyi.v4.BuildConfig
+import com.huiyi.v4.accessibility.HuiyiAccessibilityService
 import com.huiyi.v4.domain.model.MessageContent
 import com.huiyi.v4.domain.model.ReplyRoute
 import com.huiyi.v4.domain.model.RiskLevel
 import com.huiyi.v4.domain.model.TacticalDecisionType
+import com.huiyi.v4.floating.FloatingBubbleService
+import com.huiyi.v4.runtime.HuiyiRuntime
+import com.huiyi.v4.runtime.HuiyiRuntimeState
 
 private enum class TabPage(val title: String) {
     Home("首页"),
@@ -49,13 +62,15 @@ private enum class TabPage(val title: String) {
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HuiyiRoot() {
+    val context = LocalContext.current
+    val runtime = remember { HuiyiRuntime.get(context) }
+    val runtimeState by runtime.state.collectAsState()
+    val accessibilityState by HuiyiAccessibilityService.state.collectAsState()
     var tab by remember { mutableStateOf(TabPage.Home) }
-    var state by remember { mutableStateOf(sampleState()) }
-    var showPanel by remember { mutableStateOf(false) }
     var versionTapCount by remember { mutableIntStateOf(0) }
 
     Scaffold(
-        topBar = { TopAppBar(title = { Text("会意 v4 Core") }) },
+        topBar = { TopAppBar(title = { Text("会意 v4.1") }) },
         bottomBar = {
             NavigationBar {
                 listOf(TabPage.Home, TabPage.Persona, TabPage.Settings).forEach { page ->
@@ -75,28 +90,45 @@ fun HuiyiRoot() {
                 .padding(padding)
         ) {
             when (tab) {
-                TabPage.Home -> HomePage(state, onOpenPanel = { showPanel = true }, onPersona = { tab = TabPage.Persona }, onSettings = { tab = TabPage.Settings })
-                TabPage.Persona -> MyPersonaPage(state, onToggle = { state = state.togglePersona() })
+                TabPage.Home -> HomePage(
+                    state = runtimeState,
+                    onOpenPanel = { runtime.setPanelVisible(true) },
+                    onRunPipeline = { runtime.runNextSentence() },
+                    onPersona = { tab = TabPage.Persona },
+                    onSettings = { tab = TabPage.Settings }
+                )
+                TabPage.Persona -> MyPersonaPage(runtimeState.demoState, onToggle = runtime::togglePersona)
                 TabPage.Settings -> SettingsPage(
+                    accessibilityLabel = when {
+                        accessibilityState.serviceConnected && accessibilityState.rootAvailable -> "已连接"
+                        accessibilityState.serviceConnected -> "已开启，等待窗口"
+                        else -> "未开启"
+                    },
+                    overlayLabel = if (Settings.canDrawOverlays(context)) "已授权" else "未授权",
                     versionTapCount = versionTapCount,
+                    onOpenAccessibility = { context.startActivity(Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS)) },
+                    onOpenOverlay = { context.openOverlaySettings() },
+                    onStartBubble = { context.startService(Intent(context, FloatingBubbleService::class.java)) },
+                    onStopBubble = { context.stopService(Intent(context, FloatingBubbleService::class.java)) },
                     onVersionTap = {
                         versionTapCount += 1
                         if (versionTapCount >= 5) tab = TabPage.Developer
                     }
                 )
-                TabPage.Developer -> DeveloperSettingsPage()
+                TabPage.Developer -> DeveloperSettingsPage(runtime, runtimeState, accessibilityState.toString())
             }
         }
     }
 
-    if (showPanel) {
+    if (runtimeState.panelVisible) {
         ModalBottomSheet(
-            onDismissRequest = { showPanel = false },
+            onDismissRequest = { runtime.setPanelVisible(false) },
             sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
         ) {
             FloatingTacticalPanel(
-                state = state,
-                onVoiceSummary = { summary -> state = state.withVoiceSummary(summary) }
+                runtime = runtime,
+                state = runtimeState,
+                onVoiceSummary = runtime::applyVoiceSummary
             )
         }
     }
@@ -104,8 +136,9 @@ fun HuiyiRoot() {
 
 @Composable
 private fun HomePage(
-    state: HuiyiDemoState,
+    state: HuiyiRuntimeState,
     onOpenPanel: () -> Unit,
+    onRunPipeline: () -> Unit,
     onPersona: () -> Unit,
     onSettings: () -> Unit
 ) {
@@ -119,13 +152,19 @@ private fun HomePage(
             Text("今日状态")
             Spacer(Modifier.height(8.dp))
             StatusCard("当前模式", "手动开挂")
-            StatusCard("无障碍状态", "待开启")
-            StatusCard("悬浮球状态", "可从这里模拟打开")
-            StatusCard("我的底色", if (state.personaEnabled) "已启用" else "已关闭")
+            StatusCard("无障碍状态", if (HuiyiAccessibilityService.state.value.serviceConnected) "已连接" else "未连接")
+            StatusCard("悬浮球状态", "可在设置中开启")
+            StatusCard("我的底色", if (state.demoState.personaEnabled) "已启用" else "已关闭")
+            state.lastError?.let { StatusCard("最近提示", it) }
         }
         item {
-            Button(onClick = onOpenPanel, modifier = Modifier.fillMaxWidth()) {
-                Text("新聊天")
+            Button(onClick = onRunPipeline, modifier = Modifier.fillMaxWidth()) {
+                Text("下一句")
+            }
+        }
+        item {
+            OutlinedButton(onClick = onOpenPanel, modifier = Modifier.fillMaxWidth()) {
+                Text("查看最近判断")
             }
         }
         item {
@@ -159,52 +198,69 @@ private fun StatusCard(title: String, value: String) {
 
 @Composable
 fun FloatingTacticalPanel(
-    state: HuiyiDemoState,
+    runtime: HuiyiRuntime,
+    state: HuiyiRuntimeState,
     onVoiceSummary: (String) -> Unit
 ) {
+    val decision = state.latestPipelineResult?.tacticalDecision ?: state.demoState.decision
+    val routes = state.latestPipelineResult?.routes ?: state.demoState.routes
     LazyColumn(
         modifier = Modifier
             .fillMaxWidth()
             .padding(16.dp),
         verticalArrangement = Arrangement.spacedBy(12.dp)
     ) {
-        if (state.decision.decisionType == TacticalDecisionType.VOICE_SUMMARY_REQUIRED) {
-            item { VoiceSummaryCard(state, onVoiceSummary) }
+        if (decision.decisionType == TacticalDecisionType.VOICE_SUMMARY_REQUIRED) {
+            item { VoiceSummaryCard(state.demoState, onVoiceSummary) }
         }
-        if (state.decision.decisionType == TacticalDecisionType.CONTEXT_REQUIRED) {
-            item { ContextRequiredCard(state.context.contentCompleteness.reason) }
+        if (decision.decisionType == TacticalDecisionType.CONTEXT_REQUIRED) {
+            item { ContextRequiredCard(decision.coreInsight) }
         }
         item {
             Text("会意雷达")
             Spacer(Modifier.height(8.dp))
             Card(modifier = Modifier.fillMaxWidth()) {
                 Column(Modifier.padding(14.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                    Text("雷达判断：${state.decision.situation}")
-                    Text("当前打法：${state.decision.bestMove}")
-                    Text("别做：${state.decision.avoidMoves.joinToString(" / ")}")
-                    state.decision.influenceProfile.riskWarning?.let { Text("风险提示：$it") }
-                    state.decision.fallbackMove?.let { Text("撤退方案：$it") }
+                    Text("雷达判断：${decision.situation}")
+                    Text("当前打法：${decision.bestMove}")
+                    Text("别做：${decision.avoidMoves.joinToString(" / ")}")
+                    decision.influenceProfile.riskWarning?.let { Text("风险提示：$it") }
+                    decision.fallbackMove?.let { Text("撤退方案：$it") }
+                    state.latestPipelineResult?.lastSpeakerDecision?.reason?.let { Text(it) }
                 }
             }
         }
-        items(state.routes) { route ->
-            ReplyRouteCard(route)
+        if (decision.decisionType == TacticalDecisionType.WAIT) {
+            item {
+                Card(modifier = Modifier.fillMaxWidth()) {
+                    Column(Modifier.padding(14.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                        Text("最后一句是你发的，先等她回，不要继续补话。")
+                    }
+                }
+            }
+        } else {
+            items(routes) { route ->
+                ReplyRouteCard(runtime, route)
+            }
         }
         item {
             Row(horizontalArrangement = Arrangement.spacedBy(8.dp), modifier = Modifier.fillMaxWidth()) {
                 OutlinedButton(onClick = {}, modifier = Modifier.weight(1f)) { Text("填入") }
-                OutlinedButton(onClick = {}, modifier = Modifier.weight(1f)) { Text("换一组") }
+                OutlinedButton(onClick = {}, modifier = Modifier.weight(1f)) { Text("补读上一屏") }
             }
         }
     }
 }
 
 @Composable
-private fun ReplyRouteCard(route: ReplyRoute) {
+private fun ReplyRouteCard(runtime: HuiyiRuntime, route: ReplyRoute) {
+    val clipboard = LocalClipboardManager.current
+    val context = LocalContext.current
     Card(modifier = Modifier.fillMaxWidth()) {
         Column(Modifier.padding(14.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
             Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                 AssistChip(onClick = {}, label = { Text(route.tag) })
+                AssistChip(onClick = {}, label = { Text(route.intensity.name) })
                 if (route.recommended) AssistChip(onClick = {}, label = { Text("推荐") })
                 if (route.riskLevel != RiskLevel.LOW) AssistChip(onClick = {}, label = { Text("高风险") })
             }
@@ -212,7 +268,15 @@ private fun ReplyRouteCard(route: ReplyRoute) {
             Text(route.message)
             route.riskWarning?.let { Text("风险提示：$it") }
             route.fallbackMove?.let { Text("撤退方案：$it") }
-            TextButton(onClick = {}) { Text("复制") }
+            TextButton(
+                onClick = {
+                    clipboard.setText(AnnotatedString(route.message))
+                    runtime.createCopiedAttempt(route)
+                    Toast.makeText(context, "已复制", Toast.LENGTH_SHORT).show()
+                }
+            ) {
+                Text("复制")
+            }
         }
     }
 }
@@ -256,7 +320,7 @@ private fun ContextRequiredCard(reason: String) {
         Column(Modifier.padding(14.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
             Text("上下文还不够")
             Text(reason)
-            Text("补一屏前文，或手动写一句摘要。")
+            Text("本轮先不自动滚动，可点击“补读上一屏”占位。")
         }
     }
 }
@@ -302,7 +366,16 @@ private fun MyPersonaPage(state: HuiyiDemoState, onToggle: () -> Unit) {
 }
 
 @Composable
-private fun SettingsPage(versionTapCount: Int, onVersionTap: () -> Unit) {
+private fun SettingsPage(
+    accessibilityLabel: String,
+    overlayLabel: String,
+    versionTapCount: Int,
+    onOpenAccessibility: () -> Unit,
+    onOpenOverlay: () -> Unit,
+    onStartBubble: () -> Unit,
+    onStopBubble: () -> Unit,
+    onVersionTap: () -> Unit
+) {
     LazyColumn(
         modifier = Modifier
             .fillMaxSize()
@@ -311,10 +384,16 @@ private fun SettingsPage(versionTapCount: Int, onVersionTap: () -> Unit) {
     ) {
         item {
             Text("设置")
-            StatusCard("无障碍状态", "待开启")
-            StatusCard("悬浮球开关", "手动模拟")
+            StatusCard("无障碍", accessibilityLabel)
+            Button(onClick = onOpenAccessibility, modifier = Modifier.fillMaxWidth()) { Text("打开无障碍设置") }
+            StatusCard("悬浮窗权限", overlayLabel)
+            Button(onClick = onOpenOverlay, modifier = Modifier.fillMaxWidth()) { Text("打开悬浮窗授权") }
+            Row(horizontalArrangement = Arrangement.spacedBy(8.dp), modifier = Modifier.fillMaxWidth()) {
+                OutlinedButton(onClick = onStartBubble, modifier = Modifier.weight(1f)) { Text("显示悬浮球") }
+                OutlinedButton(onClick = onStopBubble, modifier = Modifier.weight(1f)) { Text("隐藏") }
+            }
             StatusCard("我的气泡方向", "右侧")
-            StatusCard("模型消耗", "默认使用本地模拟")
+            StatusCard("模型消耗", "默认本地规则")
             StatusCard("更新检查", "未配置更新源")
             StatusCard("隐私说明", "默认不保存原始截图")
             TextButton(onClick = onVersionTap) {
@@ -328,7 +407,11 @@ private fun SettingsPage(versionTapCount: Int, onVersionTap: () -> Unit) {
 }
 
 @Composable
-private fun DeveloperSettingsPage() {
+private fun DeveloperSettingsPage(
+    runtime: HuiyiRuntime,
+    state: HuiyiRuntimeState,
+    accessibilityStatus: String
+) {
     LazyColumn(
         modifier = Modifier
             .fillMaxSize()
@@ -338,16 +421,33 @@ private fun DeveloperSettingsPage() {
         item {
             Text("开发者设置")
             StatusCard("API 配置", "${BuildConfig.HUIYI_API_BASE_URL} / ${BuildConfig.HUIYI_API_MODEL}")
-            StatusCard("导出调试包", "占位")
-            StatusCard("Parser 调试", "GenericVisualBubbleParser")
-            StatusCard("OCR mock 调试", "MockOcrEngine")
-            StatusCard("ContextAssembler 调试", "可本地验证")
-            StatusCard("本地验证", "运行 testDebugUnitTest")
-            StatusCard("原始 JSON 查看", "开发者可见")
+            Button(onClick = { runtime.exportParserReport() }, modifier = Modifier.fillMaxWidth()) { Text("导出当前屏幕解析报告") }
+            Button(
+                onClick = { runtime.exportTextDebug("latest-context.txt", state.latestPipelineResult?.context.toString()) },
+                modifier = Modifier.fillMaxWidth()
+            ) { Text("导出最近 ChatSceneContext") }
+            Button(
+                onClick = { runtime.exportTextDebug("latest-decision.txt", state.latestPipelineResult?.tacticalDecision.toString()) },
+                modifier = Modifier.fillMaxWidth()
+            ) { Text("导出最近 TacticalDecision") }
+            Button(
+                onClick = { runtime.exportTextDebug("latest-routes.txt", state.latestPipelineResult?.routes.orEmpty().joinToString("\n")) },
+                modifier = Modifier.fillMaxWidth()
+            ) { Text("导出最近 ReplyRoutes") }
+            Button(
+                onClick = { runtime.exportTextDebug("accessibility-status.txt", accessibilityStatus) },
+                modifier = Modifier.fillMaxWidth()
+            ) { Text("导出无障碍状态报告") }
+            StatusCard("最近导出", state.lastDebugExportPath ?: "暂无")
             StatusCard("updateBaseUrl", BuildConfig.HUIYI_UPDATE_BASE_URL.ifBlank { "未配置" })
-            StatusCard("latest.json", "待生成")
-            StatusCard("sha256", "待生成")
-            StatusCard("下载日志", "暂无")
         }
     }
+}
+
+private fun Context.openOverlaySettings() {
+    val intent = Intent(
+        Settings.ACTION_MANAGE_OVERLAY_PERMISSION,
+        Uri.parse("package:$packageName")
+    )
+    startActivity(intent)
 }

@@ -16,4 +16,6 @@ import androidx.room.RoomDatabase
     version = 1,
     exportSchema = true
 )
-abstract class HuiyiDatabase : RoomDatabase()
+abstract class HuiyiDatabase : RoomDatabase() {
+    abstract fun huiyiDao(): HuiyiDao
+}

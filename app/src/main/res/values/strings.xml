@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">会意 v4</string>
+    <string name="accessibility_service_description">读取当前聊天屏幕，用于生成会意战术建议。</string>
+</resources>
