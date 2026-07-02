@@ -45,6 +45,7 @@ open class CurrentScreenCaptureUseCase(
                 VisualBubble(
                     id = node.id,
                     text = node.readableText,
+                    rowBounds = node.bounds,
                     bubbleBounds = node.bounds,
                     textBounds = node.bounds,
                     confidence = if (node.className?.contains("TextView") == true) 88 else 72

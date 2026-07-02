@@ -16,7 +16,7 @@ data class LastSpeakerDecision(
 
 class LastSpeakerDecisionUseCase {
     fun decide(messages: List<MessageNode>): LastSpeakerDecision {
-        val last = messages.lastOrNull { it.speaker != Speaker.SYSTEM }
+        val last = messages.lastOrNull { it.isEffectiveChatMessage && it.speaker != Speaker.SYSTEM }
             ?: return LastSpeakerDecision(null, null, false, "当前屏幕未识别到聊天消息。")
         val voiceMissing = last.content is MessageContent.Voice && last.content.transcriptStatus == TranscriptStatus.MISSING
         return when {

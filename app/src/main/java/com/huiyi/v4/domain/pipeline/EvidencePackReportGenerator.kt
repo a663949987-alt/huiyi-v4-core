@@ -47,6 +47,8 @@ class EvidencePackReportGenerator {
         val capture = result.captureResult
         val context = result.context
         val messages = capture?.messages.orEmpty()
+        val effectiveMessages = messages.filter { it.isEffectiveChatMessage && it.speaker != Speaker.SYSTEM }
+        val metadataMessages = messages.filter { !it.isEffectiveChatMessage || it.metadataType != com.huiyi.v4.domain.model.MetadataType.NONE }
         val decision = result.tacticalDecision
         val voiceMessages = messages.filter { it.content is MessageContent.Voice }
         val unknownRatio = messages.count { it.speaker == Speaker.UNKNOWN }.toFloat() / messages.size.coerceAtLeast(1)
@@ -72,8 +74,19 @@ class EvidencePackReportGenerator {
             appendLine("- currentBubbleSideRule: right=me")
             appendLine("- modelCalled: false")
             appendLine("- apiCalled: ${result.apiCalled}")
+            appendLine("- overlayShownInTargetApp: ${result.overlayShownInTargetApp}")
+            appendLine("- foregroundPackageWhenPanelShown: ${result.foregroundPackageWhenPanelShown ?: "unknown"}")
+            appendLine("- huiyiActivityOpened: ${result.huiyiActivityOpened}")
+            appendLine("- userStayedInChatApp: ${result.userStayedInChatApp}")
+            appendLine("- resultShownAsOverlay: ${result.resultShownAsOverlay}")
+            appendLine("- mainActivityOpened: ${result.mainActivityOpened}")
             appendLine()
             appendLine("## 解析结果")
+            appendLine("- rawParsedNodeCount: ${messages.size}")
+            appendLine("- metadataFilteredCount: ${metadataMessages.size}")
+            appendLine("- effectiveMessageCount: ${effectiveMessages.size}")
+            appendLine("- effectiveMeCount: ${effectiveMessages.count { it.speaker == Speaker.ME }}")
+            appendLine("- effectiveOtherCount: ${effectiveMessages.count { it.speaker == Speaker.OTHER }}")
             appendLine("- parsedMessageCount: ${messages.size}")
             appendLine("- meCount: ${messages.count { it.speaker == Speaker.ME }}")
             appendLine("- otherCount: ${messages.count { it.speaker == Speaker.OTHER }}")
@@ -82,6 +95,15 @@ class EvidencePackReportGenerator {
             appendLine("- systemCount: ${messages.count { it.speaker == Speaker.SYSTEM }}")
             appendLine("- voiceCount: ${voiceMessages.size}")
             appendLine("- imageCount: ${messages.count { it.content is MessageContent.Image }}")
+            appendLine()
+            appendLine("### filteredMetadataSamples")
+            if (metadataMessages.isEmpty()) {
+                appendLine("- none")
+            } else {
+                metadataMessages.take(20).forEach { node ->
+                    appendLine("- [${node.metadataType ?: "UNKNOWN_METADATA"}] ${node.normalizedText ?: "[non-text]"}")
+                }
+            }
             appendLine()
             appendLine("### speakerReason 分布")
             speakerReasons.forEach { (reason, count) -> appendLine("- $reason: $count") }
@@ -92,7 +114,10 @@ class EvidencePackReportGenerator {
             }
             appendLine()
             appendLine("## LastSpeakerDecision")
+            appendLine("- lastRawNodeId: ${messages.lastOrNull()?.id ?: "none"}")
             appendLine("- lastEffectiveMessageId: ${result.lastSpeakerDecision.lastEffectiveMessage?.id ?: "none"}")
+            appendLine("- lastEffectiveMessageText: ${result.lastSpeakerDecision.lastEffectiveMessage?.normalizedText ?: "none"}")
+            appendLine("- lastEffectiveSpeaker: ${result.lastSpeakerDecision.lastSpeaker ?: "none"}")
             appendLine("- lastSpeaker: ${result.lastSpeakerDecision.lastSpeaker ?: "none"}")
             appendLine("- shouldReply: ${result.lastSpeakerDecision.shouldReply}")
             appendLine("- decisionType: ${decision.decisionType}")
@@ -183,11 +208,20 @@ class EvidencePackReportGenerator {
               "serviceConnected": ${accessibilityState.serviceConnected},
               "rootAvailable": ${accessibilityState.rootAvailable},
               "capturedNodeCount": ${capture?.snapshot?.nodes?.size ?: 0},
+              "rawParsedNodeCount": ${capture?.messages?.size ?: 0},
+              "metadataFilteredCount": ${capture?.messages?.count { !it.isEffectiveChatMessage || it.metadataType != com.huiyi.v4.domain.model.MetadataType.NONE } ?: 0},
+              "effectiveMessageCount": ${capture?.messages?.count { it.isEffectiveChatMessage && it.speaker != Speaker.SYSTEM } ?: 0},
               "parsedMessageCount": ${capture?.messages?.size ?: 0},
               "lastSpeaker": "${result.lastSpeakerDecision.lastSpeaker ?: "none"}",
               "shouldReply": ${result.lastSpeakerDecision.shouldReply},
               "decisionType": "${result.tacticalDecision.decisionType}",
               "apiCalled": ${result.apiCalled},
+              "overlayShownInTargetApp": ${result.overlayShownInTargetApp},
+              "foregroundPackageWhenPanelShown": "${escape(result.foregroundPackageWhenPanelShown ?: "unknown")}",
+              "huiyiActivityOpened": ${result.huiyiActivityOpened},
+              "userStayedInChatApp": ${result.userStayedInChatApp},
+              "resultShownAsOverlay": ${result.resultShownAsOverlay},
+              "mainActivityOpened": ${result.mainActivityOpened},
               "routesCount": ${result.routes.size}
             }
         """.trimIndent()
@@ -211,11 +245,14 @@ class EvidencePackReportGenerator {
             Speaker.UNKNOWN -> "unknown"
         }
         val content = message.content
+        val row = message.rowBounds ?: message.bounds
+        val textBounds = message.textBounds ?: message.bounds
+        val boundsInfo = " rowBounds=${row?.left},${row?.top},${row?.right},${row?.bottom} textBounds=${textBounds?.left},${textBounds?.top},${textBounds?.right},${textBounds?.bottom} inferredSide=${message.inferredSide ?: side}"
         return if (content is MessageContent.Voice) {
-            "[m${index.toString().padStart(3, '0')}][$side][${message.speaker.name.lowercase()} voice ${content.transcriptStatus.name.lowercase()}] [语音 ${content.durationSeconds ?: "?"}秒]"
+            "[m${index.toString().padStart(3, '0')}][$side][${message.speaker.name.lowercase()} voice ${content.transcriptStatus.name.lowercase()}] [语音 ${content.durationSeconds ?: "?"}秒]$boundsInfo speakerReason=${message.speakerReason}"
         } else {
             val reason = message.speakerReason ?: "unknown_visual_bounds"
-            "[m${index.toString().padStart(3, '0')}][$side][${message.speaker.name.lowercase()} ${message.speakerConfidence}% $reason] ${message.normalizedText.orEmpty()}"
+            "[m${index.toString().padStart(3, '0')}][$side][${message.speaker.name.lowercase()} ${message.speakerConfidence}% $reason] ${message.normalizedText.orEmpty()}$boundsInfo speakerReason=$reason"
         }
     }
 

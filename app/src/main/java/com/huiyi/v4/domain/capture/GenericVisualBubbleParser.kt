@@ -22,6 +22,8 @@ class GenericVisualBubbleParser(
     private val screenWidth: Int = 1080,
     private val meOnRight: Boolean = true
 ) {
+    private val metadataFilter = MetadataMessageFilter()
+
     fun parse(bubbles: List<VisualBubble>, source: MessageSource = MessageSource.ACCESSIBILITY_CURRENT_SCREEN): List<MessageNode> {
         return bubbles.mapIndexed { index, bubble ->
             val selectedBounds = bubble.avatarBounds
@@ -29,7 +31,12 @@ class GenericVisualBubbleParser(
                 ?: bubble.rowBounds
                 ?: bubble.contentBounds
                 ?: bubble.textBounds
-            val speaker = selectedBounds?.let { bounds ->
+            val metadataType = metadataFilter.classify(bubble.text)
+            val isMetadata = metadataType != com.huiyi.v4.domain.model.MetadataType.NONE
+            val inferredSide = selectedBounds?.let { if (it.centerX >= screenWidth / 2) "right" else "left" } ?: "unknown"
+            val speaker = if (isMetadata) {
+                Speaker.SYSTEM
+            } else selectedBounds?.let { bounds ->
                 val rightSide = bounds.centerX >= screenWidth / 2
                 when {
                     rightSide && meOnRight -> Speaker.ME
@@ -38,7 +45,7 @@ class GenericVisualBubbleParser(
                     else -> Speaker.ME
                 }
             } ?: Speaker.UNKNOWN
-            val isVoice = bubble.text?.contains("语音") == true || bubble.text?.contains("秒") == true
+            val isVoice = !isMetadata && (bubble.text?.contains("语音") == true || bubble.text?.contains("秒") == true)
             MessageNode(
                 id = "bubble-${bubble.id}",
                 contactId = null,
@@ -57,14 +64,34 @@ class GenericVisualBubbleParser(
                 source = source,
                 localSequence = index.toLong(),
                 confidence = bubble.confidence,
-                speakerConfidence = if (speaker == Speaker.UNKNOWN) 30 else 82,
+                speakerConfidence = when {
+                    isMetadata -> 100
+                    speaker == Speaker.UNKNOWN -> 30
+                    else -> 82
+                },
                 contentConfidence = bubble.confidence,
                 bounds = selectedBounds,
                 pageIndex = 0,
                 createdAt = System.currentTimeMillis() + index,
                 sceneId = null,
-                speakerReason = selectedBounds?.let { if (it.centerX >= screenWidth / 2) "右侧气泡" else "左侧气泡" } ?: "缺少可用边界",
-                parserName = "GenericVisualBubbleParser"
+                speakerReason = when {
+                    isMetadata -> when (metadataType) {
+                        com.huiyi.v4.domain.model.MetadataType.TIME,
+                        com.huiyi.v4.domain.model.MetadataType.DATE -> "time_metadata"
+                        com.huiyi.v4.domain.model.MetadataType.ONLINE_STATUS -> "online_status_metadata"
+                        com.huiyi.v4.domain.model.MetadataType.UI_CONTROL -> "ui_control_metadata"
+                        com.huiyi.v4.domain.model.MetadataType.SYSTEM_NOTICE -> "system_notice_metadata"
+                        else -> "header_metadata"
+                    }
+                    selectedBounds != null -> if (selectedBounds.centerX >= screenWidth / 2) "bubble_edge_right" else "bubble_edge_left"
+                    else -> "unknown_visual_bounds"
+                },
+                parserName = "GenericVisualBubbleParser",
+                isEffectiveChatMessage = !isMetadata && speaker in setOf(Speaker.ME, Speaker.OTHER),
+                metadataType = metadataType,
+                rowBounds = bubble.rowBounds,
+                textBounds = bubble.textBounds,
+                inferredSide = inferredSide
             )
         }
     }

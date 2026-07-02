@@ -70,6 +70,22 @@ class HuiyiRuntime private constructor(
         mutableState.update { it.copy(panelVisible = visible) }
     }
 
+    fun markOverlayPanelShown() {
+        mutableState.update { state ->
+            val result = state.latestPipelineResult
+            state.copy(
+                latestPipelineResult = result?.copy(
+                    overlayShownInTargetApp = true,
+                    foregroundPackageWhenPanelShown = result.captureResult?.snapshot?.appPackage,
+                    huiyiActivityOpened = false,
+                    userStayedInChatApp = true,
+                    resultShownAsOverlay = true,
+                    mainActivityOpened = false
+                )
+            )
+        }
+    }
+
     fun togglePersona() {
         mutableState.update { it.copy(demoState = it.demoState.togglePersona()) }
     }

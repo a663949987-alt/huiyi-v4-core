@@ -15,9 +15,20 @@
 - currentBubbleSideRule: right=me
 - modelCalled: false
 - apiCalled: false
+- overlayShownInTargetApp: false
+- foregroundPackageWhenPanelShown: unknown
+- huiyiActivityOpened: false
+- userStayedInChatApp: false
+- resultShownAsOverlay: false
+- mainActivityOpened: false
 
 ## 解析结果
 
+- rawParsedNodeCount: 0
+- metadataFilteredCount: 0
+- effectiveMessageCount: 0
+- effectiveMeCount: 0
+- effectiveOtherCount: 0
 - parsedMessageCount: 0
 - meCount: 0
 - otherCount: 0
@@ -27,13 +38,20 @@
 - imageCount: 0
 - speakerReason 分布: none
 
+### filteredMetadataSamples
+
+- none
+
 ## 最近 30 条解析消息
 
 none
 
 ## LastSpeakerDecision
 
+- lastRawNodeId: none
 - lastEffectiveMessageId: none
+- lastEffectiveMessageText: none
+- lastEffectiveSpeaker: none
 - lastSpeaker: none
 - shouldReply: false
 - decisionType: CONTEXT_REQUIRED
@@ -48,35 +66,6 @@ none
 - coCreationOpportunity.type: none
 - unfinishedMeaning: none
 - currentSceneSummary: none
-
-## TacticalDecision
-
-- decisionType: CONTEXT_REQUIRED
-- situation: 未完成真机捕获。
-- coreInsight: 需要在真实聊天 App 中点击悬浮球“下一句”后导出证据包。
-- userLikelyMistake: none
-- bestMove: 按 App 开发者页说明完成真机证据导出。
-- avoidMoves: 不要用 local sample 代替真机报告。
-- influenceIntensity: LOW
-- riskLevel: MEDIUM
-- riskWarning: sample_source 不是 real_device_accessibility，自动 FAIL。
-- fallbackMove: 安装 debug APK 后进行真机测试。
-
-## ReplyRoutes
-
-- routes: empty
-- reason: 未完成真机捕获。
-
-## VoiceSummary
-
-- voiceMessages: none
-
-## Persistence
-
-- message_nodes written count: 0
-- chat_scenes written count: 0
-- reply_attempt created count after copy: 0
-- last error: none
 
 ## UI State
 

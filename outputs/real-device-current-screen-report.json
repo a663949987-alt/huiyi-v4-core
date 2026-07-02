@@ -14,20 +14,20 @@
   "currentBubbleSideRule": "right=me",
   "modelCalled": false,
   "apiCalled": false,
+  "overlayShownInTargetApp": false,
+  "foregroundPackageWhenPanelShown": "unknown",
+  "huiyiActivityOpened": false,
+  "userStayedInChatApp": false,
+  "resultShownAsOverlay": false,
+  "mainActivityOpened": false,
+  "rawParsedNodeCount": 0,
+  "metadataFilteredCount": 0,
+  "effectiveMessageCount": 0,
+  "effectiveMeCount": 0,
+  "effectiveOtherCount": 0,
   "parsedMessageCount": 0,
-  "meCount": 0,
-  "otherCount": 0,
-  "unknownCount": 0,
-  "systemCount": 0,
-  "voiceCount": 0,
-  "imageCount": 0,
   "lastSpeaker": "none",
   "shouldReply": false,
   "decisionType": "CONTEXT_REQUIRED",
-  "routesCount": 0,
-  "failureReasons": [
-    "sample_source is not real_device_accessibility",
-    "no real appPackage captured",
-    "report was not exported from a real Accessibility root capture"
-  ]
+  "routesCount": 0
 }

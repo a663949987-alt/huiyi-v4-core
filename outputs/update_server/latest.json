@@ -2,8 +2,8 @@
     "versionName":  "4.1.2-lan",
     "versionCode":  412,
     "apkUrl":  "huiyi-v4.1.2-lan-debug.apk",
-    "releaseNotes":  "Auto-discover LAN update server on port 8787. Reports export to Download/HuiyiV4.",
+    "releaseNotes":  "In-chat overlay result panel and effective message filtering. Timestamps/header/online status no longer affect last speaker decision.",
     "forceUpdate":  false,
-    "sha256":  "7367CDDE53B0D983CEC948C8060FBDEEBC137B39446825949EF049D1DD71AF44",
-    "createdAt":  1783004912718
+    "sha256":  "C1814BEE2287FBDC1A3E13D6544A1FBB97248566AAD1226D6A7B133EE7AA9945",
+    "createdAt":  1783006008747
 }

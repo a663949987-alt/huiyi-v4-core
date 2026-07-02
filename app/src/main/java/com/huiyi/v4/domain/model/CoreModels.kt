@@ -77,7 +77,12 @@ data class MessageNode(
     val createdAt: Long,
     val sceneId: String?,
     val speakerReason: String? = null,
-    val parserName: String? = null
+    val parserName: String? = null,
+    val isEffectiveChatMessage: Boolean = true,
+    val metadataType: MetadataType? = MetadataType.NONE,
+    val rowBounds: VisualBounds? = null,
+    val textBounds: VisualBounds? = null,
+    val inferredSide: String? = null
 )
 
 enum class Speaker {
@@ -85,6 +90,17 @@ enum class Speaker {
     OTHER,
     SYSTEM,
     UNKNOWN
+}
+
+enum class MetadataType {
+    NONE,
+    TIME,
+    DATE,
+    HEADER,
+    ONLINE_STATUS,
+    UI_CONTROL,
+    SYSTEM_NOTICE,
+    UNKNOWN_METADATA
 }
 
 data class Turn(
@@ -146,8 +162,11 @@ data class ChatSceneContext(
             .distinctBy { it.id }
             .sortedBy { it.localSequence }
 
+    val effectiveMessages: List<MessageNode>
+        get() = allMessages.filter { it.isEffectiveChatMessage && it.speaker != Speaker.SYSTEM }
+
     val lastMessage: MessageNode?
-        get() = allMessages.lastOrNull { it.speaker != Speaker.SYSTEM }
+        get() = effectiveMessages.lastOrNull()
 }
 
 data class ContentCompleteness(

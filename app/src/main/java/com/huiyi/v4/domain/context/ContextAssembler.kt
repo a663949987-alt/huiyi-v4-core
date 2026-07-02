@@ -28,9 +28,10 @@ class ContextAssembler {
         val merged = (contextBackfillMessages + currentScreenMessages + recentMemoryMessages)
             .distinctBy { it.id }
             .sortedBy { it.localSequence }
-        val completeness = calculateCompleteness(merged)
-        val turns = mergeTurns(merged)
-        val opportunity = detectCoCreation(merged)
+        val effective = merged.filter { it.isEffectiveChatMessage && it.speaker != Speaker.SYSTEM }
+        val completeness = calculateCompleteness(effective)
+        val turns = mergeTurns(effective)
+        val opportunity = detectCoCreation(effective)
 
         return ChatSceneContext(
             id = "scene-${UUID.randomUUID()}",
@@ -52,7 +53,7 @@ class ContextAssembler {
 
     private fun calculateCompleteness(messages: List<MessageNode>): ContentCompleteness {
         val missing = mutableListOf<MissingContextType>()
-        val effective = messages.filter { it.speaker != Speaker.SYSTEM }
+        val effective = messages.filter { it.isEffectiveChatMessage && it.speaker != Speaker.SYSTEM }
         if (effective.size < 4) missing += MissingContextType.NOT_ENOUGH_MESSAGES
         if (effective.firstOrNull()?.speaker == Speaker.OTHER && effective.size <= 5) {
             missing += MissingContextType.PREVIOUS_TURN_MISSING

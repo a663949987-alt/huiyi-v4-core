@@ -20,7 +20,13 @@ data class CurrentScreenPipelineResult(
     val tacticalDecision: TacticalDecision,
     val routes: List<ReplyRoute>,
     val apiCalled: Boolean,
-    val persistenceError: String? = null
+    val persistenceError: String? = null,
+    val overlayShownInTargetApp: Boolean = false,
+    val foregroundPackageWhenPanelShown: String? = null,
+    val huiyiActivityOpened: Boolean = false,
+    val userStayedInChatApp: Boolean = false,
+    val resultShownAsOverlay: Boolean = false,
+    val mainActivityOpened: Boolean = false
 )
 
 class CurrentScreenPipelineUseCase(

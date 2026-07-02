@@ -6,6 +6,8 @@ import java.io.File
 class ParserReportGenerator {
     fun build(result: CurrentScreenCaptureResult): String {
         val messages = result.messages
+        val metadataMessages = messages.filter { !it.isEffectiveChatMessage || it.metadataType != com.huiyi.v4.domain.model.MetadataType.NONE }
+        val effectiveMessages = messages.filter { it.isEffectiveChatMessage && it.speaker != Speaker.SYSTEM }
         val reasonCounts = messages.groupingBy { it.speakerReason ?: "unknown_visual_bounds" }.eachCount()
         return buildString {
             appendLine("# Current Screen Parser Report")
@@ -21,11 +23,20 @@ class ParserReportGenerator {
             appendLine("- screenHeight: ${result.snapshot.screenHeight}")
             appendLine("- parserName: GenericVisualBubbleParser")
             appendLine("- capturedNodeCount: ${result.snapshot.nodes.size}")
+            appendLine("- rawParsedNodeCount: ${messages.size}")
+            appendLine("- metadataFilteredCount: ${metadataMessages.size}")
+            appendLine("- effectiveMessageCount: ${effectiveMessages.size}")
+            appendLine("- effectiveMeCount: ${effectiveMessages.count { it.speaker == Speaker.ME }}")
+            appendLine("- effectiveOtherCount: ${effectiveMessages.count { it.speaker == Speaker.OTHER }}")
             appendLine("- parsedMessageCount: ${messages.size}")
             appendLine("- meCount: ${messages.count { it.speaker == Speaker.ME }}")
             appendLine("- otherCount: ${messages.count { it.speaker == Speaker.OTHER }}")
             appendLine("- unknownCount: ${messages.count { it.speaker == Speaker.UNKNOWN }}")
             appendLine("- systemCount: ${messages.count { it.speaker == Speaker.SYSTEM }}")
+            appendLine()
+            appendLine("## filteredMetadataSamples")
+            metadataMessages.take(20).forEach { appendLine("- [${it.metadataType}] ${it.normalizedText}") }
+            if (metadataMessages.isEmpty()) appendLine("- none")
             appendLine()
             appendLine("## speakerReason")
             reasonCounts.forEach { (reason, count) -> appendLine("- $reason: $count") }
