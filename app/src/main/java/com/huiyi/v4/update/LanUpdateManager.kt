@@ -2,9 +2,13 @@ package com.huiyi.v4.update
 
 import android.content.Context
 import android.content.Intent
+import android.net.wifi.WifiManager
 import androidx.core.content.FileProvider
 import com.huiyi.v4.domain.model.UpdateManifest
+import kotlinx.coroutines.async
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.awaitAll
+import kotlinx.coroutines.supervisorScope
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.json.Json
 import okhttp3.OkHttpClient
@@ -32,13 +36,32 @@ class LanUpdateManager(
 
     suspend fun check(updateUrl: String): Result<Pair<UpdateManifest, String>> = withContext(Dispatchers.IO) {
         runCatching {
-            val latestUrl = normalizeLatestUrl(updateUrl)
-            val request = Request.Builder().url(latestUrl).build()
-            val raw = client.newCall(request).execute().use { response ->
-                if (!response.isSuccessful) error("检查更新失败：HTTP ${response.code}")
-                response.body?.string() ?: error("latest.json 为空")
-            }
-            Json.decodeFromString(UpdateManifest.serializer(), raw) to raw
+            fetchManifest(normalizeLatestUrl(updateUrl))
+        }
+    }
+
+    suspend fun discoverAndCheck(port: Int = 8787): Result<Triple<String, UpdateManifest, String>> = withContext(Dispatchers.IO) {
+        runCatching {
+            val prefix = localIpv4Prefix() ?: error("无法读取当前 Wi-Fi 网段，请确认手机连接到和电脑相同的 Wi-Fi")
+            val probeClient = client.newBuilder()
+                .connectTimeout(350, TimeUnit.MILLISECONDS)
+                .readTimeout(700, TimeUnit.MILLISECONDS)
+                .build()
+            supervisorScope {
+                (1..254).map { host ->
+                    async(Dispatchers.IO) {
+                        val url = "http://$prefix.$host:$port/latest.json"
+                        runCatching {
+                            val raw = probeClient.newCall(Request.Builder().url(url).build()).execute().use { response ->
+                                if (!response.isSuccessful) error("HTTP ${response.code}")
+                                response.body?.string() ?: error("empty")
+                            }
+                            val manifest = Json.decodeFromString(UpdateManifest.serializer(), raw)
+                            Triple(url, manifest, raw)
+                        }.getOrNull()
+                    }
+                }.awaitAll().firstOrNull()
+            } ?: error("没有在当前 Wi-Fi 网段发现会意更新服务，请确认电脑已运行 8787 端口更新服务")
         }
     }
 
@@ -79,6 +102,15 @@ class LanUpdateManager(
         return if (trimmed.endsWith(".json")) trimmed else "$trimmed/latest.json"
     }
 
+    private fun fetchManifest(latestUrl: String): Pair<UpdateManifest, String> {
+        val request = Request.Builder().url(latestUrl).build()
+        val raw = client.newCall(request).execute().use { response ->
+            if (!response.isSuccessful) error("检查更新失败：HTTP ${response.code}")
+            response.body?.string() ?: error("latest.json 为空")
+        }
+        return Json.decodeFromString(UpdateManifest.serializer(), raw) to raw
+    }
+
     private fun resolveApkUrl(updateUrl: String, apkUrl: String): String {
         if (apkUrl.startsWith("http://") || apkUrl.startsWith("https://")) return apkUrl
         val latestUrl = normalizeLatestUrl(updateUrl)
@@ -97,5 +129,16 @@ class LanUpdateManager(
             }
         }
         return digest.digest().joinToString("") { "%02x".format(it) }
+    }
+
+    @Suppress("DEPRECATION")
+    private fun localIpv4Prefix(): String? {
+        val wifi = context.applicationContext.getSystemService(Context.WIFI_SERVICE) as? WifiManager ?: return null
+        val ip = wifi.connectionInfo?.ipAddress ?: return null
+        if (ip == 0) return null
+        val a = ip and 0xff
+        val b = ip shr 8 and 0xff
+        val c = ip shr 16 and 0xff
+        return "$a.$b.$c"
     }
 }

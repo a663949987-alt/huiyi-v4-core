@@ -194,6 +194,31 @@ class HuiyiRuntime private constructor(
     fun checkLanUpdate() {
         scope.launch {
             val url = mutableState.value.lanUpdateState.updateUrl
+            if (url.isBlank()) {
+                mutableState.update { it.copy(lanUpdateState = it.lanUpdateState.copy(status = "正在自动发现局域网更新服务", error = null)) }
+                updateManager.discoverAndCheck().fold(
+                    onSuccess = { (foundUrl, manifest, raw) ->
+                        prefs.edit().putString("lan_update_url", foundUrl).apply()
+                        mutableState.update {
+                            it.copy(
+                                lanUpdateState = it.lanUpdateState.copy(
+                                    updateUrl = foundUrl,
+                                    latestManifest = manifest,
+                                    latestJsonRaw = raw,
+                                    status = "已自动发现：${manifest.versionName} (${manifest.versionCode})",
+                                    error = null
+                                )
+                            )
+                        }
+                    },
+                    onFailure = { error ->
+                        mutableState.update {
+                            it.copy(lanUpdateState = it.lanUpdateState.copy(status = "自动发现失败", error = error.message))
+                        }
+                    }
+                )
+                return@launch
+            }
             mutableState.update { it.copy(lanUpdateState = it.lanUpdateState.copy(status = "正在检查", error = null)) }
             updateManager.check(url).fold(
                 onSuccess = { (manifest, raw) ->

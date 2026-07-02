@@ -418,7 +418,7 @@ private fun SettingsPage(
                         onValueChange = onLanUpdateUrlChange,
                         modifier = Modifier.fillMaxWidth(),
                         label = { Text("更新地址") },
-                        placeholder = { Text("http://电脑IP:8787/latest.json") }
+                        placeholder = { Text("可留空，检查时自动发现") }
                     )
                     Text("状态：$lanUpdateStatus")
                     lanLatestVersion?.let { Text("最新版本：$it") }

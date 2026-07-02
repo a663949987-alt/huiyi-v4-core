@@ -1,9 +1,9 @@
-{
-  "versionName": "4.1.2-lan",
-  "versionCode": 412,
-  "apkUrl": "huiyi-v4.1.2-debug.apk",
-  "releaseNotes": "局域网更新策略：设置页可填写 LAN latest.json 地址，检查更新、下载 APK，并打开系统安装确认；真机证据包导出会保存到 Download/HuiyiV4。",
-  "forceUpdate": false,
-  "sha256": "728FFEF24A1665B6020CA55D5B0388732448893FDCEA045A7A7F352C756CE6F4",
-  "createdAt": 1783003500000
+﻿{
+    "versionName":  "4.1.2-lan",
+    "versionCode":  412,
+    "apkUrl":  "huiyi-v4.1.2-lan-debug.apk",
+    "releaseNotes":  "Auto-discover LAN update server on port 8787. Reports export to Download/HuiyiV4.",
+    "forceUpdate":  false,
+    "sha256":  "7367CDDE53B0D983CEC948C8060FBDEEBC137B39446825949EF049D1DD71AF44",
+    "createdAt":  1783004912718
 }
