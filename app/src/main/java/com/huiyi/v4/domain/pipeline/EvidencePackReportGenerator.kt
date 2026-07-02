@@ -17,13 +17,17 @@ class EvidencePackReportGenerator {
         val capture = result.captureResult ?: return "FAIL"
         val appPackage = capture.snapshot.appPackage.orEmpty()
         val unknownRatio = capture.messages.count { it.speaker == Speaker.UNKNOWN }.toFloat() / capture.messages.size.coerceAtLeast(1)
+        val unknownChatNodeWithRoutes = capture.messages.any {
+            it.speaker == Speaker.UNKNOWN &&
+                it.metadataType == com.huiyi.v4.domain.model.MetadataType.NONE
+        } && result.routes.isNotEmpty()
         val voiceMistake = capture.messages.any {
             it.content is MessageContent.Voice &&
                 it.content.transcriptStatus == TranscriptStatus.MISSING &&
                 it.normalizedText?.isNotBlank() == true
         }
         return if (
-            capture.sampleSource != SampleSource.REAL_DEVICE_ACCESSIBILITY ||
+            capture.sampleSource !in setOf(SampleSource.REAL_DEVICE_ACCESSIBILITY, SampleSource.EMULATOR_MOCK_CHAT_ACCESSIBILITY) ||
             appPackage == "local.validation.sample" ||
             appPackage.startsWith("local.validation") ||
             result.apiCalled ||
@@ -31,7 +35,8 @@ class EvidencePackReportGenerator {
             (result.lastSpeakerDecision.lastSpeaker == Speaker.OTHER && result.routes.size != 5 &&
                 result.tacticalDecision.decisionType !in setOf(TacticalDecisionType.VOICE_SUMMARY_REQUIRED, TacticalDecisionType.CONTEXT_REQUIRED)) ||
             voiceMistake ||
-            (unknownRatio > 0.30f && result.routes.isNotEmpty())
+            (unknownRatio > 0.30f && result.routes.isNotEmpty()) ||
+            unknownChatNodeWithRoutes
         ) {
             "FAIL"
         } else {

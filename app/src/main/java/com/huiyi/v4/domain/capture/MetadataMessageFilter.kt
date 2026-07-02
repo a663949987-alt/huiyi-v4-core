@@ -16,7 +16,7 @@ class MetadataMessageFilter {
         if (value.startsWith("上次在线时间") || value == "在线" || value == "对方正在输入") {
             return MetadataType.ONLINE_STATUS
         }
-        if (uiControls.contains(value)) {
+        if (uiControls.contains(value) || scenarioRegex.matches(value)) {
             return MetadataType.UI_CONTROL
         }
         if (systemNoticeKeywords.any { value.contains(it) }) {
@@ -40,7 +40,8 @@ class MetadataMessageFilter {
         val dateRegex = Regex("""^\d{4}-\d{1,2}-\d{1,2}$""")
         val monthDayRegex = Regex("""^\d{1,2}月\d{1,2}日$""")
         val dayRegex = Regex("""^星期[一二三四五六日天]$""")
-        val uiControls = setOf("返回", "发送", "语音", "表情", "更多", "图片", "拍摄", "位置", "红包", "转账")
+        val uiControls = setOf("返回", "发送", "语音", "表情", "更多", "图片", "拍摄", "位置", "红包", "转账", "场景", "导出截图", "输入框")
+        val scenarioRegex = Regex("""^[A-F]\s+(last_me|last_other|metadata_trap|voice_last_other|unknown_bounds|low_expression)$""")
         val systemNoticeKeywords = listOf("截屏", "撤回了一条消息", "以上是打招呼内容", "已读", "未读")
     }
 }

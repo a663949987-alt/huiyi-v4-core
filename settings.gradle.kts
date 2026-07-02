@@ -16,3 +16,4 @@ dependencyResolutionManagement {
 
 rootProject.name = "HuiyiV4"
 include(":app")
+include(":mockchat")

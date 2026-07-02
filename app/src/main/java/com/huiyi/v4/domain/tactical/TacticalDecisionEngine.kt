@@ -54,7 +54,7 @@ class TacticalDecisionEngine {
 
         val text = context.allMessages.takeLast(8).joinToString(" ") { it.normalizedText.orEmpty() }
         val lastText = last.normalizedText.orEmpty()
-        val pullBack = listOf("没关系", "随便", "不提了", "不聊了", "拜拜", "去忙了", "算了").any(lastText::contains)
+        val pullBack = listOf("没关系", "随便", "不提了", "不聊了", "拜拜", "去忙了", "算了", "忙", "晚点说").any(lastText::contains)
         val vulnerability = listOf("累", "难过", "委屈", "撑不住", "烦").any(text::contains)
         val safetyTest = listOf("安全感", "认真", "负责", "以后", "靠谱不").any(text::contains)
 

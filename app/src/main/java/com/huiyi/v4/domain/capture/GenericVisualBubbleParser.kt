@@ -33,10 +33,17 @@ class GenericVisualBubbleParser(
                 ?: bubble.textBounds
             val metadataType = metadataFilter.classify(bubble.text)
             val isMetadata = metadataType != com.huiyi.v4.domain.model.MetadataType.NONE
-            val inferredSide = selectedBounds?.let { if (it.centerX >= screenWidth / 2) "right" else "left" } ?: "unknown"
+            val inferredSide = selectedBounds?.let {
+                when {
+                    it.isAmbiguousHorizontalPosition() -> "unknown"
+                    it.centerX >= screenWidth / 2 -> "right"
+                    else -> "left"
+                }
+            } ?: "unknown"
             val speaker = if (isMetadata) {
                 Speaker.SYSTEM
             } else selectedBounds?.let { bounds ->
+                if (bounds.isAmbiguousHorizontalPosition()) return@let Speaker.UNKNOWN
                 val rightSide = bounds.centerX >= screenWidth / 2
                 when {
                     rightSide && meOnRight -> Speaker.ME
@@ -83,6 +90,7 @@ class GenericVisualBubbleParser(
                         com.huiyi.v4.domain.model.MetadataType.SYSTEM_NOTICE -> "system_notice_metadata"
                         else -> "header_metadata"
                     }
+                    selectedBounds?.isAmbiguousHorizontalPosition() == true -> "ambiguous_center_bounds"
                     selectedBounds != null -> if (selectedBounds.centerX >= screenWidth / 2) "bubble_edge_right" else "bubble_edge_left"
                     else -> "unknown_visual_bounds"
                 },
@@ -94,5 +102,12 @@ class GenericVisualBubbleParser(
                 inferredSide = inferredSide
             )
         }
+    }
+
+    private fun VisualBounds.isAmbiguousHorizontalPosition(): Boolean {
+        val centerBand = screenWidth * 0.10f
+        val distanceFromCenter = kotlin.math.abs(centerX - screenWidth / 2)
+        val widthRatio = (right - left).toFloat() / screenWidth.coerceAtLeast(1)
+        return distanceFromCenter <= centerBand && widthRatio < 0.55f
     }
 }

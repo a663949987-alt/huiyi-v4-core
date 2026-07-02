@@ -47,12 +47,17 @@ class CurrentScreenPipelineUseCase(
             val unknownRatio = capture.messages.count { it.speaker == com.huiyi.v4.domain.model.Speaker.UNKNOWN }
                 .toFloat() / capture.messages.size.coerceAtLeast(1)
             val unknownTooHigh = unknownRatio > 0.30f
+            val hasUnknownChatNode = capture.messages.any {
+                it.speaker == com.huiyi.v4.domain.model.Speaker.UNKNOWN &&
+                    it.metadataType == com.huiyi.v4.domain.model.MetadataType.NONE
+            }
             val decision = when {
                 unknownTooHigh -> unknownSpeakerDecision("UNKNOWN 说话人超过 30%，不允许高置信度生成。")
+                hasUnknownChatNode -> unknownSpeakerDecision("当前屏幕存在边界不清的聊天气泡，不允许高置信度生成。")
                 lastSpeaker.unknownSpeaker -> unknownSpeakerDecision(lastSpeaker.reason)
                 else -> decisionEngine.decide(context)
             }
-            val routes = if (decision.decisionType == TacticalDecisionType.WAIT || lastSpeaker.unknownSpeaker || unknownTooHigh) {
+            val routes = if (decision.decisionType == TacticalDecisionType.WAIT || lastSpeaker.unknownSpeaker || unknownTooHigh || hasUnknownChatNode) {
                 emptyList()
             } else {
                 routeGenerator.generate(context, decision)

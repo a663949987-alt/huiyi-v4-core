@@ -26,10 +26,15 @@ open class CurrentScreenCaptureUseCase(
             val messages = parserFactory(snapshot.screenWidth).parse(bubbles, MessageSource.ACCESSIBILITY_CURRENT_SCREEN)
                 .filter { it.normalizedText?.isNotBlank() == true || it.content is com.huiyi.v4.domain.model.MessageContent.Voice }
             if (messages.isEmpty()) error("当前屏幕未识别到聊天消息。")
+            val source = if (snapshot.appPackage == "com.huiyi.mockchat") {
+                SampleSource.EMULATOR_MOCK_CHAT_ACCESSIBILITY
+            } else {
+                SampleSource.REAL_DEVICE_ACCESSIBILITY
+            }
             CurrentScreenCaptureResult(
                 snapshot = snapshot,
                 messages = messages,
-                sampleSource = SampleSource.REAL_DEVICE_ACCESSIBILITY,
+                sampleSource = source,
                 warning = if (bubbles.size < snapshot.nodes.count { it.readableText != null }) "WARNING: fallback parser filtered low quality nodes." else null
             )
         }
