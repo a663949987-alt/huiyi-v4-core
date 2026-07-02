@@ -18,10 +18,13 @@ import com.huiyi.v4.domain.pipeline.EvidencePackReportGenerator
 import com.huiyi.v4.domain.pipeline.ParserReportGenerator
 import com.huiyi.v4.domain.pipeline.ReplyAttemptFactory
 import com.huiyi.v4.accessibility.HuiyiAccessibilityService
+import com.huiyi.v4.domain.pipeline.EvidencePackFiles
 import com.huiyi.v4.domain.tactical.ReplyRouteGenerator
 import com.huiyi.v4.domain.tactical.TacticalDecisionEngine
 import com.huiyi.v4.ui.HuiyiDemoState
 import com.huiyi.v4.ui.sampleState
+import com.huiyi.v4.update.LanUpdateManager
+import com.huiyi.v4.update.LanUpdateState
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -38,7 +41,9 @@ data class HuiyiRuntimeState(
     val panelVisible: Boolean = false,
     val lastError: String? = null,
     val lastDebugExportPath: String? = null,
-    val lastEvidenceJsonPath: String? = null
+    val lastEvidenceJsonPath: String? = null,
+    val lastPublicExportPath: String? = null,
+    val lanUpdateState: LanUpdateState = LanUpdateState()
 )
 
 class HuiyiRuntime private constructor(
@@ -46,6 +51,8 @@ class HuiyiRuntime private constructor(
 ) {
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Main.immediate)
     private val persistence = HuiyiPersistenceRepository(DatabaseProvider.get(appContext).huiyiDao())
+    private val updateManager = LanUpdateManager(appContext)
+    private val prefs = appContext.getSharedPreferences("huiyi-runtime", Context.MODE_PRIVATE)
     private val pipeline = CurrentScreenPipelineUseCase(
         captureUseCase = CurrentScreenCaptureUseCase(),
         persistenceRepository = persistence
@@ -53,6 +60,11 @@ class HuiyiRuntime private constructor(
 
     private val mutableState = MutableStateFlow(HuiyiRuntimeState())
     val state: StateFlow<HuiyiRuntimeState> = mutableState
+
+    init {
+        val savedUrl = prefs.getString("lan_update_url", "").orEmpty()
+        mutableState.update { it.copy(lanUpdateState = it.lanUpdateState.copy(updateUrl = savedUrl)) }
+    }
 
     fun setPanelVisible(visible: Boolean) {
         mutableState.update { it.copy(panelVisible = visible) }
@@ -125,22 +137,42 @@ class HuiyiRuntime private constructor(
 
     fun exportParserReport(): File? {
         val capture = mutableState.value.latestPipelineResult?.captureResult ?: return null
-        val file = File(appContext.filesDir, "debug/current-screen-parser-report-for-gpt.md")
-        val written = ParserReportGenerator().writeTo(file, capture).getOrNull()
-        mutableState.update { it.copy(lastDebugExportPath = written?.absolutePath) }
-        return written
+        val text = ParserReportGenerator().build(capture)
+        val exported = PublicDownloadExporter(appContext)
+            .exportText("current-screen-parser-report-for-gpt.md", text)
+            .getOrElse { PublicDownloadExporter(appContext).fallbackToPrivate("current-screen-parser-report-for-gpt.md", text) }
+        mutableState.update {
+            it.copy(
+                lastDebugExportPath = exported.privateFallbackFile?.absolutePath,
+                lastPublicExportPath = exported.displayPath
+            )
+        }
+        return exported.privateFallbackFile
     }
 
     fun exportRealDeviceEvidencePack(): Pair<File, File>? {
         val result = mutableState.value.latestPipelineResult ?: return null
+        val generator = EvidencePackReportGenerator()
+        val now = System.currentTimeMillis()
+        val markdown = generator.buildMarkdown(result, HuiyiAccessibilityService.state.value, now)
+        val json = generator.buildJson(result, HuiyiAccessibilityService.state.value, now)
+        val exporter = PublicDownloadExporter(appContext)
+        val markdownExport = exporter.exportText("real-device-current-screen-report-for-gpt.md", markdown)
+            .getOrElse { exporter.fallbackToPrivate("real-device-current-screen-report-for-gpt.md", markdown) }
+        val jsonExport = exporter.exportText("real-device-current-screen-report.json", json, "application/json")
+            .getOrElse { exporter.fallbackToPrivate("real-device-current-screen-report.json", json) }
         val files = EvidencePackReportGenerator()
             .writeTo(File(appContext.filesDir, "debug"), result, HuiyiAccessibilityService.state.value)
             .getOrNull()
-            ?: return null
+            ?: EvidencePackFiles(
+                markdown = markdownExport.privateFallbackFile ?: File(appContext.filesDir, "debug/real-device-current-screen-report-for-gpt.md"),
+                json = jsonExport.privateFallbackFile ?: File(appContext.filesDir, "debug/real-device-current-screen-report.json")
+            )
         mutableState.update {
             it.copy(
                 lastDebugExportPath = files.markdown.absolutePath,
-                lastEvidenceJsonPath = files.json.absolutePath
+                lastEvidenceJsonPath = files.json.absolutePath,
+                lastPublicExportPath = markdownExport.displayPath + " / " + jsonExport.displayPath
             )
         }
         return files.markdown to files.json
@@ -152,6 +184,83 @@ class HuiyiRuntime private constructor(
         file.writeText(text, Charsets.UTF_8)
         mutableState.update { it.copy(lastDebugExportPath = file.absolutePath) }
         return file
+    }
+
+    fun setLanUpdateUrl(url: String) {
+        prefs.edit().putString("lan_update_url", url).apply()
+        mutableState.update { it.copy(lanUpdateState = it.lanUpdateState.copy(updateUrl = url, error = null)) }
+    }
+
+    fun checkLanUpdate() {
+        scope.launch {
+            val url = mutableState.value.lanUpdateState.updateUrl
+            mutableState.update { it.copy(lanUpdateState = it.lanUpdateState.copy(status = "正在检查", error = null)) }
+            updateManager.check(url).fold(
+                onSuccess = { (manifest, raw) ->
+                    mutableState.update {
+                        it.copy(
+                            lanUpdateState = it.lanUpdateState.copy(
+                                latestManifest = manifest,
+                                latestJsonRaw = raw,
+                                status = "发现版本 ${manifest.versionName} (${manifest.versionCode})",
+                                error = null
+                            )
+                        )
+                    }
+                },
+                onFailure = { error ->
+                    mutableState.update {
+                        it.copy(lanUpdateState = it.lanUpdateState.copy(status = "检查失败", error = error.message))
+                    }
+                }
+            )
+        }
+    }
+
+    fun downloadLanUpdate() {
+        scope.launch {
+            val updateState = mutableState.value.lanUpdateState
+            val manifest = updateState.latestManifest
+            if (manifest == null) {
+                mutableState.update { it.copy(lanUpdateState = it.lanUpdateState.copy(status = "请先检查更新", error = null)) }
+                return@launch
+            }
+            mutableState.update { it.copy(lanUpdateState = it.lanUpdateState.copy(status = "正在下载", error = null)) }
+            updateManager.download(updateState.updateUrl, manifest).fold(
+                onSuccess = { file ->
+                    mutableState.update {
+                        it.copy(
+                            lanUpdateState = it.lanUpdateState.copy(
+                                downloadedApkPath = file.absolutePath,
+                                status = "下载完成，等待安装确认",
+                                error = null
+                            )
+                        )
+                    }
+                },
+                onFailure = { error ->
+                    mutableState.update {
+                        it.copy(lanUpdateState = it.lanUpdateState.copy(status = "下载失败", error = error.message))
+                    }
+                }
+            )
+        }
+    }
+
+    fun openDownloadedUpdateInstaller() {
+        val path = mutableState.value.lanUpdateState.downloadedApkPath
+        if (path.isNullOrBlank()) {
+            mutableState.update { it.copy(lanUpdateState = it.lanUpdateState.copy(status = "还没有下载 APK")) }
+            return
+        }
+        updateManager.openInstaller(File(path)).fold(
+            onSuccess = {
+                mutableState.update { it.copy(lanUpdateState = it.lanUpdateState.copy(status = "已打开系统安装确认")) }
+            },
+            onFailure = { error ->
+                mutableState.update { it.copy(lanUpdateState = it.lanUpdateState.copy(status = "打开安装失败", error = error.message)) }
+            }
+        )
     }
 
     private fun currentPersona(): UserPersonaCorpus = DefaultPersonaCorpus.soldier(mutableState.value.demoState.personaEnabled)

@@ -105,11 +105,19 @@ fun HuiyiRoot() {
                         else -> "未开启"
                     },
                     overlayLabel = if (Settings.canDrawOverlays(context)) "已授权" else "未授权",
+                    lanUpdateUrl = runtimeState.lanUpdateState.updateUrl,
+                    lanUpdateStatus = runtimeState.lanUpdateState.status,
+                    lanUpdateError = runtimeState.lanUpdateState.error,
+                    lanLatestVersion = runtimeState.lanUpdateState.latestManifest?.versionName,
                     versionTapCount = versionTapCount,
                     onOpenAccessibility = { context.startActivity(Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS)) },
                     onOpenOverlay = { context.openOverlaySettings() },
                     onStartBubble = { context.startService(Intent(context, FloatingBubbleService::class.java)) },
                     onStopBubble = { context.stopService(Intent(context, FloatingBubbleService::class.java)) },
+                    onLanUpdateUrlChange = runtime::setLanUpdateUrl,
+                    onCheckLanUpdate = runtime::checkLanUpdate,
+                    onDownloadLanUpdate = runtime::downloadLanUpdate,
+                    onOpenUpdateInstaller = runtime::openDownloadedUpdateInstaller,
                     onVersionTap = {
                         versionTapCount += 1
                         if (versionTapCount >= 5) tab = TabPage.Developer
@@ -369,11 +377,19 @@ private fun MyPersonaPage(state: HuiyiDemoState, onToggle: () -> Unit) {
 private fun SettingsPage(
     accessibilityLabel: String,
     overlayLabel: String,
+    lanUpdateUrl: String,
+    lanUpdateStatus: String,
+    lanUpdateError: String?,
+    lanLatestVersion: String?,
     versionTapCount: Int,
     onOpenAccessibility: () -> Unit,
     onOpenOverlay: () -> Unit,
     onStartBubble: () -> Unit,
     onStopBubble: () -> Unit,
+    onLanUpdateUrlChange: (String) -> Unit,
+    onCheckLanUpdate: () -> Unit,
+    onDownloadLanUpdate: () -> Unit,
+    onOpenUpdateInstaller: () -> Unit,
     onVersionTap: () -> Unit
 ) {
     LazyColumn(
@@ -394,7 +410,28 @@ private fun SettingsPage(
             }
             StatusCard("我的气泡方向", "右侧")
             StatusCard("模型消耗", "默认本地规则")
-            StatusCard("更新检查", "未配置更新源")
+            Card(modifier = Modifier.fillMaxWidth()) {
+                Column(Modifier.padding(14.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                    Text("局域网更新")
+                    OutlinedTextField(
+                        value = lanUpdateUrl,
+                        onValueChange = onLanUpdateUrlChange,
+                        modifier = Modifier.fillMaxWidth(),
+                        label = { Text("更新地址") },
+                        placeholder = { Text("http://电脑IP:8787/latest.json") }
+                    )
+                    Text("状态：$lanUpdateStatus")
+                    lanLatestVersion?.let { Text("最新版本：$it") }
+                    lanUpdateError?.let { Text("错误：$it") }
+                    Row(horizontalArrangement = Arrangement.spacedBy(8.dp), modifier = Modifier.fillMaxWidth()) {
+                        OutlinedButton(onClick = onCheckLanUpdate, modifier = Modifier.weight(1f)) { Text("检查") }
+                        OutlinedButton(onClick = onDownloadLanUpdate, modifier = Modifier.weight(1f)) { Text("下载") }
+                    }
+                    Button(onClick = onOpenUpdateInstaller, modifier = Modifier.fillMaxWidth()) {
+                        Text("打开安装")
+                    }
+                }
+            }
             StatusCard("隐私说明", "默认不保存原始截图")
             TextButton(onClick = onVersionTap) {
                 Text("版本号 ${BuildConfig.VERSION_NAME}")
@@ -440,6 +477,7 @@ private fun DeveloperSettingsPage(
                 modifier = Modifier.fillMaxWidth()
             ) { Text("导出无障碍状态报告") }
             StatusCard("最近导出", state.lastDebugExportPath ?: "暂无")
+            StatusCard("下载目录", state.lastPublicExportPath ?: "导出后显示")
             StatusCard("证据包 JSON", state.lastEvidenceJsonPath ?: "暂无")
             Card(modifier = Modifier.fillMaxWidth()) {
                 Column(Modifier.padding(14.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
