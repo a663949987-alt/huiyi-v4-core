@@ -57,7 +57,8 @@ $manifest = [ordered]@{
 
 $json = $manifest | ConvertTo-Json -Depth 4
 $latestPath = Join-Path $updateDir "latest.json"
-Set-Content -LiteralPath $latestPath -Value $json -Encoding UTF8
+$utf8NoBom = [System.Text.UTF8Encoding]::new($false)
+[System.IO.File]::WriteAllText($latestPath, $json, $utf8NoBom)
 
 Write-Host "LAN update package published"
 Write-Host "Version: $versionName ($versionCode)"

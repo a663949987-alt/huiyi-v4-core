@@ -12,6 +12,14 @@ if (-not (Test-Path -LiteralPath $Root)) {
     throw "Update server root not found: $Root"
 }
 
+function Write-Response($stream, [int]$status, [string]$contentType, [byte[]]$body) {
+    $statusText = if ($status -eq 200) { "OK" } elseif ($status -eq 403) { "Forbidden" } else { "Not Found" }
+    $header = "HTTP/1.1 $status $statusText`r`nContent-Type: $contentType`r`nContent-Length: $($body.Length)`r`nConnection: close`r`nAccess-Control-Allow-Origin: *`r`n`r`n"
+    $headerBytes = [System.Text.Encoding]::ASCII.GetBytes($header)
+    $stream.Write($headerBytes, 0, $headerBytes.Length)
+    $stream.Write($body, 0, $body.Length)
+}
+
 $listener = [System.Net.Sockets.TcpListener]::new([System.Net.IPAddress]::Any, $Port)
 $listener.Start()
 Write-Host "Huiyi LAN update server"
@@ -63,12 +71,4 @@ try {
     }
 } finally {
     $listener.Stop()
-}
-
-function Write-Response($stream, [int]$status, [string]$contentType, [byte[]]$body) {
-    $statusText = if ($status -eq 200) { "OK" } elseif ($status -eq 403) { "Forbidden" } else { "Not Found" }
-    $header = "HTTP/1.1 $status $statusText`r`nContent-Type: $contentType`r`nContent-Length: $($body.Length)`r`nConnection: close`r`nAccess-Control-Allow-Origin: *`r`n`r`n"
-    $headerBytes = [System.Text.Encoding]::ASCII.GetBytes($header)
-    $stream.Write($headerBytes, 0, $headerBytes.Length)
-    $stream.Write($body, 0, $body.Length)
 }

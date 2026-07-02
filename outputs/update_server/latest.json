@@ -1,9 +1,9 @@
-﻿{
-    "versionName":  "4.1.2-lan",
-    "versionCode":  412,
-    "apkUrl":  "huiyi-v4.1.2-lan-debug.apk",
-    "releaseNotes":  "In-chat overlay result panel and effective message filtering. Timestamps/header/online status no longer affect last speaker decision.",
+{
+    "versionName":  "4.1.3-lan",
+    "versionCode":  413,
+    "apkUrl":  "huiyi-v4.1.3-lan-debug.apk",
+    "releaseNotes":  "Fix LAN update server response and allow local HTTP update downloads.",
     "forceUpdate":  false,
-    "sha256":  "C1814BEE2287FBDC1A3E13D6544A1FBB97248566AAD1226D6A7B133EE7AA9945",
-    "createdAt":  1783006008747
+    "sha256":  "B8205BE6B343F69A63F708CD36D17D73C16700456F6B2FCCF9BDCF1187C79C67",
+    "createdAt":  1783006513450
 }
