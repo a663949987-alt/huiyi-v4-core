@@ -5,8 +5,11 @@ import com.huiyi.v4.domain.context.ContextAssembler
 import com.huiyi.v4.domain.model.ChatSceneContext
 import com.huiyi.v4.domain.model.InfluenceIntensity
 import com.huiyi.v4.domain.model.InfluenceProfile
+import com.huiyi.v4.domain.model.MessageContent
+import com.huiyi.v4.domain.model.MetadataType
 import com.huiyi.v4.domain.model.ReplyRoute
 import com.huiyi.v4.domain.model.RiskLevel
+import com.huiyi.v4.domain.model.Speaker
 import com.huiyi.v4.domain.model.TacticalDecision
 import com.huiyi.v4.domain.model.TacticalDecisionType
 import com.huiyi.v4.domain.model.UserPersonaCorpus
@@ -44,20 +47,30 @@ class CurrentScreenPipelineUseCase(
                 currentScreenMessages = capture.messages,
                 userPersonaCorpus = userPersonaCorpus
             )
-            val unknownRatio = capture.messages.count { it.speaker == com.huiyi.v4.domain.model.Speaker.UNKNOWN }
+            val unknownRatio = capture.messages.count { it.speaker == Speaker.UNKNOWN }
                 .toFloat() / capture.messages.size.coerceAtLeast(1)
             val unknownTooHigh = unknownRatio > 0.30f
             val hasUnknownChatNode = capture.messages.any {
-                it.speaker == com.huiyi.v4.domain.model.Speaker.UNKNOWN &&
-                    it.metadataType == com.huiyi.v4.domain.model.MetadataType.NONE
+                it.speaker == Speaker.UNKNOWN && it.metadataType == MetadataType.NONE
+            }
+            val hasMissingVisualLastMessage = lastSpeaker.lastEffectiveMessage?.content.let {
+                it is MessageContent.Image || it is MessageContent.Sticker
             }
             val decision = when {
                 unknownTooHigh -> unknownSpeakerDecision("UNKNOWN 说话人超过 30%，不允许高置信度生成。")
                 hasUnknownChatNode -> unknownSpeakerDecision("当前屏幕存在边界不清的聊天气泡，不允许高置信度生成。")
+                hasMissingVisualLastMessage -> unknownSpeakerDecision("最后一条是未描述的图片/表情，需要先补充画面含义。")
                 lastSpeaker.unknownSpeaker -> unknownSpeakerDecision(lastSpeaker.reason)
                 else -> decisionEngine.decide(context)
             }
-            val routes = if (decision.decisionType == TacticalDecisionType.WAIT || lastSpeaker.unknownSpeaker || unknownTooHigh || hasUnknownChatNode) {
+            val routes = if (
+                decision.decisionType == TacticalDecisionType.WAIT ||
+                decision.decisionType == TacticalDecisionType.CONTEXT_REQUIRED ||
+                lastSpeaker.unknownSpeaker ||
+                unknownTooHigh ||
+                hasUnknownChatNode ||
+                hasMissingVisualLastMessage
+            ) {
                 emptyList()
             } else {
                 routeGenerator.generate(context, decision)
@@ -77,20 +90,20 @@ class CurrentScreenPipelineUseCase(
 
     private fun unknownSpeakerDecision(reason: String): TacticalDecision = TacticalDecision(
         decisionType = TacticalDecisionType.CONTEXT_REQUIRED,
-        situation = "说话人不确定。",
+        situation = "说话人或内容不确定。",
         coreInsight = reason,
-        userLikelyMistake = "在没分清是谁说的时候生成回复。",
-        bestMove = "切换我的气泡方向，或补充这句是谁说的。",
-        avoidMoves = listOf("不要调用模型", "不要猜说话人"),
+        userLikelyMistake = "在没有分清内容来源或含义时生成回复。",
+        bestMove = "先补充这条内容的含义，再决定下一句。",
+        avoidMoves = listOf("不要调用模型", "不要猜内容", "不要强行深聊"),
         coCreationOpportunity = null,
         shouldUseUserStory = false,
         selectedStoryCardIds = emptyList(),
         influenceProfile = InfluenceProfile(
             intensity = InfluenceIntensity.LOW,
             riskLevel = RiskLevel.MEDIUM,
-            riskWarning = "说话人不确定，判断可能反向。",
-            fallbackMove = "先确认这句是谁说的。"
+            riskWarning = reason,
+            fallbackMove = "先确认这条内容是什么意思。"
         ),
-        fallbackMove = "先确认这句是谁说的。"
+        fallbackMove = "先确认这条内容是什么意思。"
     )
 }

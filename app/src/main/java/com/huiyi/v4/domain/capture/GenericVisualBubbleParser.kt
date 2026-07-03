@@ -1,8 +1,10 @@
 package com.huiyi.v4.domain.capture
 
+import com.huiyi.v4.domain.model.DescriptionStatus
 import com.huiyi.v4.domain.model.MessageContent
 import com.huiyi.v4.domain.model.MessageNode
 import com.huiyi.v4.domain.model.MessageSource
+import com.huiyi.v4.domain.model.MetadataType
 import com.huiyi.v4.domain.model.Speaker
 import com.huiyi.v4.domain.model.TranscriptStatus
 import com.huiyi.v4.domain.model.VisualBounds
@@ -31,8 +33,10 @@ class GenericVisualBubbleParser(
                 ?: bubble.rowBounds
                 ?: bubble.contentBounds
                 ?: bubble.textBounds
-            val metadataType = metadataFilter.classify(bubble.text)
-            val isMetadata = metadataType != com.huiyi.v4.domain.model.MetadataType.NONE
+            val rawText = bubble.text.orEmpty()
+            val actualText = rawText.actualReplyText()
+            val metadataType = metadataFilter.classify(actualText)
+            val isMetadata = metadataType != MetadataType.NONE
             val inferredSide = selectedBounds?.let {
                 when {
                     it.isAmbiguousHorizontalPosition() -> "unknown"
@@ -52,22 +56,47 @@ class GenericVisualBubbleParser(
                     else -> Speaker.ME
                 }
             } ?: Speaker.UNKNOWN
-            val isVoice = !isMetadata && (bubble.text?.contains("语音") == true || bubble.text?.contains("秒") == true)
+            val isVoice = !isMetadata && (
+                rawText.contains("璇煶") ||
+                    rawText.contains("语音") ||
+                    rawText.contains("绉?") ||
+                    rawText.contains("秒")
+                )
+            val isSticker = !isMetadata && (
+                rawText.contains("[sticker]") ||
+                    rawText.contains("表情包") ||
+                    rawText.contains("贴纸")
+                )
+            val isImage = !isMetadata && !isSticker && (
+                rawText.contains("[image]") ||
+                    rawText.contains("图片") ||
+                    rawText.contains("鍥剧墖")
+                )
             MessageNode(
                 id = "bubble-${bubble.id}",
                 contactId = null,
                 speaker = speaker,
-                content = if (isVoice) {
-                    MessageContent.Voice(
-                        durationSeconds = bubble.text?.filter(Char::isDigit)?.toIntOrNull(),
+                content = when {
+                    isVoice -> MessageContent.Voice(
+                        durationSeconds = rawText.filter(Char::isDigit).toIntOrNull(),
                         transcriptStatus = TranscriptStatus.MISSING,
                         transcriptText = null,
                         userSummary = null
                     )
-                } else {
-                    MessageContent.Text(bubble.text.orEmpty())
+                    isImage -> MessageContent.Image(
+                        descriptionStatus = DescriptionStatus.MISSING,
+                        descriptionText = null
+                    )
+                    isSticker -> MessageContent.Sticker(
+                        meaningStatus = DescriptionStatus.MISSING,
+                        meaningText = null
+                    )
+                    else -> MessageContent.Text(actualText)
                 },
-                normalizedText = if (isVoice) null else bubble.text,
+                normalizedText = when {
+                    isVoice || isImage || isSticker -> null
+                    else -> actualText
+                },
                 source = source,
                 localSequence = index.toLong(),
                 confidence = bubble.confidence,
@@ -83,11 +112,11 @@ class GenericVisualBubbleParser(
                 sceneId = null,
                 speakerReason = when {
                     isMetadata -> when (metadataType) {
-                        com.huiyi.v4.domain.model.MetadataType.TIME,
-                        com.huiyi.v4.domain.model.MetadataType.DATE -> "time_metadata"
-                        com.huiyi.v4.domain.model.MetadataType.ONLINE_STATUS -> "online_status_metadata"
-                        com.huiyi.v4.domain.model.MetadataType.UI_CONTROL -> "ui_control_metadata"
-                        com.huiyi.v4.domain.model.MetadataType.SYSTEM_NOTICE -> "system_notice_metadata"
+                        MetadataType.TIME,
+                        MetadataType.DATE -> "time_metadata"
+                        MetadataType.ONLINE_STATUS -> "online_status_metadata"
+                        MetadataType.UI_CONTROL -> "ui_control_metadata"
+                        MetadataType.SYSTEM_NOTICE -> "system_notice_metadata"
                         else -> "header_metadata"
                     }
                     selectedBounds?.isAmbiguousHorizontalPosition() == true -> "ambiguous_center_bounds"
@@ -109,5 +138,11 @@ class GenericVisualBubbleParser(
         val distanceFromCenter = kotlin.math.abs(centerX - screenWidth / 2)
         val widthRatio = (right - left).toFloat() / screenWidth.coerceAtLeast(1)
         return distanceFromCenter <= centerBand && widthRatio < 0.55f
+    }
+
+    private fun String.actualReplyText(): String {
+        val marker = "实际回复："
+        val index = indexOf(marker)
+        return if (index >= 0) substring(index + marker.length).trim() else this
     }
 }
