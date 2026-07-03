@@ -3,20 +3,20 @@
 ## 1. 基本信息
 
 - project: Huiyi v4 Core
-- versionName: 4.1.9a
-- versionCode: 424
+- versionName: 4.1.9b
+- versionCode: 425
 - branch: main
-- commitHash: b9614f9
-- generatedAt: 2026-07-03 13:24:44 +0800
-- taskName: accessibility_service_auto_disabled_fix
+- commitHash: 07f0ceb
+- generatedAt: 2026-07-03 13:46:35 +0800
+- taskName: access_password_and_public_github
 - review_freshness_result: PASS
 - mockchat_result: PASS
 - real_device_smoke_result: NOT_TESTED
 - overall_result: NOT_TESTED
 - failReason: 本轮 Review Freshness 通过，但 Real Device Smoke 未执行，不代表真实聊天 App 已通过。
-- currentVersion: 4.1.9a
-- currentTaskName: accessibility_service_auto_disabled_fix
-- currentGeneratedAt: 2026-07-03 13:24:44 +0800
+- currentVersion: 4.1.9b
+- currentTaskName: access_password_and_public_github
+- currentGeneratedAt: 2026-07-03 13:46:35 +0800
 - currentOverallResult: NOT_TESTED
 
 currentUserFeedback:
@@ -37,10 +37,10 @@ currentRegressionStatus:
 
 ## Current Round Evidence
 
-- currentTaskName: accessibility_service_auto_disabled_fix
-- currentVersion: 4.1.9a
-- currentGeneratedAt: 2026-07-03 13:24:44 +0800
-- currentReports: outputs/accessibility-click-diagnostic-report-for-gpt.md, outputs/latest-next-sentence-failure.json, outputs/latest-next-sentence-failure.md, outputs/v4.1.9a-accessibility-service-stability-report-for-gpt.md
+- currentTaskName: access_password_and_public_github
+- currentVersion: 4.1.9b
+- currentGeneratedAt: 2026-07-03 13:46:35 +0800
+- currentReports: outputs/v4.1.9b-access-password-report-for-gpt.md
 - currentSampleSources: not_tested
 - currentOverallResult: NOT_TESTED
 - review_freshness_result: PASS
@@ -50,29 +50,10 @@ currentRegressionStatus:
 - mockChatMatrixStillPass: true
 - smokeDisclaimer: 本轮 Review Freshness 通过，但 Real Device Smoke 未执行，不代表真实聊天 App 已通过。
 
-### accessibility-click-diagnostic-report-for-gpt.md
-
-- versionName: 4.1.9
-### latest-next-sentence-failure.json
-
-- versionName: 4.1.9
-- lastEffectiveSpeaker: null
-- decisionType: null
-- routeCount: 0
-### latest-next-sentence-failure.md
-
-# Latest Next Sentence Failure
-
-## User-visible result
-- shown message: NOT_TESTED_THIS_BUILD
-- bubble still visible: unknown_without_physical_device
-- permission warning shown: false
-
-## Failure stage
-### v4.1.9a-accessibility-service-stability-report-for-gpt.md
+### v4.1.9b-access-password-report-for-gpt.md
 
 - overall_result: NOT_TESTED
-- versionName: 4.1.9a
+- versionName: 4.1.9b
 
 ## Current Next Sentence Failure Diagnosis
 
@@ -239,7 +220,7 @@ These reports are historical references only. Their FAIL or `sample_source=unkno
 
 ```
 outputs/review/archive/
-outputs/v4.1.9a-accessibility-service-stability-report-for-gpt.md
+outputs/v4.1.9b-access-password-report-for-gpt.md
 ```
 
 ### 修改文件
@@ -308,36 +289,9 @@ See Current Round Evidence and Historical / Trace Reports above.
 
 ## 8. 产物清单
 
-- path: outputs/accessibility-click-diagnostic-report-for-gpt.md
+- path: outputs/v4.1.9b-access-password-report-for-gpt.md
   type: report
-  sha256: 95fe5e2ada1b1852e69f02db66d33f86327bbe5061f5bd1b06d57f789bba46d4
-  是否建议发给 GPT: false
-  用途: Current round evidence.
-  isCurrentRound: true
-  evidenceRole: current
-  sample_source: none
-  stale: false
-- path: outputs/latest-next-sentence-failure.json
-  type: json
-  sha256: bbcf227998eb3ddb2c64a7faf63cd8e05e414ddd0282a599d6a93705b6c728e6
-  是否建议发给 GPT: false
-  用途: Current round evidence.
-  isCurrentRound: true
-  evidenceRole: current
-  sample_source: none
-  stale: false
-- path: outputs/latest-next-sentence-failure.md
-  type: report
-  sha256: 5c1245190e8db8e65faa9efb23aebc6b010983954ac3f7f9fe9f293e5b3fcd4e
-  是否建议发给 GPT: false
-  用途: Current round evidence.
-  isCurrentRound: true
-  evidenceRole: current
-  sample_source: none
-  stale: false
-- path: outputs/v4.1.9a-accessibility-service-stability-report-for-gpt.md
-  type: report
-  sha256: d75402d9b3344e6720060b3f0e4207b23d7ceb0d9da9e3c5ed6bb8c3430aeae9
+  sha256: 834a1d9536a74da73de2efd297b846d11b168c0f77210d9d0f24e86967cc308a
   是否建议发给 GPT: false
   用途: Current round evidence.
   isCurrentRound: true

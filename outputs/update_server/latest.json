@@ -1,9 +1,9 @@
 {
-    "versionName":  "4.1.9a",
-    "versionCode":  424,
-    "apkUrl":  "huiyi-v4.1.9a-debug.apk",
-    "releaseNotes":  "v4.1.9a: 撤掉无障碍截图能力声明，修复部分系统自动关闭无障碍风险，保留节点树主链路",
+    "versionName":  "4.1.9b",
+    "versionCode":  425,
+    "apkUrl":  "huiyi-v4.1.9b-debug.apk",
+    "releaseNotes":  "v4.1.9b: 新增使用密码 6639，首次和每5小时验证一次",
     "forceUpdate":  false,
-    "sha256":  "3622F753BE9E5CB920476E06E4475FD2FDF666B50ED020B1EC3E5AD790E0525F",
-    "createdAt":  1783056238313
+    "sha256":  "97E5FE5E84CA0756DAB474ABB600F7D4537992DE33EA0AAA5DDF954415528AD9",
+    "createdAt":  1783057474056
 }

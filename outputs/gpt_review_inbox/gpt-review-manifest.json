@@ -1,9 +1,9 @@
 {
   "project": "huiyi-v4",
-  "taskName": "accessibility_service_auto_disabled_fix",
-  "versionName": "4.1.9a",
-  "versionCode": 424,
-  "generatedAt": "2026-07-03 13:25:18 +0800",
+  "taskName": "access_password_and_public_github",
+  "versionName": "4.1.9b",
+  "versionCode": 425,
+  "generatedAt": "2026-07-03 13:46:36 +0800",
   "currentOverallResult": "NOT_TESTED",
   "realDeviceTested": false,
   "reviewFiles": [
@@ -13,7 +13,7 @@
       "required": true,
       "exists": true,
       "description": "Main GPT review report",
-      "sha256": "0cf172bac69752020123f757439ccb3d98ea0ad344a36c91c9b66fed64f4dcb1"
+      "sha256": "5e28ec067649ed5e538f61dccdaf8e1932d55622c65dcd66cc5c838ba6a48686"
     },
     {
       "path": "manifest.json",
@@ -21,7 +21,7 @@
       "required": true,
       "exists": true,
       "description": "Review bundle manifest",
-      "sha256": "d39cfa4266ae6217c2a951858df33d09046b71fcbe1e169cfe0cf27d69d73da7"
+      "sha256": "c0a1c0074865ed3ad916baa08385beb41467dec9d1c5c3a2d327e3f3e888689c"
     },
     {
       "path": "latest-next-sentence-failure.md",
@@ -108,7 +108,7 @@
       "required": true,
       "exists": true,
       "description": "Inbox overview for GPT",
-      "sha256": "83747618c5485b5a48c67ae1b6721a9cb97b9855e91d71ba8f2e49222f1ba941"
+      "sha256": "d6bb100ba123b9a996cde77caabbdede8fe0ca7854b397aa84a542783cd69b1a"
     },
     {
       "path": "changed-files-for-gpt.md",

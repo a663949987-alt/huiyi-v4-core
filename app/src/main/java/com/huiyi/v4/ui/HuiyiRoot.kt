@@ -41,6 +41,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.AnnotatedString
+import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import com.huiyi.v4.BuildConfig
 import com.huiyi.v4.accessibility.HuiyiAccessibilityService
@@ -71,8 +72,33 @@ fun HuiyiRoot() {
     val runtimeState by runtime.state.collectAsState()
     val accessibilityState by HuiyiAccessibilityService.state.collectAsState()
     val accessibilityRuntime = AccessibilityRuntimeReader.read(context)
+    var accessGranted by remember { mutableStateOf(isAccessPasswordValid(context)) }
+    var passwordInput by remember { mutableStateOf("") }
+    var passwordError by remember { mutableStateOf<String?>(null) }
     var tab by remember { mutableStateOf(TabPage.Home) }
     var versionTapCount by remember { mutableIntStateOf(0) }
+
+    if (!accessGranted) {
+        PasswordGate(
+            value = passwordInput,
+            error = passwordError,
+            onValueChange = {
+                passwordInput = it
+                passwordError = null
+            },
+            onSubmit = {
+                if (passwordInput == HUIYI_ACCESS_PASSWORD) {
+                    saveAccessPasswordVerified(context)
+                    accessGranted = true
+                    passwordInput = ""
+                    passwordError = null
+                } else {
+                    passwordError = "密码不对"
+                }
+            }
+        )
+        return
+    }
 
     Scaffold(
         topBar = { TopAppBar(title = { Text("会意 v4.1") }) },
@@ -141,6 +167,64 @@ fun HuiyiRoot() {
                 state = runtimeState,
                 onVoiceSummary = runtime::applyVoiceSummary
             )
+        }
+    }
+}
+
+private const val HUIYI_ACCESS_PASSWORD = "6639"
+private const val ACCESS_PASSWORD_PREFS = "huiyi-access-password"
+private const val ACCESS_PASSWORD_VERIFIED_AT = "verified_at"
+private const val ACCESS_PASSWORD_VALID_MS = 5L * 60L * 60L * 1000L
+
+private fun isAccessPasswordValid(context: Context): Boolean {
+    val verifiedAt = context.getSharedPreferences(ACCESS_PASSWORD_PREFS, Context.MODE_PRIVATE)
+        .getLong(ACCESS_PASSWORD_VERIFIED_AT, 0L)
+    if (verifiedAt <= 0L) return false
+    return System.currentTimeMillis() - verifiedAt < ACCESS_PASSWORD_VALID_MS
+}
+
+private fun saveAccessPasswordVerified(context: Context) {
+    context.getSharedPreferences(ACCESS_PASSWORD_PREFS, Context.MODE_PRIVATE)
+        .edit()
+        .putLong(ACCESS_PASSWORD_VERIFIED_AT, System.currentTimeMillis())
+        .apply()
+}
+
+@Composable
+@OptIn(ExperimentalMaterial3Api::class)
+private fun PasswordGate(
+    value: String,
+    error: String?,
+    onValueChange: (String) -> Unit,
+    onSubmit: () -> Unit
+) {
+    Scaffold(topBar = { TopAppBar(title = { Text("会意 v4") }) }) { padding ->
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(padding)
+                .padding(20.dp),
+            verticalArrangement = Arrangement.Center
+        ) {
+            Text("输入使用密码")
+            Spacer(Modifier.height(12.dp))
+            OutlinedTextField(
+                value = value,
+                onValueChange = onValueChange,
+                modifier = Modifier.fillMaxWidth(),
+                label = { Text("密码") },
+                visualTransformation = PasswordVisualTransformation(),
+                singleLine = true,
+                isError = error != null
+            )
+            error?.let {
+                Spacer(Modifier.height(8.dp))
+                Text(it)
+            }
+            Spacer(Modifier.height(12.dp))
+            Button(onClick = onSubmit, modifier = Modifier.fillMaxWidth()) {
+                Text("进入")
+            }
         }
     }
 }

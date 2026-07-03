@@ -1,10 +1,10 @@
 # Huiyi v4 GPT Review Inbox
 
 ## Current round
-- taskName: accessibility_service_auto_disabled_fix
-- versionName: 4.1.9a
-- versionCode: 424
-- generatedAt: 2026-07-03 13:25:18 +0800
+- taskName: access_password_and_public_github
+- versionName: 4.1.9b
+- versionCode: 425
+- generatedAt: 2026-07-03 13:46:36 +0800
 - currentOverallResult: NOT_TESTED
 
 ## What changed this round
@@ -39,7 +39,7 @@
 - realDeviceSmoke: NOT_TESTED
 
 ## APK
-- debugApkPath: outputs/huiyi-v4.1.9a-debug.apk
+- debugApkPath: outputs/huiyi-v4.1.9b-debug.apk
 - APK is not included in this review zip.
 
 ## Known remaining problems

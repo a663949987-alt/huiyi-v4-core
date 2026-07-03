@@ -1,36 +1,36 @@
 diff --git a/outputs/review/huiyi-v4-review-bundle-for-gpt.zip b/outputs/review/huiyi-v4-review-bundle-for-gpt.zip
-index c16c8d9..585ad02 100644
+index 585ad02..bebfa5e 100644
 Binary files a/outputs/review/huiyi-v4-review-bundle-for-gpt.zip and b/outputs/review/huiyi-v4-review-bundle-for-gpt.zip differ
 diff --git a/outputs/review/huiyi-v4-review-for-gpt.md b/outputs/review/huiyi-v4-review-for-gpt.md
-index 9a87635..bdd2b75 100644
+index bdd2b75..90c5278 100644
 --- a/outputs/review/huiyi-v4-review-for-gpt.md
 +++ b/outputs/review/huiyi-v4-review-for-gpt.md
 @@ -3,20 +3,20 @@
  ## 1. 基本信息
  
  - project: Huiyi v4 Core
--- versionName: 4.1.9
--- versionCode: 423
-+- versionName: 4.1.9a
-+- versionCode: 424
+-- versionName: 4.1.9a
+-- versionCode: 424
++- versionName: 4.1.9b
++- versionCode: 425
  - branch: main
--- commitHash: d0f3be2
--- generatedAt: 2026-07-03 13:19:13 +0800
--- taskName: gpt_review_inbox_delivery_rule
-+- commitHash: b9614f9
-+- generatedAt: 2026-07-03 13:24:44 +0800
-+- taskName: accessibility_service_auto_disabled_fix
+-- commitHash: b9614f9
+-- generatedAt: 2026-07-03 13:24:44 +0800
+-- taskName: accessibility_service_auto_disabled_fix
++- commitHash: 07f0ceb
++- generatedAt: 2026-07-03 13:46:35 +0800
++- taskName: access_password_and_public_github
  - review_freshness_result: PASS
  - mockchat_result: PASS
  - real_device_smoke_result: NOT_TESTED
  - overall_result: NOT_TESTED
  - failReason: 本轮 Review Freshness 通过，但 Real Device Smoke 未执行，不代表真实聊天 App 已通过。
--- currentVersion: 4.1.9
--- currentTaskName: gpt_review_inbox_delivery_rule
--- currentGeneratedAt: 2026-07-03 13:19:13 +0800
-+- currentVersion: 4.1.9a
-+- currentTaskName: accessibility_service_auto_disabled_fix
-+- currentGeneratedAt: 2026-07-03 13:24:44 +0800
+-- currentVersion: 4.1.9a
+-- currentTaskName: accessibility_service_auto_disabled_fix
+-- currentGeneratedAt: 2026-07-03 13:24:44 +0800
++- currentVersion: 4.1.9b
++- currentTaskName: access_password_and_public_github
++- currentGeneratedAt: 2026-07-03 13:46:35 +0800
  - currentOverallResult: NOT_TESTED
  
  currentUserFeedback:
@@ -38,109 +38,119 @@ index 9a87635..bdd2b75 100644
  
  ## Current Round Evidence
  
--- currentTaskName: gpt_review_inbox_delivery_rule
--- currentVersion: 4.1.9
--- currentGeneratedAt: 2026-07-03 13:19:13 +0800
--- currentReports: outputs/accessibility-click-diagnostic-report-for-gpt.md, outputs/gpt-review-inbox-delivery-rule-report-for-gpt.md, outputs/latest-next-sentence-failure.json, outputs/latest-next-sentence-failure.md, outputs/next-sentence-screenshot-capability-audit-for-gpt.md
-+- currentTaskName: accessibility_service_auto_disabled_fix
-+- currentVersion: 4.1.9a
-+- currentGeneratedAt: 2026-07-03 13:24:44 +0800
-+- currentReports: outputs/accessibility-click-diagnostic-report-for-gpt.md, outputs/latest-next-sentence-failure.json, outputs/latest-next-sentence-failure.md, outputs/v4.1.9a-accessibility-service-stability-report-for-gpt.md
+-- currentTaskName: accessibility_service_auto_disabled_fix
+-- currentVersion: 4.1.9a
+-- currentGeneratedAt: 2026-07-03 13:24:44 +0800
+-- currentReports: outputs/accessibility-click-diagnostic-report-for-gpt.md, outputs/latest-next-sentence-failure.json, outputs/latest-next-sentence-failure.md, outputs/v4.1.9a-accessibility-service-stability-report-for-gpt.md
++- currentTaskName: access_password_and_public_github
++- currentVersion: 4.1.9b
++- currentGeneratedAt: 2026-07-03 13:46:35 +0800
++- currentReports: outputs/v4.1.9b-access-password-report-for-gpt.md
  - currentSampleSources: not_tested
  - currentOverallResult: NOT_TESTED
  - review_freshness_result: PASS
-@@ -52,10 +52,6 @@ currentRegressionStatus:
+@@ -50,29 +50,10 @@ currentRegressionStatus:
+ - mockChatMatrixStillPass: true
+ - smokeDisclaimer: 本轮 Review Freshness 通过，但 Real Device Smoke 未执行，不代表真实聊天 App 已通过。
  
- ### accessibility-click-diagnostic-report-for-gpt.md
- 
--- versionName: 4.1.9
--### gpt-review-inbox-delivery-rule-report-for-gpt.md
+-### accessibility-click-diagnostic-report-for-gpt.md
 -
--- overall_result: NOT_TESTED
- - versionName: 4.1.9
- ### latest-next-sentence-failure.json
- 
-@@ -73,9 +69,10 @@ currentRegressionStatus:
- - permission warning shown: false
- 
- ## Failure stage
--### next-sentence-screenshot-capability-audit-for-gpt.md
-+### v4.1.9a-accessibility-service-stability-report-for-gpt.md
- 
 -- versionName: 4.1.9
-+- overall_result: NOT_TESTED
-+- versionName: 4.1.9a
+-### latest-next-sentence-failure.json
+-
+-- versionName: 4.1.9
+-- lastEffectiveSpeaker: null
+-- decisionType: null
+-- routeCount: 0
+-### latest-next-sentence-failure.md
+-
+-# Latest Next Sentence Failure
+-
+-## User-visible result
+-- shown message: NOT_TESTED_THIS_BUILD
+-- bubble still visible: unknown_without_physical_device
+-- permission warning shown: false
+-
+-## Failure stage
+-### v4.1.9a-accessibility-service-stability-report-for-gpt.md
++### v4.1.9b-access-password-report-for-gpt.md
+ 
+ - overall_result: NOT_TESTED
+-- versionName: 4.1.9a
++- versionName: 4.1.9b
  
  ## Current Next Sentence Failure Diagnosis
  
-@@ -241,8 +238,8 @@ These reports are historical references only. Their FAIL or `sample_source=unkno
- ### 新增文件
+@@ -239,7 +220,7 @@ These reports are historical references only. Their FAIL or `sample_source=unkno
  
  ```
--outputs/gpt-review-inbox-delivery-rule-report-for-gpt.md
  outputs/review/archive/
-+outputs/v4.1.9a-accessibility-service-stability-report-for-gpt.md
+-outputs/v4.1.9a-accessibility-service-stability-report-for-gpt.md
++outputs/v4.1.9b-access-password-report-for-gpt.md
  ```
  
  ### 修改文件
-@@ -251,7 +248,6 @@ outputs/review/archive/
- outputs/review/huiyi-v4-review-bundle-for-gpt.zip
- outputs/review/huiyi-v4-review-for-gpt.md
- outputs/review/manifest.json
--scripts/generate-review-bundle.ps1
- scripts/generate_review_bundle.py
- ```
+@@ -308,36 +289,9 @@ See Current Round Evidence and Historical / Trace Reports above.
  
-@@ -321,15 +317,6 @@ See Current Round Evidence and Historical / Trace Reports above.
-   evidenceRole: current
-   sample_source: none
-   stale: false
--- path: outputs/gpt-review-inbox-delivery-rule-report-for-gpt.md
+ ## 8. 产物清单
+ 
+-- path: outputs/accessibility-click-diagnostic-report-for-gpt.md
 -  type: report
--  sha256: 091228719a7cf7515de934dacaa6298866a1f9f8f98bf8a47bab85abb1ff5c7b
+-  sha256: 95fe5e2ada1b1852e69f02db66d33f86327bbe5061f5bd1b06d57f789bba46d4
 -  是否建议发给 GPT: false
 -  用途: Current round evidence.
 -  isCurrentRound: true
 -  evidenceRole: current
 -  sample_source: none
 -  stale: false
- - path: outputs/latest-next-sentence-failure.json
-   type: json
-   sha256: bbcf227998eb3ddb2c64a7faf63cd8e05e414ddd0282a599d6a93705b6c728e6
-@@ -348,9 +335,9 @@ See Current Round Evidence and Historical / Trace Reports above.
-   evidenceRole: current
-   sample_source: none
-   stale: false
--- path: outputs/next-sentence-screenshot-capability-audit-for-gpt.md
-+- path: outputs/v4.1.9a-accessibility-service-stability-report-for-gpt.md
+-- path: outputs/latest-next-sentence-failure.json
+-  type: json
+-  sha256: bbcf227998eb3ddb2c64a7faf63cd8e05e414ddd0282a599d6a93705b6c728e6
+-  是否建议发给 GPT: false
+-  用途: Current round evidence.
+-  isCurrentRound: true
+-  evidenceRole: current
+-  sample_source: none
+-  stale: false
+-- path: outputs/latest-next-sentence-failure.md
+-  type: report
+-  sha256: 5c1245190e8db8e65faa9efb23aebc6b010983954ac3f7f9fe9f293e5b3fcd4e
+-  是否建议发给 GPT: false
+-  用途: Current round evidence.
+-  isCurrentRound: true
+-  evidenceRole: current
+-  sample_source: none
+-  stale: false
+-- path: outputs/v4.1.9a-accessibility-service-stability-report-for-gpt.md
++- path: outputs/v4.1.9b-access-password-report-for-gpt.md
    type: report
--  sha256: 9cd988bf45ff518395f9381ece2bd874d64cecc37686a7e2d5e5b3f47d6874a3
-+  sha256: d75402d9b3344e6720060b3f0e4207b23d7ceb0d9da9e3c5ed6bb8c3430aeae9
+-  sha256: d75402d9b3344e6720060b3f0e4207b23d7ceb0d9da9e3c5ed6bb8c3430aeae9
++  sha256: 834a1d9536a74da73de2efd297b846d11b168c0f77210d9d0f24e86967cc308a
    是否建议发给 GPT: false
    用途: Current round evidence.
    isCurrentRound: true
 diff --git a/outputs/review/manifest.json b/outputs/review/manifest.json
-index 722df5b..366edb3 100644
+index 366edb3..7f09d02 100644
 --- a/outputs/review/manifest.json
 +++ b/outputs/review/manifest.json
 @@ -1,15 +1,15 @@
  {
    "project": "Huiyi v4 Core",
--  "versionName": "4.1.9",
--  "versionCode": 423,
-+  "versionName": "4.1.9a",
-+  "versionCode": 424,
+-  "versionName": "4.1.9a",
+-  "versionCode": 424,
++  "versionName": "4.1.9b",
++  "versionCode": 425,
    "branch": "main",
--  "commitHash": "d0f3be2",
--  "generatedAt": "2026-07-03 13:19:13 +0800",
-+  "commitHash": "b9614f9",
-+  "generatedAt": "2026-07-03 13:24:44 +0800",
+-  "commitHash": "b9614f9",
+-  "generatedAt": "2026-07-03 13:24:44 +0800",
++  "commitHash": "07f0ceb",
++  "generatedAt": "2026-07-03 13:46:35 +0800",
    "overallResult": "NOT_TESTED",
    "reviewFreshnessResult": "PASS",
    "mockchatResult": "PASS",
    "realDeviceSmokeResult": "NOT_TESTED",
--  "taskName": "gpt_review_inbox_delivery_rule",
-+  "taskName": "accessibility_service_auto_disabled_fix",
+-  "taskName": "accessibility_service_auto_disabled_fix",
++  "taskName": "access_password_and_public_github",
    "sampleSources": [
      "not_tested"
    ],
@@ -148,16 +158,23 @@ index 722df5b..366edb3 100644
      {
        "path": "outputs/review/huiyi-v4-review-for-gpt.md",
        "type": "review_markdown",
--      "sha256": "4b37b4ce33eecb52dafa289f74b407994559460026511cc034f39ce063194191",
-+      "sha256": "0cf172bac69752020123f757439ccb3d98ea0ad344a36c91c9b66fed64f4dcb1",
+-      "sha256": "0cf172bac69752020123f757439ccb3d98ea0ad344a36c91c9b66fed64f4dcb1",
++      "sha256": "5e28ec067649ed5e538f61dccdaf8e1932d55622c65dcd66cc5c838ba6a48686",
        "sendToGpt": true,
        "description": "Default file for GPT review.",
        "generatedAt": null,
-@@ -37,21 +37,7 @@
-       "sendToGpt": false,
-       "description": "Current round evidence.",
-       "generatedAt": "local_build_no_physical_device",
--      "taskName": "gpt_review_inbox_delivery_rule",
+@@ -31,56 +31,14 @@
+       "stale": false
+     },
+     {
+-      "path": "outputs/accessibility-click-diagnostic-report-for-gpt.md",
++      "path": "outputs/v4.1.9b-access-password-report-for-gpt.md",
+       "type": "report",
+-      "sha256": "95fe5e2ada1b1852e69f02db66d33f86327bbe5061f5bd1b06d57f789bba46d4",
+-      "sendToGpt": false,
+-      "description": "Current round evidence.",
+-      "generatedAt": "local_build_no_physical_device",
+-      "taskName": "accessibility_service_auto_disabled_fix",
 -      "versionName": "4.1.9",
 -      "isCurrentRound": true,
 -      "evidenceRole": "current",
@@ -165,90 +182,59 @@ index 722df5b..366edb3 100644
 -      "stale": false
 -    },
 -    {
--      "path": "outputs/gpt-review-inbox-delivery-rule-report-for-gpt.md",
--      "type": "report",
--      "sha256": "091228719a7cf7515de934dacaa6298866a1f9f8f98bf8a47bab85abb1ff5c7b",
+-      "path": "outputs/latest-next-sentence-failure.json",
+-      "type": "json",
+-      "sha256": "bbcf227998eb3ddb2c64a7faf63cd8e05e414ddd0282a599d6a93705b6c728e6",
 -      "sendToGpt": false,
 -      "description": "Current round evidence.",
--      "generatedAt": "2026-07-03",
--      "taskName": "gpt_review_inbox_delivery_rule",
-+      "taskName": "accessibility_service_auto_disabled_fix",
-       "versionName": "4.1.9",
-       "isCurrentRound": true,
-       "evidenceRole": "current",
-@@ -65,7 +51,7 @@
-       "sendToGpt": false,
-       "description": "Current round evidence.",
-       "generatedAt": null,
--      "taskName": "gpt_review_inbox_delivery_rule",
-+      "taskName": "accessibility_service_auto_disabled_fix",
-       "versionName": "4.1.9",
-       "isCurrentRound": true,
-       "evidenceRole": "current",
-@@ -79,7 +65,7 @@
-       "sendToGpt": false,
-       "description": "Current round evidence.",
-       "generatedAt": null,
--      "taskName": "gpt_review_inbox_delivery_rule",
-+      "taskName": "accessibility_service_auto_disabled_fix",
-       "versionName": null,
-       "isCurrentRound": true,
-       "evidenceRole": "current",
-@@ -87,14 +73,14 @@
-       "stale": false
-     },
-     {
--      "path": "outputs/next-sentence-screenshot-capability-audit-for-gpt.md",
-+      "path": "outputs/v4.1.9a-accessibility-service-stability-report-for-gpt.md",
-       "type": "report",
--      "sha256": "9cd988bf45ff518395f9381ece2bd874d64cecc37686a7e2d5e5b3f47d6874a3",
-+      "sha256": "d75402d9b3344e6720060b3f0e4207b23d7ceb0d9da9e3c5ed6bb8c3430aeae9",
-       "sendToGpt": false,
-       "description": "Current round evidence.",
 -      "generatedAt": null,
--      "taskName": "gpt_review_inbox_delivery_rule",
+-      "taskName": "accessibility_service_auto_disabled_fix",
 -      "versionName": "4.1.9",
-+      "generatedAt": "2026-07-03",
-+      "taskName": "accessibility_service_auto_disabled_fix",
-+      "versionName": "4.1.9a",
+-      "isCurrentRound": true,
+-      "evidenceRole": "current",
+-      "sample_source": [],
+-      "stale": false
+-    },
+-    {
+-      "path": "outputs/latest-next-sentence-failure.md",
+-      "type": "report",
+-      "sha256": "5c1245190e8db8e65faa9efb23aebc6b010983954ac3f7f9fe9f293e5b3fcd4e",
+-      "sendToGpt": false,
+-      "description": "Current round evidence.",
+-      "generatedAt": null,
+-      "taskName": "accessibility_service_auto_disabled_fix",
+-      "versionName": null,
+-      "isCurrentRound": true,
+-      "evidenceRole": "current",
+-      "sample_source": [],
+-      "stale": false
+-    },
+-    {
+-      "path": "outputs/v4.1.9a-accessibility-service-stability-report-for-gpt.md",
+-      "type": "report",
+-      "sha256": "d75402d9b3344e6720060b3f0e4207b23d7ceb0d9da9e3c5ed6bb8c3430aeae9",
++      "sha256": "834a1d9536a74da73de2efd297b846d11b168c0f77210d9d0f24e86967cc308a",
+       "sendToGpt": false,
+       "description": "Current round evidence.",
+       "generatedAt": "2026-07-03",
+-      "taskName": "accessibility_service_auto_disabled_fix",
+-      "versionName": "4.1.9a",
++      "taskName": "access_password_and_public_github",
++      "versionName": "4.1.9b",
        "isCurrentRound": true,
        "evidenceRole": "current",
        "sample_source": [],
-diff --git a/scripts/generate_gpt_review_inbox.py b/scripts/generate_gpt_review_inbox.py
-index a4b3cee..bc5e231 100644
---- a/scripts/generate_gpt_review_inbox.py
-+++ b/scripts/generate_gpt_review_inbox.py
-@@ -147,10 +147,13 @@ def main() -> None:
-     }
- 
-     real_device_tested = parse_field(review_text, "real_device_smoke_result", "NOT_TESTED").upper() == "PASS"
-+    evidence_text = review_text + "\n" + "\n".join(
-+        read_text(repo / entry["source"]) for entry in copied if entry.get("exists") and entry.get("source")
-+    )
-     commands = {
--        "testDebugUnitTest": "PASS" if "testDebugUnitTest: PASS" in review_text or "unit tests: PASS" in review_text else "NOT_RUN",
--        "assembleDebug": "PASS" if "assembleDebug: PASS" in review_text else "NOT_RUN",
--        "assembleRelease": "PASS" if "assembleRelease: PASS" in review_text else "NOT_RUN",
-+        "testDebugUnitTest": "PASS" if "testDebugUnitTest: PASS" in evidence_text or "unit tests: PASS" in evidence_text else "NOT_RUN",
-+        "assembleDebug": "PASS" if "assembleDebug: PASS" in evidence_text else "NOT_RUN",
-+        "assembleRelease": "PASS" if "assembleRelease: PASS" in evidence_text else "NOT_RUN",
-         "realDeviceSmoke": parse_field(review_text, "real_device_smoke_result", "NOT_TESTED"),
-     }
-     privacy = {
 diff --git a/scripts/generate_review_bundle.py b/scripts/generate_review_bundle.py
-index d9923f2..1387442 100644
+index 1387442..7c4ec7d 100644
 --- a/scripts/generate_review_bundle.py
 +++ b/scripts/generate_review_bundle.py
-@@ -285,7 +285,11 @@ def main() -> None:
-     real_device_smoke_result = smoke_status.upper()
-     task_name_lower = args.task_name.lower()
-     next_sentence_task = "next_sentence" in task_name_lower
--    no_real_device_task = next_sentence_task or "gpt_review_inbox" in task_name_lower
-+    no_real_device_task = (
-+        next_sentence_task or
-+        "gpt_review_inbox" in task_name_lower or
-+        "accessibility_service_auto_disabled" in task_name_lower
-+    )
+@@ -288,7 +288,8 @@ def main() -> None:
+     no_real_device_task = (
+         next_sentence_task or
+         "gpt_review_inbox" in task_name_lower or
+-        "accessibility_service_auto_disabled" in task_name_lower
++        "accessibility_service_auto_disabled" in task_name_lower or
++        "access_password" in task_name_lower
+     )
      if review_freshness_result == "FAIL" or mockchat_result == "FAIL" or real_device_smoke_result == "FAIL":
          overall = "FAIL"
-     elif real_device_smoke_result == "PASS":

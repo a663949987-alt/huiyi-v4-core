@@ -288,7 +288,8 @@ def main() -> None:
     no_real_device_task = (
         next_sentence_task or
         "gpt_review_inbox" in task_name_lower or
-        "accessibility_service_auto_disabled" in task_name_lower
+        "accessibility_service_auto_disabled" in task_name_lower or
+        "access_password" in task_name_lower
     )
     if review_freshness_result == "FAIL" or mockchat_result == "FAIL" or real_device_smoke_result == "FAIL":
         overall = "FAIL"
