@@ -48,7 +48,7 @@ data class CloudRuntimeSettings(
     val providerType: String = CloudProviderType.OPENAI_COMPATIBLE_RELAY,
     val baseUrl: String = "",
     val model: String = "gpt-5.5",
-    val timeoutMs: Long = 6000,
+    val timeoutMs: Long = 20000,
     val relayApiKeyConfigured: Boolean = false,
     val relayApiKeyStoredSecurely: Boolean = false,
     val relaySecureStorageAvailable: Boolean = false,
@@ -62,7 +62,7 @@ data class CloudAnalysisConfig(
     val providerType: String = CloudProviderType.OPENAI_COMPATIBLE_RELAY,
     val endpoint: String = "",
     val model: String = "gpt-5.5",
-    val timeoutMs: Long = 6000,
+    val timeoutMs: Long = 20000,
     val privateMode: Boolean = false,
     val fallbackToLocal: Boolean = true,
     val clientId: String = "",
@@ -204,9 +204,18 @@ class OkHttpCloudAnalysisClient : CloudAnalysisClient {
         if (clientId.isNotBlank()) requestBuilder.header("X-Huiyi-Client-Id", clientId)
         if (clientToken.isNotBlank()) requestBuilder.header("Authorization", "Bearer $clientToken")
         client.newCall(requestBuilder.build()).execute().use { response ->
-            if (!response.isSuccessful) error("SERVER_ERROR:${response.code}")
+            if (!response.isSuccessful) throw CloudAnalysisException(httpErrorCode(response.code))
             return response.body?.string() ?: error("CLOUD_SCHEMA_INVALID:empty_body")
         }
+    }
+
+    private fun httpErrorCode(statusCode: Int): String = when (statusCode) {
+        401 -> "HTTP_401"
+        403 -> "HTTP_403"
+        404 -> "HTTP_404"
+        429 -> "HTTP_429"
+        in 500..599 -> "HTTP_5XX"
+        else -> "HTTP_$statusCode"
     }
 }
 
@@ -251,7 +260,9 @@ class CloudAnalysisRepository(
         } catch (error: java.net.UnknownHostException) {
             throw CloudAnalysisException("NETWORK", error, "DNS_FAILED", requestActuallySent = true)
         } catch (error: SSLException) {
-            throw CloudAnalysisException("NETWORK", error, "HTTPS_CERT_ERROR", requestActuallySent = true)
+            throw CloudAnalysisException("NETWORK", error, "TLS_FAILED", requestActuallySent = true)
+        } catch (error: CloudAnalysisException) {
+            throw error
         } catch (error: java.io.IOException) {
             val message = error.message.orEmpty()
             val likelyCause = when {
@@ -290,10 +301,11 @@ class CloudTacticalDecisionMapper(
         return buildJsonObject {
             put("model", config.model)
             put("temperature", 0.7)
+            put("max_tokens", 1200)
             put("messages", buildJsonArray {
                 add(buildJsonObject {
                     put("role", "system")
-                    put("content", "You are Huiyi v4. Return only ${HuiyiTacticalContract.VERSION} JSON with schemaVersion, decisionType, decisionTypeFamily, situation, coCreationPoint, userLikelyMistake, bestMove, intensityPolicy, riskWarning, fallbackMove, and routes[5].")
+                    put("content", "Return compact ${HuiyiTacticalContract.VERSION} JSON only. No markdown. Required fields: schemaVersion, decisionType, decisionTypeFamily, situation, coCreationPoint, userLikelyMistake, bestMove, intensityPolicy, riskWarning, fallbackMove, routes[5].")
                 })
                 add(buildJsonObject {
                     put("role", "user")

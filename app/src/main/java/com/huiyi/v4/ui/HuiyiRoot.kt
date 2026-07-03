@@ -624,7 +624,7 @@ private fun DeveloperSettingsPage(
                                     CloudProviderType.OPENAI_COMPATIBLE_RELAY,
                                     relayBaseUrl,
                                     relayModel,
-                                    relayTimeoutMs.toLongOrNull() ?: 6000L,
+                                    relayTimeoutMs.toLongOrNull() ?: 20000L,
                                     relayApiKeyInput.ifBlank { null }
                                 )
                             },

@@ -1,5 +1,6 @@
 package com.huiyi.v4.domain.modelprovider
 
+import com.huiyi.v4.domain.cloud.CloudAnalysisException
 import com.huiyi.v4.domain.cloud.CloudTacticalDecisionMapper
 import com.huiyi.v4.domain.cloud.HuiyiTacticalContract
 import com.huiyi.v4.domain.cloud.RelayEndpointBuilder
@@ -9,7 +10,11 @@ import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import okhttp3.RequestBody.Companion.toRequestBody
+import java.io.IOException
+import java.net.SocketTimeoutException
+import java.net.UnknownHostException
 import java.util.concurrent.TimeUnit
+import javax.net.ssl.SSLException
 
 data class OpenAICompatibleConfig(
     val baseUrl: String,
@@ -47,6 +52,7 @@ class OpenAICompatibleProvider(
         val json = """
             {
               "model": "${config.model.jsonEscape()}",
+              "max_tokens": 1200,
               "messages": [
                 {"role":"user","content":${prompt.jsonString()}}
               ]
@@ -57,9 +63,29 @@ class OpenAICompatibleProvider(
             .header("Authorization", "Bearer ${config.apiKey}")
             .post(json.toRequestBody("application/json".toMediaType()))
             .build()
-        val responseBody = client.newCall(request).execute().use { response ->
-            if (!response.isSuccessful) error("API call failed: ${response.code}")
-            response.body?.string() ?: error("API call failed: empty body")
+        val responseBody = try {
+            client.newCall(request).execute().use { response ->
+                if (!response.isSuccessful) throw CloudAnalysisException(httpErrorCode(response.code))
+                response.body?.string() ?: throw CloudAnalysisException("CLOUD_SCHEMA_INVALID")
+            }
+        } catch (error: CloudAnalysisException) {
+            throw error
+        } catch (error: SocketTimeoutException) {
+            throw CloudAnalysisException("NETWORK", error, "TIMEOUT", requestActuallySent = true)
+        } catch (error: UnknownHostException) {
+            throw CloudAnalysisException("NETWORK", error, "DNS_FAILED", requestActuallySent = true)
+        } catch (error: SSLException) {
+            throw CloudAnalysisException("NETWORK", error, "TLS_FAILED", requestActuallySent = true)
+        } catch (error: IllegalArgumentException) {
+            throw CloudAnalysisException("NETWORK", error, "BASE_URL_INVALID", requestActuallySent = false)
+        } catch (error: IOException) {
+            val message = error.message.orEmpty()
+            val likelyCause = when {
+                message.contains("CLEARTEXT", ignoreCase = true) -> "BASE_URL_INVALID"
+                message.contains("timeout", ignoreCase = true) -> "TIMEOUT"
+                else -> "UNKNOWN"
+            }
+            throw CloudAnalysisException("NETWORK", error, likelyCause, requestActuallySent = true)
         }
         val parsed = mapper.parseResponse(responseBody, latencyMs = 0L, actualLastSpeaker = last?.speaker)
         return TacticalReplyResult(
@@ -72,4 +98,12 @@ class OpenAICompatibleProvider(
 
     private fun String.jsonString(): String = "\"" + jsonEscape().replace("\n", "\\n") + "\""
     private fun String.jsonEscape(): String = replace("\\", "\\\\").replace("\"", "\\\"")
+    private fun httpErrorCode(statusCode: Int): String = when (statusCode) {
+        401 -> "HTTP_401"
+        403 -> "HTTP_403"
+        404 -> "HTTP_404"
+        429 -> "HTTP_429"
+        in 500..599 -> "HTTP_5XX"
+        else -> "HTTP_$statusCode"
+    }
 }

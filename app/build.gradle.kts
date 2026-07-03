@@ -39,8 +39,8 @@ android {
         applicationId = "com.huiyi.v4"
         minSdk = 29
         targetSdk = 35
-        versionCode = 446
-        versionName = "4.1.27"
+        versionCode = 447
+        versionName = "4.1.28"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
 
@@ -57,7 +57,7 @@ android {
         buildConfigField("String", "HUIYI_RELAY_BASE_URL", localConfig("huiyi.relay.baseUrl", "HUIYI_RELAY_BASE_URL").asBuildConfigString())
         buildConfigField("String", "HUIYI_RELAY_MODEL", localConfig("huiyi.relay.model", "HUIYI_RELAY_MODEL", default = "gpt-5.5").asBuildConfigString())
         buildConfigField("String", "HUIYI_RELAY_API_KEY", localConfig("huiyi.relay.apiKey", "HUIYI_RELAY_API_KEY").asBuildConfigString())
-        buildConfigField("Long", "HUIYI_RELAY_TIMEOUT_MS", "${localConfig("huiyi.relay.timeoutMs", "HUIYI_RELAY_TIMEOUT_MS", default = "6000")}L")
+        buildConfigField("Long", "HUIYI_RELAY_TIMEOUT_MS", "${localConfig("huiyi.relay.timeoutMs", "HUIYI_RELAY_TIMEOUT_MS", default = "20000")}L")
         buildConfigField("Boolean", "HUIYI_RELAY_CONFIGURED_FOR_BUILD", (localConfig("huiyi.relay.baseUrl", "HUIYI_RELAY_BASE_URL").isNotBlank() && localConfig("huiyi.relay.apiKey", "HUIYI_RELAY_API_KEY").isNotBlank()).toString())
     }
 
@@ -101,4 +101,5 @@ dependencies {
     debugImplementation("androidx.compose.ui:ui-tooling")
     testImplementation("junit:junit:4.13.2")
     testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.8.1")
+    testImplementation("com.squareup.okhttp3:mockwebserver:4.12.0")
 }

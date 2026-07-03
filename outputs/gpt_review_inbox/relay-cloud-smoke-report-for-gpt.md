@@ -1,0 +1,33 @@
+﻿# Relay Cloud Smoke Report
+
+- taskName: relay_cloud_smoke_before_user_phone
+- versionName: 4.1.28
+- versionCode: 447
+- generatedAt: 2026-07-03T22:54:28.0046404+08:00
+- relaySmokeAttempted: True
+- relaySmokeResult: PASS
+- baseUrlConfigured: True
+- modelConfigured: True
+- apiKeyConfigured: True
+- apiKeyLeaked: False
+- requestUrlRedacted: https://toapis.com/v1/chat/completions
+- httpStatus: 200
+- responseReceived: True
+- choicesMessageContentPresent: True
+- responseParsed: True
+- contractValidationResult: PASS
+- routeCount: 5
+- latencyMs: 19333
+- errorClass: 
+- errorMessageRedacted: 
+- likelyCause: NONE
+- cloudRequestActuallySent: True
+- androidInternetPermissionDeclared: True
+- finalRequestUrlRedacted: https://toapis.com/v1/chat/completions
+- baseUrlJoinValid: True
+- authorizationHeaderPresent: True
+- cleartextBlockedSuspected: False
+- tlsFailureSuspected: False
+- dnsFailureSuspected: False
+- networkExceptionClass: 
+- networkExceptionMessageRedacted: 

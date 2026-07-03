@@ -1,30 +1,14 @@
-{
-  "taskStatus": "DONE",
-  "project": "Huiyi v4 Core",
-  "taskName": "relay_secure_runtime_config_and_response_parsing_mvp",
-  "versionName": "4.1.25",
-  "versionCode": 444,
-  "createdBy": "GPT",
-  "userNeedsPhoneThisRound": false,
-  "realDeviceRequiredThisRound": false,
-  "cloudRealEndpointRequiredThisRound": false,
-  "goals": [
-    "implement secure relay runtime settings UI",
-    "store relay API key through Android Keystore / EncryptedSharedPreferences",
-    "parse OpenAI-compatible chat.completions response into HuiyiTacticalContract v1",
-    "validate cloud response before display",
-    "preserve LAST_ME / UNKNOWN / unsupported local safety gates",
-    "fallback to local routes when cloud is missing, invalid, or unavailable"
-  ],
-  "nonGoals": [
-    "no real API key",
-    "no real endpoint required",
-    "no phone testing",
-    "no automatic sending"
-  ],
-  "requiredReports": [
-    "outputs/gpt_review_inbox/cloud-runtime-config-report-for-gpt.md",
-    "outputs/gpt_review_inbox/cloud-runtime-config-report.json",
-    "outputs/codex_to_gpt/result-manifest.json"
-  ]
+﻿{
+    "cloudReadyForUserPhone":  "YES",
+    "project":  "Huiyi v4 Core",
+    "emulatorCloudSmokeResult":  "NOT_RUN_NO_EMULATOR",
+    "taskStatus":  "DONE",
+    "userNeedsPhoneThisRound":  false,
+    "versionCode":  447,
+    "taskName":  "relay_cloud_smoke_before_user_phone",
+    "providerParsingTests":  "PASS",
+    "realDeviceRequiredThisRound":  false,
+    "cloudRealEndpointRequiredThisRound":  true,
+    "versionName":  "4.1.28",
+    "relayCliSmokeResult":  "PASS"
 }

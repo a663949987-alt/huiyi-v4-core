@@ -1,41 +1,51 @@
-{
-  "project": "Huiyi v4 Core",
-  "taskName": "contamination_hard_stop_and_cloud_network_visibility",
-  "versionName": "4.1.27",
-  "versionCode": 446,
-  "currentOverallResult": "LOCAL_TEST_PASS_PRIVATE_LAN_APK_DELIVERED_NEEDS_USER_SMOKE",
-  "privateApkDelivered": true,
-  "apkDeliveredOutOfBand": true,
-  "lanUpdateDelivered": true,
-  "apkCommittedToPublicGithub": false,
-  "privateApkContainsRelayConfig": true,
-  "userReceivedApk": "unknown",
-  "contaminatedPreAnalysisHardStop": true,
-  "cloudNetworkFailureVisibleToUser": true,
-  "routesOnlyWhenPreAnalysisClean": true,
-  "realDeviceSmokeResult": "NOT_TESTED_USER_NEEDED",
-  "userNeedsPhoneThisRound": true,
-  "containsSecrets": false,
-  "files": [
-    {
-      "path": "outputs/gpt_review_inbox/README_FOR_GPT.md",
-      "type": "report",
-      "sendToGpt": true
-    },
-    {
-      "path": "outputs/gpt_review_inbox/contamination-network-fix-report-for-gpt.md",
-      "type": "report",
-      "sendToGpt": true
-    },
-    {
-      "path": "outputs/gpt_review_inbox/contamination-network-fix-report.json",
-      "type": "json",
-      "sendToGpt": true
-    },
-    {
-      "path": "outputs/codex_to_gpt/result-manifest.json",
-      "type": "json",
-      "sendToGpt": true
-    }
-  ]
+﻿{
+    "project":  "Huiyi v4 Core",
+    "taskName":  "relay_cloud_smoke_before_user_phone",
+    "versionName":  "4.1.28",
+    "versionCode":  447,
+    "generatedAt":  "2026-07-03T22:55:18.8191398+08:00",
+    "currentOverallResult":  "RELAY_CLI_PASS_PROVIDER_TEST_PASS_EMULATOR_NOT_RUN",
+    "relayCliSmokeResult":  "PASS",
+    "providerParsingTests":  "PASS",
+    "androidNetworkDiagnosis":  "PASS",
+    "emulatorCloudSmokeResult":  "NOT_RUN_NO_EMULATOR",
+    "cloudReadyForUserPhone":  "YES",
+    "userNeedsPhoneThisRound":  false,
+    "realDeviceRequiredThisRound":  false,
+    "cloudRealEndpointRequiredThisRound":  true,
+    "apiKeyLeaked":  false,
+    "apkCommittedToPublicGithub":  false,
+    "privateApkContainsRelayConfig":  true,
+    "files":  [
+                  {
+                      "path":  "outputs/gpt_review_inbox/README_FOR_GPT.md",
+                      "description":  "Main GPT entry",
+                      "sendToGpt":  true,
+                      "type":  "review_entry"
+                  },
+                  {
+                      "path":  "outputs/gpt_review_inbox/relay-cloud-smoke-report-for-gpt.md",
+                      "description":  "Real relay GPT 5.5 smoke report",
+                      "sendToGpt":  true,
+                      "type":  "relay_smoke_report"
+                  },
+                  {
+                      "path":  "outputs/gpt_review_inbox/relay-cloud-smoke-report.json",
+                      "description":  "Machine-readable relay smoke",
+                      "sendToGpt":  true,
+                      "type":  "relay_smoke_json"
+                  },
+                  {
+                      "path":  "outputs/gpt_review_inbox/emulator-cloud-smoke-report-for-gpt.md",
+                      "description":  "Emulator cloud smoke state",
+                      "sendToGpt":  true,
+                      "type":  "emulator_smoke_report"
+                  },
+                  {
+                      "path":  "outputs/codex_to_gpt/result-manifest.json",
+                      "description":  "Codex result manifest",
+                      "sendToGpt":  true,
+                      "type":  "manifest"
+                  }
+              ]
 }
