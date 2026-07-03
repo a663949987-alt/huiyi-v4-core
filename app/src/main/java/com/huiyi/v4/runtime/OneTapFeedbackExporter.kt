@@ -98,6 +98,17 @@ object OneTapFeedbackZipContract {
         "metadata/privacy-scan.json",
         "metadata/app-build-info.json"
     )
+
+    fun recentSessionRecords(
+        records: List<NextSentenceFlightRecord>,
+        latest: NextSentenceFlightRecord
+    ): List<NextSentenceFlightRecord> {
+        return (records + latest)
+            .asReversed()
+            .distinctBy { it.sessionId }
+            .asReversed()
+            .takeLast(10)
+    }
 }
 
 object NextSentenceFlightRecordFactory {
@@ -232,6 +243,7 @@ class OneTapFeedbackExporter(
         val fileName = "huiyi-one-tap-feedback-v${BuildConfig.VERSION_NAME}-${timestamp(now)}.zip"
         val outDir = File(context.filesDir, "exports/one_tap_feedback").apply { mkdirs() }
         val zip = File(outDir, fileName)
+        val recentSessionRecords = OneTapFeedbackZipContract.recentSessionRecords(recentRecords, record)
         ZipOutputStream(zip.outputStream()).use { stream ->
             addText(stream, "README_FOR_GPT.md", readme(record))
             addText(stream, "one-tap-feedback-manifest.json", manifest(record, now))
@@ -240,8 +252,8 @@ class OneTapFeedbackExporter(
             val currentReports = currentScreenReports(latestResult)
             addText(stream, "current-screen/real-device-current-screen-report-for-gpt.md", currentReports.first)
             addText(stream, "current-screen/real-device-current-screen-report.json", currentReports.second)
-            addText(stream, "recent-sessions/session-index.md", sessionIndex(recentRecords, record))
-            (recentRecords + record).takeLast(10).forEach { item ->
+            addText(stream, "recent-sessions/session-index.md", sessionIndex(recentSessionRecords))
+            recentSessionRecords.forEach { item ->
                 addText(stream, "recent-sessions/session-${item.sessionId}.json", recordJson(item))
             }
             addText(stream, "diagnostics/accessibility-click-diagnostic-report-for-gpt.md", notAvailable("accessibility click diagnostics"))
@@ -416,9 +428,9 @@ class OneTapFeedbackExporter(
         else -> "session exported for review."
     }
 
-    private fun sessionIndex(records: List<NextSentenceFlightRecord>, latest: NextSentenceFlightRecord): String = buildString {
+    private fun sessionIndex(records: List<NextSentenceFlightRecord>): String = buildString {
         appendLine("# Recent Sessions")
-        (records + latest).takeLast(10).forEach {
+        records.forEach {
             appendLine("- ${it.sessionId}: ${it.terminalState} ${it.appPackage} ${it.actualLastSpeaker}")
         }
     }

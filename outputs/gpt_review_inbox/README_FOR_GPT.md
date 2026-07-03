@@ -1,10 +1,10 @@
 # Huiyi v4 GPT Review Inbox
 
 ## Current round
-- taskName: one_tap_feedback_auto_push_to_github
-- versionName: 4.1.14
-- versionCode: 432
-- generatedAt: 2026-07-03 15:59:30 +0800
+- taskName: one_tap_feedback_duplicate_entry_fix
+- versionName: 4.1.15
+- versionCode: 433
+- generatedAt: 2026-07-03 16:07:59 +0800
 - currentOverallResult: NOT_TESTED
 - lastMeRealDeviceResult: NOT_TESTED
 - lastOtherRealDeviceResult: NOT_TESTED
@@ -58,7 +58,7 @@
 - realDeviceSmoke: NOT_TESTED
 
 ## APK
-- debugApkPath: outputs/huiyi-v4.1.14-debug.apk
+- debugApkPath: outputs/huiyi-v4.1.15-debug.apk
 - APK is not included in this review zip.
 
 ## Known remaining problems

@@ -113,5 +113,21 @@ class OneTapFeedbackExportTest {
         }
     }
 
+    @Test
+    fun recentSessionRecordsDeduplicateLatestSessionBeforeWritingZipEntries() {
+        val latest = NextSentenceFlightRecordFactory.fromFailure(
+            NextSentenceSessionTrace("same-session", 100L, endedAt = 200L)
+                .failed(NextSentenceErrorCode.CHAT_WINDOW_NOT_FOUND, NextSentenceStage.CHAT_MESSAGES_PARSED, now = 200L)
+        )
+        val older = latest.copy(sessionId = "older-session")
+
+        val records = OneTapFeedbackZipContract.recentSessionRecords(
+            records = listOf(older, latest),
+            latest = latest
+        )
+
+        assertEquals(listOf("older-session", "same-session"), records.map { it.sessionId })
+    }
+
     private fun tempZip(): File = File.createTempFile("huiyi-one-tap-feedback", ".zip").also { it.deleteOnExit() }
 }
