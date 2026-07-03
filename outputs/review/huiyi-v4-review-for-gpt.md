@@ -3,39 +3,44 @@
 ## 1. 基本信息
 
 - project: Huiyi v4 Core
-- versionName: 4.1.8b
-- versionCode: 422
+- versionName: 4.1.9
+- versionCode: 423
 - branch: main
-- commitHash: 75b2da1
-- generatedAt: 2026-07-03 12:48:20 +0800
-- taskName: next_sentence_analysis_failure_diagnosis
+- commitHash: cdd0bdf
+- generatedAt: 2026-07-03 13:13:55 +0800
+- taskName: next_sentence_screenshot_capability_failure_fix
 - review_freshness_result: PASS
 - mockchat_result: PASS
 - real_device_smoke_result: NOT_TESTED
 - overall_result: NOT_TESTED
 - failReason: 本轮 Review Freshness 通过，但 Real Device Smoke 未执行，不代表真实聊天 App 已通过。
-- currentVersion: 4.1.8b
-- currentTaskName: next_sentence_analysis_failure_diagnosis
-- currentGeneratedAt: 2026-07-03 12:48:20 +0800
+- currentVersion: 4.1.9
+- currentTaskName: next_sentence_screenshot_capability_failure_fix
+- currentGeneratedAt: 2026-07-03 13:13:55 +0800
 - currentOverallResult: NOT_TESTED
 
 currentUserFeedback:
-  - 点击“下一句”后提示“这次分析失败”
+  - 点击“下一句”后提示“这次分析失败，已保存诊断。”
   - 悬浮球仍在
+  - 新诊断显示 pipelineException = java.lang.SecurityException: Services don't have the capability of taking the screenshot.
 
 currentRegressionStatus:
   overlayBubbleSurvivesAfterNextSentence: unknown_without_physical_device
   permissionFalseAlarmObservedThisRound: unknown_without_physical_device
+  screenshotCapabilityExceptionMapped: true
+  screenshotFailureBlocksNodeTreeMainPath: false
+  nodeTreeCaptureAttempted: False
+  fallbackSnapshotAttempted: False
   nextSentenceAnalysisResult: NOT_TESTED
   genericAnalysisFailedStillShown: false
   latestFailureReportGenerated: true
 
 ## Current Round Evidence
 
-- currentTaskName: next_sentence_analysis_failure_diagnosis
-- currentVersion: 4.1.8b
-- currentGeneratedAt: 2026-07-03 12:48:20 +0800
-- currentReports: outputs/latest-next-sentence-failure.json, outputs/latest-next-sentence-failure.md, outputs/next-sentence-analysis-failure-audit-for-gpt.md, outputs/overlay-window-flags-audit-for-gpt.md, outputs/v4.1.8b-next-sentence-failure-diagnosis-report-for-gpt.md
+- currentTaskName: next_sentence_screenshot_capability_failure_fix
+- currentVersion: 4.1.9
+- currentGeneratedAt: 2026-07-03 13:13:55 +0800
+- currentReports: outputs/accessibility-click-diagnostic-report-for-gpt.md, outputs/latest-next-sentence-failure.json, outputs/latest-next-sentence-failure.md, outputs/next-sentence-screenshot-capability-audit-for-gpt.md
 - currentSampleSources: not_tested
 - currentOverallResult: NOT_TESTED
 - review_freshness_result: PASS
@@ -45,9 +50,12 @@ currentRegressionStatus:
 - mockChatMatrixStillPass: true
 - smokeDisclaimer: 本轮 Review Freshness 通过，但 Real Device Smoke 未执行，不代表真实聊天 App 已通过。
 
+### accessibility-click-diagnostic-report-for-gpt.md
+
+- versionName: 4.1.9
 ### latest-next-sentence-failure.json
 
-- versionName: 4.1.8b
+- versionName: 4.1.9
 - lastEffectiveSpeaker: null
 - decisionType: null
 - routeCount: 0
@@ -61,21 +69,30 @@ currentRegressionStatus:
 - permission warning shown: false
 
 ## Failure stage
-### next-sentence-analysis-failure-audit-for-gpt.md
+### next-sentence-screenshot-capability-audit-for-gpt.md
 
-- versionName: 4.1.8b
-### overlay-window-flags-audit-for-gpt.md
-
-- versionName: 4.1.8b
-### v4.1.8b-next-sentence-failure-diagnosis-report-for-gpt.md
-
-- versionName: 4.1.8b
+- versionName: 4.1.9
 
 ## Current Next Sentence Failure Diagnosis
 
 - userVisibleMessage: NOT_TESTED_THIS_BUILD
 - errorCode: NOT_TESTED
+- secondaryErrorCode: None
 - failedStage: NOT_TESTED
+- pipelineExceptionClass: None
+- pipelineExceptionMessageRedacted: None
+- primaryCapturePath: NONE
+- nodeTreeAttempted: False
+- nodeTreeSuccess: False
+- screenshotAttempted: False
+- screenshotSuccess: False
+- screenshotAvailable: False
+- screenshotCapabilityDeclared: True
+- screenshotErrorCode: None
+- screenshotExceptionClass: None
+- screenshotExceptionMessageRedacted: None
+- fallbackSnapshotAttempted: False
+- fallbackSnapshotSuccess: False
 - captureSource: NONE
 - activePackageBeforeClick: NOT_TESTED
 - activePackageAtCaptureStart: NOT_TESTED
@@ -91,6 +108,33 @@ currentRegressionStatus:
 - lastEffectiveSpeaker: None
 - apiCalled: False
 - routeCount: 0
+- panelAttached: False
+- bubbleVisibleAfterFailure: False
+- permissionMissingMessageShown: False
+
+## Current Screenshot Capability Failure Diagnosis
+
+- pipelineExceptionClass: None
+- pipelineExceptionMessageRedacted: None
+- mappedErrorCode: NOT_TESTED
+- failedStage: NOT_TESTED
+- primaryCapturePath: NONE
+- nodeTreeAttempted: False
+- nodeTreeSuccess: False
+- screenshotAttempted: False
+- screenshotSuccess: False
+- screenshotErrorCode: None
+- secondaryErrorCode: None
+- rootAvailableFirstTry: False
+- rootRetryCount: 0
+- rootAvailableAfterRetry: False
+- screenshotAvailable: False
+- screenshotCapabilityDeclared: True
+- usedFallbackSnapshot: False
+- lastStableSnapshotAgeMs: None
+- parsedMessageCount: 0
+- lastEffectiveSpeaker: None
+- apiCalled: False
 - panelAttached: False
 - bubbleVisibleAfterFailure: False
 - permissionMissingMessageShown: False
@@ -184,29 +228,25 @@ These reports are historical references only. Their FAIL or `sample_source=unkno
 
 ## 2. 本轮目标
 
-- 本轮做什么: 定位并修复真机点击“下一句”后只显示泛化失败的问题，新增 errorCode、failedStage、failure report、root retry 与 lastStableChatSnapshot fallback。
+- 本轮做什么: 修复真机点击“下一句”时截图 capability 缺失误伤主链路的问题，将截图降级为 optional diagnostic，并补齐截图错误码与报告字段。
 - 本轮不做什么: 不新增产品功能；不做轻监听；不做 OCR；不做 ASR；不做完整历史采集；不接真实 API；不改 UI 大结构。
-- 验收标准: 分析失败必须有具体 errorCode/failedStage；悬浮球失败后仍在；不误报无障碍未开启；无真机时 next sentence 诊断明确 NOT_TESTED。
+- 验收标准: 截图 SecurityException 映射为 SCREENSHOT_CAPABILITY_MISSING；截图失败不阻断 node tree 主路径；failure report 区分 nodeTree 与 screenshot；无真机时明确 NOT_TESTED。
 
 ## 3. 改动摘要
 
 ### 新增文件
 
 ```
-outputs/latest-next-sentence-failure.json
-outputs/latest-next-sentence-failure.md
-outputs/next-sentence-analysis-failure-audit-for-gpt.md
-outputs/overlay-window-flags-audit-for-gpt.md
+outputs/next-sentence-screenshot-capability-audit-for-gpt.md
 outputs/review/archive/
-outputs/v4.1.8b-next-sentence-failure-diagnosis-report-for-gpt.md
 ```
 
 ### 修改文件
 
 ```
-outputs/review/huiyi-v4-review-bundle-for-gpt.zip
-outputs/review/huiyi-v4-review-for-gpt.md
-outputs/review/manifest.json
+outputs/accessibility-click-diagnostic-report-for-gpt.md
+outputs/latest-next-sentence-failure.json
+outputs/latest-next-sentence-failure.md
 scripts/generate_review_bundle.py
 ```
 
@@ -218,10 +258,10 @@ scripts/generate_review_bundle.py
 
 ### 关键模块变化
 
-- 新增 NextSentenceErrorCode / NextSentenceStage / NextSentenceSessionTrace。
-- CurrentScreenCaptureUseCase 增加 root 短重试、own overlay / System UI 分类、lastStableChatSnapshot fallback。
-- Runtime 失败时写出 latest-next-sentence-failure.md/json，并清掉旧结果避免旧面板盖住新失败。
-- 真机 next sentence 在无物理设备时输出 NOT_TESTED，不使用模拟器或 MockChat 冒充真机。
+- 新增截图错误码与截图诊断字段：primaryCapturePath、nodeTreeAttempted、screenshotAttempted、secondaryErrorCode、pipelineExceptionClass 等。
+- `VisualDebugCapture` 捕获同步 SecurityException 和 takeScreenshot callback failure，失败只进入 visual debug 结果。
+- `HuiyiRuntime` 在 node tree pipeline 成功后才执行 optional screenshot diagnostics，截图失败只作为 secondaryErrorCode。
+- 真机 screenshot failure smoke 在无物理设备时输出 NOT_TESTED，不使用模拟器或 MockChat 冒充真机。
 
 ### 未完成事项
 
@@ -267,9 +307,18 @@ See Current Round Evidence and Historical / Trace Reports above.
 
 ## 8. 产物清单
 
+- path: outputs/accessibility-click-diagnostic-report-for-gpt.md
+  type: report
+  sha256: 95fe5e2ada1b1852e69f02db66d33f86327bbe5061f5bd1b06d57f789bba46d4
+  是否建议发给 GPT: false
+  用途: Current round evidence.
+  isCurrentRound: true
+  evidenceRole: current
+  sample_source: none
+  stale: false
 - path: outputs/latest-next-sentence-failure.json
   type: json
-  sha256: 0efd5e2dad6f11dc1d7f7eb764563acdab68b1d6c20e3bab645df961debe8f2d
+  sha256: bbcf227998eb3ddb2c64a7faf63cd8e05e414ddd0282a599d6a93705b6c728e6
   是否建议发给 GPT: false
   用途: Current round evidence.
   isCurrentRound: true
@@ -278,34 +327,16 @@ See Current Round Evidence and Historical / Trace Reports above.
   stale: false
 - path: outputs/latest-next-sentence-failure.md
   type: report
-  sha256: 5361d4f2444626ea9023d00b15dd300768f8d3ea14a57a8672aed39588b7d427
+  sha256: 5c1245190e8db8e65faa9efb23aebc6b010983954ac3f7f9fe9f293e5b3fcd4e
   是否建议发给 GPT: false
   用途: Current round evidence.
   isCurrentRound: true
   evidenceRole: current
   sample_source: none
   stale: false
-- path: outputs/next-sentence-analysis-failure-audit-for-gpt.md
+- path: outputs/next-sentence-screenshot-capability-audit-for-gpt.md
   type: report
-  sha256: 876de57d64202aa4bd54d9399472ee0ca18fbaf753886d036f7148ecffac8f34
-  是否建议发给 GPT: false
-  用途: Current round evidence.
-  isCurrentRound: true
-  evidenceRole: current
-  sample_source: none
-  stale: false
-- path: outputs/overlay-window-flags-audit-for-gpt.md
-  type: report
-  sha256: f2a8cd0f69a7ba4c6e258ef8ccbe62fd44e0890cc0553ddc68b632adc61e48eb
-  是否建议发给 GPT: false
-  用途: Current round evidence.
-  isCurrentRound: true
-  evidenceRole: current
-  sample_source: none
-  stale: false
-- path: outputs/v4.1.8b-next-sentence-failure-diagnosis-report-for-gpt.md
-  type: report
-  sha256: 922ed0120704352cde25d178b695d26b10103ab47f1c71ab01889cae4b67b40c
+  sha256: 9cd988bf45ff518395f9381ece2bd874d64cecc37686a7e2d5e5b3f47d6874a3
   是否建议发给 GPT: false
   用途: Current round evidence.
   isCurrentRound: true

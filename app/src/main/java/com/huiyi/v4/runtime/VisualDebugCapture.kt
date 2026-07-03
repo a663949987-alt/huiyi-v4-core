@@ -12,7 +12,9 @@ import com.huiyi.v4.domain.capture.VisualDebugResult
 import com.huiyi.v4.domain.model.Speaker
 import com.huiyi.v4.domain.model.VisualBounds
 import com.huiyi.v4.domain.pipeline.CurrentScreenPipelineResult
+import com.huiyi.v4.domain.pipeline.mapScreenshotException
 import com.huiyi.v4.domain.pipeline.RealDeviceScenario
+import com.huiyi.v4.domain.pipeline.redactPrivateText
 import kotlinx.coroutines.suspendCancellableCoroutine
 import java.io.File
 import kotlin.coroutines.resume
@@ -29,6 +31,7 @@ class VisualDebugCapture(
         val width = result.captureResult?.snapshot?.screenWidth?.takeIf { it > 0 } ?: 1080
         val height = result.captureResult?.snapshot?.screenHeight?.takeIf { it > 0 } ?: 2400
         val screenshot = captureScreenshot(service).getOrElse { error ->
+            val screenshotCode = mapScreenshotException(error)
             val placeholder = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888)
             Canvas(placeholder).drawColor(Color.rgb(245, 245, 245))
             val overlay = drawOverlay(placeholder, result, scenario, screenshotCaptured = false, reason = error.message)
@@ -44,7 +47,10 @@ class VisualDebugCapture(
                 screenshotHeight = height,
                 accessibilityBoundsProjected = result.captureResult?.accessibilityBoundsProjected == true,
                 ocrUsed = false,
-                visualTruthAvailable = result.captureResult?.visualTruthAvailable == true
+                visualTruthAvailable = result.captureResult?.visualTruthAvailable == true,
+                screenshotErrorCode = screenshotCode?.name,
+                screenshotExceptionClass = error::class.java.name,
+                screenshotExceptionMessageRedacted = error.message?.redactPrivateText()
             )
         }
         val screenshotFile = File(outputDir, "current_screen.png")
@@ -71,29 +77,35 @@ class VisualDebugCapture(
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.R) {
             return Result.failure(IllegalStateException("takeScreenshot_requires_android_11"))
         }
-        return suspendCancellableCoroutine { continuation ->
-            service.takeScreenshot(
-                Display.DEFAULT_DISPLAY,
-                service.mainExecutor,
-                object : AccessibilityService.TakeScreenshotCallback {
-                    override fun onSuccess(screenshot: AccessibilityService.ScreenshotResult) {
-                        val hardwareBuffer = screenshot.hardwareBuffer
-                        val bitmap = Bitmap.wrapHardwareBuffer(hardwareBuffer, screenshot.colorSpace)
-                        val copy = bitmap?.copy(Bitmap.Config.ARGB_8888, false)
-                        hardwareBuffer.close()
-                        if (copy == null) {
-                            continuation.resume(Result.failure(IllegalStateException("screenshot_bitmap_null")))
-                        } else {
-                            continuation.resume(Result.success(copy))
-                        }
-                    }
+        return runCatching {
+            suspendCancellableCoroutine<Result<Bitmap>> { continuation ->
+                try {
+                    service.takeScreenshot(
+                        Display.DEFAULT_DISPLAY,
+                        service.mainExecutor,
+                        object : AccessibilityService.TakeScreenshotCallback {
+                            override fun onSuccess(screenshot: AccessibilityService.ScreenshotResult) {
+                                val hardwareBuffer = screenshot.hardwareBuffer
+                                val bitmap = Bitmap.wrapHardwareBuffer(hardwareBuffer, screenshot.colorSpace)
+                                val copy = bitmap?.copy(Bitmap.Config.ARGB_8888, false)
+                                hardwareBuffer.close()
+                                if (copy == null) {
+                                    continuation.resume(Result.failure(IllegalStateException("screenshot_bitmap_null")))
+                                } else {
+                                    continuation.resume(Result.success(copy))
+                                }
+                            }
 
-                    override fun onFailure(errorCode: Int) {
-                        continuation.resume(Result.failure(IllegalStateException("takeScreenshot_failed_$errorCode")))
-                    }
+                            override fun onFailure(errorCode: Int) {
+                                continuation.resume(Result.failure(IllegalStateException("takeScreenshot_failed_$errorCode")))
+                            }
+                        }
+                    )
+                } catch (error: Throwable) {
+                    continuation.resume(Result.failure(error))
                 }
-            )
-        }
+            }
+        }.getOrElse { Result.failure(it) }
     }
 
     private fun drawOverlay(

@@ -1,50 +1,26 @@
 # Accessibility Click Diagnostic Report
 
 ## Basic
+- versionName: 4.1.9
+- versionCode: 423
+- taskName: next_sentence_screenshot_capability_failure_fix
+- generatedAt: local_build_no_physical_device
 
-- project: Huiyi v4 Core
-- versionName: 4.1.8a
-- versionCode: 421
-- generatedAt: 2026-07-03 11:55:00 +08:00
-- overall_result: PARTIAL
-- realDeviceClickTest: NOT_TESTED
-
-## Runtime State Model
-
+## Current round status
 - systemAccessibilityEnabled: NOT_TESTED
 - serviceConnected: NOT_TESTED
 - rootAvailable: NOT_TESTED
-- currentPackage: NOT_TESTED
-- currentWindowTitle: NOT_TESTED
-- activeServiceInstanceId: NOT_TESTED
-- overlayVisible: NOT_TESTED
-- floatingServiceRunning: NOT_TESTED
-- system_enabled_but_service_not_connected: NOT_TESTED
-
-## Click Samples
-
-| sample | systemAccessibilityEnabled | serviceConnected | rootAvailable | currentPackage | currentWindowTitle | overlayVisible | floatingServiceRunning | activeServiceInstanceId | lastError |
-| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| beforeClick | NOT_TESTED | NOT_TESTED | NOT_TESTED | NOT_TESTED | NOT_TESTED | NOT_TESTED | NOT_TESTED | NOT_TESTED | NOT_TESTED |
-| afterClick_100ms | NOT_TESTED | NOT_TESTED | NOT_TESTED | NOT_TESTED | NOT_TESTED | NOT_TESTED | NOT_TESTED | NOT_TESTED | NOT_TESTED |
-| afterClick_500ms | NOT_TESTED | NOT_TESTED | NOT_TESTED | NOT_TESTED | NOT_TESTED | NOT_TESTED | NOT_TESTED | NOT_TESTED | NOT_TESTED |
-| afterClick_1000ms | NOT_TESTED | NOT_TESTED | NOT_TESTED | NOT_TESTED | NOT_TESTED | NOT_TESTED | NOT_TESTED | NOT_TESTED | NOT_TESTED |
-| afterClick_3000ms | NOT_TESTED | NOT_TESTED | NOT_TESTED | NOT_TESTED | NOT_TESTED | NOT_TESTED | NOT_TESTED | NOT_TESTED | NOT_TESTED |
-
-## Failure Guards
-
 - wrongNoPermissionTextShown: false
 - pipelineException: NOT_TESTED
-- windowManagerException: NOT_TESTED
-- floatingBubbleDisappearReason: NOT_TESTED
-- errorCardText: 这次分析失败，但悬浮球仍在。
+- screenshotCapabilityExceptionMapped: true
+- screenshotFailureBlocksNodeTreeMainPath: false
+- latestFailureReportGenerated: true
 
-## Local Validation
+## Sampling model
+- preClickSample: captured before failure UI
+- captureStartSample: intended before optional screenshot diagnostics
+- preFailureUiSample: captured before showing failure panel
+- postFailureUiSample: only for overlay health, not used as capture root
 
-- AccessibilityEnabledButServiceDisconnectedTextTest: PASS
-- RootUnavailableTextTest: PASS
-- NextClickExceptionKeepsBubbleVisibleTest: PASS
-- WindowManagerExceptionLoggedTest: PASS
-- OverlayHiddenOnlyByUserTest: PASS
-- unit tests: PASS
-- debug build: PASS
+## Note
+- 本机没有物理 Android，真实点击采样未执行。安装 4.1.9 后手机端导出的同名报告会覆盖此占位报告。

@@ -9,6 +9,9 @@ enum class NextSentenceErrorCode {
     ROOT_UNAVAILABLE,
     ROOT_IS_OWN_OVERLAY,
     ROOT_IS_SYSTEM_UI,
+    PACKAGE_TITLE_MISMATCH,
+    FAILURE_PANEL_STATE_SAMPLED,
+    CAPTURE_STATE_CONTAMINATED_BY_ERROR_UI,
     CHAT_WINDOW_NOT_FOUND,
     CHAT_WINDOW_STALE,
     NODE_TREE_EMPTY,
@@ -27,6 +30,11 @@ enum class NextSentenceErrorCode {
     MODEL_REQUEST_FAILED,
     MODEL_RESPONSE_EMPTY,
     MODEL_RESPONSE_PARSE_FAILED,
+    SCREENSHOT_CAPABILITY_MISSING,
+    SCREENSHOT_NOT_ALLOWED,
+    SCREENSHOT_SECURE_WINDOW,
+    SCREENSHOT_RATE_LIMITED,
+    SCREENSHOT_FAILED,
     PANEL_ADD_FAILED,
     PANEL_RENDER_FAILED,
     SESSION_CANCELLED,
@@ -38,10 +46,17 @@ enum class NextSentenceStage {
     IDLE,
     CLICK_RECEIVED,
     ACCESSIBILITY_STATE_CHECKED,
+    NODE_TREE_CAPTURE_STARTED,
+    NODE_TREE_CAPTURE_RETRYING,
+    NODE_TREE_CAPTURED,
     ROOT_CAPTURE_STARTED,
     ROOT_CAPTURE_RETRYING,
     ROOT_CAPTURED,
+    FALLBACK_SNAPSHOT_CHECKED,
     FALLBACK_SNAPSHOT_USED,
+    OPTIONAL_SCREENSHOT_DIAGNOSTIC_STARTED,
+    OPTIONAL_SCREENSHOT_DIAGNOSTIC_FAILED,
+    OPTIONAL_SCREENSHOT_DIAGNOSTIC_SUCCEEDED,
     NODE_TREE_EXTRACTED,
     CHAT_MESSAGES_PARSED,
     LAST_SPEAKER_DECIDED,
@@ -77,6 +92,10 @@ data class NextSentenceSessionTrace(
     val activePackageBeforeClick: String? = null,
     val activePackageAtCaptureStart: String? = null,
     val activePackageAfterRootRetry: String? = null,
+    val rootPackageAtCaptureStart: String? = null,
+    val rootPackageBeforeFailureUi: String? = null,
+    val rootPackageAfterFailureUi: String? = null,
+    val currentPackageAfterFailurePanel: String? = null,
     val rootAvailableFirstTry: Boolean = false,
     val rootRetryCount: Int = 0,
     val rootAvailableAfterRetry: Boolean = false,
@@ -87,6 +106,22 @@ data class NextSentenceSessionTrace(
     val rootIsSystemUi: Boolean = false,
     val rootIsTargetChatApp: Boolean = false,
     val captureSource: NextSentenceCaptureSource = NextSentenceCaptureSource.NONE,
+    val primaryCapturePath: String = "NONE",
+    val nodeTreeAttempted: Boolean = false,
+    val nodeTreeSuccess: Boolean = false,
+    val screenshotAttempted: Boolean = false,
+    val screenshotSuccess: Boolean = false,
+    val screenshotAvailable: Boolean = false,
+    val screenshotCapabilityDeclared: Boolean = false,
+    val screenshotErrorCode: NextSentenceErrorCode? = null,
+    val screenshotExceptionClass: String? = null,
+    val screenshotExceptionMessageRedacted: String? = null,
+    val pipelineExceptionClass: String? = null,
+    val pipelineExceptionMessageRedacted: String? = null,
+    val secondaryErrorCode: NextSentenceErrorCode? = null,
+    val fallbackSnapshotAttempted: Boolean = false,
+    val fallbackSnapshotSuccess: Boolean = false,
+    val failurePanelAlreadyShownWhenSampled: Boolean = false,
     val usedFallbackSnapshot: Boolean = false,
     val lastStableSnapshotAgeMs: Long? = null,
     val lastStableSnapshotPackage: String? = null,
@@ -132,6 +167,9 @@ fun userFacingMessageFor(code: NextSentenceErrorCode): String {
         NextSentenceErrorCode.ROOT_UNAVAILABLE -> "当前窗口暂时不可读取，请回到聊天页再试一次。"
         NextSentenceErrorCode.ROOT_IS_OWN_OVERLAY -> "刚才焦点停在会意悬浮窗，已尝试使用聊天页快照。"
         NextSentenceErrorCode.ROOT_IS_SYSTEM_UI -> "当前焦点在系统界面，请回到聊天页再试一次。"
+        NextSentenceErrorCode.PACKAGE_TITLE_MISMATCH -> "当前窗口来源不一致，已尝试使用聊天页快照。"
+        NextSentenceErrorCode.FAILURE_PANEL_STATE_SAMPLED -> "采样到了失败面板状态，已保留诊断。"
+        NextSentenceErrorCode.CAPTURE_STATE_CONTAMINATED_BY_ERROR_UI -> "当前采样被错误面板污染，请回到聊天页再试一次。"
         NextSentenceErrorCode.CHAT_WINDOW_NOT_FOUND -> "没识别到聊天窗口，请先打开聊天页面。"
         NextSentenceErrorCode.CHAT_WINDOW_STALE -> "聊天页快照已过期，请回到聊天页再试一次。"
         NextSentenceErrorCode.NODE_TREE_EMPTY -> "当前窗口节点为空，请回到聊天页再试一次。"
@@ -147,6 +185,11 @@ fun userFacingMessageFor(code: NextSentenceErrorCode): String {
         NextSentenceErrorCode.MODEL_REQUEST_FAILED -> "模型请求失败，已保留当前屏幕诊断。"
         NextSentenceErrorCode.MODEL_RESPONSE_EMPTY -> "模型返回为空，已保留诊断。"
         NextSentenceErrorCode.MODEL_RESPONSE_PARSE_FAILED -> "模型返回格式解析失败，已保留诊断。"
+        NextSentenceErrorCode.SCREENSHOT_CAPABILITY_MISSING -> "当前版本没有截图能力，已改用无障碍节点读取聊天内容。"
+        NextSentenceErrorCode.SCREENSHOT_NOT_ALLOWED -> "系统不允许当前服务截图，已改用无障碍节点读取聊天内容。"
+        NextSentenceErrorCode.SCREENSHOT_SECURE_WINDOW -> "当前窗口禁止截图，已改用无障碍节点读取聊天内容。"
+        NextSentenceErrorCode.SCREENSHOT_RATE_LIMITED -> "截图调用过快，已改用无障碍节点读取聊天内容。"
+        NextSentenceErrorCode.SCREENSHOT_FAILED -> "截图失败，已改用无障碍节点读取聊天内容。"
         NextSentenceErrorCode.ROUTE_SCHEMA_INVALID -> "路线结果格式异常，已保留诊断。"
         NextSentenceErrorCode.ROUTE_COUNT_INVALID -> "路线数量异常，已保留诊断。"
         NextSentenceErrorCode.PANEL_ADD_FAILED -> "结果面板显示失败，但悬浮球已恢复。"
@@ -163,12 +206,56 @@ fun Throwable.toNextSentenceException(
     fallbackTrace: NextSentenceSessionTrace,
     fallbackStage: NextSentenceStage
 ): NextSentenceException {
-    return this as? NextSentenceException ?: NextSentenceException(
+    if (this is NextSentenceException) return this
+    val screenshotCode = mapScreenshotException(this)
+    if (screenshotCode != null) {
+        val trace = fallbackTrace.failed(
+            screenshotCode,
+            NextSentenceStage.OPTIONAL_SCREENSHOT_DIAGNOSTIC_FAILED,
+            this
+        ).copy(
+            primaryCapturePath = fallbackTrace.primaryCapturePath,
+            nodeTreeAttempted = fallbackTrace.nodeTreeAttempted,
+            nodeTreeSuccess = fallbackTrace.nodeTreeSuccess,
+            screenshotAttempted = true,
+            screenshotSuccess = false,
+            screenshotAvailable = false,
+            screenshotErrorCode = screenshotCode,
+            screenshotExceptionClass = this::class.java.name,
+            screenshotExceptionMessageRedacted = message?.redactPrivateText(),
+            pipelineExceptionClass = this::class.java.name,
+            pipelineExceptionMessageRedacted = message?.redactPrivateText()
+        )
+        return NextSentenceException(screenshotCode, NextSentenceStage.OPTIONAL_SCREENSHOT_DIAGNOSTIC_FAILED, trace, this)
+    }
+    return NextSentenceException(
         code = NextSentenceErrorCode.UNKNOWN_EXCEPTION,
         failedStage = fallbackStage,
-        trace = fallbackTrace.failed(NextSentenceErrorCode.UNKNOWN_EXCEPTION, fallbackStage, this),
+        trace = fallbackTrace.failed(NextSentenceErrorCode.UNKNOWN_EXCEPTION, fallbackStage, this)
+            .copy(
+                pipelineExceptionClass = this::class.java.name,
+                pipelineExceptionMessageRedacted = message?.redactPrivateText()
+            ),
         cause = this
     )
+}
+
+fun mapScreenshotException(error: Throwable): NextSentenceErrorCode? {
+    val text = "${error::class.java.name}: ${error.message.orEmpty()}"
+    if (error is SecurityException && text.contains("Services don't have the capability of taking the screenshot", ignoreCase = true)) {
+        return NextSentenceErrorCode.SCREENSHOT_CAPABILITY_MISSING
+    }
+    return when {
+        text.contains("ERROR_TAKE_SCREENSHOT_NO_ACCESSIBILITY_ACCESS", ignoreCase = true) ||
+            text.contains("takeScreenshot_failed_1", ignoreCase = true) -> NextSentenceErrorCode.SCREENSHOT_NOT_ALLOWED
+        text.contains("ERROR_TAKE_SCREENSHOT_SECURE_WINDOW", ignoreCase = true) ||
+            text.contains("takeScreenshot_failed_2", ignoreCase = true) -> NextSentenceErrorCode.SCREENSHOT_SECURE_WINDOW
+        text.contains("ERROR_TAKE_SCREENSHOT_INTERVAL_TIME_SHORT", ignoreCase = true) ||
+            text.contains("takeScreenshot_failed_3", ignoreCase = true) -> NextSentenceErrorCode.SCREENSHOT_RATE_LIMITED
+        text.contains("takeScreenshot", ignoreCase = true) ||
+            text.contains("screenshot", ignoreCase = true) -> NextSentenceErrorCode.SCREENSHOT_FAILED
+        else -> null
+    }
 }
 
 fun String.redactPrivateText(maxLength: Int = 120): String {

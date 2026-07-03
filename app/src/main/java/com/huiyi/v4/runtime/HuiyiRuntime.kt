@@ -4,6 +4,7 @@ import android.content.Context
 import com.huiyi.v4.data.DatabaseProvider
 import com.huiyi.v4.data.HuiyiPersistenceRepository
 import com.huiyi.v4.domain.capture.ManualContextCaptureSession
+import com.huiyi.v4.domain.capture.VisualDebugResult
 import com.huiyi.v4.domain.context.ContextAssembler
 import com.huiyi.v4.domain.model.ReplyAttempt
 import com.huiyi.v4.domain.model.ReplyAttemptStatus
@@ -36,6 +37,8 @@ import com.huiyi.v4.domain.pipeline.EvidencePackFiles
 import com.huiyi.v4.BuildConfig
 import com.huiyi.v4.domain.pipeline.toNextSentenceException
 import com.huiyi.v4.domain.pipeline.userFacingMessageFor
+import com.huiyi.v4.domain.pipeline.mapScreenshotException
+import com.huiyi.v4.domain.pipeline.redactPrivateText
 import com.huiyi.v4.domain.tactical.ReplyRouteGenerator
 import com.huiyi.v4.domain.tactical.TacticalDecisionEngine
 import com.huiyi.v4.ui.HuiyiDemoState
@@ -157,8 +160,27 @@ class HuiyiRuntime private constructor(
                     onSuccess = { pipelineResult ->
                         val messages = pipelineResult.context?.currentScreenMessages ?: mutableState.value.demoState.messages
                         val scenario = mutableState.value.selectedRealDeviceScenario
-                        val visualDebug = VisualDebugCapture(File(appContext.filesDir, "debug/real_device_visual_debug"))
-                            .capture(HuiyiAccessibilityService.instance, pipelineResult, scenario)
+                        val visualDebug = runCatching {
+                            VisualDebugCapture(File(appContext.filesDir, "debug/real_device_visual_debug"))
+                                .capture(HuiyiAccessibilityService.instance, pipelineResult, scenario)
+                        }.getOrElse { error ->
+                            val screenshotCode = mapScreenshotException(error) ?: NextSentenceErrorCode.SCREENSHOT_FAILED
+                            VisualDebugResult(
+                                screenshotCaptured = false,
+                                screenshotUnavailable = true,
+                                reason = error.message ?: screenshotCode.name,
+                                screenshotPath = null,
+                                overlayImagePath = null,
+                                screenshotWidth = pipelineResult.captureResult?.snapshot?.screenWidth ?: 0,
+                                screenshotHeight = pipelineResult.captureResult?.snapshot?.screenHeight ?: 0,
+                                accessibilityBoundsProjected = pipelineResult.captureResult?.accessibilityBoundsProjected == true,
+                                ocrUsed = false,
+                                visualTruthAvailable = pipelineResult.captureResult?.visualTruthAvailable == true,
+                                screenshotErrorCode = screenshotCode.name,
+                                screenshotExceptionClass = error::class.java.name,
+                                screenshotExceptionMessageRedacted = error.message?.redactPrivateText()
+                            )
+                        }
                         val resultWithVisualDebug = pipelineResult.copy(visualDebugResult = visualDebug)
                         val capture = pipelineResult.captureResult
                         val successTrace = startedTrace.copy(
@@ -175,6 +197,15 @@ class HuiyiRuntime private constructor(
                             rootIsSystemUi = capture?.rootIsSystemUi ?: false,
                             rootIsTargetChatApp = capture?.snapshot?.appPackage !in setOf(null, appContext.packageName, "com.android.systemui"),
                             captureSource = capture?.captureSource ?: NextSentenceCaptureSource.CURRENT_ROOT,
+                            primaryCapturePath = if (capture?.captureSource == NextSentenceCaptureSource.LAST_STABLE_CHAT_SNAPSHOT) {
+                                "LAST_STABLE_CHAT_SNAPSHOT"
+                            } else {
+                                "NODE_TREE"
+                            },
+                            nodeTreeAttempted = true,
+                            nodeTreeSuccess = capture?.captureSource == NextSentenceCaptureSource.CURRENT_ROOT,
+                            fallbackSnapshotAttempted = true,
+                            fallbackSnapshotSuccess = capture?.usedFallbackSnapshot == true,
                             usedFallbackSnapshot = capture?.usedFallbackSnapshot ?: false,
                             lastStableSnapshotAgeMs = capture?.lastStableSnapshotAgeMs,
                             lastStableSnapshotPackage = capture?.lastStableSnapshotPackage,
@@ -186,6 +217,14 @@ class HuiyiRuntime private constructor(
                             decisionType = pipelineResult.tacticalDecision.decisionType.name,
                             routeCount = pipelineResult.routes.size,
                             apiCalled = pipelineResult.apiCalled,
+                            screenshotAttempted = true,
+                            screenshotSuccess = visualDebug.screenshotCaptured,
+                            screenshotAvailable = visualDebug.screenshotCaptured,
+                            screenshotCapabilityDeclared = true,
+                            screenshotErrorCode = visualDebug.screenshotErrorCode?.let { NextSentenceErrorCode.valueOf(it) },
+                            screenshotExceptionClass = visualDebug.screenshotExceptionClass,
+                            screenshotExceptionMessageRedacted = visualDebug.screenshotExceptionMessageRedacted,
+                            secondaryErrorCode = visualDebug.screenshotErrorCode?.let { NextSentenceErrorCode.valueOf(it) },
                             panelAttached = true,
                             panelRenderSuccess = true,
                             userFacingMessage = if (pipelineResult.tacticalDecision.decisionType == TacticalDecisionType.WAIT) {
@@ -230,7 +269,7 @@ class HuiyiRuntime private constructor(
     }
 
     private fun handleNextSentenceFailure(error: Throwable, baseTrace: NextSentenceSessionTrace) {
-        val next = error.toNextSentenceException(baseTrace, NextSentenceStage.ROOT_CAPTURE_STARTED)
+        val next = error.toNextSentenceException(baseTrace, NextSentenceStage.NODE_TREE_CAPTURE_STARTED)
         OverlayStateStore.recordPipelineException(error)
         val overlay = OverlayStateStore.state.value
         val runtime = AccessibilityRuntimeReader.read(appContext)
@@ -243,6 +282,9 @@ class HuiyiRuntime private constructor(
             serviceConnected = runtime.serviceConnected,
             permissionMissingMessageShown = next.code == NextSentenceErrorCode.ACCESSIBILITY_SYSTEM_DISABLED,
             activePackageBeforeClick = baseTrace.activePackageBeforeClick ?: runtime.currentPackage,
+            rootPackageBeforeFailureUi = runtime.currentPackage,
+            pipelineExceptionClass = next.trace.pipelineExceptionClass ?: error::class.java.name,
+            pipelineExceptionMessageRedacted = next.trace.pipelineExceptionMessageRedacted ?: error.message?.redactPrivateText(),
             userFacingMessage = next.trace.userFacingMessage ?: userFacingMessageFor(next.code)
         )
         val paths = writeLatestFailureReports(finalTrace)

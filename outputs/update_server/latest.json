@@ -1,9 +1,9 @@
 {
-    "versionName":  "4.1.8b",
-    "versionCode":  422,
-    "apkUrl":  "huiyi-v4.1.8b-debug.apk",
-    "releaseNotes":  "v4.1.8b: 下一句失败诊断，错误码/阶段追踪，root重试，聊天快照回退，失败报告导出",
+    "versionName":  "4.1.9",
+    "versionCode":  423,
+    "apkUrl":  "huiyi-v4.1.9-debug.apk",
+    "releaseNotes":  "v4.1.9: 截图能力异常不再中断下一句，截图降级为可选诊断，补截图错误码和failure报告字段",
     "forceUpdate":  false,
-    "sha256":  "9FF205617484DA6BDEF3C5A921DA9F9C6DB5259194AF88FE0865D22088492E2C",
-    "createdAt":  1783054046892
+    "sha256":  "D37E34FF32D3AD94FBAA136CC214313CFA0A12B6048912346535550C0D1B5C27",
+    "createdAt":  1783055625360
 }

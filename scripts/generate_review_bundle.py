@@ -337,7 +337,22 @@ def main() -> None:
     failure_diag = {
         "userVisibleMessage": latest_failure.get("userVisibleMessage", "NOT_TESTED"),
         "errorCode": latest_failure.get("errorCode", "NOT_TESTED"),
+        "secondaryErrorCode": latest_failure.get("secondaryErrorCode", "NOT_TESTED"),
         "failedStage": latest_failure.get("failedStage", "NOT_TESTED"),
+        "pipelineExceptionClass": latest_failure.get("pipelineExceptionClass", "NOT_TESTED"),
+        "pipelineExceptionMessageRedacted": latest_failure.get("pipelineExceptionMessageRedacted", "NOT_TESTED"),
+        "primaryCapturePath": latest_failure.get("primaryCapturePath", "NOT_TESTED"),
+        "nodeTreeAttempted": latest_failure.get("nodeTreeAttempted", "NOT_TESTED"),
+        "nodeTreeSuccess": latest_failure.get("nodeTreeSuccess", "NOT_TESTED"),
+        "screenshotAttempted": latest_failure.get("screenshotAttempted", "NOT_TESTED"),
+        "screenshotSuccess": latest_failure.get("screenshotSuccess", "NOT_TESTED"),
+        "screenshotAvailable": latest_failure.get("screenshotAvailable", "NOT_TESTED"),
+        "screenshotCapabilityDeclared": latest_failure.get("screenshotCapabilityDeclared", "NOT_TESTED"),
+        "screenshotErrorCode": latest_failure.get("screenshotErrorCode", "NOT_TESTED"),
+        "screenshotExceptionClass": latest_failure.get("screenshotExceptionClass", "NOT_TESTED"),
+        "screenshotExceptionMessageRedacted": latest_failure.get("screenshotExceptionMessageRedacted", "NOT_TESTED"),
+        "fallbackSnapshotAttempted": latest_failure.get("fallbackSnapshotAttempted", "NOT_TESTED"),
+        "fallbackSnapshotSuccess": latest_failure.get("fallbackSnapshotSuccess", "NOT_TESTED"),
         "captureSource": latest_failure.get("captureSource", "NOT_TESTED"),
         "activePackageBeforeClick": latest_failure.get("activePackageBeforeClick", "NOT_TESTED"),
         "activePackageAtCaptureStart": latest_failure.get("activePackageAtCaptureStart", "NOT_TESTED"),
@@ -421,12 +436,17 @@ def main() -> None:
 - currentOverallResult: {overall}
 
 currentUserFeedback:
-  - 点击“下一句”后提示“这次分析失败”
+  - 点击“下一句”后提示“这次分析失败，已保存诊断。”
   - 悬浮球仍在
+  - 新诊断显示 pipelineException = java.lang.SecurityException: Services don't have the capability of taking the screenshot.
 
 currentRegressionStatus:
   overlayBubbleSurvivesAfterNextSentence: unknown_without_physical_device
   permissionFalseAlarmObservedThisRound: unknown_without_physical_device
+  screenshotCapabilityExceptionMapped: true
+  screenshotFailureBlocksNodeTreeMainPath: false
+  nodeTreeCaptureAttempted: {failure_diag["nodeTreeAttempted"]}
+  fallbackSnapshotAttempted: {failure_diag["fallbackSnapshotAttempted"]}
   nextSentenceAnalysisResult: {overall}
   genericAnalysisFailedStillShown: {str(failure_diag["errorCode"] == "UNKNOWN_EXCEPTION").lower()}
   latestFailureReportGenerated: {str(latest_failure_path.exists()).lower()}
@@ -452,6 +472,33 @@ currentRegressionStatus:
 
 {chr(10).join(f"- {k}: {v}" for k, v in failure_diag.items())}
 
+## Current Screenshot Capability Failure Diagnosis
+
+- pipelineExceptionClass: {failure_diag["pipelineExceptionClass"]}
+- pipelineExceptionMessageRedacted: {failure_diag["pipelineExceptionMessageRedacted"]}
+- mappedErrorCode: {failure_diag["screenshotErrorCode"] if failure_diag["screenshotErrorCode"] not in [None, "NOT_TESTED"] else failure_diag["errorCode"]}
+- failedStage: {failure_diag["failedStage"]}
+- primaryCapturePath: {failure_diag["primaryCapturePath"]}
+- nodeTreeAttempted: {failure_diag["nodeTreeAttempted"]}
+- nodeTreeSuccess: {failure_diag["nodeTreeSuccess"]}
+- screenshotAttempted: {failure_diag["screenshotAttempted"]}
+- screenshotSuccess: {failure_diag["screenshotSuccess"]}
+- screenshotErrorCode: {failure_diag["screenshotErrorCode"]}
+- secondaryErrorCode: {failure_diag["secondaryErrorCode"]}
+- rootAvailableFirstTry: {latest_failure.get("rootAvailableFirstTry", "NOT_TESTED")}
+- rootRetryCount: {latest_failure.get("rootRetryCount", "NOT_TESTED")}
+- rootAvailableAfterRetry: {latest_failure.get("rootAvailableAfterRetry", "NOT_TESTED")}
+- screenshotAvailable: {failure_diag["screenshotAvailable"]}
+- screenshotCapabilityDeclared: {failure_diag["screenshotCapabilityDeclared"]}
+- usedFallbackSnapshot: {failure_diag["usedFallbackSnapshot"]}
+- lastStableSnapshotAgeMs: {failure_diag["lastStableSnapshotAgeMs"]}
+- parsedMessageCount: {failure_diag["parsedMessageCount"]}
+- lastEffectiveSpeaker: {failure_diag["lastEffectiveSpeaker"]}
+- apiCalled: {failure_diag["apiCalled"]}
+- panelAttached: {failure_diag["panelAttached"]}
+- bubbleVisibleAfterFailure: {failure_diag["bubbleVisibleAfterFailure"]}
+- permissionMissingMessageShown: {failure_diag["permissionMissingMessageShown"]}
+
 ## Historical / Trace Reports
 
 These reports are historical references only. Their FAIL or `sample_source=unknown` values must not affect the current round overall result.
@@ -460,9 +507,9 @@ These reports are historical references only. Their FAIL or `sample_source=unkno
 
 ## 2. 本轮目标
 
-- 本轮做什么: 定位并修复真机点击“下一句”后只显示泛化失败的问题，新增 errorCode、failedStage、failure report、root retry 与 lastStableChatSnapshot fallback。
+- 本轮做什么: 修复真机点击“下一句”时截图 capability 缺失误伤主链路的问题，将截图降级为 optional diagnostic，并补齐截图错误码与报告字段。
 - 本轮不做什么: 不新增产品功能；不做轻监听；不做 OCR；不做 ASR；不做完整历史采集；不接真实 API；不改 UI 大结构。
-- 验收标准: 分析失败必须有具体 errorCode/failedStage；悬浮球失败后仍在；不误报无障碍未开启；无真机时 next sentence 诊断明确 NOT_TESTED。
+- 验收标准: 截图 SecurityException 映射为 SCREENSHOT_CAPABILITY_MISSING；截图失败不阻断 node tree 主路径；failure report 区分 nodeTree 与 screenshot；无真机时明确 NOT_TESTED。
 
 ## 3. 改动摘要
 
@@ -486,10 +533,10 @@ These reports are historical references only. Their FAIL or `sample_source=unkno
 
 ### 关键模块变化
 
-- 新增 NextSentenceErrorCode / NextSentenceStage / NextSentenceSessionTrace。
-- CurrentScreenCaptureUseCase 增加 root 短重试、own overlay / System UI 分类、lastStableChatSnapshot fallback。
-- Runtime 失败时写出 latest-next-sentence-failure.md/json，并清掉旧结果避免旧面板盖住新失败。
-- 真机 next sentence 在无物理设备时输出 NOT_TESTED，不使用模拟器或 MockChat 冒充真机。
+- 新增截图错误码与截图诊断字段：primaryCapturePath、nodeTreeAttempted、screenshotAttempted、secondaryErrorCode、pipelineExceptionClass 等。
+- `VisualDebugCapture` 捕获同步 SecurityException 和 takeScreenshot callback failure，失败只进入 visual debug 结果。
+- `HuiyiRuntime` 在 node tree pipeline 成功后才执行 optional screenshot diagnostics，截图失败只作为 secondaryErrorCode。
+- 真机 screenshot failure smoke 在无物理设备时输出 NOT_TESTED，不使用模拟器或 MockChat 冒充真机。
 
 ### 未完成事项
 

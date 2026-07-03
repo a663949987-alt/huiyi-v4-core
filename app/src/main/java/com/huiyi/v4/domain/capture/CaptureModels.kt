@@ -44,5 +44,8 @@ data class VisualDebugResult(
     val screenshotHeight: Int,
     val accessibilityBoundsProjected: Boolean,
     val ocrUsed: Boolean,
-    val visualTruthAvailable: Boolean
+    val visualTruthAvailable: Boolean,
+    val screenshotErrorCode: String? = null,
+    val screenshotExceptionClass: String? = null,
+    val screenshotExceptionMessageRedacted: String? = null
 )

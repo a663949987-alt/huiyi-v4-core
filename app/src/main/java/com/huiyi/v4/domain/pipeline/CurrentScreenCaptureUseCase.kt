@@ -50,7 +50,9 @@ open class CurrentScreenCaptureUseCase(
                     sessionId = sessionId,
                     startedAt = startedAt,
                     stage = NextSentenceStage.ACCESSIBILITY_STATE_CHECKED,
-                    serviceConnected = false
+                    serviceConnected = false,
+                    primaryCapturePath = "NONE",
+                    nodeTreeAttempted = false
                 ),
                 code = NextSentenceErrorCode.ACCESSIBILITY_SERVICE_NOT_CONNECTED,
                 stage = NextSentenceStage.ACCESSIBILITY_STATE_CHECKED
@@ -72,14 +74,20 @@ open class CurrentScreenCaptureUseCase(
         val baseTrace = NextSentenceSessionTrace(
             sessionId = sessionId,
             startedAt = startedAt,
-            stage = NextSentenceStage.ROOT_CAPTURE_STARTED,
+            stage = NextSentenceStage.NODE_TREE_CAPTURE_STARTED,
             activePackageAtCaptureStart = firstRootPackage,
             activePackageAfterRootRetry = afterRetryPackage,
+            rootPackageAtCaptureStart = firstRootPackage,
             rootAvailableFirstTry = firstTryAvailable,
             rootRetryCount = retryCount,
             rootAvailableAfterRetry = snapshotResult.isSuccess,
             lastStableSnapshotAgeMs = fallbackAgeMs,
-            lastStableSnapshotPackage = fallback?.packageName
+            lastStableSnapshotPackage = fallback?.packageName,
+            primaryCapturePath = "NODE_TREE",
+            nodeTreeAttempted = true,
+            nodeTreeSuccess = snapshotResult.isSuccess,
+            fallbackSnapshotAttempted = true,
+            fallbackSnapshotSuccess = false
         )
         val snapshot = snapshotResult.getOrNull()
         if (snapshot == null) {
@@ -99,9 +107,9 @@ open class CurrentScreenCaptureUseCase(
             }
             return Result.failure(
                 failure(
-                    trace = baseTrace.copy(captureSource = NextSentenceCaptureSource.NONE),
+                    trace = baseTrace.copy(captureSource = NextSentenceCaptureSource.NONE, primaryCapturePath = "NONE"),
                     code = NextSentenceErrorCode.ROOT_UNAVAILABLE,
-                    stage = NextSentenceStage.ROOT_CAPTURE_RETRYING,
+                    stage = NextSentenceStage.NODE_TREE_CAPTURE_RETRYING,
                     cause = snapshotResult.exceptionOrNull()
                 )
             )
@@ -121,10 +129,10 @@ open class CurrentScreenCaptureUseCase(
                 lastStableSnapshotPackage = fallbackCapture.packageName,
                 currentRootPackageAtCapture = appPackage,
                 rootIsOwnOverlay = rootIsOwnOverlay,
-                rootIsSystemUi = rootIsSystemUi,
-                rootRetryCount = retryCount,
-                rootAvailableFirstTry = firstTryAvailable,
-                rootAvailableAfterRetry = true
+                    rootIsSystemUi = rootIsSystemUi,
+                    rootRetryCount = retryCount,
+                    rootAvailableFirstTry = firstTryAvailable,
+                    rootAvailableAfterRetry = true
             ))
         }
         if (rootIsOwnOverlay || rootIsSystemUi) {
@@ -136,10 +144,15 @@ open class CurrentScreenCaptureUseCase(
                         rootWindowTitle = snapshot.windowTitle,
                         rootIsOwnOverlay = rootIsOwnOverlay,
                         rootIsSystemUi = rootIsSystemUi,
-                        captureSource = NextSentenceCaptureSource.NONE
+                        captureSource = NextSentenceCaptureSource.NONE,
+                        primaryCapturePath = "NONE",
+                        nodeTreeAttempted = true,
+                        nodeTreeSuccess = false,
+                        fallbackSnapshotAttempted = true,
+                        fallbackSnapshotSuccess = false
                     ),
                     code = if (rootIsOwnOverlay) NextSentenceErrorCode.ROOT_IS_OWN_OVERLAY else NextSentenceErrorCode.ROOT_IS_SYSTEM_UI,
-                    stage = NextSentenceStage.ROOT_CAPTURED
+                    stage = NextSentenceStage.NODE_TREE_CAPTURED
                 )
             )
         }
@@ -248,6 +261,11 @@ open class CurrentScreenCaptureUseCase(
         rootPackageName = snapshot.appPackage,
         rootWindowTitle = snapshot.windowTitle,
         captureSource = captureSource,
+        primaryCapturePath = if (captureSource == NextSentenceCaptureSource.LAST_STABLE_CHAT_SNAPSHOT) "LAST_STABLE_CHAT_SNAPSHOT" else "NODE_TREE",
+        nodeTreeAttempted = true,
+        nodeTreeSuccess = captureSource == NextSentenceCaptureSource.CURRENT_ROOT,
+        fallbackSnapshotAttempted = true,
+        fallbackSnapshotSuccess = captureSource == NextSentenceCaptureSource.LAST_STABLE_CHAT_SNAPSHOT,
         usedFallbackSnapshot = usedFallbackSnapshot,
         lastStableSnapshotAgeMs = lastStableSnapshotAgeMs,
         lastStableSnapshotPackage = lastStableSnapshotPackage

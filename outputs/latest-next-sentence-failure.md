@@ -8,31 +8,49 @@
 ## Failure stage
 - stage: NOT_TESTED
 - errorCode: NOT_TESTED
-- likely cause: 用户上一版真机看到“这次分析失败”，本轮已改为运行时生成具体 errorCode/failedStage；本机未连接物理 Android，未复现真实点击。
+- secondaryErrorCode: NOT_TESTED
+- pipelineExceptionClass: NOT_TESTED
+- pipelineExceptionMessageRedacted: NOT_TESTED
+- likely cause: 用户真机上一版暴露出截图 capability 缺失；本轮已将截图降级为 optional diagnostic，本机未连接物理 Android，未复现真实点击。
 
 ## Window / root
 - before click package: NOT_TESTED
 - capture package: NOT_TESTED
 - root package: NOT_TESTED
+- root package at capture start: NOT_TESTED
+- root package before failure UI: NOT_TESTED
+- root package after failure UI: NOT_TESTED
 - root title: NOT_TESTED
-- root retry count: NOT_TESTED
+- root retry count: 0
 - root available after retry: NOT_TESTED
-- root is own overlay: NOT_TESTED
-- root is system ui: NOT_TESTED
+- root is own overlay: false
+- root is system ui: false
 
 ## Capture
+- primaryCapturePath: NONE
+- nodeTreeAttempted: NOT_TESTED
+- nodeTreeSuccess: NOT_TESTED
+- fallbackSnapshotAttempted: NOT_TESTED
+- fallbackSnapshotSuccess: NOT_TESTED
+- screenshotAttempted: NOT_TESTED
+- screenshotSuccess: NOT_TESTED
+- screenshotAvailable: NOT_TESTED
+- screenshotCapabilityDeclared: true
+- screenshotErrorCode: NOT_TESTED
+- screenshotExceptionClass: NOT_TESTED
+- screenshotExceptionMessageRedacted: NOT_TESTED
 - captureSource: NONE
-- used fallback snapshot: NOT_TESTED
-- last stable snapshot age: NOT_TESTED
-- raw node count: NOT_TESTED
-- visible text count: NOT_TESTED
-- parsed message count: NOT_TESTED
-- effective message count: NOT_TESTED
+- used fallback snapshot: false
+- last stable snapshot age: none
+- raw node count: 0
+- visible text count: 0
+- parsed message count: 0
+- effective message count: 0
 
 ## Decision
 - last effective speaker: NOT_TESTED
 - decision type: NOT_TESTED
-- route count: NOT_TESTED
+- route count: 0
 - api called: false
 
 ## Overlay
@@ -42,4 +60,4 @@
 - panel render success: NOT_TESTED
 
 ## Recommended next fix
-- 安装 4.1.8b 后在真实聊起聊天页点击“下一句”，再导出手机 Downloads/Huiyi/review/latest-next-sentence-failure.md/json。
+- 安装 4.1.9 后在真实聊起聊天页点击“下一句”，再导出手机 Downloads/Huiyi/review/latest-next-sentence-failure.md/json。
