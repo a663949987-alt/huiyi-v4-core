@@ -28,7 +28,7 @@ class FloatingResultPanelController(
     fun show(state: HuiyiRuntimeState) {
         hide()
         val result = state.latestPipelineResult
-        if (state.lastError != null && result == null) {
+        if (state.lastError != null) {
             showError(state.lastError)
             return
         }
@@ -125,7 +125,12 @@ class FloatingResultPanelController(
             setPadding(22, 18, 22, 18)
             setBackgroundColor(0xF2FFFFFF.toInt())
         }
-        container.addView(text("这次分析失败，但悬浮球仍在。"))
+        val title = if (errorMessage.contains("这次分析失败")) {
+            "这次分析失败，已保存诊断。"
+        } else {
+            "下一句没有跑完，已保存诊断。"
+        }
+        container.addView(text(title))
         container.addView(text(errorMessage))
         container.addView(Button(context).apply {
             text = "重试"

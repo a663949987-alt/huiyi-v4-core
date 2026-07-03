@@ -1,9 +1,9 @@
 {
-    "versionName":  "4.1.8a",
-    "versionCode":  421,
-    "apkUrl":  "huiyi-v4.1.8a-debug.apk",
-    "releaseNotes":  "v4.1.8a accessibility runtime state and overlay crash guard",
+    "versionName":  "4.1.8b",
+    "versionCode":  422,
+    "apkUrl":  "huiyi-v4.1.8b-debug.apk",
+    "releaseNotes":  "v4.1.8b: 下一句失败诊断，错误码/阶段追踪，root重试，聊天快照回退，失败报告导出",
     "forceUpdate":  false,
-    "sha256":  "90FF3B656755778D8A45870206B3A2C26910D9F8E2CD82E7ED7D97170FB14200",
-    "createdAt":  1783051696671
+    "sha256":  "9FF205617484DA6BDEF3C5A921DA9F9C6DB5259194AF88FE0865D22088492E2C",
+    "createdAt":  1783054046892
 }

@@ -1,6 +1,7 @@
 package com.huiyi.v4.accessibility
 
 import com.huiyi.v4.domain.model.VisualBounds
+import com.huiyi.v4.domain.model.MessageNode
 
 data class HuiyiAccessibilityState(
     val serviceConnected: Boolean = false,
@@ -15,7 +16,24 @@ data class HuiyiAccessibilityState(
     val lastDisconnectAt: Long? = null,
     val lastInterruptAt: Long? = null,
     val lastDestroyAt: Long? = null,
-    val activeServiceInstanceId: String? = null
+    val activeServiceInstanceId: String? = null,
+    val lastStableSnapshotAt: Long? = null,
+    val lastStableSnapshotPackage: String? = null,
+    val lastStableSnapshotVisibleTextCount: Int = 0
+)
+
+data class LastStableForeignWindowSnapshot(
+    val capturedAt: Long,
+    val packageName: String,
+    val windowTitle: String?,
+    val rootClassName: String?,
+    val nodeCount: Int,
+    val visibleTextCount: Int,
+    val rawTextPreviewRedacted: List<String>,
+    val normalizedMessages: List<MessageNode>,
+    val source: String,
+    val nodesHash: String,
+    val snapshot: CurrentScreenSnapshot
 )
 
 data class AccessibilityRuntimeState(

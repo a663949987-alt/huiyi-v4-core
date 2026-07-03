@@ -18,6 +18,11 @@ import com.huiyi.v4.domain.pipeline.CurrentScreenPipelineResult
 import com.huiyi.v4.domain.pipeline.CurrentScreenPipelineUseCase
 import com.huiyi.v4.domain.pipeline.EvidencePackReportGenerator
 import com.huiyi.v4.domain.pipeline.LastSpeakerDecisionUseCase
+import com.huiyi.v4.domain.pipeline.NextSentenceCaptureSource
+import com.huiyi.v4.domain.pipeline.NextSentenceErrorCode
+import com.huiyi.v4.domain.pipeline.NextSentenceFailureReportGenerator
+import com.huiyi.v4.domain.pipeline.NextSentenceSessionTrace
+import com.huiyi.v4.domain.pipeline.NextSentenceStage
 import com.huiyi.v4.domain.pipeline.ParserReportGenerator
 import com.huiyi.v4.domain.pipeline.RealDeviceReviewBundleGenerator
 import com.huiyi.v4.domain.pipeline.RealDeviceScenario
@@ -29,6 +34,8 @@ import com.huiyi.v4.accessibility.accessibilityRuntimeMessage
 import com.huiyi.v4.floating.OverlayStateStore
 import com.huiyi.v4.domain.pipeline.EvidencePackFiles
 import com.huiyi.v4.BuildConfig
+import com.huiyi.v4.domain.pipeline.toNextSentenceException
+import com.huiyi.v4.domain.pipeline.userFacingMessageFor
 import com.huiyi.v4.domain.tactical.ReplyRouteGenerator
 import com.huiyi.v4.domain.tactical.TacticalDecisionEngine
 import com.huiyi.v4.ui.HuiyiDemoState
@@ -60,6 +67,9 @@ data class HuiyiRuntimeState(
     val lastVisualDebugOverlayPath: String? = null,
     val clickDiagnostics: List<AccessibilityClickSample> = emptyList(),
     val lastClickPipelineException: String? = null,
+    val lastNextSentenceTrace: NextSentenceSessionTrace? = null,
+    val latestNextSentenceFailureMarkdownPath: String? = null,
+    val latestNextSentenceFailureJsonPath: String? = null,
     val lanUpdateState: LanUpdateState = LanUpdateState()
 )
 
@@ -126,6 +136,20 @@ class HuiyiRuntime private constructor(
         scope.launch {
             sampleClickState("beforeClick")
             launchClickFollowupSamples()
+            val beforeRuntime = AccessibilityRuntimeReader.read(appContext)
+            val beforeOverlay = OverlayStateStore.state.value
+            val startedTrace = NextSentenceSessionTrace(
+                sessionId = UUID.randomUUID().toString(),
+                startedAt = System.currentTimeMillis(),
+                stage = NextSentenceStage.CLICK_RECEIVED,
+                bubbleVisibleBeforeClick = beforeOverlay.bubbleVisible,
+                bubbleVisibleAfterClick = beforeOverlay.bubbleVisible,
+                bubbleAttachedAfterClick = beforeOverlay.bubbleVisible,
+                systemAccessibilityEnabled = beforeRuntime.systemAccessibilityEnabled,
+                serviceConnected = beforeRuntime.serviceConnected,
+                activePackageBeforeClick = beforeRuntime.currentPackage
+            )
+            mutableState.update { it.copy(lastNextSentenceTrace = startedTrace, lastError = null) }
             try {
                 val persona = currentPersona()
                 val result = pipeline.run(persona)
@@ -136,6 +160,38 @@ class HuiyiRuntime private constructor(
                         val visualDebug = VisualDebugCapture(File(appContext.filesDir, "debug/real_device_visual_debug"))
                             .capture(HuiyiAccessibilityService.instance, pipelineResult, scenario)
                         val resultWithVisualDebug = pipelineResult.copy(visualDebugResult = visualDebug)
+                        val capture = pipelineResult.captureResult
+                        val successTrace = startedTrace.copy(
+                            endedAt = System.currentTimeMillis(),
+                            stage = NextSentenceStage.ROUTES_GENERATED,
+                            activePackageAtCaptureStart = capture?.currentRootPackageAtCapture,
+                            activePackageAfterRootRetry = capture?.snapshot?.appPackage,
+                            rootAvailableFirstTry = capture?.rootAvailableFirstTry ?: true,
+                            rootRetryCount = capture?.rootRetryCount ?: 0,
+                            rootAvailableAfterRetry = capture?.rootAvailableAfterRetry ?: true,
+                            rootPackageName = capture?.snapshot?.appPackage,
+                            rootWindowTitle = capture?.snapshot?.windowTitle,
+                            rootIsOwnOverlay = capture?.rootIsOwnOverlay ?: false,
+                            rootIsSystemUi = capture?.rootIsSystemUi ?: false,
+                            rootIsTargetChatApp = capture?.snapshot?.appPackage !in setOf(null, appContext.packageName, "com.android.systemui"),
+                            captureSource = capture?.captureSource ?: NextSentenceCaptureSource.CURRENT_ROOT,
+                            usedFallbackSnapshot = capture?.usedFallbackSnapshot ?: false,
+                            lastStableSnapshotAgeMs = capture?.lastStableSnapshotAgeMs,
+                            lastStableSnapshotPackage = capture?.lastStableSnapshotPackage,
+                            rawNodeCount = capture?.rawNodeCount ?: 0,
+                            visibleTextCount = capture?.visibleTextCount ?: 0,
+                            parsedMessageCount = capture?.messages?.size ?: 0,
+                            effectiveMessageCount = capture?.messages?.count { it.isEffectiveChatMessage && it.speaker != Speaker.SYSTEM } ?: 0,
+                            lastEffectiveSpeaker = pipelineResult.lastSpeakerDecision.lastSpeaker,
+                            decisionType = pipelineResult.tacticalDecision.decisionType.name,
+                            routeCount = pipelineResult.routes.size,
+                            apiCalled = pipelineResult.apiCalled,
+                            panelAttached = true,
+                            panelRenderSuccess = true,
+                            userFacingMessage = if (pipelineResult.tacticalDecision.decisionType == TacticalDecisionType.WAIT) {
+                                userFacingMessageFor(NextSentenceErrorCode.LAST_SPEAKER_IS_ME_SHOULD_WAIT)
+                            } else null
+                        )
                         mutableState.update {
                             it.copy(
                                 demoState = it.demoState.copy(messages = messages),
@@ -143,42 +199,82 @@ class HuiyiRuntime private constructor(
                                 panelVisible = true,
                                 lastError = pipelineResult.persistenceError,
                                 lastVisualDebugOverlayPath = visualDebug.overlayImagePath,
-                                lastClickPipelineException = null
+                                lastClickPipelineException = null,
+                                lastNextSentenceTrace = successTrace
                             )
                         }
                     },
                     onFailure = { error ->
-                        OverlayStateStore.recordPipelineException(error)
-                        mutableState.update {
-                            it.copy(
-                                panelVisible = true,
-                                lastError = friendlyPipelineError(error),
-                                lastClickPipelineException = "${error::class.java.name}: ${error.message}"
-                            )
-                        }
+                        handleNextSentenceFailure(error, startedTrace)
                     }
                 )
             } catch (error: Throwable) {
-                OverlayStateStore.recordPipelineException(error)
-                mutableState.update {
-                    it.copy(
-                        panelVisible = true,
-                        lastError = friendlyPipelineError(error),
-                        lastClickPipelineException = "${error::class.java.name}: ${error.message}"
-                    )
-                }
+                handleNextSentenceFailure(error, startedTrace)
             }
         }
     }
 
     fun showOverlayError(error: Throwable) {
+        val trace = mutableState.value.lastNextSentenceTrace
+            ?: NextSentenceSessionTrace(UUID.randomUUID().toString(), System.currentTimeMillis())
+        val next = error.toNextSentenceException(trace, NextSentenceStage.PANEL_RENDERING)
         mutableState.update {
             it.copy(
                 panelVisible = true,
-                lastError = friendlyPipelineError(error),
-                lastClickPipelineException = "${error::class.java.name}: ${error.message}"
+                latestPipelineResult = null,
+                lastError = next.trace.userFacingMessage ?: next.message,
+                lastClickPipelineException = "${error::class.java.name}: ${error.message}",
+                lastNextSentenceTrace = next.trace
             )
         }
+    }
+
+    private fun handleNextSentenceFailure(error: Throwable, baseTrace: NextSentenceSessionTrace) {
+        val next = error.toNextSentenceException(baseTrace, NextSentenceStage.ROOT_CAPTURE_STARTED)
+        OverlayStateStore.recordPipelineException(error)
+        val overlay = OverlayStateStore.state.value
+        val runtime = AccessibilityRuntimeReader.read(appContext)
+        val finalTrace = next.trace.copy(
+            endedAt = System.currentTimeMillis(),
+            bubbleVisibleAfterClick = overlay.bubbleVisible,
+            bubbleAttachedAfterClick = overlay.bubbleVisible,
+            bubbleVisibleAfterFailure = overlay.bubbleVisible,
+            systemAccessibilityEnabled = runtime.systemAccessibilityEnabled,
+            serviceConnected = runtime.serviceConnected,
+            permissionMissingMessageShown = next.code == NextSentenceErrorCode.ACCESSIBILITY_SYSTEM_DISABLED,
+            activePackageBeforeClick = baseTrace.activePackageBeforeClick ?: runtime.currentPackage,
+            userFacingMessage = next.trace.userFacingMessage ?: userFacingMessageFor(next.code)
+        )
+        val paths = writeLatestFailureReports(finalTrace)
+        mutableState.update {
+            it.copy(
+                panelVisible = true,
+                latestPipelineResult = null,
+                lastError = finalTrace.userFacingMessage,
+                lastClickPipelineException = "${error::class.java.name}: ${error.message}",
+                lastNextSentenceTrace = finalTrace,
+                latestNextSentenceFailureMarkdownPath = paths.first.absolutePath,
+                latestNextSentenceFailureJsonPath = paths.second.absolutePath
+            )
+        }
+    }
+
+    private fun writeLatestFailureReports(trace: NextSentenceSessionTrace): Pair<File, File> {
+        val generator = NextSentenceFailureReportGenerator()
+        val dir = File(appContext.filesDir, "debug")
+        dir.mkdirs()
+        val markdown = File(dir, "latest-next-sentence-failure.md")
+        val json = File(dir, "latest-next-sentence-failure.json")
+        val markdownText = generator.buildMarkdown(trace)
+        val jsonText = generator.buildJson(trace)
+        markdown.writeText(markdownText, Charsets.UTF_8)
+        json.writeText(jsonText, Charsets.UTF_8)
+        val exporter = PublicDownloadExporter(appContext)
+        exporter.exportText("latest-next-sentence-failure.md", markdownText, relativePath = "Huiyi/review")
+            .getOrElse { exporter.fallbackToPrivate("latest-next-sentence-failure.md", markdownText, subDirectory = "debug/review") }
+        exporter.exportText("latest-next-sentence-failure.json", jsonText, "application/json", relativePath = "Huiyi/review")
+            .getOrElse { exporter.fallbackToPrivate("latest-next-sentence-failure.json", jsonText, subDirectory = "debug/review") }
+        return markdown to json
     }
 
     fun applyVoiceSummary(summary: String) {

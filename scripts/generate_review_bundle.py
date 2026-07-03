@@ -272,7 +272,7 @@ def main() -> None:
         if s.lower() not in {"unknown", "not_tested"}
     })
     if not current_sources:
-        current_sources = ["emulator_mock_chat_accessibility"]
+        current_sources = ["not_tested"]
     current_has_unknown = any(s.lower() == "unknown" for p in current_paths for s in parse_sample_sources(read_text(p)))
     current_has_fail = any((parse_field(read_text(p), "overall_result") or "").upper() == "FAIL" for p in current_paths)
     matrix_text = read_text(outputs / "mockchat-layout-matrix-report-for-gpt.md")
@@ -283,10 +283,13 @@ def main() -> None:
     review_freshness_result = "FAIL" if secret_scan["containsSecrets"] or current_has_unknown or current_has_fail else "PASS"
     mockchat_result = "PASS" if matrix_pass else "FAIL"
     real_device_smoke_result = smoke_status.upper()
+    next_sentence_task = "next_sentence" in args.task_name.lower()
     if review_freshness_result == "FAIL" or mockchat_result == "FAIL" or real_device_smoke_result == "FAIL":
         overall = "FAIL"
     elif real_device_smoke_result == "PASS":
         overall = "PASS"
+    elif next_sentence_task:
+        overall = "NOT_TESTED"
     else:
         overall = "PARTIAL"
 
@@ -324,6 +327,36 @@ def main() -> None:
 
     current_summaries = [summarize_report(p) for p in sorted(current_paths)]
     historical_summaries = [summarize_report(p) for p in sorted(historical_paths)]
+    latest_failure_path = outputs / "latest-next-sentence-failure.json"
+    latest_failure = {}
+    if latest_failure_path.exists():
+        try:
+            latest_failure = json.loads(read_text(latest_failure_path))
+        except Exception:
+            latest_failure = {}
+    failure_diag = {
+        "userVisibleMessage": latest_failure.get("userVisibleMessage", "NOT_TESTED"),
+        "errorCode": latest_failure.get("errorCode", "NOT_TESTED"),
+        "failedStage": latest_failure.get("failedStage", "NOT_TESTED"),
+        "captureSource": latest_failure.get("captureSource", "NOT_TESTED"),
+        "activePackageBeforeClick": latest_failure.get("activePackageBeforeClick", "NOT_TESTED"),
+        "activePackageAtCaptureStart": latest_failure.get("activePackageAtCaptureStart", "NOT_TESTED"),
+        "rootPackageName": latest_failure.get("rootPackageName", "NOT_TESTED"),
+        "rootIsOwnOverlay": latest_failure.get("rootIsOwnOverlay", "NOT_TESTED"),
+        "rootIsSystemUi": latest_failure.get("rootIsSystemUi", "NOT_TESTED"),
+        "usedFallbackSnapshot": latest_failure.get("usedFallbackSnapshot", "NOT_TESTED"),
+        "lastStableSnapshotAgeMs": latest_failure.get("lastStableSnapshotAgeMs", "NOT_TESTED"),
+        "rawNodeCount": latest_failure.get("rawNodeCount", "NOT_TESTED"),
+        "visibleTextCount": latest_failure.get("visibleTextCount", "NOT_TESTED"),
+        "parsedMessageCount": latest_failure.get("parsedMessageCount", "NOT_TESTED"),
+        "effectiveMessageCount": latest_failure.get("effectiveMessageCount", "NOT_TESTED"),
+        "lastEffectiveSpeaker": latest_failure.get("lastEffectiveSpeaker", "NOT_TESTED"),
+        "apiCalled": latest_failure.get("apiCalled", "NOT_TESTED"),
+        "routeCount": latest_failure.get("routeCount", "NOT_TESTED"),
+        "panelAttached": latest_failure.get("panelAttached", "NOT_TESTED"),
+        "bubbleVisibleAfterFailure": latest_failure.get("bubbleVisibleAfterFailure", "NOT_TESTED"),
+        "permissionMissingMessageShown": latest_failure.get("permissionMissingMessageShown", "NOT_TESTED"),
+    }
 
     acceptance = {
         "结果是否在聊天窗口浮层显示": "NOT_TESTED_REAL_DEVICE" if smoke_status == "NOT_TESTED" else "PASS",
@@ -382,6 +415,21 @@ def main() -> None:
 - real_device_smoke_result: {real_device_smoke_result}
 - overall_result: {overall}
 - failReason: {fail_reason}
+- currentVersion: {version_name}
+- currentTaskName: {args.task_name}
+- currentGeneratedAt: {generated_at}
+- currentOverallResult: {overall}
+
+currentUserFeedback:
+  - 点击“下一句”后提示“这次分析失败”
+  - 悬浮球仍在
+
+currentRegressionStatus:
+  overlayBubbleSurvivesAfterNextSentence: unknown_without_physical_device
+  permissionFalseAlarmObservedThisRound: unknown_without_physical_device
+  nextSentenceAnalysisResult: {overall}
+  genericAnalysisFailedStillShown: {str(failure_diag["errorCode"] == "UNKNOWN_EXCEPTION").lower()}
+  latestFailureReportGenerated: {str(latest_failure_path.exists()).lower()}
 
 ## Current Round Evidence
 
@@ -400,6 +448,10 @@ def main() -> None:
 
 {chr(10).join(current_summaries)}
 
+## Current Next Sentence Failure Diagnosis
+
+{chr(10).join(f"- {k}: {v}" for k, v in failure_diag.items())}
+
 ## Historical / Trace Reports
 
 These reports are historical references only. Their FAIL or `sample_source=unknown` values must not affect the current round overall result.
@@ -408,9 +460,9 @@ These reports are historical references only. Their FAIL or `sample_source=unkno
 
 ## 2. 本轮目标
 
-- 本轮做什么: 修正 Review Bundle 的 current round / historical reports 分区，并尝试真实聊天 App smoke test。
+- 本轮做什么: 定位并修复真机点击“下一句”后只显示泛化失败的问题，新增 errorCode、failedStage、failure report、root retry 与 lastStableChatSnapshot fallback。
 - 本轮不做什么: 不新增产品功能；不做轻监听；不做 OCR；不做 ASR；不做完整历史采集；不接真实 API；不改 UI 大结构。
-- 验收标准: 当前轮 summary 不被旧 FAIL/unknown 污染；manifest 标记 current/historical/stale；无真机时 smoke 明确 NOT_TESTED。
+- 验收标准: 分析失败必须有具体 errorCode/failedStage；悬浮球失败后仍在；不误报无障碍未开启；无真机时 next sentence 诊断明确 NOT_TESTED。
 
 ## 3. 改动摘要
 
@@ -434,9 +486,10 @@ These reports are historical references only. Their FAIL or `sample_source=unkno
 
 ### 关键模块变化
 
-- Review Bundle 生成器区分 Current Round Evidence 与 Historical / Trace Reports。
-- manifest 每个文件新增 generatedAt、taskName、versionName、isCurrentRound、evidenceRole、sample_source、stale。
-- 真机 smoke 在无物理设备时输出 NOT_TESTED，不使用模拟器或 MockChat 冒充真机。
+- 新增 NextSentenceErrorCode / NextSentenceStage / NextSentenceSessionTrace。
+- CurrentScreenCaptureUseCase 增加 root 短重试、own overlay / System UI 分类、lastStableChatSnapshot fallback。
+- Runtime 失败时写出 latest-next-sentence-failure.md/json，并清掉旧结果避免旧面板盖住新失败。
+- 真机 next sentence 在无物理设备时输出 NOT_TESTED，不使用模拟器或 MockChat 冒充真机。
 
 ### 未完成事项
 
