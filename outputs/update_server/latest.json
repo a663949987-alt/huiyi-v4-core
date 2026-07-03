@@ -1,9 +1,9 @@
 {
-    "versionName":  "4.1.20",
-    "versionCode":  438,
-    "apkUrl":  "huiyi-v4.1.20-debug.apk",
-    "releaseNotes":  "v4.1.20 LAST ME hard WAIT priority fix",
+    "versionName":  "4.1.21",
+    "versionCode":  439,
+    "apkUrl":  "huiyi-v4.1.21-debug.apk",
+    "releaseNotes":  "v4.1.21 one-tap feedback target session fix",
     "forceUpdate":  false,
-    "sha256":  "E19AD8E5B3789A7D58879A4291F3B82C9CEA2B12E40BEAB81276AF4EB49CC487",
-    "createdAt":  1783071012010
+    "sha256":  "62BF264E5E0B38C022655E5E4E65DBB3B794159DDCBFA6F72BE29612E3295D0D",
+    "createdAt":  1783072171799
 }

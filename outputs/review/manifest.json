@@ -1,10 +1,10 @@
 {
   "project": "Huiyi v4 Core",
-  "versionName": "4.1.20",
-  "versionCode": 438,
+  "versionName": "4.1.21",
+  "versionCode": 439,
   "branch": "main",
-  "commitHash": "04b6315",
-  "generatedAt": "2026-07-03 17:31:57 +0800",
+  "commitHash": "9554b6c",
+  "generatedAt": "2026-07-03 17:50:02 +0800",
   "overallResult": "NOT_TESTED",
   "currentOverallResult": "NOT_TESTED",
   "lastMeRealDeviceResult": "NOT_TESTED",
@@ -18,7 +18,7 @@
   "scenarioAssertionResult": "NOT_TESTED",
   "scenarioDefinitionTrusted": false,
   "scenarioFailureCategory": "not_tested",
-  "taskName": "last_me_context_required_decision_priority_fix",
+  "taskName": "one_tap_feedback_export_target_session_fix_before_cloud_contract",
   "sampleSources": [
     "not_tested"
   ],
@@ -28,7 +28,7 @@
     {
       "path": "outputs/review/huiyi-v4-review-for-gpt.md",
       "type": "review_markdown",
-      "sha256": "799cc478e0abd7133d7c28f71ae4d5e9989f6d7ac346ead56073e7bf7970f465",
+      "sha256": "9bb9411d81dc44dce4740b9bf6f250bfb785a70273d18be03781b8f7d36e2b2c",
       "sendToGpt": true,
       "description": "Default file for GPT review.",
       "generatedAt": null,
@@ -40,14 +40,14 @@
       "stale": false
     },
     {
-      "path": "outputs/last-me-context-required-decision-priority-fix-report-for-gpt.md",
+      "path": "outputs/one-tap-feedback-target-session-fix-report-for-gpt.md",
       "type": "report",
-      "sha256": "8804db59c0fb845dfeafb744f46f19af9c9f5ce487257da48ce64a58916da9d1",
+      "sha256": "e2d806011c3f5b584925def6e3ba5d78c64a039e576a4d0a153efe52c595c4a7",
       "sendToGpt": false,
       "description": "Current round evidence.",
-      "generatedAt": "2026-07-03 09:52:00 +0800",
-      "taskName": "last_me_context_required_decision_priority_fix",
-      "versionName": "4.1.20",
+      "generatedAt": "2026-07-03 10:11:00 +0800",
+      "taskName": "one_tap_feedback_export_target_session_fix_before_cloud_contract",
+      "versionName": "4.1.21",
       "isCurrentRound": true,
       "evidenceRole": "current",
       "sample_source": [

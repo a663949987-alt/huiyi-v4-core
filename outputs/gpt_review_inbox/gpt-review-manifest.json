@@ -1,24 +1,28 @@
 {
   "project": "huiyi-v4",
-  "phoneBundleIncluded": true,
-  "oneTapFeedbackIncluded": true,
-  "uploadedFromPhone": true,
-  "latestPhoneUploadAt": "2026-07-03T09:37:30.624137+00:00",
-  "latestPhoneSessionId": "c55e6d7f-023b-4765-b3df-9b10f7b45f3a",
-  "githubCommitHash": "1dd06416ffb602bf546557c6c6a29c09cb0b7669",
-  "githubReviewPath": "outputs/gpt_review_inbox/phone/latest/",
-  "realDeviceTested": true,
-  "latestPhoneConclusion": {
-    "sessionId": "c55e6d7f-023b-4765-b3df-9b10f7b45f3a",
-    "terminalState": "ROUTE_PANEL",
-    "appPackage": "com.bajiao.im.liaoqi",
-    "actualLastSpeaker": "OTHER",
-    "decisionType": "HUIYI_MOMENT",
-    "routeCount": 5,
-    "waitPanelShown": false,
-    "routePanelShown": true,
-    "errorCode": "",
-    "userMarkedWrong": true,
-    "userCorrectionLastSpeaker": "NONE"
+  "taskName": "one_tap_feedback_export_target_session_fix_before_cloud_contract",
+  "versionName": "4.1.21",
+  "versionCode": 439,
+  "currentOverallResult": "NOT_TESTED",
+  "realDeviceFunctionalSmoke": "NOT_TESTED",
+  "feedbackBoundToOriginalSession": "PASS",
+  "feedbackTriggeredNewAnalysis": false,
+  "feedbackReCapturedCurrentRoot": false,
+  "preAnalysisContaminationDetection": "PASS",
+  "reportConsistencyChecks": "PASS",
+  "lastMeWaitRule": "PASS",
+  "cloudContractImplemented": "TODO_ONLY",
+  "cloudAnalysisAttempted": false,
+  "filesToInspectFirst": [
+    "huiyi-v4-review-for-gpt.md",
+    "one-tap-feedback-target-session-fix-report-for-gpt.md",
+    "changed-files-for-gpt.md",
+    "manifest.json"
+  ],
+  "privacy": {
+    "containsRawPrivateChat": false,
+    "containsApiKey": false,
+    "containsKeystore": false,
+    "containsLocalProperties": false
   }
 }

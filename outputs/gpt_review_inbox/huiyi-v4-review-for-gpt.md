@@ -3,15 +3,15 @@
 ## v4.1.10 Current Round Summary
 
 - project: Huiyi v4 Core
-- versionName: 4.1.20
-- versionCode: 438
+- versionName: 4.1.21
+- versionCode: 439
 - branch: main
-- commitHash: 04b6315
-- generatedAt: 2026-07-03 17:31:16 +0800
-- taskName: last_me_context_required_decision_priority_fix
-- currentVersion: 4.1.20
-- currentTaskName: last_me_context_required_decision_priority_fix
-- currentGeneratedAt: 2026-07-03 17:31:16 +0800
+- commitHash: 9554b6c
+- generatedAt: 2026-07-03 17:50:02 +0800
+- taskName: one_tap_feedback_export_target_session_fix_before_cloud_contract
+- currentVersion: 4.1.21
+- currentTaskName: one_tap_feedback_export_target_session_fix_before_cloud_contract
+- currentGeneratedAt: 2026-07-03 17:50:02 +0800
 - review_freshness_result: PASS
 - mockchat_result: PASS
 - real_device_smoke_result: NOT_TESTED
@@ -54,9 +54,9 @@ currentRegressionStatus:
 - resultShownAsOverlay: NOT_TESTED
 - mainActivityOpened: NOT_TESTED
 - effectiveMessageCount: NOT_TESTED
-- actualLastSpeaker: ME
-- decisionType: CONTEXT_REQUIRED
-- routeCount: 0
+- actualLastSpeaker: NOT_TESTED
+- decisionType: NOT_TESTED
+- routeCount: NOT_TESTED
 - apiCalled: false
 - modelCalled: false
 - screenshotDiagnosticStatus: NOT_TESTED
@@ -66,7 +66,7 @@ currentRegressionStatus:
 
 - testIntent: USER_ASSERTED_LAST_ME
 - userAssertedLastSpeaker: ME
-- actualLastSpeaker: ME
+- actualLastSpeaker: NOT_TESTED
 - chosenCaptureSource: NONE
 - fallbackSnapshotAgeMs: null
 - currentRootLastSpeaker: NOT_CAPTURED
@@ -74,7 +74,7 @@ currentRegressionStatus:
 - postSendSettleAttempted: false
 - lastSpeakerBeforeSettle: NOT_TESTED
 - lastSpeakerAfterSettle: NOT_TESTED
-- decisionType: CONTEXT_REQUIRED
+- decisionType: NOT_TESTED
 - routeCount: 0
 - waitPanelShown: false
 - routePanelShown: false
@@ -85,8 +85,8 @@ currentRegressionStatus:
 
 ## Last OTHER Regression
 
-- actualLastSpeaker: ME
-- decisionType: CONTEXT_REQUIRED
+- actualLastSpeaker: NOT_TESTED
+- decisionType: NOT_TESTED
 - routeCount: 0
 - waitPanelShown: false
 - routePanelShown: false
@@ -97,13 +97,13 @@ currentRegressionStatus:
 
 - scenarioName: NOT_TESTED
 - scenarioNameSource: NOT_TESTED
-- expectedLastSpeaker: ME
+- expectedLastSpeaker: NOT_TESTED
 - expectedLastSpeakerSource: NOT_TESTED
 - actualLastSpeakerFromPreAnalysisSnapshot: NOT_TESTED
 - actualLastSpeakerFromDecisionSnapshot: NOT_TESTED
-- expectedDecisionType: WAIT
+- expectedDecisionType: NOT_TESTED
 - actualDecisionType: NOT_TESTED
-- expectedRouteCount: 0
+- expectedRouteCount: NOT_TESTED
 - actualRouteCount: NOT_TESTED
 - scenarioDefinitionTrusted: false
 - scenarioAssertionResult: NOT_TESTED
@@ -139,20 +139,20 @@ currentRegressionStatus:
 ## 1. 基本信息
 
 - project: Huiyi v4 Core
-- versionName: 4.1.20
-- versionCode: 438
+- versionName: 4.1.21
+- versionCode: 439
 - branch: main
-- commitHash: 04b6315
-- generatedAt: 2026-07-03 17:31:16 +0800
-- taskName: last_me_context_required_decision_priority_fix
+- commitHash: 9554b6c
+- generatedAt: 2026-07-03 17:50:02 +0800
+- taskName: one_tap_feedback_export_target_session_fix_before_cloud_contract
 - review_freshness_result: PASS
 - mockchat_result: PASS
 - real_device_smoke_result: NOT_TESTED
 - overall_result: NOT_TESTED
 - failReason: 本轮 Review Freshness 通过，但 Real Device Smoke 未执行，不代表真实聊天 App 已通过。
-- currentVersion: 4.1.20
-- currentTaskName: last_me_context_required_decision_priority_fix
-- currentGeneratedAt: 2026-07-03 17:31:16 +0800
+- currentVersion: 4.1.21
+- currentTaskName: one_tap_feedback_export_target_session_fix_before_cloud_contract
+- currentGeneratedAt: 2026-07-03 17:50:02 +0800
 - currentOverallResult: NOT_TESTED
 
 currentUserFeedback:
@@ -173,10 +173,10 @@ currentRegressionStatus:
 
 ## Current Round Evidence
 
-- currentTaskName: last_me_context_required_decision_priority_fix
-- currentVersion: 4.1.20
-- currentGeneratedAt: 2026-07-03 17:31:16 +0800
-- currentReports: outputs/cloud-analysis-mvp-local-safety-gate-report-for-gpt.md, outputs/last-me-context-required-decision-priority-fix-report-for-gpt.md
+- currentTaskName: one_tap_feedback_export_target_session_fix_before_cloud_contract
+- currentVersion: 4.1.21
+- currentGeneratedAt: 2026-07-03 17:50:02 +0800
+- currentReports: outputs/one-tap-feedback-target-session-fix-report-for-gpt.md
 - currentSampleSources: not_tested
 - currentOverallResult: NOT_TESTED
 - review_freshness_result: PASS
@@ -186,19 +186,11 @@ currentRegressionStatus:
 - mockChatMatrixStillPass: true
 - smokeDisclaimer: 本轮 Review Freshness 通过，但 Real Device Smoke 未执行，不代表真实聊天 App 已通过。
 
-### cloud-analysis-mvp-local-safety-gate-report-for-gpt.md
-
-- overall_result: CONTROLLED_LOCAL_PASS
-- versionName: 4.1.19
-- decisionType: WAIT
-- routeCount: 0
-### last-me-context-required-decision-priority-fix-report-for-gpt.md
+### one-tap-feedback-target-session-fix-report-for-gpt.md
 
 - overall_result: NOT_TESTED
 - sample_source: not_tested
-- appPackage: NOT_TESTED
-- versionName: 4.1.20
-- decisionType: CONTEXT_REQUIRED
+- versionName: 4.1.21
 
 ## Current Next Sentence Failure Diagnosis
 
@@ -366,7 +358,7 @@ These reports are historical references only. Their FAIL or `sample_source=unkno
 ### 新增文件
 
 ```
-outputs/last-me-context-required-decision-priority-fix-report-for-gpt.md
+outputs/one-tap-feedback-target-session-fix-report-for-gpt.md
 outputs/review/archive/
 ```
 
@@ -433,18 +425,9 @@ See Current Round Evidence and Historical / Trace Reports above.
 
 ## 8. 产物清单
 
-- path: outputs/cloud-analysis-mvp-local-safety-gate-report-for-gpt.md
+- path: outputs/one-tap-feedback-target-session-fix-report-for-gpt.md
   type: report
-  sha256: 5b2b23cd34b193997616e532ebfeb8d1bc70decfabf5a256ca81f2e8409bf426
-  是否建议发给 GPT: false
-  用途: Current round evidence.
-  isCurrentRound: true
-  evidenceRole: current
-  sample_source: none
-  stale: false
-- path: outputs/last-me-context-required-decision-priority-fix-report-for-gpt.md
-  type: report
-  sha256: 4180d1aa2ab4c0fc25ab398a58addc527778c0504de94770aa98f9d8049478d0
+  sha256: e2d806011c3f5b584925def6e3ba5d78c64a039e576a4d0a153efe52c595c4a7
   是否建议发给 GPT: false
   用途: Current round evidence.
   isCurrentRound: true

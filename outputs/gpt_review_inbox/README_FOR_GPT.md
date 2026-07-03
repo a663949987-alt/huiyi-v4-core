@@ -1,28 +1,50 @@
 # Huiyi v4 GPT Review Inbox
 
-## Source
-- phoneBundleIncluded: true
-- oneTapFeedbackIncluded: true
-- uploadedFromPhone: true
-- latestPhoneUploadAt: 2026-07-03T09:37:30.624137+00:00
-- latestPhoneSessionId: c55e6d7f-023b-4765-b3df-9b10f7b45f3a
-- githubCommitHash: 1dd06416ffb602bf546557c6c6a29c09cb0b7669
-- githubReviewPath: outputs/gpt_review_inbox/phone/latest/
-- realDeviceTested: true
+## Current round
 
-## Latest Phone Conclusion
-- terminalState: ROUTE_PANEL
-- appPackage: com.bajiao.im.liaoqi
-- actualLastSpeaker: OTHER
-- decisionType: HUIYI_MOMENT
-- routeCount: 5
-- waitPanelShown: False
-- routePanelShown: True
-- errorCode: 
-- userMarkedWrong: True
-- userCorrectionLastSpeaker: NONE
+- taskName: one_tap_feedback_export_target_session_fix_before_cloud_contract
+- versionName: 4.1.21
+- versionCode: 439
+- currentOverallResult: NOT_TESTED
+- realDeviceFunctionalSmoke: NOT_TESTED
+- feedbackBoundToOriginalSession: PASS
+- feedbackTriggersNewAnalysis: NO
+- feedbackReCapturedCurrentRoot: NO
+- preAnalysisContaminationDetection: PASS
+- reportConsistencyChecks: PASS
+- lastMeWaitRule: PASS
+- cloudContractImplemented: TODO_ONLY
+- cloudAnalysisAttempted: false
 
-## GPT Should Inspect
-1. outputs/gpt_review_inbox/phone/latest/README_FOR_GPT.md
-2. outputs/gpt_review_inbox/phone/latest/one-tap-feedback-manifest.json
-3. outputs/gpt_review_inbox/phone/latest/latest-session/next-sentence-flight-record.json
+## Files GPT should inspect first
+
+1. `huiyi-v4-review-for-gpt.md`
+2. `one-tap-feedback-target-session-fix-report-for-gpt.md`
+3. `changed-files-for-gpt.md`
+4. `manifest.json`
+
+## Current conclusion
+
+This round fixes one-tap feedback credibility. The exported phone feedback bundle must now point at the original panel-bound session instead of re-sampling Huiyi's overlay after the user taps feedback.
+
+Cloud HUD contract is documented only in `docs/HuiyiTacticalContract-v1.md`; it is not enabled.
+
+## Required phone validation
+
+Install v4.1.21 through LAN update. Open Liaoqi, send `嗯嗯`, tap `下一句`, and if the result looks wrong tap `这次不对，发给 GPT`.
+
+The phone upload should show:
+
+- `feedbackTargetSessionId`
+- `feedbackExportSource`
+- `feedbackTriggeredNewAnalysis=false`
+- `feedbackReCapturedCurrentRoot=false`
+- `feedbackUsedOverlayStateAsPreAnalysis=false` unless a contaminated export is explicitly detected
+- `reportConsistencyResult=PASS` or `FAIL_CONTAMINATED_EXPORT`
+
+## Privacy
+
+- containsRawPrivateChat: false in local review bundle
+- containsApiKey: false
+- containsKeystore: false
+- containsLocalProperties: false

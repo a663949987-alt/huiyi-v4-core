@@ -74,9 +74,97 @@ data class NextSentenceFlightRecord(
     val failedStage: String?,
     val exceptionClass: String?,
     val exceptionMessageRedacted: String?,
-    val userFeedback: UserFeedbackMark = UserFeedbackMark()
+    val userFeedback: UserFeedbackMark = UserFeedbackMark(),
+    val feedbackClickedAt: Long = 0L,
+    val feedbackTargetSessionId: String = "",
+    val feedbackTargetSessionTerminalState: String = "",
+    val feedbackTargetSessionFound: Boolean = false,
+    val feedbackExportSource: String = "NO_TARGET_SESSION",
+    val feedbackTriggeredNewAnalysis: Boolean = false,
+    val feedbackReCapturedCurrentRoot: Boolean = false,
+    val feedbackUsedOverlayStateAsPreAnalysis: Boolean = false,
+    val preAnalysisSnapshotFrozenAt: Long = 0L,
+    val preAnalysisSnapshotSource: String = "UNKNOWN",
+    val preAnalysisSnapshotMutableAfterPanel: Boolean = false,
+    val postPanelSnapshotCapturedAt: Long = 0L,
+    val postPanelSnapshotUsedForDecision: Boolean = false,
+    val preAnalysisSnapshotTrusted: Boolean = true,
+    val preAnalysisSnapshotErrorCode: String? = null,
+    val preAnalysisLooksLikeHuiyiPanel: Boolean = false,
+    val preAnalysisTextClaimsLastMeWait: Boolean = false,
+    val recordClaimsLastOtherRoutePanel: Boolean = false,
+    val windowTitleAndDecisionContradiction: Boolean = false,
+    val reportConsistencyResult: String = "PASS",
+    val cloudContractImplemented: Boolean = false,
+    val cloudConfigured: Boolean = false,
+    val cloudAnalysisAttempted: Boolean = false
 ) {
     fun withFeedback(feedback: UserFeedbackMark): NextSentenceFlightRecord = copy(userFeedback = feedback)
+
+    fun withFeedbackTrace(
+        clickedAt: Long,
+        targetSessionId: String,
+        exportSource: String,
+        targetFound: Boolean = true
+    ): NextSentenceFlightRecord = copy(
+        feedbackClickedAt = clickedAt,
+        feedbackTargetSessionId = targetSessionId,
+        feedbackTargetSessionTerminalState = terminalState,
+        feedbackTargetSessionFound = targetFound,
+        feedbackExportSource = exportSource,
+        feedbackTriggeredNewAnalysis = false,
+        feedbackReCapturedCurrentRoot = false
+    ).withComputedConsistency()
+
+    fun withComputedConsistency(): NextSentenceFlightRecord {
+        val looksLikePanel = looksLikeHuiyiPanel(windowTitlePreAnalysisRedacted)
+        val claimsLastMeWait = claimsLastMeWait(windowTitlePreAnalysisRedacted)
+        val claimsOtherRoute = actualLastSpeaker == "OTHER" && terminalState == "ROUTE_PANEL"
+        val contradiction = claimsLastMeWait && claimsOtherRoute
+        val contaminated = looksLikePanel || contradiction
+        return copy(
+            postPanelContaminationDetected = postPanelContaminationDetected || contaminated,
+            feedbackUsedOverlayStateAsPreAnalysis = feedbackUsedOverlayStateAsPreAnalysis || contaminated,
+            preAnalysisSnapshotTrusted = preAnalysisSnapshotTrusted && !contaminated,
+            preAnalysisSnapshotErrorCode = if (contaminated) "PRE_ANALYSIS_SNAPSHOT_CONTAMINATED_BY_PANEL" else preAnalysisSnapshotErrorCode,
+            preAnalysisLooksLikeHuiyiPanel = looksLikePanel,
+            preAnalysisTextClaimsLastMeWait = claimsLastMeWait,
+            recordClaimsLastOtherRoutePanel = claimsOtherRoute,
+            windowTitleAndDecisionContradiction = contradiction,
+            reportConsistencyResult = if (contaminated) "FAIL_CONTAMINATED_EXPORT" else "PASS",
+            cloudConfigured = cloudEnabled,
+            cloudAnalysisAttempted = cloudAttempted
+        )
+    }
+}
+
+private fun looksLikeHuiyiPanel(title: String): Boolean {
+    if (title.isBlank()) return false
+    val markers = listOf(
+        "会意雷达",
+        "最后一句是我",
+        "你已经回过了",
+        "这次不对",
+        "发给 GPT",
+        "正在上传 GitHub",
+        "导出诊断",
+        "打开无障碍",
+        "隐藏悬浮球",
+        "当前信息不足",
+        "说话人或内容不确定",
+        "浼氭剰",
+        "鏈€鍚庝竴鍙ユ槸鎴",
+        "浣犲凡缁忓洖",
+        "姝ｅ湪涓婁紶 GitHub",
+        "鍙戠粰 GPT"
+    )
+    return markers.any { title.contains(it, ignoreCase = true) }
+}
+
+private fun claimsLastMeWait(title: String): Boolean {
+    if (title.isBlank()) return false
+    val lastMeMarkers = listOf("最后一句是我", "你已经回过了", "先等对方", "鏈€鍚庝竴鍙ユ槸鎴", "浣犲凡缁忓洖")
+    return lastMeMarkers.any { title.contains(it, ignoreCase = true) }
 }
 
 data class OneTapFeedbackExport(
@@ -118,6 +206,24 @@ object OneTapFeedbackZipContract {
             .asReversed()
             .takeLast(10)
     }
+
+    fun selectTargetRecord(
+        panelSessionId: String?,
+        lastCompletedSessionId: String?,
+        latest: NextSentenceFlightRecord?,
+        records: List<NextSentenceFlightRecord>
+    ): Pair<NextSentenceFlightRecord, String>? {
+        val candidates = (records + listOfNotNull(latest))
+            .asReversed()
+            .distinctBy { it.sessionId }
+        val panelTarget = panelSessionId?.takeIf { it.isNotBlank() }?.let { id ->
+            candidates.firstOrNull { it.sessionId == id }?.let { it to "BOUND_PANEL_SESSION" }
+        }
+        if (panelTarget != null) return panelTarget
+        return lastCompletedSessionId?.takeIf { it.isNotBlank() }?.let { id ->
+            candidates.firstOrNull { it.sessionId == id }?.let { it to "LAST_COMPLETED_NEXT_SENTENCE_SESSION" }
+        } ?: latest?.let { it to "LAST_COMPLETED_NEXT_SENTENCE_SESSION" }
+    }
 }
 
 object NextSentenceFlightRecordFactory {
@@ -127,11 +233,13 @@ object NextSentenceFlightRecordFactory {
     ): NextSentenceFlightRecord {
         val capture = result.captureResult
         val decisionType = result.tacticalDecision.decisionType
+        val startedAt = result.analysisStartedAt.takeIf { it > 0L } ?: trace.startedAt
+        val endedAt = result.analysisEndedAt.takeIf { it > 0L } ?: trace.endedAt ?: System.currentTimeMillis()
         return NextSentenceFlightRecord(
             sessionId = result.sessionId ?: trace.sessionId,
-            startedAt = result.analysisStartedAt.takeIf { it > 0L } ?: trace.startedAt,
-            endedAt = result.analysisEndedAt.takeIf { it > 0L } ?: trace.endedAt ?: System.currentTimeMillis(),
-            durationMs = result.analysisDurationMs.takeIf { it > 0L } ?: ((trace.endedAt ?: System.currentTimeMillis()) - trace.startedAt),
+            startedAt = startedAt,
+            endedAt = endedAt,
+            durationMs = result.analysisDurationMs.takeIf { it > 0L } ?: (endedAt - startedAt),
             terminalState = terminalStateFor(decisionType),
             appPackage = capture?.snapshot?.appPackage ?: "unknown",
             windowTitlePreAnalysisRedacted = capture?.snapshot?.windowTitle?.redactPrivateText(120) ?: "unknown",
@@ -174,8 +282,20 @@ object NextSentenceFlightRecordFactory {
             errorCode = null,
             failedStage = null,
             exceptionClass = null,
-            exceptionMessageRedacted = null
-        )
+            exceptionMessageRedacted = null,
+            preAnalysisSnapshotFrozenAt = startedAt,
+            preAnalysisSnapshotSource = if (capture?.usedFallbackSnapshot == true) {
+                "LAST_STABLE_CHAT_SNAPSHOT_BEFORE_PANEL"
+            } else {
+                "CURRENT_ROOT_BEFORE_PANEL"
+            },
+            preAnalysisSnapshotMutableAfterPanel = false,
+            postPanelSnapshotCapturedAt = if (result.resultShownAsOverlay) endedAt else 0L,
+            postPanelSnapshotUsedForDecision = false,
+            cloudContractImplemented = false,
+            cloudConfigured = result.cloudTrace.endpointConfigured,
+            cloudAnalysisAttempted = result.cloudTrace.cloudAttempted
+        ).withComputedConsistency()
     }
 
     fun fromFailure(trace: NextSentenceSessionTrace): NextSentenceFlightRecord {
@@ -186,11 +306,12 @@ object NextSentenceFlightRecordFactory {
             NextSentenceErrorCode.ONLY_NON_CHAT_TEXT_FOUND -> "UNSUPPORTED_APP"
             else -> "CONTROLLED_FAIL"
         }
+        val endedAt = trace.endedAt ?: System.currentTimeMillis()
         return NextSentenceFlightRecord(
             sessionId = trace.sessionId,
             startedAt = trace.startedAt,
-            endedAt = trace.endedAt ?: System.currentTimeMillis(),
-            durationMs = (trace.endedAt ?: System.currentTimeMillis()) - trace.startedAt,
+            endedAt = endedAt,
+            durationMs = endedAt - trace.startedAt,
             terminalState = terminal,
             appPackage = trace.rootPackageName ?: trace.activePackageBeforeClick ?: "unknown",
             windowTitlePreAnalysisRedacted = trace.rootWindowTitle?.redactPrivateText(120) ?: "unknown",
@@ -233,8 +354,20 @@ object NextSentenceFlightRecordFactory {
             errorCode = trace.errorCode?.name,
             failedStage = trace.failedStage?.name,
             exceptionClass = trace.pipelineExceptionClass ?: trace.exceptionClass,
-            exceptionMessageRedacted = trace.pipelineExceptionMessageRedacted ?: trace.exceptionMessageRedacted
-        )
+            exceptionMessageRedacted = trace.pipelineExceptionMessageRedacted ?: trace.exceptionMessageRedacted,
+            preAnalysisSnapshotFrozenAt = trace.startedAt,
+            preAnalysisSnapshotSource = if (trace.usedFallbackSnapshot) {
+                "LAST_STABLE_CHAT_SNAPSHOT_BEFORE_PANEL"
+            } else {
+                "CURRENT_ROOT_BEFORE_PANEL"
+            },
+            preAnalysisSnapshotMutableAfterPanel = false,
+            postPanelSnapshotCapturedAt = 0L,
+            postPanelSnapshotUsedForDecision = false,
+            cloudContractImplemented = false,
+            cloudConfigured = false,
+            cloudAnalysisAttempted = false
+        ).withComputedConsistency()
     }
 
     private fun terminalStateFor(type: TacticalDecisionType): String = when (type) {
@@ -262,11 +395,21 @@ class OneTapFeedbackExporter(
         recentRecords: List<NextSentenceFlightRecord>,
         latestResult: CurrentScreenPipelineResult?,
         latestTrace: NextSentenceSessionTrace?,
-        feedback: UserFeedbackMark = UserFeedbackMark(markedWrong = true)
+        feedback: UserFeedbackMark = UserFeedbackMark(markedWrong = true),
+        feedbackClickedAt: Long = System.currentTimeMillis(),
+        feedbackTargetSessionId: String? = latestRecord?.sessionId,
+        feedbackExportSource: String = "LAST_COMPLETED_NEXT_SENTENCE_SESSION"
     ): Result<OneTapFeedbackExport> = runCatching {
-        val now = System.currentTimeMillis()
-        val record = (latestRecord ?: latestTrace?.let { NextSentenceFlightRecordFactory.fromFailure(it) } ?: placeholderRecord(now))
+        val now = feedbackClickedAt
+        val sourceRecord = latestRecord ?: throw IllegalStateException("NO_TARGET_SESSION_FOR_FEEDBACK")
+        val record = sourceRecord
             .withFeedback(feedback)
+            .withFeedbackTrace(
+                clickedAt = now,
+                targetSessionId = feedbackTargetSessionId ?: sourceRecord.sessionId,
+                exportSource = feedbackExportSource,
+                targetFound = true
+            )
         val fileName = "huiyi-one-tap-feedback-v${BuildConfig.VERSION_NAME}-${timestamp(now)}.zip"
         val outDir = File(context.filesDir, "exports/one_tap_feedback").apply { mkdirs() }
         val zip = File(outDir, fileName)
@@ -329,13 +472,21 @@ class OneTapFeedbackExporter(
         appendLine("- latestSessionId: ${record.sessionId}")
         appendLine("- terminalState: ${record.terminalState}")
         appendLine("- latestSessionTerminalState: ${record.terminalState}")
+        appendLine("- feedbackClickedAt: ${record.feedbackClickedAt}")
+        appendLine("- feedbackTargetSessionId: ${record.feedbackTargetSessionId}")
+        appendLine("- feedbackExportSource: ${record.feedbackExportSource}")
+        appendLine("- feedbackTriggeredNewAnalysis: ${record.feedbackTriggeredNewAnalysis}")
+        appendLine("- feedbackUsedOverlayStateAsPreAnalysis: ${record.feedbackUsedOverlayStateAsPreAnalysis}")
         appendLine("- actualLastSpeaker: ${record.actualLastSpeaker}")
         appendLine("- decisionType: ${record.decisionType}")
         appendLine("- decisionTypeFamily: ${record.decisionTypeFamily}")
         appendLine("- waitPanelShown: ${record.waitPanelShown}")
         appendLine("- contextRequiredPanelShown: ${record.contextRequiredPanelShown}")
         appendLine("- cloudEnabled: ${record.cloudEnabled}")
+        appendLine("- cloudConfigured: ${record.cloudConfigured}")
+        appendLine("- cloudContractImplemented: ${record.cloudContractImplemented}")
         appendLine("- cloudAttempted: ${record.cloudAttempted}")
+        appendLine("- cloudAnalysisAttempted: ${record.cloudAnalysisAttempted}")
         appendLine("- cloudSuccess: ${record.cloudSuccess}")
         appendLine("- cloudSkippedReason: ${record.cloudSkippedReason ?: "none"}")
         appendLine("- decisionSource: ${record.decisionSource}")
@@ -346,6 +497,11 @@ class OneTapFeedbackExporter(
         appendLine("- lastMeDeliveryStatus: ${markdownField(currentScreenMarkdown, "lastMeDeliveryStatus") ?: "NONE"}")
         appendLine("- lastMeReadStatus: ${markdownField(currentScreenMarkdown, "lastMeReadStatus") ?: "NONE"}")
         appendLine("- reportWindowTitleContaminatedByPanel: ${markdownField(currentScreenMarkdown, "reportWindowTitleContaminatedByPanel") ?: "false"}")
+        appendLine("- preAnalysisSnapshotTrusted: ${record.preAnalysisSnapshotTrusted}")
+        appendLine("- preAnalysisLooksLikeHuiyiPanel: ${record.preAnalysisLooksLikeHuiyiPanel}")
+        appendLine("- preAnalysisTextClaimsLastMeWait: ${record.preAnalysisTextClaimsLastMeWait}")
+        appendLine("- windowTitleAndDecisionContradiction: ${record.windowTitleAndDecisionContradiction}")
+        appendLine("- reportConsistencyResult: ${record.reportConsistencyResult}")
         appendLine("- quickConclusion: ${quickConclusion(record)}")
         appendLine()
         appendLine("GPT should inspect `latest-session/next-sentence-flight-record.json` first.")
@@ -355,10 +511,27 @@ class OneTapFeedbackExporter(
         {
           "project": "huiyi-v4",
           "bundleType": "ONE_TAP_FEEDBACK",
-          "generatedAt": "$generatedAt",
-          "appVersionName": "${BuildConfig.VERSION_NAME}",
-          "appVersionCode": ${BuildConfig.VERSION_CODE},
-          "latestSession": {
+            "generatedAt": "$generatedAt",
+            "appVersionName": "${BuildConfig.VERSION_NAME}",
+            "appVersionCode": ${BuildConfig.VERSION_CODE},
+            "feedback": {
+              "feedbackClickedAt": ${record.feedbackClickedAt},
+              "feedbackTargetSessionId": "${escape(record.feedbackTargetSessionId)}",
+              "feedbackTargetSessionTerminalState": "${escape(record.feedbackTargetSessionTerminalState)}",
+              "feedbackTargetSessionFound": ${record.feedbackTargetSessionFound},
+              "feedbackExportSource": "${record.feedbackExportSource}",
+              "feedbackTriggeredNewAnalysis": ${record.feedbackTriggeredNewAnalysis},
+              "feedbackReCapturedCurrentRoot": ${record.feedbackReCapturedCurrentRoot},
+              "feedbackUsedOverlayStateAsPreAnalysis": ${record.feedbackUsedOverlayStateAsPreAnalysis}
+            },
+            "reportConsistencyChecks": {
+              "preAnalysisLooksLikeHuiyiPanel": ${record.preAnalysisLooksLikeHuiyiPanel},
+              "preAnalysisTextClaimsLastMeWait": ${record.preAnalysisTextClaimsLastMeWait},
+              "recordClaimsLastOtherRoutePanel": ${record.recordClaimsLastOtherRoutePanel},
+              "windowTitleAndDecisionContradiction": ${record.windowTitleAndDecisionContradiction},
+              "reportConsistencyResult": "${record.reportConsistencyResult}"
+            },
+            "latestSession": {
             "sessionId": "${escape(record.sessionId)}",
             "terminalState": "${record.terminalState}",
             "appPackage": "${escape(record.appPackage)}",
@@ -371,7 +544,10 @@ class OneTapFeedbackExporter(
             "waitPanelShown": ${record.waitPanelShown},
             "routePanelShown": ${record.routePanelShown},
             "cloudEnabled": ${record.cloudEnabled},
+            "cloudConfigured": ${record.cloudConfigured},
+            "cloudContractImplemented": ${record.cloudContractImplemented},
             "cloudAttempted": ${record.cloudAttempted},
+            "cloudAnalysisAttempted": ${record.cloudAnalysisAttempted},
             "cloudSuccess": ${record.cloudSuccess},
             "cloudSkippedReason": "${record.cloudSkippedReason ?: ""}",
             "decisionSource": "${record.decisionSource}",
@@ -398,6 +574,14 @@ class OneTapFeedbackExporter(
         appendLine()
         appendLine("- sessionId: ${record.sessionId}")
         appendLine("- terminalState: ${record.terminalState}")
+        appendLine("- feedbackClickedAt: ${record.feedbackClickedAt}")
+        appendLine("- feedbackTargetSessionId: ${record.feedbackTargetSessionId}")
+        appendLine("- feedbackTargetSessionTerminalState: ${record.feedbackTargetSessionTerminalState}")
+        appendLine("- feedbackTargetSessionFound: ${record.feedbackTargetSessionFound}")
+        appendLine("- feedbackExportSource: ${record.feedbackExportSource}")
+        appendLine("- feedbackTriggeredNewAnalysis: ${record.feedbackTriggeredNewAnalysis}")
+        appendLine("- feedbackReCapturedCurrentRoot: ${record.feedbackReCapturedCurrentRoot}")
+        appendLine("- feedbackUsedOverlayStateAsPreAnalysis: ${record.feedbackUsedOverlayStateAsPreAnalysis}")
         appendLine("- appPackage: ${record.appPackage}")
         appendLine("- actualLastSpeaker: ${record.actualLastSpeaker}")
         appendLine("- decisionType: ${record.decisionType}")
@@ -406,7 +590,10 @@ class OneTapFeedbackExporter(
         appendLine("- waitPanelShown: ${record.waitPanelShown}")
         appendLine("- routePanelShown: ${record.routePanelShown}")
         appendLine("- cloudEnabled: ${record.cloudEnabled}")
+        appendLine("- cloudConfigured: ${record.cloudConfigured}")
+        appendLine("- cloudContractImplemented: ${record.cloudContractImplemented}")
         appendLine("- cloudAttempted: ${record.cloudAttempted}")
+        appendLine("- cloudAnalysisAttempted: ${record.cloudAnalysisAttempted}")
         appendLine("- cloudSuccess: ${record.cloudSuccess}")
         appendLine("- cloudSkippedReason: ${record.cloudSkippedReason ?: "none"}")
         appendLine("- decisionSource: ${record.decisionSource}")
@@ -415,6 +602,18 @@ class OneTapFeedbackExporter(
         appendLine("- cloudErrorCode: ${record.cloudErrorCode ?: "none"}")
         appendLine("- loadingStillVisible: ${record.loadingStillVisible}")
         appendLine("- captureSource: ${record.captureSource}")
+        appendLine("- preAnalysisSnapshotFrozenAt: ${record.preAnalysisSnapshotFrozenAt}")
+        appendLine("- preAnalysisSnapshotSource: ${record.preAnalysisSnapshotSource}")
+        appendLine("- preAnalysisSnapshotMutableAfterPanel: ${record.preAnalysisSnapshotMutableAfterPanel}")
+        appendLine("- postPanelSnapshotCapturedAt: ${record.postPanelSnapshotCapturedAt}")
+        appendLine("- postPanelSnapshotUsedForDecision: ${record.postPanelSnapshotUsedForDecision}")
+        appendLine("- preAnalysisSnapshotTrusted: ${record.preAnalysisSnapshotTrusted}")
+        appendLine("- preAnalysisSnapshotErrorCode: ${record.preAnalysisSnapshotErrorCode ?: "none"}")
+        appendLine("- preAnalysisLooksLikeHuiyiPanel: ${record.preAnalysisLooksLikeHuiyiPanel}")
+        appendLine("- preAnalysisTextClaimsLastMeWait: ${record.preAnalysisTextClaimsLastMeWait}")
+        appendLine("- recordClaimsLastOtherRoutePanel: ${record.recordClaimsLastOtherRoutePanel}")
+        appendLine("- windowTitleAndDecisionContradiction: ${record.windowTitleAndDecisionContradiction}")
+        appendLine("- reportConsistencyResult: ${record.reportConsistencyResult}")
         appendLine("- usedFallbackSnapshot: ${record.usedFallbackSnapshot}")
         appendLine("- staleRoutesReused: ${record.staleRoutesReused}")
         appendLine("- errorCode: ${record.errorCode ?: "none"}")
@@ -429,14 +628,34 @@ class OneTapFeedbackExporter(
           "endedAt": ${record.endedAt},
           "durationMs": ${record.durationMs},
           "terminalState": "${record.terminalState}",
+          "feedbackClickedAt": ${record.feedbackClickedAt},
+          "feedbackTargetSessionId": "${escape(record.feedbackTargetSessionId)}",
+          "feedbackTargetSessionTerminalState": "${escape(record.feedbackTargetSessionTerminalState)}",
+          "feedbackTargetSessionFound": ${record.feedbackTargetSessionFound},
+          "feedbackExportSource": "${record.feedbackExportSource}",
+          "feedbackTriggeredNewAnalysis": ${record.feedbackTriggeredNewAnalysis},
+          "feedbackReCapturedCurrentRoot": ${record.feedbackReCapturedCurrentRoot},
+          "feedbackUsedOverlayStateAsPreAnalysis": ${record.feedbackUsedOverlayStateAsPreAnalysis},
           "appPackage": "${escape(record.appPackage)}",
           "windowTitlePreAnalysisRedacted": "${escape(record.windowTitlePreAnalysisRedacted)}",
           "targetAppSupported": ${record.targetAppSupported},
           "adapterName": "${record.adapterName}",
           "parserName": "${record.parserName}",
           "preAnalysisSnapshotCaptured": ${record.preAnalysisSnapshotCaptured},
+          "preAnalysisSnapshotFrozenAt": ${record.preAnalysisSnapshotFrozenAt},
+          "preAnalysisSnapshotSource": "${record.preAnalysisSnapshotSource}",
+          "preAnalysisSnapshotMutableAfterPanel": ${record.preAnalysisSnapshotMutableAfterPanel},
+          "preAnalysisSnapshotTrusted": ${record.preAnalysisSnapshotTrusted},
+          "preAnalysisSnapshotErrorCode": ${record.preAnalysisSnapshotErrorCode?.let { "\"${escape(it)}\"" } ?: "null"},
+          "postPanelSnapshotCapturedAt": ${record.postPanelSnapshotCapturedAt},
+          "postPanelSnapshotUsedForDecision": ${record.postPanelSnapshotUsedForDecision},
           "postPanelSnapshotCaptured": ${record.postPanelSnapshotCaptured},
           "postPanelContaminationDetected": ${record.postPanelContaminationDetected},
+          "preAnalysisLooksLikeHuiyiPanel": ${record.preAnalysisLooksLikeHuiyiPanel},
+          "preAnalysisTextClaimsLastMeWait": ${record.preAnalysisTextClaimsLastMeWait},
+          "recordClaimsLastOtherRoutePanel": ${record.recordClaimsLastOtherRoutePanel},
+          "windowTitleAndDecisionContradiction": ${record.windowTitleAndDecisionContradiction},
+          "reportConsistencyResult": "${record.reportConsistencyResult}",
           "actualLastSpeaker": "${record.actualLastSpeaker}",
           "decisionType": "${record.decisionType}",
           "decisionTypeFamily": "${record.decisionTypeFamily}",
@@ -445,7 +664,10 @@ class OneTapFeedbackExporter(
           "routePanelShown": ${record.routePanelShown},
           "contextRequiredPanelShown": ${record.contextRequiredPanelShown},
           "cloudEnabled": ${record.cloudEnabled},
+          "cloudConfigured": ${record.cloudConfigured},
+          "cloudContractImplemented": ${record.cloudContractImplemented},
           "cloudAttempted": ${record.cloudAttempted},
+          "cloudAnalysisAttempted": ${record.cloudAnalysisAttempted},
           "cloudSkippedReason": ${record.cloudSkippedReason?.let { "\"${escape(it)}\"" } ?: "null"},
           "cloudRequestId": ${record.cloudRequestId?.let { "\"${escape(it)}\"" } ?: "null"},
           "cloudSuccess": ${record.cloudSuccess},
@@ -480,6 +702,7 @@ class OneTapFeedbackExporter(
     """.trimIndent()
 
     private fun quickStatus(record: NextSentenceFlightRecord): String = when {
+        record.reportConsistencyResult == "FAIL_CONTAMINATED_EXPORT" -> "FAIL_CONTAMINATED_EXPORT"
         record.userFeedback.markedWrong -> "USER_MARKED_WRONG"
         record.terminalState == "UNSUPPORTED_APP" -> "UNSUPPORTED_APP"
         record.terminalState == "TIMEOUT" -> "TIMEOUT"
@@ -489,6 +712,8 @@ class OneTapFeedbackExporter(
     }
 
     private fun quickConclusion(record: NextSentenceFlightRecord): String = when {
+        record.reportConsistencyResult == "FAIL_CONTAMINATED_EXPORT" ->
+            "这次一键反馈包被会意面板污染，不能用于判断 LAST ME / LAST OTHER。需要修 feedback export 绑定原始 session。"
         record.userFeedback.markedWrong && record.userFeedback.userCorrectionLastSpeaker != "NONE" ->
             "User marked this result wrong; correction last speaker is ${record.userFeedback.userCorrectionLastSpeaker}, system saw ${record.actualLastSpeaker}."
         record.terminalState == "WAIT_PANEL" -> "last ME entered WAIT panel with zero routes."

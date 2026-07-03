@@ -108,8 +108,8 @@ class HuiyiRuntime private constructor(
         persistenceRepository = persistence,
         cloudAnalysisService = CloudAnalysisRepository(
             CloudAnalysisConfig(
-                cloudEnabled = BuildConfig.HUIYI_CLOUD_ANALYSIS_ENDPOINT.isNotBlank(),
-                endpoint = BuildConfig.HUIYI_CLOUD_ANALYSIS_ENDPOINT,
+                cloudEnabled = false,
+                endpoint = "",
                 clientId = BuildConfig.HUIYI_CLOUD_ANALYSIS_CLIENT_ID,
                 clientToken = BuildConfig.HUIYI_CLOUD_ANALYSIS_CLIENT_TOKEN
             )
@@ -767,16 +767,48 @@ class HuiyiRuntime private constructor(
                 )
             }
             val state = mutableState.value
+            val panelSessionId = state.latestPipelineResult?.panelSessionId
+                ?: state.latestPipelineResult?.sessionId
+                ?: state.latestFlightRecord?.panelSessionId
+            val target = OneTapFeedbackZipContract.selectTargetRecord(
+                panelSessionId = panelSessionId,
+                lastCompletedSessionId = state.latestFlightRecord?.sessionId,
+                latest = state.latestFlightRecord,
+                records = state.recentFlightRecords
+            )
+            if (target == null) {
+                mutableState.update {
+                    it.copy(
+                        oneTapGithubUploadState = OneTapGithubUploadState(
+                            stage = OneTapGithubUploadStage.UPLOAD_FAILED,
+                            errorCode = OneTapGithubUploadErrorCode.GITHUB_UPLOAD_UNKNOWN_ERROR,
+                            errorMessageRedacted = "NO_TARGET_SESSION_FOR_FEEDBACK",
+                            userVisibleMessage = "没有找到刚才那次分析记录，请先点一次下一句。"
+                        ),
+                        lastError = "没有找到刚才那次分析记录，请先点一次下一句。",
+                        panelVisible = true
+                    )
+                }
+                return@launch
+            }
+            val targetRecord = target.first
+            val exportSource = target.second
+            val targetResult = state.latestPipelineResult?.takeIf {
+                it.sessionId == targetRecord.sessionId || it.panelSessionId == targetRecord.sessionId
+            }
             val exporter = OneTapFeedbackExporter(appContext)
             exporter.export(
-                latestRecord = state.latestFlightRecord,
+                latestRecord = targetRecord,
                 recentRecords = state.recentFlightRecords,
-                latestResult = state.latestPipelineResult,
+                latestResult = targetResult,
                 latestTrace = state.lastNextSentenceTrace,
                 feedback = UserFeedbackMark(
                     markedWrong = true,
                     userCorrectionLastSpeaker = correctionLastSpeaker
-                )
+                ),
+                feedbackClickedAt = System.currentTimeMillis(),
+                feedbackTargetSessionId = targetRecord.sessionId,
+                feedbackExportSource = exportSource
             ).fold(
                 onSuccess = { output ->
                     mutableState.update {
