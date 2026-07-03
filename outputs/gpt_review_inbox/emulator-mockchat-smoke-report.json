@@ -1,0 +1,21 @@
+﻿{
+    "accessibilityEnabled":  false,
+    "emulatorDetected":  false,
+    "emulatorSerial":  "",
+    "emulatorUiSmokeResult":  "NOT_RUN",
+    "fixtureReplayResult":  "UNKNOWN",
+    "huiyiInstalled":  false,
+    "lastMeResult":  "NOT_RUN",
+    "lastOtherResult":  "NOT_RUN",
+    "logcatPath":  "",
+    "mockChatBuildResult":  "PASS",
+    "mockchatInstalled":  false,
+    "notes":  "No emulator UI smoke evidence was produced.",
+    "oneTapFeedbackTargetSessionResult":  "NOT_RUN",
+    "overlayContaminationResult":  "NOT_RUN",
+    "overlayPermissionGranted":  false,
+    "readReceiptResult":  "NOT_RUN",
+    "realDeviceSmokeResult":  "NOT_TESTED",
+    "reason":  "NO_EMULATOR_AVAILABLE",
+    "screenshotsPath":  "C:\\Users\\fbjdf\\Documents\\Codex\\2026-07-02\\new-chat-3\\outputs\\emulator_mockchat_smoke"
+}

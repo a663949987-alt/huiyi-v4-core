@@ -13,6 +13,16 @@ Default validation order:
 5. HuiyiTacticalContract v1 replay.
 6. Real-device smoke tests only.
 
+Result layers must stay separate:
+
+- `fixtureReplayResult`: offline fixture / JVM parser replay only.
+- `mockChatBuildResult`: MockChat APK build only.
+- `emulatorUiSmokeResult`: Android Emulator UI/accessibility smoke only.
+- `realDeviceSmokeResult`: physical Android phone smoke only.
+
+`fixtureReplayResult=PASS` must never be used as evidence for `emulatorUiSmokeResult=PASS`.
+If the emulator UI smoke was not executed, the result is `NOT_RUN`.
+
 ## Fixture Replay
 
 Accessibility node fixtures are built from either raw node dumps or `real-device-current-screen-report.json`.
@@ -50,6 +60,17 @@ MockChatLab remains the main emulator environment. It covers:
 - font scale changes
 - screen-width-sensitive bounds
 - Huiyi overlay contamination
+
+MockChat layout or fixture coverage is not the same as emulator UI smoke.
+Emulator UI smoke requires adb evidence that:
+
+- an emulator device was detected,
+- Huiyi and MockChat were installed on that emulator,
+- Huiyi accessibility service was enabled,
+- overlay permission was granted,
+- MockChat scenarios were opened,
+- Next Sentence was triggered,
+- the overlay result was observed above MockChat.
 
 ## Synthetic Corpus
 

@@ -1,11 +1,11 @@
 {
   "project": "huiyi-v4",
-  "taskName": "phone_latest_real_device_smoke_closure",
+  "taskName": "emulator_mockchat_ui_smoke_layer_fix",
   "versionName": "4.1.23",
   "versionCode": 441,
-  "generatedAt": "2026-07-03 18:22:32 +0800",
-  "currentOverallResult": "PASS",
-  "lastMeRealDeviceResult": "NOT_TESTED_USER_DID_NOT_HAVE_SAFE_SCENARIO",
+  "generatedAt": "2026-07-03 18:33:47 +0800",
+  "currentOverallResult": "NOT_TESTED",
+  "lastMeRealDeviceResult": "NOT_TESTED",
   "lastOtherRealDeviceResult": "NOT_TESTED",
   "staleSnapshotGuard": "PASS",
   "staleRoutesGuard": "PASS",
@@ -14,7 +14,7 @@
   "realDeviceTested": false,
   "phoneBundleIncluded": false,
   "phoneBundlePath": "",
-  "phoneBundleRequiredFromUser": false,
+  "phoneBundleRequiredFromUser": true,
   "currentStatus": {
     "overlayShownInTargetApp": "NOT_TESTED",
     "resultShownAsOverlay": "NOT_TESTED",
@@ -27,8 +27,7 @@
     "scenarioDefinitionTrusted": false,
     "scenarioDefinitionMismatch": false,
     "postPanelContaminationDetected": false,
-    "screenshotFailureBlocksMainPath": false,
-    "lastMeRealDeviceResult": "NOT_TESTED_USER_DID_NOT_HAVE_SAFE_SCENARIO"
+    "screenshotFailureBlocksMainPath": false
   },
   "lastMe": {
     "testIntent": "USER_ASSERTED_LAST_ME",
@@ -42,8 +41,7 @@
     "routePanelShown": false,
     "staleRoutesReused": false,
     "failureCategory": "not_tested",
-    "failureReason": "USER_DID_NOT_HAVE_SAFE_LAST_ME_SCENARIO",
-    "result": "NOT_TESTED_USER_DID_NOT_HAVE_SAFE_SCENARIO"
+    "failureReason": "NOT_GENERATED_ON_PHONE"
   },
   "lastOther": {
     "result": "NOT_TESTED",
@@ -55,11 +53,11 @@
   "reviewFiles": [
     {
       "path": "huiyi-v4-review-for-gpt.md",
-      "source": "outputs/review/huiyi-v4-review-for-gpt.md",
+      "source": "outputs/gpt_review_inbox/huiyi-v4-review-for-gpt.md",
       "required": true,
       "exists": true,
       "description": "Main GPT review report",
-      "sha256": "c91fb9ae42a7e2e78fe6d89b9d4568825f6a63d553949d1a3d52d3ec8abe87ce"
+      "sha256": "0aa9c82cef1c162bab925d6dd5d4a4327c1bfc82c4181541ab38b6840adf9dc8"
     },
     {
       "path": "manifest.json",
@@ -67,7 +65,7 @@
       "required": true,
       "exists": true,
       "description": "Review bundle manifest",
-      "sha256": "c6fa8135e1b278ca71bf97b13a6a256f3972598ae84fec5ff2bfe0f269663994"
+      "sha256": "94e2272c800a1399a9462e5401b70a8e2c5424fcb88defd1a3615da57e620950"
     },
     {
       "path": "real-device-current-screen-report-for-gpt.md",
@@ -210,49 +208,40 @@
       "required": true,
       "exists": true,
       "description": "Inbox overview for GPT",
-      "sha256": "5ad8e89f78bcc329741fac7a321b69fa88a995ba8e5f6ee773238bdeb8b07b53"
+      "sha256": "f7c71506fa9aa966653d87ed192b9d8c9383079d66516cce9ba15e582a89ef8e",
+      "source": "outputs/gpt_review_inbox/README_FOR_GPT.md"
     },
     {
       "path": "changed-files-for-gpt.md",
       "required": true,
       "exists": true,
-      "description": "Current delivery change summary",
-      "sha256": "254fa6983820f3ef2b61d3a9564ece7c84942759fc1e8a630f20c85a1bda56bf"
+      "description": "Changed files summary",
+      "sha256": "1a445a119ea68e8ba4796c3f2d8b5a0186ada3ff37f1f2e84b3f5aa892a12f8c",
+      "source": "outputs/gpt_review_inbox/changed-files-for-gpt.md"
     },
     {
-      "path": "phone-real-device-closure-report-for-gpt.md",
+      "path": "emulator-mockchat-smoke-report-for-gpt.md",
+      "source": "outputs/gpt_review_inbox/emulator-mockchat-smoke-report-for-gpt.md",
       "required": true,
       "exists": true,
-      "description": "Current phone latest closure report",
-      "sha256": "207473157dad119aef9826d47bee1f9e72d2b371e0a87826eed382b7134530f0"
+      "description": "Current emulator UI smoke report",
+      "sha256": "1894b0dc6b98e332e223007c010043e12512d547c6c5952dd8eecd578960075d"
     },
     {
-      "path": "phone/latest/README_FOR_GPT.md",
+      "path": "emulator-mockchat-smoke-report.json",
+      "source": "outputs/gpt_review_inbox/emulator-mockchat-smoke-report.json",
       "required": true,
       "exists": true,
-      "description": "Current phone/latest overview",
-      "sha256": "13de19e462d7d05f8269aec822afbd1a9cc2e9421ff7783dad2e5390e300a1bd"
+      "description": "Current emulator UI smoke JSON",
+      "sha256": "0a336ca79759b424d3f1757e71722dbffd82a6840c7c0c3cd2e0fc26a8e47f76"
     },
     {
-      "path": "phone/latest/one-tap-feedback-manifest.json",
+      "path": "simulation-first-validation-report-for-gpt.md",
+      "source": "outputs/gpt_review_inbox/simulation-first-validation-report-for-gpt.md",
       "required": true,
       "exists": true,
-      "description": "Current phone/latest feedback manifest placeholder",
-      "sha256": "61d47ec0c87e9300aa3ad23d8e63e20e6d2a1f2c53af57433d384098ea489c11"
-    },
-    {
-      "path": "phone/latest/latest-session/next-sentence-flight-record.json",
-      "required": true,
-      "exists": true,
-      "description": "Current phone/latest original session placeholder",
-      "sha256": "f709fd90764873f5860d0575e7cfc14e080c1c66f2b273ac094b3569db9395f3"
-    },
-    {
-      "path": "phone/latest/current-screen/real-device-current-screen-report.json",
-      "required": true,
-      "exists": true,
-      "description": "Current phone/latest screen placeholder",
-      "sha256": "b0863597d833117ab9fbf225a50a2da2e10dd59c8b72e7df9b470eb2e50d1e65"
+      "description": "Layered simulation-first report",
+      "sha256": "ccc34ce59acfe87644864dd8516582ad356f12c1e1748ad735fcd228d4b36238"
     }
   ],
   "legacyCurrentStatus": {
@@ -277,18 +266,22 @@
     "containsKeystore": false,
     "containsLocalProperties": false
   },
-  "phoneLatestClosureResult": "PASS",
-  "phoneLatestUpdatedToCurrentVersion": "PASS",
-  "phoneLatestOldPollutedBundleRemoved": "PASS",
-  "oneTapOriginalSessionBinding": "PASS",
+  "fixtureReplayResult": "PASS",
+  "mockChatBuildResult": "PASS",
+  "emulatorUiSmokeResult": "NOT_RUN",
+  "emulatorUiSmokeReason": "NO_EMULATOR_AVAILABLE",
   "realDeviceSmokeResult": "NOT_TESTED",
-  "cloudStatus": "TODO_DISABLED",
-  "cloudEnabled": false,
-  "cloudAttempted": false,
-  "cloudContractImplemented": false,
-  "acceptedSmokeSet": [
-    "Liaoqi LAST_ME: ME -> WAIT",
-    "Liaoqi LAST_OTHER: OTHER -> routes",
-    "Unsupported App: show unsupported prompt and export adapter bundle"
-  ]
+  "emulatorDetected": false,
+  "emulatorSerial": "",
+  "huiyiInstalled": false,
+  "mockchatInstalled": false,
+  "accessibilityEnabled": false,
+  "overlayPermissionGranted": false,
+  "lastMeResult": "NOT_RUN",
+  "lastOtherResult": "NOT_RUN",
+  "readReceiptResult": "NOT_RUN",
+  "overlayContaminationResult": "NOT_RUN",
+  "oneTapFeedbackTargetSessionResult": "NOT_RUN",
+  "failReason": "Emulator UI smoke was not run because no emulator was available. Fixture replay PASS is not emulator UI evidence.",
+  "overallResult": "NOT_TESTED"
 }
