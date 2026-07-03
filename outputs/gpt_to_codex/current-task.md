@@ -1,8 +1,31 @@
-# Current Task from GPT to Codex
+# GPT -> Codex Current Task
 
-- taskName: phone_latest_current_session_binding_fix
-- requestedAction: unify v4.1.23 review package entry and version fields
-- versionName: 4.1.23
-- versionCode: 442
-- noProductFeatureChanges: true
-- userNeedsPhoneThisRound: false
+taskStatus: PENDING
+project: Huiyi v4 Core
+taskName: cloud_contract_mvp_with_local_safety_gate
+versionName: 4.1.24
+versionCode: 443
+createdBy: GPT
+userNeedsPhoneThisRound: false
+realDeviceRequiredThisRound: false
+cloudRealEndpointRequiredThisRound: false
+
+## Goals
+- implement HuiyiTacticalContract v1
+- implement CloudTacticalResponseValidator
+- implement CloudAnalysisClient skeleton
+- preserve local LAST_ME -> WAIT safety gate
+- fallback to local routes when cloud is not configured
+- report cloud fields clearly
+
+## Non Goals
+- no real API key
+- no real cloud endpoint required
+- no phone testing
+- no new app adapter
+- no automatic sending
+
+## Required Reports
+- outputs/gpt_review_inbox/cloud-contract-mvp-report-for-gpt.md
+- outputs/gpt_review_inbox/cloud-contract-mvp-report.json
+- outputs/codex_to_gpt/result-manifest.json

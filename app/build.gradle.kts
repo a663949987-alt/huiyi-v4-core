@@ -20,8 +20,8 @@ android {
         applicationId = "com.huiyi.v4"
         minSdk = 29
         targetSdk = 35
-        versionCode = 442
-        versionName = "4.1.23"
+        versionCode = 443
+        versionName = "4.1.24"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
 
@@ -34,7 +34,7 @@ android {
         buildConfigField("String", "HUIYI_REVIEW_UPLOAD_CLIENT_KEY", "\"${localProps.getProperty("huiyi.reviewUpload.clientKey", "")}\"")
         buildConfigField("String", "HUIYI_CLOUD_ANALYSIS_ENDPOINT", "\"${localProps.getProperty("huiyi.cloud.endpoint", "")}\"")
         buildConfigField("String", "HUIYI_CLOUD_ANALYSIS_CLIENT_ID", "\"${localProps.getProperty("huiyi.cloud.clientId", "huiyi-v4-dev")}\"")
-        buildConfigField("String", "HUIYI_CLOUD_ANALYSIS_CLIENT_TOKEN", "\"${localProps.getProperty("huiyi.cloud.clientToken", "")}\"")
+        buildConfigField("String", "HUIYI_CLOUD_ANALYSIS_CLIENT_TOKEN", "\"\"")
     }
 
     buildFeatures {

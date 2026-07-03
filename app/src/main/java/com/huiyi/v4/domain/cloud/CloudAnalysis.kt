@@ -16,6 +16,7 @@ import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonArray
 import kotlinx.serialization.json.JsonElement
 import kotlinx.serialization.json.JsonObject
+import kotlinx.serialization.json.add
 import kotlinx.serialization.json.booleanOrNull
 import kotlinx.serialization.json.buildJsonArray
 import kotlinx.serialization.json.buildJsonObject
@@ -32,8 +33,13 @@ import okhttp3.RequestBody.Companion.toRequestBody
 import java.util.UUID
 import java.util.concurrent.TimeUnit
 
+object HuiyiTacticalContract {
+    const val VERSION = "HuiyiTacticalContract-v1"
+    const val SCHEMA_VERSION = 1
+}
+
 data class CloudAnalysisConfig(
-    val cloudEnabled: Boolean = true,
+    val cloudEnabled: Boolean = false,
     val endpoint: String = "",
     val timeoutMs: Long = 6000,
     val privateMode: Boolean = false,
@@ -57,14 +63,17 @@ data class CloudAnalysisTrace(
     val cloudFallbackUsed: Boolean = false,
     val decisionSource: String = "LOCAL_FALLBACK",
     val modelCalled: Boolean = false,
-    val apiCalled: Boolean = false
+    val apiCalled: Boolean = false,
+    val cloudContractVersion: String = HuiyiTacticalContract.VERSION,
+    val cloudContractValidationResult: String = "NOT_RUN"
 ) {
     companion object {
         fun skipped(config: CloudAnalysisConfig, reason: String, decisionSource: String): CloudAnalysisTrace = CloudAnalysisTrace(
             cloudEnabled = config.cloudEnabled,
             endpointConfigured = config.endpointConfigured,
             cloudSkippedReason = reason,
-            decisionSource = decisionSource
+            decisionSource = decisionSource,
+            cloudContractValidationResult = "NOT_RUN"
         )
 
         fun success(config: CloudAnalysisConfig, requestId: String?, latencyMs: Long): CloudAnalysisTrace = CloudAnalysisTrace(
@@ -79,10 +88,16 @@ data class CloudAnalysisTrace(
             cloudFallbackUsed = false,
             decisionSource = "CLOUD",
             modelCalled = true,
-            apiCalled = true
+            apiCalled = true,
+            cloudContractValidationResult = "PASS"
         )
 
-        fun fallback(config: CloudAnalysisConfig, errorCode: String, latencyMs: Long?): CloudAnalysisTrace = CloudAnalysisTrace(
+        fun fallback(
+            config: CloudAnalysisConfig,
+            errorCode: String,
+            latencyMs: Long?,
+            validationResult: String = "NOT_RUN"
+        ): CloudAnalysisTrace = CloudAnalysisTrace(
             cloudEnabled = config.cloudEnabled,
             endpointConfigured = config.endpointConfigured,
             cloudAttempted = true,
@@ -93,7 +108,8 @@ data class CloudAnalysisTrace(
             cloudFallbackUsed = true,
             decisionSource = "LOCAL_FALLBACK",
             modelCalled = false,
-            apiCalled = false
+            apiCalled = false,
+            cloudContractValidationResult = validationResult
         )
     }
 }
@@ -139,7 +155,7 @@ class OkHttpCloudAnalysisClient : CloudAnalysisClient {
         if (clientToken.isNotBlank()) requestBuilder.header("X-Huiyi-Client-Token", clientToken)
         client.newCall(requestBuilder.build()).execute().use { response ->
             if (!response.isSuccessful) error("SERVER_ERROR:${response.code}")
-            return response.body?.string() ?: error("SCHEMA_INVALID:empty_body")
+            return response.body?.string() ?: error("CLOUD_SCHEMA_INVALID:empty_body")
         }
     }
 }
@@ -167,22 +183,24 @@ class CloudAnalysisRepository(
         } catch (error: IllegalStateException) {
             throw CloudAnalysisException(error.message?.substringBefore(":") ?: "SERVER_ERROR", error)
         }
-        mapper.parseResponse(responseJson, System.currentTimeMillis() - startedAt)
+        mapper.parseResponse(responseJson, System.currentTimeMillis() - startedAt, input.lastSpeakerDecision.lastSpeaker)
     }
 }
 
 class CloudAnalysisException(val code: String, cause: Throwable? = null) : RuntimeException(code, cause)
 
-class CloudTacticalDecisionMapper {
+class CloudTacticalDecisionMapper(
+    private val contractValidator: CloudTacticalResponseValidator = CloudTacticalResponseValidator()
+) {
     private val json = Json { ignoreUnknownKeys = true }
-    private val contractValidator = HuiyiTacticalContractValidator()
 
     fun buildRequest(input: CloudAnalysisInput, config: CloudAnalysisConfig): String {
         val messages = input.context.currentScreenMessages
             .filter { it.isEffectiveChatMessage && it.speaker in setOf(Speaker.ME, Speaker.OTHER) }
             .takeLast(12)
         val root = buildJsonObject {
-            put("schemaVersion", 1)
+            put("schemaVersion", HuiyiTacticalContract.SCHEMA_VERSION)
+            put("contractVersion", HuiyiTacticalContract.VERSION)
             put("sessionId", input.sessionId)
             put("appVersionName", input.appVersionName)
             put("appVersionCode", input.appVersionCode)
@@ -207,14 +225,15 @@ class CloudTacticalDecisionMapper {
                 put("lastEffectiveMessageId", input.lastSpeakerDecision.lastEffectiveMessage?.id.orEmpty())
                 put("lastEffectiveSpeaker", input.lastSpeakerDecision.lastSpeaker?.name ?: "UNKNOWN")
             })
-            put("userPersona", buildJsonObject {
-                put("knownTags", JsonArray(emptyList()))
-                put("relationshipGoal", "")
-                put("stylePreference", "")
-            })
             put("messageStatus", buildJsonObject {
                 put("lastMeDeliveryStatus", input.lastMeDeliveryStatus)
                 put("lastMeReadStatus", input.lastMeReadStatus)
+            })
+            put("localSafetyGate", buildJsonObject {
+                put("meNeverCallsCloud", true)
+                put("unknownNeverCallsCloud", true)
+                put("unsupportedAppNeverCallsCloud", true)
+                put("cloudCannotOverrideLastMeWait", true)
             })
             put("privacy", buildJsonObject {
                 put("privateMode", config.privateMode)
@@ -224,36 +243,30 @@ class CloudTacticalDecisionMapper {
         return root.toString()
     }
 
-    fun parseResponse(responseJson: String, latencyMs: Long): CloudAnalysisOutput {
+    fun parseResponse(responseJson: String, latencyMs: Long, actualLastSpeaker: Speaker? = Speaker.OTHER): CloudAnalysisOutput {
         val root = json.parseToJsonElement(responseJson).jsonObject
-        contractValidator.validate(root).getOrElse { throw it }
+        contractValidator.validate(root, actualLastSpeaker).getOrElse { throw it }
         val decisionType = root.string("decisionType").toDecisionType()
         val routes = root["routes"]?.jsonArray.orEmpty().mapIndexed { index, element ->
             element.toRoute(index)
         }
-        if (routes.size != 5 || decisionType !in cloudReplyDecisionTypes) {
-            throw CloudAnalysisException("SCHEMA_INVALID")
-        }
-        if (routes.any { it.message.isBlank() || it.message.length > 160 }) {
-            throw CloudAnalysisException("SCHEMA_INVALID")
-        }
         val decision = TacticalDecision(
             decisionType = decisionType,
             situation = root.string("situation").ifBlank { "cloud analysis" },
-            coreInsight = root.string("coCreationPoint").ifBlank { root.string("coreInsight") },
-            userLikelyMistake = root.string("userLikelyMistake").ifBlank { null },
+            coreInsight = coCreationSummary(root["coCreationPoint"]?.jsonObject),
+            userLikelyMistake = root.string("userLikelyMistake"),
             bestMove = root.string("bestMove").ifBlank { routes.firstOrNull()?.message.orEmpty() },
             avoidMoves = root["avoidMoves"]?.jsonArray?.mapNotNull { it.jsonPrimitive.contentOrNull } ?: emptyList(),
             coCreationOpportunity = null,
             shouldUseUserStory = false,
             selectedStoryCardIds = emptyList(),
             influenceProfile = InfluenceProfile(
-                intensity = root.string("intensityPolicy").ifBlank { root.string("influenceIntensity") }.toIntensity(),
-                riskLevel = root.string("riskLevel").toRisk(),
+                intensity = root["intensityPolicy"]?.jsonObject?.string("level").orEmpty().toIntensity(),
+                riskLevel = routes.firstOrNull()?.riskLevel ?: RiskLevel.LOW,
                 riskWarning = root.string("riskWarning").ifBlank { null },
-                fallbackMove = root.string("fallbackMove").ifBlank { null }
+                fallbackMove = root.string("fallbackMove")
             ),
-            fallbackMove = root.string("fallbackMove").ifBlank { null }
+            fallbackMove = root.string("fallbackMove")
         )
         return CloudAnalysisOutput(root.string("cloudRequestId").ifBlank { UUID.randomUUID().toString() }, decision, routes, latencyMs)
     }
@@ -263,17 +276,25 @@ class CloudTacticalDecisionMapper {
         val risk = obj.string("riskLevel").toRisk()
         return ReplyRoute(
             id = obj.string("id").ifBlank { "cloud-route-$index" },
-            name = obj.string("name").ifBlank { "路线${index + 1}" },
+            name = obj.string("slot").ifBlank { obj.string("name").ifBlank { "route-${index + 1}" } },
             routeType = obj.string("routeType").toRouteType(),
-            tag = "云端",
+            tag = "cloud",
             message = obj.string("message").trim(),
             intensity = InfluenceIntensity.LOW,
             riskLevel = risk,
             riskWarning = obj.string("riskWarning").ifBlank { null },
-            expectedEffect = obj.string("why").ifBlank { null },
-            fallbackMove = obj.string("fallbackMove").ifBlank { null },
+            expectedEffect = obj.string("why"),
+            fallbackMove = obj.string("fallbackMove"),
             recommended = index == 0
         )
+    }
+
+    private fun coCreationSummary(point: JsonObject?): String {
+        if (point == null) return ""
+        val type = point.string("type")
+        val evidence = point.string("evidence")
+        val meaning = point.string("meaning")
+        return listOf(type, evidence, meaning).filter { it.isNotBlank() }.joinToString(" / ")
     }
 
     private fun payloadText(content: MessageContent, privateMode: Boolean): String = when (content) {
@@ -290,46 +311,109 @@ class CloudTacticalDecisionMapper {
     private fun String.toIntensity(): InfluenceIntensity = runCatching { InfluenceIntensity.valueOf(ifBlank { "LOW" }) }.getOrDefault(InfluenceIntensity.LOW)
     private fun String.toRouteType(): ReplyRouteType = when (uppercase()) {
         "CO_CREATION" -> ReplyRouteType.CO_CREATION
+        "EMPATHY" -> ReplyRouteType.EMPATHY
         "WARM_UP" -> ReplyRouteType.WARM_UP
         "WITHDRAW" -> ReplyRouteType.COOL_DOWN
         "LIGHT" -> ReplyRouteType.STABLE
         "REPAIR" -> ReplyRouteType.REPAIR
+        "DIRECT" -> ReplyRouteType.DIRECT
         else -> ReplyRouteType.STABLE
-    }
-
-    private companion object {
-        val cloudReplyDecisionTypes = setOf(
-            TacticalDecisionType.NORMAL_REPLY,
-            TacticalDecisionType.EMPATHY_FIRST,
-            TacticalDecisionType.HUIYI_MOMENT,
-            TacticalDecisionType.REPAIR,
-            TacticalDecisionType.WARM_UP,
-            TacticalDecisionType.BOUNDARY_RESPECT,
-            TacticalDecisionType.PUSH_LIGHTLY
-        )
     }
 }
 
-class HuiyiTacticalContractValidator {
-    fun validate(root: JsonObject): Result<Unit> = runCatching {
-        val required = listOf(
-            "coCreationPoint",
-            "userLikelyMistake",
-            "intensityPolicy",
-            "riskWarning",
-            "fallbackMove"
-        )
-        if (required.any { root.string(it).isBlank() }) {
-            throw CloudAnalysisException("SCHEMA_INVALID")
+open class CloudTacticalResponseValidator {
+    fun validate(root: JsonObject, actualLastSpeaker: Speaker? = Speaker.OTHER): Result<Unit> = runCatching {
+        if (actualLastSpeaker == Speaker.ME) throw CloudAnalysisException("CLOUD_CONTRACT_VIOLATION")
+        if (actualLastSpeaker == Speaker.UNKNOWN) throw CloudAnalysisException("CLOUD_CONTRACT_VIOLATION")
+        if (root["schemaVersion"]?.jsonPrimitive?.intOrNull != HuiyiTacticalContract.SCHEMA_VERSION) {
+            throw CloudAnalysisException("CLOUD_SCHEMA_INVALID")
         }
-        val routes = root["routes"]?.jsonArray ?: throw CloudAnalysisException("SCHEMA_INVALID")
-        if (routes.size != 5) throw CloudAnalysisException("SCHEMA_INVALID")
+        val decisionType = root.string("decisionType")
+        if (decisionType !in allowedDecisionTypes) throw CloudAnalysisException("CLOUD_SCHEMA_INVALID")
+        val family = root.string("decisionTypeFamily")
+        if (family !in allowedFamilies) throw CloudAnalysisException("CLOUD_SCHEMA_INVALID")
+        if (decisionType == "CONTEXT_REQUIRED" && family != "CONTEXT_REQUIRED") {
+            throw CloudAnalysisException("CLOUD_CONTRACT_VIOLATION")
+        }
+        if (decisionType in replyDecisionTypes && family != "REPLY_ROUTES") {
+            throw CloudAnalysisException("CLOUD_CONTRACT_VIOLATION")
+        }
+
+        val coCreationPoint = root["coCreationPoint"]?.jsonObject ?: throw CloudAnalysisException("CLOUD_SCHEMA_INVALID")
+        if (coCreationPoint["exists"]?.jsonPrimitive?.booleanOrNull == null) throw CloudAnalysisException("CLOUD_SCHEMA_INVALID")
+        if (coCreationPoint.string("type").isBlank()) throw CloudAnalysisException("CLOUD_SCHEMA_INVALID")
+        if (coCreationPoint.string("evidence").isBlank()) throw CloudAnalysisException("CLOUD_SCHEMA_INVALID")
+        if (coCreationPoint.string("meaning").isBlank()) throw CloudAnalysisException("CLOUD_SCHEMA_INVALID")
+        requireNonBlank(root, "userLikelyMistake")
+        requireNonBlank(root, "bestMove")
+        root["intensityPolicy"]?.jsonObject?.let { intensity ->
+            if (intensity.string("level") !in allowedIntensity) throw CloudAnalysisException("CLOUD_SCHEMA_INVALID")
+            requireNonBlank(intensity, "reason")
+        } ?: throw CloudAnalysisException("CLOUD_SCHEMA_INVALID")
+        if (!root.containsKey("riskWarning")) throw CloudAnalysisException("CLOUD_SCHEMA_INVALID")
+        requireNonBlank(root, "fallbackMove")
+
+        val routes = root["routes"]?.jsonArray ?: throw CloudAnalysisException("CLOUD_SCHEMA_INVALID")
+        if (decisionType in replyDecisionTypes && routes.size != 5) throw CloudAnalysisException("CLOUD_SCHEMA_INVALID")
+        if (decisionType == "CONTEXT_REQUIRED" && routes.isNotEmpty()) throw CloudAnalysisException("CLOUD_CONTRACT_VIOLATION")
+
+        val seenMessages = mutableSetOf<String>()
         routes.forEach { element ->
             val route = element.jsonObject
-            if (route.string("message").isBlank()) throw CloudAnalysisException("SCHEMA_INVALID")
-            if (route.string("fallbackMove").isBlank()) throw CloudAnalysisException("SCHEMA_INVALID")
+            val message = route.string("message").trim()
+            val why = route.string("why").trim()
+            if (message.isBlank()) throw CloudAnalysisException("CLOUD_SCHEMA_INVALID")
+            if (why.isBlank()) throw CloudAnalysisException("CLOUD_SCHEMA_INVALID")
+            if (route.string("riskLevel").ifBlank { "LOW" } !in allowedRisk) throw CloudAnalysisException("CLOUD_SCHEMA_INVALID")
+            if (!seenMessages.add(message)) throw CloudAnalysisException("CLOUD_CONTRACT_VIOLATION")
+            validateSafetyText(message)
+            validateSafetyText(why)
+            validateSafetyText(route.string("fallbackMove"))
+        }
+        validateSafetyText(root.string("userLikelyMistake"))
+        validateSafetyText(root.string("bestMove"))
+        validateSafetyText(root.string("fallbackMove"))
+    }
+
+    private fun requireNonBlank(root: JsonObject, name: String) {
+        if (root.string(name).isBlank()) throw CloudAnalysisException("CLOUD_SCHEMA_INVALID")
+    }
+
+    private fun validateSafetyText(text: String) {
+        val normalized = text.lowercase()
+        if (bannedFragments.any { normalized.contains(it) }) {
+            throw CloudAnalysisException("CLOUD_CONTRACT_VIOLATION")
         }
     }
 
     private fun JsonObject.string(name: String): String = this[name]?.jsonPrimitive?.contentOrNull.orEmpty()
+
+    private companion object {
+        val allowedDecisionTypes = setOf("NORMAL_REPLY", "EMPATHY_FIRST", "CONTEXT_REQUIRED")
+        val replyDecisionTypes = setOf("NORMAL_REPLY", "EMPATHY_FIRST")
+        val allowedFamilies = setOf("REPLY_ROUTES", "CONTEXT_REQUIRED")
+        val allowedIntensity = setOf("LOW", "MEDIUM", "HIGH")
+        val allowedRisk = setOf("LOW", "MEDIUM", "HIGH")
+        val bannedFragments = listOf(
+            "auto send",
+            "autosend",
+            "sent for you",
+            "i sent it",
+            "pua",
+            "manipulate",
+            "force her",
+            "force him",
+            "must reply",
+            "自动发送",
+            "替你发送",
+            "我帮你发",
+            "逼迫",
+            "跪舔",
+            "拿捏",
+            "操控",
+            "不回就是"
+        )
+    }
 }
+
+class HuiyiTacticalContractValidator : CloudTacticalResponseValidator()

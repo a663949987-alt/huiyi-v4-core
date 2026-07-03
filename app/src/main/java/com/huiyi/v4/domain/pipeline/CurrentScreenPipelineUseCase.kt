@@ -177,7 +177,12 @@ class CurrentScreenPipelineUseCase(
             },
             onFailure = { error ->
                 val code = (error as? CloudAnalysisException)?.code ?: "NETWORK"
-                CloudPipelineResult(localDecision, localRoutes, CloudAnalysisTrace.fallback(config, code, System.currentTimeMillis() - startedAt))
+                val validationResult = if (code in setOf("CLOUD_SCHEMA_INVALID", "CLOUD_CONTRACT_VIOLATION", "SCHEMA_INVALID")) {
+                    "FAIL"
+                } else {
+                    "NOT_RUN"
+                }
+                CloudPipelineResult(localDecision, localRoutes, CloudAnalysisTrace.fallback(config, code, System.currentTimeMillis() - startedAt, validationResult))
             }
         )
     }

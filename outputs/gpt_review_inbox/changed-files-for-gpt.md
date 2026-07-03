@@ -1,19 +1,22 @@
 # Changed Files for GPT
 
 ## Task
-- taskName: local_state_chain_closure_before_cloud
-- versionName: 4.1.23
-- versionCode: 442
-- currentOverallResult: CONTROLLED_LOCAL_PASS
+- taskName: cloud_contract_mvp_with_local_safety_gate
+- versionName: 4.1.24
+- versionCode: 443
+- currentOverallResult: CLOUD_CONTRACT_LOCAL_PASS
 
-## Scope
-- Unified v4.1.23 review package entry version to versionCode 442.
-- Updated GPT review inbox README and manifest to the current task.
-- Confirmed session-binding report files remain present.
-- Updated phone/latest placeholder metadata so it does not report 441 or 443.
-- Added fixed mailbox directories: outputs/gpt_to_codex and outputs/codex_to_gpt.
+## Summary
+- Added HuiyiTacticalContract v1 documentation.
+- Implemented CloudTacticalResponseValidator.
+- Hardened CloudAnalysisClient / Repository skeleton with default cloud disabled.
+- Preserved LAST_ME -> LOCAL_WAIT safety gate.
+- Added cloud contract trace fields to evidence and one-tap flight records.
+- Updated tests for cloud contract, fallback, and safety gates.
+- Published LAN update package v4.1.24 / 443.
 
-## Not Changed
-- No product feature added.
-- No cloud enablement.
-- No phone test required from user.
+## Not Done
+- No real API key.
+- No real endpoint required.
+- No phone testing.
+- No automatic sending.

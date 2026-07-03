@@ -98,7 +98,9 @@ data class NextSentenceFlightRecord(
     val reportConsistencyResult: String = "PASS",
     val cloudContractImplemented: Boolean = false,
     val cloudConfigured: Boolean = false,
-    val cloudAnalysisAttempted: Boolean = false
+    val cloudAnalysisAttempted: Boolean = false,
+    val cloudContractVersion: String = "HuiyiTacticalContract-v1",
+    val cloudContractValidationResult: String = "NOT_RUN"
 ) {
     fun withFeedback(feedback: UserFeedbackMark): NextSentenceFlightRecord = copy(userFeedback = feedback)
 
@@ -296,9 +298,11 @@ object NextSentenceFlightRecordFactory {
             preAnalysisSnapshotMutableAfterPanel = false,
             postPanelSnapshotCapturedAt = if (result.resultShownAsOverlay) endedAt else 0L,
             postPanelSnapshotUsedForDecision = false,
-            cloudContractImplemented = false,
+            cloudContractImplemented = true,
             cloudConfigured = result.cloudTrace.endpointConfigured,
-            cloudAnalysisAttempted = result.cloudTrace.cloudAttempted
+            cloudAnalysisAttempted = result.cloudTrace.cloudAttempted,
+            cloudContractVersion = result.cloudTrace.cloudContractVersion,
+            cloudContractValidationResult = result.cloudTrace.cloudContractValidationResult
         ).withComputedConsistency()
     }
 
@@ -370,7 +374,9 @@ object NextSentenceFlightRecordFactory {
             postPanelSnapshotUsedForDecision = false,
             cloudContractImplemented = false,
             cloudConfigured = false,
-            cloudAnalysisAttempted = false
+            cloudAnalysisAttempted = false,
+            cloudContractVersion = "HuiyiTacticalContract-v1",
+            cloudContractValidationResult = "NOT_RUN"
         ).withComputedConsistency()
     }
 
@@ -500,6 +506,8 @@ class OneTapFeedbackExporter(
         appendLine("- cloudSuccess: ${record.cloudSuccess}")
         appendLine("- cloudSkippedReason: ${record.cloudSkippedReason ?: "none"}")
         appendLine("- decisionSource: ${record.decisionSource}")
+        appendLine("- cloudContractVersion: ${record.cloudContractVersion}")
+        appendLine("- cloudContractValidationResult: ${record.cloudContractValidationResult}")
         appendLine("- cloudFallbackUsed: ${record.cloudFallbackUsed}")
         appendLine("- cloudLatencyMs: ${record.cloudLatencyMs ?: "null"}")
         appendLine("- cloudErrorCode: ${record.cloudErrorCode ?: "none"}")
@@ -565,6 +573,8 @@ class OneTapFeedbackExporter(
             "cloudContractImplemented": ${record.cloudContractImplemented},
             "cloudAttempted": ${record.cloudAttempted},
             "cloudAnalysisAttempted": ${record.cloudAnalysisAttempted},
+            "cloudContractVersion": "${record.cloudContractVersion}",
+            "cloudContractValidationResult": "${record.cloudContractValidationResult}",
             "cloudSuccess": ${record.cloudSuccess},
             "cloudSkippedReason": "${record.cloudSkippedReason ?: ""}",
             "decisionSource": "${record.decisionSource}",
@@ -615,6 +625,8 @@ class OneTapFeedbackExporter(
         appendLine("- cloudSkippedReason: ${record.cloudSkippedReason ?: "none"}")
         appendLine("- decisionSource: ${record.decisionSource}")
         appendLine("- cloudFallbackUsed: ${record.cloudFallbackUsed}")
+        appendLine("- cloudContractVersion: ${record.cloudContractVersion}")
+        appendLine("- cloudContractValidationResult: ${record.cloudContractValidationResult}")
         appendLine("- cloudLatencyMs: ${record.cloudLatencyMs ?: "null"}")
         appendLine("- cloudErrorCode: ${record.cloudErrorCode ?: "none"}")
         appendLine("- loadingStillVisible: ${record.loadingStillVisible}")
@@ -687,6 +699,8 @@ class OneTapFeedbackExporter(
           "cloudContractImplemented": ${record.cloudContractImplemented},
           "cloudAttempted": ${record.cloudAttempted},
           "cloudAnalysisAttempted": ${record.cloudAnalysisAttempted},
+          "cloudContractVersion": "${record.cloudContractVersion}",
+          "cloudContractValidationResult": "${record.cloudContractValidationResult}",
           "cloudSkippedReason": ${record.cloudSkippedReason?.let { "\"${escape(it)}\"" } ?: "null"},
           "cloudRequestId": ${record.cloudRequestId?.let { "\"${escape(it)}\"" } ?: "null"},
           "cloudSuccess": ${record.cloudSuccess},

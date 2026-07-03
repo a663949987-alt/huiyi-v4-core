@@ -87,13 +87,13 @@ class SimulationFirstValidationTest {
         assertTrue(validation.isSuccess)
         assertEquals(5, parsed.routes.size)
         assertEquals(TacticalDecisionType.NORMAL_REPLY, parsed.decision.decisionType)
-        assertEquals("Build a small shared meaning.", parsed.decision.coreInsight)
+        assertTrue(parsed.decision.coreInsight.contains("Build a small shared meaning."))
     }
 
     @Test(expected = CloudAnalysisException::class)
     fun cloudContractV1RejectsMissingCoCreationPoint() {
         CloudTacticalDecisionMapper().parseResponse(
-            completeCloudOutput().replace("\"coCreationPoint\":\"Build a small shared meaning.\",", ""),
+            completeCloudOutput().replace("\"coCreationPoint\"", "\"missingCoCreationPoint\""),
             latencyMs = 20
         )
     }
@@ -104,12 +104,13 @@ class SimulationFirstValidationTest {
             """
             {
               "decisionType":"NORMAL_REPLY",
-              "coCreationPoint":"x",
+              "decisionTypeFamily":"REPLY_ROUTES",
+              "coCreationPoint":{"exists":true,"type":"x","evidence":"x","meaning":"x"},
               "userLikelyMistake":"x",
-              "intensityPolicy":"LOW",
+              "intensityPolicy":{"level":"LOW","reason":"x"},
               "riskWarning":"x",
               "fallbackMove":"x",
-              "routes":[{"id":"r1","name":"one","routeType":"STABLE","message":"ok","fallbackMove":"fallback"}]
+              "routes":[{"id":"r1","name":"one","routeType":"STABLE","message":"ok","why":"x","fallbackMove":"fallback"}]
             }
             """.trimIndent(),
             latencyMs = 20
@@ -195,6 +196,7 @@ class SimulationFirstValidationTest {
               "name":"route $index",
               "routeType":"STABLE",
               "message":"I hear you, let us keep this light $index.",
+              "why":"It keeps the pressure low.",
               "riskLevel":"LOW",
               "fallbackMove":"Pause and keep the door open."
             }
@@ -203,11 +205,19 @@ class SimulationFirstValidationTest {
         return """
             {
               "cloudRequestId":"cloud-test",
+              "schemaVersion":1,
               "decisionType":"NORMAL_REPLY",
+              "decisionTypeFamily":"REPLY_ROUTES",
               "situation":"reply",
-              "coCreationPoint":"Build a small shared meaning.",
+              "coCreationPoint":{
+                "exists":true,
+                "type":"shared_meaning",
+                "evidence":"She shared a small emotional signal.",
+                "meaning":"Build a small shared meaning."
+              },
               "userLikelyMistake":"Pushing too hard.",
-              "intensityPolicy":"LOW",
+              "bestMove":"Answer gently and keep the shared rhythm small.",
+              "intensityPolicy":{"level":"LOW","reason":"Keep the pressure low."},
               "riskLevel":"LOW",
               "riskWarning":"Keep pressure low.",
               "fallbackMove":"Pause and keep the door open.",

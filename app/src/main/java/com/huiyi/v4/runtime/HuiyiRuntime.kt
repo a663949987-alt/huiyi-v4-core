@@ -111,7 +111,7 @@ class HuiyiRuntime private constructor(
                 cloudEnabled = false,
                 endpoint = "",
                 clientId = BuildConfig.HUIYI_CLOUD_ANALYSIS_CLIENT_ID,
-                clientToken = BuildConfig.HUIYI_CLOUD_ANALYSIS_CLIENT_TOKEN
+                clientToken = ""
             )
         ),
         appVersionName = BuildConfig.VERSION_NAME,

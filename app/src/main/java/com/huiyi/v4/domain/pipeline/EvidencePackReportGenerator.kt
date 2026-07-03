@@ -151,6 +151,8 @@ class EvidencePackReportGenerator {
             appendLine("- cloudLatencyMs: ${result.cloudTrace.cloudLatencyMs ?: "null"}")
             appendLine("- cloudErrorCode: ${result.cloudTrace.cloudErrorCode ?: "none"}")
             appendLine("- cloudRequestId: ${result.cloudTrace.cloudRequestId ?: "none"}")
+            appendLine("- cloudContractVersion: ${result.cloudTrace.cloudContractVersion}")
+            appendLine("- cloudContractValidationResult: ${result.cloudTrace.cloudContractValidationResult}")
             appendLine("- overlayShownInTargetApp: ${result.overlayShownInTargetApp}")
             appendLine("- foregroundPackageWhenPanelShown: ${result.foregroundPackageWhenPanelShown ?: "unknown"}")
             appendLine("- huiyiActivityOpened: ${result.huiyiActivityOpened}")
@@ -561,6 +563,8 @@ class EvidencePackReportGenerator {
               "cloudErrorCode": "${escape(result.cloudTrace.cloudErrorCode ?: "")}",
               "cloudFallbackUsed": ${result.cloudTrace.cloudFallbackUsed},
               "decisionSource": "${result.cloudTrace.decisionSource}",
+              "cloudContractVersion": "${result.cloudTrace.cloudContractVersion}",
+              "cloudContractValidationResult": "${result.cloudTrace.cloudContractValidationResult}",
               "overlayShownInTargetApp": ${result.overlayShownInTargetApp},
               "foregroundPackageWhenPanelShown": "${escape(result.foregroundPackageWhenPanelShown ?: "unknown")}",
               "huiyiActivityOpened": ${result.huiyiActivityOpened},

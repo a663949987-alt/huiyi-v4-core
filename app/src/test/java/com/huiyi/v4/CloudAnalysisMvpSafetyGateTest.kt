@@ -6,6 +6,7 @@ import com.huiyi.v4.domain.cloud.CloudAnalysisException
 import com.huiyi.v4.domain.cloud.CloudAnalysisInput
 import com.huiyi.v4.domain.cloud.CloudAnalysisOutput
 import com.huiyi.v4.domain.cloud.CloudAnalysisService
+import com.huiyi.v4.domain.cloud.CloudTacticalResponseValidator
 import com.huiyi.v4.domain.cloud.CloudTacticalDecisionMapper
 import com.huiyi.v4.domain.model.ReplyRoute
 import com.huiyi.v4.domain.model.Speaker
@@ -19,6 +20,8 @@ import com.huiyi.v4.domain.pipeline.SampleSource
 import com.huiyi.v4.domain.tactical.ReplyRouteGenerator
 import com.huiyi.v4.runtime.NextSentenceFlightRecordFactory
 import kotlinx.coroutines.test.runTest
+import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.jsonObject
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
@@ -104,16 +107,28 @@ class CloudAnalysisMvpSafetyGateTest {
 
     @Test
     fun CloudSchemaInvalidFallsBackToLocalTest() = runTest {
-        val result = pipeline(lastOtherMessages(), FakeCloudService(error = CloudAnalysisException("SCHEMA_INVALID"))).run(emptyPersona()).getOrThrow()
+        val result = pipeline(lastOtherMessages(), FakeCloudService(error = CloudAnalysisException("CLOUD_SCHEMA_INVALID"))).run(emptyPersona()).getOrThrow()
 
         assertEquals("LOCAL_FALLBACK", result.cloudTrace.decisionSource)
         assertTrue(result.cloudTrace.cloudFallbackUsed)
-        assertEquals("SCHEMA_INVALID", result.cloudTrace.cloudErrorCode)
+        assertEquals("CLOUD_SCHEMA_INVALID", result.cloudTrace.cloudErrorCode)
+        assertEquals("FAIL", result.cloudTrace.cloudContractValidationResult)
         assertEquals(5, result.routes.size)
     }
 
     @Test
-    fun CloudNotConfiguredUsesLocalRoutesTest() = runTest {
+    fun CloudContractViolationFallsBackToLocalTest() = runTest {
+        val result = pipeline(lastOtherMessages(), FakeCloudService(error = CloudAnalysisException("CLOUD_CONTRACT_VIOLATION"))).run(emptyPersona()).getOrThrow()
+
+        assertEquals("LOCAL_FALLBACK", result.cloudTrace.decisionSource)
+        assertTrue(result.cloudTrace.cloudFallbackUsed)
+        assertEquals("CLOUD_CONTRACT_VIOLATION", result.cloudTrace.cloudErrorCode)
+        assertEquals("FAIL", result.cloudTrace.cloudContractValidationResult)
+        assertEquals(5, result.routes.size)
+    }
+
+    @Test
+    fun LastOtherCloudNotConfiguredFallsBackToLocalTest() = runTest {
         val result = pipeline(lastOtherMessages(), FakeCloudService(CloudAnalysisConfig(cloudEnabled = false, endpoint = ""))).run(emptyPersona()).getOrThrow()
 
         assertEquals("CLOUD_NOT_CONFIGURED", result.cloudTrace.cloudSkippedReason)
@@ -123,8 +138,31 @@ class CloudAnalysisMvpSafetyGateTest {
     }
 
     @Test
+    fun UnknownSpeakerSkipsCloudTest() = runTest {
+        val cloud = FakeCloudService()
+        val result = pipeline(listOf(textNode("unknown", Speaker.UNKNOWN, "not sure", 1)), cloud).run(emptyPersona()).getOrThrow()
+
+        assertFalse(result.cloudTrace.cloudAttempted)
+        assertEquals("LAST_SPEAKER_UNKNOWN", result.cloudTrace.cloudSkippedReason)
+        assertEquals("LOCAL_FALLBACK", result.cloudTrace.decisionSource)
+        assertEquals(0, cloud.callCount)
+    }
+
+    @Test
+    fun UnsupportedAppSkipsCloudTest() = runTest {
+        val cloud = FakeCloudService()
+        val result = pipeline(lastOtherMessages(), cloud, appPackage = "com.unsupported.chat").run(emptyPersona()).getOrThrow()
+
+        assertFalse(result.cloudTrace.cloudAttempted)
+        assertEquals("UNSUPPORTED_APP", result.cloudTrace.cloudSkippedReason)
+        assertEquals("LOCAL_FALLBACK", result.cloudTrace.decisionSource)
+        assertEquals(0, cloud.callCount)
+    }
+
+    @Test
     fun ApiKeyNotPresentInApkOrRepoTest() {
         assertEquals("", BuildConfig.HUIYI_API_KEY)
+        assertEquals("", BuildConfig.HUIYI_CLOUD_ANALYSIS_CLIENT_TOKEN)
     }
 
     @Test
@@ -147,6 +185,8 @@ class CloudAnalysisMvpSafetyGateTest {
         assertTrue(record.cloudSuccess)
         assertEquals("CLOUD", record.decisionSource)
         assertEquals(123L, record.cloudLatencyMs)
+        assertEquals("HuiyiTacticalContract-v1", record.cloudContractVersion)
+        assertEquals("PASS", record.cloudContractValidationResult)
     }
 
     @Test(expected = CloudAnalysisException::class)
@@ -163,6 +203,59 @@ class CloudAnalysisMvpSafetyGateTest {
     }
 
     @Test
+    fun LastOtherCloudSuccessMapsToRoutePanelTest() {
+        val output = CloudTacticalDecisionMapper().parseResponse(validCloudResponse(), 10L, Speaker.OTHER)
+
+        assertEquals(TacticalDecisionType.NORMAL_REPLY, output.decision.decisionType)
+        assertEquals(5, output.routes.size)
+        assertEquals("stable", output.routes.first().name)
+    }
+
+    @Test
+    fun CloudContractRequiresCoCreationPointTest() {
+        val invalid = validCloudResponse().replace("\"coCreationPoint\"", "\"missingCoCreationPoint\"")
+        val result = CloudTacticalResponseValidator().validate(Json.parseToJsonElement(invalid).jsonObject, Speaker.OTHER)
+
+        assertTrue(result.isFailure)
+        assertEquals("CLOUD_SCHEMA_INVALID", (result.exceptionOrNull() as CloudAnalysisException).code)
+    }
+
+    @Test
+    fun CloudContractRejectsManipulativeOutputTest() {
+        val invalid = validCloudResponse().replace("接住她现在的状态", "pua manipulate force her to reply")
+        val result = CloudTacticalResponseValidator().validate(Json.parseToJsonElement(invalid).jsonObject, Speaker.OTHER)
+
+        assertTrue(result.isFailure)
+        assertEquals("CLOUD_CONTRACT_VIOLATION", (result.exceptionOrNull() as CloudAnalysisException).code)
+    }
+
+    @Test
+    fun GithubUploadIsNotCloudAnalysisTest() {
+        val record = NextSentenceFlightRecordFactory.fromSuccess(
+            evidenceResult(
+                appPackage = "com.bajiao.im.liaoqi",
+                source = SampleSource.REAL_DEVICE_ACCESSIBILITY,
+                messages = lastOtherMessages()
+            ).copy(
+                cloudTrace = com.huiyi.v4.domain.cloud.CloudAnalysisTrace.skipped(
+                    CloudAnalysisConfig(cloudEnabled = false, endpoint = ""),
+                    reason = "CLOUD_NOT_CONFIGURED",
+                    decisionSource = "LOCAL_FALLBACK"
+                )
+            ),
+            NextSentenceSessionTrace("github-upload-is-not-cloud", 1L, endedAt = 2L)
+        ).withFeedbackTrace(
+            clickedAt = 3L,
+            targetSessionId = "github-upload-is-not-cloud",
+            exportSource = "ONE_TAP_FEEDBACK"
+        )
+
+        assertFalse(record.cloudAttempted)
+        assertEquals("CLOUD_NOT_CONFIGURED", record.cloudSkippedReason)
+        assertTrue(record.feedbackTargetSessionFound)
+    }
+
+    @Test
     fun CloudFailureDoesNotShowGenericAnalysisFailedTest() = runTest {
         val result = pipeline(lastOtherMessages(), FakeCloudService(error = CloudAnalysisException("NETWORK"))).run(emptyPersona()).getOrThrow()
 
@@ -173,22 +266,24 @@ class CloudAnalysisMvpSafetyGateTest {
 
     private fun pipeline(
         messages: List<com.huiyi.v4.domain.model.MessageNode>,
-        cloud: CloudAnalysisService?
+        cloud: CloudAnalysisService?,
+        appPackage: String = "com.bajiao.im.liaoqi"
     ) = CurrentScreenPipelineUseCase(
-        captureUseCase = FakeCaptureUseCase(messages),
+        captureUseCase = FakeCaptureUseCase(messages, appPackage),
         cloudAnalysisService = cloud,
         appVersionName = "test",
         appVersionCode = 1
     )
 
     private class FakeCaptureUseCase(
-        private val messages: List<com.huiyi.v4.domain.model.MessageNode>
+        private val messages: List<com.huiyi.v4.domain.model.MessageNode>,
+        private val appPackage: String
     ) : CurrentScreenCaptureUseCase({ null }) {
         override fun capture(): Result<CurrentScreenCaptureResult> {
             return Result.success(
                 CurrentScreenCaptureResult(
                     snapshot = CurrentScreenSnapshot(
-                        appPackage = "com.bajiao.im.liaoqi",
+                        appPackage = appPackage,
                         windowTitle = "chat",
                         screenWidth = 1080,
                         screenHeight = 2400,
@@ -232,6 +327,36 @@ class CloudAnalysisMvpSafetyGateTest {
         textNode("me-4", Speaker.ME, "tell me", 4),
         textNode("other-5", Speaker.OTHER, "I need someone to listen", 5)
     )
+
+    private fun validCloudResponse(): String = """
+        {
+          "schemaVersion": 1,
+          "decisionType": "NORMAL_REPLY",
+          "decisionTypeFamily": "REPLY_ROUTES",
+          "situation": "The other person is sharing pressure.",
+          "coCreationPoint": {
+            "exists": true,
+            "type": "daily_rhythm",
+            "evidence": "She said today was hard.",
+            "meaning": "Create a small shared safe rhythm."
+          },
+          "userLikelyMistake": "Replying too hard or changing topic too fast.",
+          "bestMove": "接住她现在的状态",
+          "intensityPolicy": {
+            "level": "LOW",
+            "reason": "Low pressure is safer here."
+          },
+          "riskWarning": "",
+          "fallbackMove": "Keep it light and let her answer when ready.",
+          "routes": [
+            {"slot":"stable","message":"听起来今天确实有点累，你先缓一缓。","why":"Receives the pressure without pushing.","riskLevel":"LOW","fallbackMove":"Keep waiting calmly."},
+            {"slot":"light","message":"那今晚先别硬撑，吃点舒服的。","why":"Adds daily-life care.","riskLevel":"LOW","fallbackMove":"Move back to light care."},
+            {"slot":"question","message":"是事情多，还是人让你累？","why":"Asks one gentle clarifying question.","riskLevel":"LOW","fallbackMove":"Stop if she does not expand."},
+            {"slot":"daily_life","message":"我在，等你忙完慢慢说。","why":"Keeps presence without pressure.","riskLevel":"LOW","fallbackMove":"Wait."},
+            {"slot":"warmer","message":"辛苦啦，今天先把自己放第一位。","why":"Warmer but still safe.","riskLevel":"LOW","fallbackMove":"Return to low intensity."}
+          ]
+        }
+    """.trimIndent()
 
     private fun emptyPersona() = UserPersonaCorpus(
         id = "test",

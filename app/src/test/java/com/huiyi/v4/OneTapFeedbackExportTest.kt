@@ -279,17 +279,19 @@ class OneTapFeedbackExportTest {
     fun CloudUploadIsNotCloudAnalysisTest() {
         val record = routeRecord("local")
 
-        assertFalse(record.cloudContractImplemented)
+        assertTrue(record.cloudContractImplemented)
         assertFalse(record.cloudAnalysisAttempted)
         assertFalse(record.cloudAttempted)
+        assertEquals("NOT_RUN", record.cloudContractValidationResult)
     }
 
     @Test
-    fun CloudContractNotImplementedIsReportedTest() {
+    fun CloudContractImplementedButNotConfiguredIsReportedTest() {
         val record = routeRecord("local")
 
-        assertFalse(record.cloudContractImplemented)
+        assertTrue(record.cloudContractImplemented)
         assertFalse(record.cloudConfigured)
+        assertEquals("HuiyiTacticalContract-v1", record.cloudContractVersion)
     }
 
     @Test

@@ -1,488 +1,1468 @@
 diff --git a/app/build.gradle.kts b/app/build.gradle.kts
-index 54935b5..d4934c7 100644
+index d4934c7..dc67f8a 100644
 --- a/app/build.gradle.kts
 +++ b/app/build.gradle.kts
-@@ -20,7 +20,7 @@ android {
+@@ -20,8 +20,8 @@ android {
          applicationId = "com.huiyi.v4"
          minSdk = 29
          targetSdk = 35
--        versionCode = 443
-+        versionCode = 442
-         versionName = "4.1.23"
+-        versionCode = 442
+-        versionName = "4.1.23"
++        versionCode = 443
++        versionName = "4.1.24"
 
          testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+
+@@ -34,7 +34,7 @@ android {
+         buildConfigField("String", "HUIYI_REVIEW_UPLOAD_CLIENT_KEY", "\"${localProps.getProperty("huiyi.reviewUpload.clientKey", "")}\"")
+         buildConfigField("String", "HUIYI_CLOUD_ANALYSIS_ENDPOINT", "\"${localProps.getProperty("huiyi.cloud.endpoint", "")}\"")
+         buildConfigField("String", "HUIYI_CLOUD_ANALYSIS_CLIENT_ID", "\"${localProps.getProperty("huiyi.cloud.clientId", "huiyi-v4-dev")}\"")
+-        buildConfigField("String", "HUIYI_CLOUD_ANALYSIS_CLIENT_TOKEN", "\"${localProps.getProperty("huiyi.cloud.clientToken", "")}\"")
++        buildConfigField("String", "HUIYI_CLOUD_ANALYSIS_CLIENT_TOKEN", "\"\"")
+     }
+
+     buildFeatures {
+diff --git a/app/src/main/java/com/huiyi/v4/domain/cloud/CloudAnalysis.kt b/app/src/main/java/com/huiyi/v4/domain/cloud/CloudAnalysis.kt
+index 3fd74d0..b68640a 100644
+--- a/app/src/main/java/com/huiyi/v4/domain/cloud/CloudAnalysis.kt
++++ b/app/src/main/java/com/huiyi/v4/domain/cloud/CloudAnalysis.kt
+@@ -16,6 +16,7 @@ import kotlinx.serialization.json.Json
+ import kotlinx.serialization.json.JsonArray
+ import kotlinx.serialization.json.JsonElement
+ import kotlinx.serialization.json.JsonObject
++import kotlinx.serialization.json.add
+ import kotlinx.serialization.json.booleanOrNull
+ import kotlinx.serialization.json.buildJsonArray
+ import kotlinx.serialization.json.buildJsonObject
+@@ -32,8 +33,13 @@ import okhttp3.RequestBody.Companion.toRequestBody
+ import java.util.UUID
+ import java.util.concurrent.TimeUnit
+
++object HuiyiTacticalContract {
++    const val VERSION = "HuiyiTacticalContract-v1"
++    const val SCHEMA_VERSION = 1
++}
++
+ data class CloudAnalysisConfig(
+-    val cloudEnabled: Boolean = true,
++    val cloudEnabled: Boolean = false,
+     val endpoint: String = "",
+     val timeoutMs: Long = 6000,
+     val privateMode: Boolean = false,
+@@ -57,14 +63,17 @@ data class CloudAnalysisTrace(
+     val cloudFallbackUsed: Boolean = false,
+     val decisionSource: String = "LOCAL_FALLBACK",
+     val modelCalled: Boolean = false,
+-    val apiCalled: Boolean = false
++    val apiCalled: Boolean = false,
++    val cloudContractVersion: String = HuiyiTacticalContract.VERSION,
++    val cloudContractValidationResult: String = "NOT_RUN"
+ ) {
+     companion object {
+         fun skipped(config: CloudAnalysisConfig, reason: String, decisionSource: String): CloudAnalysisTrace = CloudAnalysisTrace(
+             cloudEnabled = config.cloudEnabled,
+             endpointConfigured = config.endpointConfigured,
+             cloudSkippedReason = reason,
+-            decisionSource = decisionSource
++            decisionSource = decisionSource,
++            cloudContractValidationResult = "NOT_RUN"
+         )
+
+         fun success(config: CloudAnalysisConfig, requestId: String?, latencyMs: Long): CloudAnalysisTrace = CloudAnalysisTrace(
+@@ -79,10 +88,16 @@ data class CloudAnalysisTrace(
+             cloudFallbackUsed = false,
+             decisionSource = "CLOUD",
+             modelCalled = true,
+-            apiCalled = true
++            apiCalled = true,
++            cloudContractValidationResult = "PASS"
+         )
+
+-        fun fallback(config: CloudAnalysisConfig, errorCode: String, latencyMs: Long?): CloudAnalysisTrace = CloudAnalysisTrace(
++        fun fallback(
++            config: CloudAnalysisConfig,
++            errorCode: String,
++            latencyMs: Long?,
++            validationResult: String = "NOT_RUN"
++        ): CloudAnalysisTrace = CloudAnalysisTrace(
+             cloudEnabled = config.cloudEnabled,
+             endpointConfigured = config.endpointConfigured,
+             cloudAttempted = true,
+@@ -93,7 +108,8 @@ data class CloudAnalysisTrace(
+             cloudFallbackUsed = true,
+             decisionSource = "LOCAL_FALLBACK",
+             modelCalled = false,
+-            apiCalled = false
++            apiCalled = false,
++            cloudContractValidationResult = validationResult
+         )
+     }
+ }
+@@ -139,7 +155,7 @@ class OkHttpCloudAnalysisClient : CloudAnalysisClient {
+         if (clientToken.isNotBlank()) requestBuilder.header("X-Huiyi-Client-Token", clientToken)
+         client.newCall(requestBuilder.build()).execute().use { response ->
+             if (!response.isSuccessful) error("SERVER_ERROR:${response.code}")
+-            return response.body?.string() ?: error("SCHEMA_INVALID:empty_body")
++            return response.body?.string() ?: error("CLOUD_SCHEMA_INVALID:empty_body")
+         }
+     }
+ }
+@@ -167,22 +183,24 @@ class CloudAnalysisRepository(
+         } catch (error: IllegalStateException) {
+             throw CloudAnalysisException(error.message?.substringBefore(":") ?: "SERVER_ERROR", error)
+         }
+-        mapper.parseResponse(responseJson, System.currentTimeMillis() - startedAt)
++        mapper.parseResponse(responseJson, System.currentTimeMillis() - startedAt, input.lastSpeakerDecision.lastSpeaker)
+     }
+ }
+
+ class CloudAnalysisException(val code: String, cause: Throwable? = null) : RuntimeException(code, cause)
+
+-class CloudTacticalDecisionMapper {
++class CloudTacticalDecisionMapper(
++    private val contractValidator: CloudTacticalResponseValidator = CloudTacticalResponseValidator()
++) {
+     private val json = Json { ignoreUnknownKeys = true }
+-    private val contractValidator = HuiyiTacticalContractValidator()
+
+     fun buildRequest(input: CloudAnalysisInput, config: CloudAnalysisConfig): String {
+         val messages = input.context.currentScreenMessages
+             .filter { it.isEffectiveChatMessage && it.speaker in setOf(Speaker.ME, Speaker.OTHER) }
+             .takeLast(12)
+         val root = buildJsonObject {
+-            put("schemaVersion", 1)
++            put("schemaVersion", HuiyiTacticalContract.SCHEMA_VERSION)
++            put("contractVersion", HuiyiTacticalContract.VERSION)
+             put("sessionId", input.sessionId)
+             put("appVersionName", input.appVersionName)
+             put("appVersionCode", input.appVersionCode)
+@@ -207,15 +225,16 @@ class CloudTacticalDecisionMapper {
+                 put("lastEffectiveMessageId", input.lastSpeakerDecision.lastEffectiveMessage?.id.orEmpty())
+                 put("lastEffectiveSpeaker", input.lastSpeakerDecision.lastSpeaker?.name ?: "UNKNOWN")
+             })
+-            put("userPersona", buildJsonObject {
+-                put("knownTags", JsonArray(emptyList()))
+-                put("relationshipGoal", "")
+-                put("stylePreference", "")
+-            })
+             put("messageStatus", buildJsonObject {
+                 put("lastMeDeliveryStatus", input.lastMeDeliveryStatus)
+                 put("lastMeReadStatus", input.lastMeReadStatus)
+             })
++            put("localSafetyGate", buildJsonObject {
++                put("meNeverCallsCloud", true)
++                put("unknownNeverCallsCloud", true)
++                put("unsupportedAppNeverCallsCloud", true)
++                put("cloudCannotOverrideLastMeWait", true)
++            })
+             put("privacy", buildJsonObject {
+                 put("privateMode", config.privateMode)
+                 put("redactedForPublicLog", true)
+@@ -224,36 +243,30 @@ class CloudTacticalDecisionMapper {
+         return root.toString()
+     }
+
+-    fun parseResponse(responseJson: String, latencyMs: Long): CloudAnalysisOutput {
++    fun parseResponse(responseJson: String, latencyMs: Long, actualLastSpeaker: Speaker? = Speaker.OTHER): CloudAnalysisOutput {
+         val root = json.parseToJsonElement(responseJson).jsonObject
+-        contractValidator.validate(root).getOrElse { throw it }
++        contractValidator.validate(root, actualLastSpeaker).getOrElse { throw it }
+         val decisionType = root.string("decisionType").toDecisionType()
+         val routes = root["routes"]?.jsonArray.orEmpty().mapIndexed { index, element ->
+             element.toRoute(index)
+         }
+-        if (routes.size != 5 || decisionType !in cloudReplyDecisionTypes) {
+-            throw CloudAnalysisException("SCHEMA_INVALID")
+-        }
+-        if (routes.any { it.message.isBlank() || it.message.length > 160 }) {
+-            throw CloudAnalysisException("SCHEMA_INVALID")
+-        }
+         val decision = TacticalDecision(
+             decisionType = decisionType,
+             situation = root.string("situation").ifBlank { "cloud analysis" },
+-            coreInsight = root.string("coCreationPoint").ifBlank { root.string("coreInsight") },
+-            userLikelyMistake = root.string("userLikelyMistake").ifBlank { null },
++            coreInsight = coCreationSummary(root["coCreationPoint"]?.jsonObject),
++            userLikelyMistake = root.string("userLikelyMistake"),
+             bestMove = root.string("bestMove").ifBlank { routes.firstOrNull()?.message.orEmpty() },
+             avoidMoves = root["avoidMoves"]?.jsonArray?.mapNotNull { it.jsonPrimitive.contentOrNull } ?: emptyList(),
+             coCreationOpportunity = null,
+             shouldUseUserStory = false,
+             selectedStoryCardIds = emptyList(),
+             influenceProfile = InfluenceProfile(
+-                intensity = root.string("intensityPolicy").ifBlank { root.string("influenceIntensity") }.toIntensity(),
+-                riskLevel = root.string("riskLevel").toRisk(),
++                intensity = root["intensityPolicy"]?.jsonObject?.string("level").orEmpty().toIntensity(),
++                riskLevel = routes.firstOrNull()?.riskLevel ?: RiskLevel.LOW,
+                 riskWarning = root.string("riskWarning").ifBlank { null },
+-                fallbackMove = root.string("fallbackMove").ifBlank { null }
++                fallbackMove = root.string("fallbackMove")
+             ),
+-            fallbackMove = root.string("fallbackMove").ifBlank { null }
++            fallbackMove = root.string("fallbackMove")
+         )
+         return CloudAnalysisOutput(root.string("cloudRequestId").ifBlank { UUID.randomUUID().toString() }, decision, routes, latencyMs)
+     }
+@@ -263,19 +276,27 @@ class CloudTacticalDecisionMapper {
+         val risk = obj.string("riskLevel").toRisk()
+         return ReplyRoute(
+             id = obj.string("id").ifBlank { "cloud-route-$index" },
+-            name = obj.string("name").ifBlank { "路线${index + 1}" },
++            name = obj.string("slot").ifBlank { obj.string("name").ifBlank { "route-${index + 1}" } },
+             routeType = obj.string("routeType").toRouteType(),
+-            tag = "云端",
++            tag = "cloud",
+             message = obj.string("message").trim(),
+             intensity = InfluenceIntensity.LOW,
+             riskLevel = risk,
+             riskWarning = obj.string("riskWarning").ifBlank { null },
+-            expectedEffect = obj.string("why").ifBlank { null },
+-            fallbackMove = obj.string("fallbackMove").ifBlank { null },
++            expectedEffect = obj.string("why"),
++            fallbackMove = obj.string("fallbackMove"),
+             recommended = index == 0
+         )
+     }
+
++    private fun coCreationSummary(point: JsonObject?): String {
++        if (point == null) return ""
++        val type = point.string("type")
++        val evidence = point.string("evidence")
++        val meaning = point.string("meaning")
++        return listOf(type, evidence, meaning).filter { it.isNotBlank() }.joinToString(" / ")
++    }
++
+     private fun payloadText(content: MessageContent, privateMode: Boolean): String = when (content) {
+         is MessageContent.Text -> if (privateMode) content.text.take(500) else content.text.take(120)
+         is MessageContent.Voice -> "[voice:${content.transcriptStatus}]"
+@@ -290,46 +311,109 @@ class CloudTacticalDecisionMapper {
+     private fun String.toIntensity(): InfluenceIntensity = runCatching { InfluenceIntensity.valueOf(ifBlank { "LOW" }) }.getOrDefault(InfluenceIntensity.LOW)
+     private fun String.toRouteType(): ReplyRouteType = when (uppercase()) {
+         "CO_CREATION" -> ReplyRouteType.CO_CREATION
++        "EMPATHY" -> ReplyRouteType.EMPATHY
+         "WARM_UP" -> ReplyRouteType.WARM_UP
+         "WITHDRAW" -> ReplyRouteType.COOL_DOWN
+         "LIGHT" -> ReplyRouteType.STABLE
+         "REPAIR" -> ReplyRouteType.REPAIR
++        "DIRECT" -> ReplyRouteType.DIRECT
+         else -> ReplyRouteType.STABLE
+     }
+-
+-    private companion object {
+-        val cloudReplyDecisionTypes = setOf(
+-            TacticalDecisionType.NORMAL_REPLY,
+-            TacticalDecisionType.EMPATHY_FIRST,
+-            TacticalDecisionType.HUIYI_MOMENT,
+-            TacticalDecisionType.REPAIR,
+-            TacticalDecisionType.WARM_UP,
+-            TacticalDecisionType.BOUNDARY_RESPECT,
+-            TacticalDecisionType.PUSH_LIGHTLY
+-        )
+-    }
+ }
+
+-class HuiyiTacticalContractValidator {
+-    fun validate(root: JsonObject): Result<Unit> = runCatching {
+-        val required = listOf(
+-            "coCreationPoint",
+-            "userLikelyMistake",
+-            "intensityPolicy",
+-            "riskWarning",
+-            "fallbackMove"
+-        )
+-        if (required.any { root.string(it).isBlank() }) {
+-            throw CloudAnalysisException("SCHEMA_INVALID")
++open class CloudTacticalResponseValidator {
++    fun validate(root: JsonObject, actualLastSpeaker: Speaker? = Speaker.OTHER): Result<Unit> = runCatching {
++        if (actualLastSpeaker == Speaker.ME) throw CloudAnalysisException("CLOUD_CONTRACT_VIOLATION")
++        if (actualLastSpeaker == Speaker.UNKNOWN) throw CloudAnalysisException("CLOUD_CONTRACT_VIOLATION")
++        if (root["schemaVersion"]?.jsonPrimitive?.intOrNull != HuiyiTacticalContract.SCHEMA_VERSION) {
++            throw CloudAnalysisException("CLOUD_SCHEMA_INVALID")
+         }
+-        val routes = root["routes"]?.jsonArray ?: throw CloudAnalysisException("SCHEMA_INVALID")
+-        if (routes.size != 5) throw CloudAnalysisException("SCHEMA_INVALID")
++        val decisionType = root.string("decisionType")
++        if (decisionType !in allowedDecisionTypes) throw CloudAnalysisException("CLOUD_SCHEMA_INVALID")
++        val family = root.string("decisionTypeFamily")
++        if (family !in allowedFamilies) throw CloudAnalysisException("CLOUD_SCHEMA_INVALID")
++        if (decisionType == "CONTEXT_REQUIRED" && family != "CONTEXT_REQUIRED") {
++            throw CloudAnalysisException("CLOUD_CONTRACT_VIOLATION")
++        }
++        if (decisionType in replyDecisionTypes && family != "REPLY_ROUTES") {
++            throw CloudAnalysisException("CLOUD_CONTRACT_VIOLATION")
++        }
++
++        val coCreationPoint = root["coCreationPoint"]?.jsonObject ?: throw CloudAnalysisException("CLOUD_SCHEMA_INVALID")
++        if (coCreationPoint["exists"]?.jsonPrimitive?.booleanOrNull == null) throw CloudAnalysisException("CLOUD_SCHEMA_INVALID")
++        if (coCreationPoint.string("type").isBlank()) throw CloudAnalysisException("CLOUD_SCHEMA_INVALID")
++        if (coCreationPoint.string("evidence").isBlank()) throw CloudAnalysisException("CLOUD_SCHEMA_INVALID")
++        if (coCreationPoint.string("meaning").isBlank()) throw CloudAnalysisException("CLOUD_SCHEMA_INVALID")
++        requireNonBlank(root, "userLikelyMistake")
++        requireNonBlank(root, "bestMove")
++        root["intensityPolicy"]?.jsonObject?.let { intensity ->
++            if (intensity.string("level") !in allowedIntensity) throw CloudAnalysisException("CLOUD_SCHEMA_INVALID")
++            requireNonBlank(intensity, "reason")
++        } ?: throw CloudAnalysisException("CLOUD_SCHEMA_INVALID")
++        if (!root.containsKey("riskWarning")) throw CloudAnalysisException("CLOUD_SCHEMA_INVALID")
++        requireNonBlank(root, "fallbackMove")
++
++        val routes = root["routes"]?.jsonArray ?: throw CloudAnalysisException("CLOUD_SCHEMA_INVALID")
++        if (decisionType in replyDecisionTypes && routes.size != 5) throw CloudAnalysisException("CLOUD_SCHEMA_INVALID")
++        if (decisionType == "CONTEXT_REQUIRED" && routes.isNotEmpty()) throw CloudAnalysisException("CLOUD_CONTRACT_VIOLATION")
++
++        val seenMessages = mutableSetOf<String>()
+         routes.forEach { element ->
+             val route = element.jsonObject
+-            if (route.string("message").isBlank()) throw CloudAnalysisException("SCHEMA_INVALID")
+-            if (route.string("fallbackMove").isBlank()) throw CloudAnalysisException("SCHEMA_INVALID")
++            val message = route.string("message").trim()
++            val why = route.string("why").trim()
++            if (message.isBlank()) throw CloudAnalysisException("CLOUD_SCHEMA_INVALID")
++            if (why.isBlank()) throw CloudAnalysisException("CLOUD_SCHEMA_INVALID")
++            if (route.string("riskLevel").ifBlank { "LOW" } !in allowedRisk) throw CloudAnalysisException("CLOUD_SCHEMA_INVALID")
++            if (!seenMessages.add(message)) throw CloudAnalysisException("CLOUD_CONTRACT_VIOLATION")
++            validateSafetyText(message)
++            validateSafetyText(why)
++            validateSafetyText(route.string("fallbackMove"))
++        }
++        validateSafetyText(root.string("userLikelyMistake"))
++        validateSafetyText(root.string("bestMove"))
++        validateSafetyText(root.string("fallbackMove"))
++    }
++
++    private fun requireNonBlank(root: JsonObject, name: String) {
++        if (root.string(name).isBlank()) throw CloudAnalysisException("CLOUD_SCHEMA_INVALID")
++    }
++
++    private fun validateSafetyText(text: String) {
++        val normalized = text.lowercase()
++        if (bannedFragments.any { normalized.contains(it) }) {
++            throw CloudAnalysisException("CLOUD_CONTRACT_VIOLATION")
+         }
+     }
+
+     private fun JsonObject.string(name: String): String = this[name]?.jsonPrimitive?.contentOrNull.orEmpty()
++
++    private companion object {
++        val allowedDecisionTypes = setOf("NORMAL_REPLY", "EMPATHY_FIRST", "CONTEXT_REQUIRED")
++        val replyDecisionTypes = setOf("NORMAL_REPLY", "EMPATHY_FIRST")
++        val allowedFamilies = setOf("REPLY_ROUTES", "CONTEXT_REQUIRED")
++        val allowedIntensity = setOf("LOW", "MEDIUM", "HIGH")
++        val allowedRisk = setOf("LOW", "MEDIUM", "HIGH")
++        val bannedFragments = listOf(
++            "auto send",
++            "autosend",
++            "sent for you",
++            "i sent it",
++            "pua",
++            "manipulate",
++            "force her",
++            "force him",
++            "must reply",
++            "自动发送",
++            "替你发送",
++            "我帮你发",
++            "逼迫",
++            "跪舔",
++            "拿捏",
++            "操控",
++            "不回就是"
++        )
++    }
+ }
++
++class HuiyiTacticalContractValidator : CloudTacticalResponseValidator()
+diff --git a/app/src/main/java/com/huiyi/v4/domain/pipeline/CurrentScreenPipelineUseCase.kt b/app/src/main/java/com/huiyi/v4/domain/pipeline/CurrentScreenPipelineUseCase.kt
+index 3844cc6..04a0237 100644
+--- a/app/src/main/java/com/huiyi/v4/domain/pipeline/CurrentScreenPipelineUseCase.kt
++++ b/app/src/main/java/com/huiyi/v4/domain/pipeline/CurrentScreenPipelineUseCase.kt
+@@ -177,7 +177,12 @@ class CurrentScreenPipelineUseCase(
+             },
+             onFailure = { error ->
+                 val code = (error as? CloudAnalysisException)?.code ?: "NETWORK"
+-                CloudPipelineResult(localDecision, localRoutes, CloudAnalysisTrace.fallback(config, code, System.currentTimeMillis() - startedAt))
++                val validationResult = if (code in setOf("CLOUD_SCHEMA_INVALID", "CLOUD_CONTRACT_VIOLATION", "SCHEMA_INVALID")) {
++                    "FAIL"
++                } else {
++                    "NOT_RUN"
++                }
++                CloudPipelineResult(localDecision, localRoutes, CloudAnalysisTrace.fallback(config, code, System.currentTimeMillis() - startedAt, validationResult))
+             }
+         )
+     }
+diff --git a/app/src/main/java/com/huiyi/v4/domain/pipeline/EvidencePackReportGenerator.kt b/app/src/main/java/com/huiyi/v4/domain/pipeline/EvidencePackReportGenerator.kt
+index 4095510..4875e30 100644
+--- a/app/src/main/java/com/huiyi/v4/domain/pipeline/EvidencePackReportGenerator.kt
++++ b/app/src/main/java/com/huiyi/v4/domain/pipeline/EvidencePackReportGenerator.kt
+@@ -151,6 +151,8 @@ class EvidencePackReportGenerator {
+             appendLine("- cloudLatencyMs: ${result.cloudTrace.cloudLatencyMs ?: "null"}")
+             appendLine("- cloudErrorCode: ${result.cloudTrace.cloudErrorCode ?: "none"}")
+             appendLine("- cloudRequestId: ${result.cloudTrace.cloudRequestId ?: "none"}")
++            appendLine("- cloudContractVersion: ${result.cloudTrace.cloudContractVersion}")
++            appendLine("- cloudContractValidationResult: ${result.cloudTrace.cloudContractValidationResult}")
+             appendLine("- overlayShownInTargetApp: ${result.overlayShownInTargetApp}")
+             appendLine("- foregroundPackageWhenPanelShown: ${result.foregroundPackageWhenPanelShown ?: "unknown"}")
+             appendLine("- huiyiActivityOpened: ${result.huiyiActivityOpened}")
+@@ -561,6 +563,8 @@ class EvidencePackReportGenerator {
+               "cloudErrorCode": "${escape(result.cloudTrace.cloudErrorCode ?: "")}",
+               "cloudFallbackUsed": ${result.cloudTrace.cloudFallbackUsed},
+               "decisionSource": "${result.cloudTrace.decisionSource}",
++              "cloudContractVersion": "${result.cloudTrace.cloudContractVersion}",
++              "cloudContractValidationResult": "${result.cloudTrace.cloudContractValidationResult}",
+               "overlayShownInTargetApp": ${result.overlayShownInTargetApp},
+               "foregroundPackageWhenPanelShown": "${escape(result.foregroundPackageWhenPanelShown ?: "unknown")}",
+               "huiyiActivityOpened": ${result.huiyiActivityOpened},
+diff --git a/app/src/main/java/com/huiyi/v4/runtime/HuiyiRuntime.kt b/app/src/main/java/com/huiyi/v4/runtime/HuiyiRuntime.kt
+index bcc34ba..4a52e53 100644
+--- a/app/src/main/java/com/huiyi/v4/runtime/HuiyiRuntime.kt
++++ b/app/src/main/java/com/huiyi/v4/runtime/HuiyiRuntime.kt
+@@ -111,7 +111,7 @@ class HuiyiRuntime private constructor(
+                 cloudEnabled = false,
+                 endpoint = "",
+                 clientId = BuildConfig.HUIYI_CLOUD_ANALYSIS_CLIENT_ID,
+-                clientToken = BuildConfig.HUIYI_CLOUD_ANALYSIS_CLIENT_TOKEN
++                clientToken = ""
+             )
+         ),
+         appVersionName = BuildConfig.VERSION_NAME,
+diff --git a/app/src/main/java/com/huiyi/v4/runtime/OneTapFeedbackExporter.kt b/app/src/main/java/com/huiyi/v4/runtime/OneTapFeedbackExporter.kt
+index 4af7934..9e39c10 100644
+--- a/app/src/main/java/com/huiyi/v4/runtime/OneTapFeedbackExporter.kt
++++ b/app/src/main/java/com/huiyi/v4/runtime/OneTapFeedbackExporter.kt
+@@ -98,7 +98,9 @@ data class NextSentenceFlightRecord(
+     val reportConsistencyResult: String = "PASS",
+     val cloudContractImplemented: Boolean = false,
+     val cloudConfigured: Boolean = false,
+-    val cloudAnalysisAttempted: Boolean = false
++    val cloudAnalysisAttempted: Boolean = false,
++    val cloudContractVersion: String = "HuiyiTacticalContract-v1",
++    val cloudContractValidationResult: String = "NOT_RUN"
+ ) {
+     fun withFeedback(feedback: UserFeedbackMark): NextSentenceFlightRecord = copy(userFeedback = feedback)
+
+@@ -296,9 +298,11 @@ object NextSentenceFlightRecordFactory {
+             preAnalysisSnapshotMutableAfterPanel = false,
+             postPanelSnapshotCapturedAt = if (result.resultShownAsOverlay) endedAt else 0L,
+             postPanelSnapshotUsedForDecision = false,
+-            cloudContractImplemented = false,
++            cloudContractImplemented = true,
+             cloudConfigured = result.cloudTrace.endpointConfigured,
+-            cloudAnalysisAttempted = result.cloudTrace.cloudAttempted
++            cloudAnalysisAttempted = result.cloudTrace.cloudAttempted,
++            cloudContractVersion = result.cloudTrace.cloudContractVersion,
++            cloudContractValidationResult = result.cloudTrace.cloudContractValidationResult
+         ).withComputedConsistency()
+     }
+
+@@ -370,7 +374,9 @@ object NextSentenceFlightRecordFactory {
+             postPanelSnapshotUsedForDecision = false,
+             cloudContractImplemented = false,
+             cloudConfigured = false,
+-            cloudAnalysisAttempted = false
++            cloudAnalysisAttempted = false,
++            cloudContractVersion = "HuiyiTacticalContract-v1",
++            cloudContractValidationResult = "NOT_RUN"
+         ).withComputedConsistency()
+     }
+
+@@ -500,6 +506,8 @@ class OneTapFeedbackExporter(
+         appendLine("- cloudSuccess: ${record.cloudSuccess}")
+         appendLine("- cloudSkippedReason: ${record.cloudSkippedReason ?: "none"}")
+         appendLine("- decisionSource: ${record.decisionSource}")
++        appendLine("- cloudContractVersion: ${record.cloudContractVersion}")
++        appendLine("- cloudContractValidationResult: ${record.cloudContractValidationResult}")
+         appendLine("- cloudFallbackUsed: ${record.cloudFallbackUsed}")
+         appendLine("- cloudLatencyMs: ${record.cloudLatencyMs ?: "null"}")
+         appendLine("- cloudErrorCode: ${record.cloudErrorCode ?: "none"}")
+@@ -565,6 +573,8 @@ class OneTapFeedbackExporter(
+             "cloudContractImplemented": ${record.cloudContractImplemented},
+             "cloudAttempted": ${record.cloudAttempted},
+             "cloudAnalysisAttempted": ${record.cloudAnalysisAttempted},
++            "cloudContractVersion": "${record.cloudContractVersion}",
++            "cloudContractValidationResult": "${record.cloudContractValidationResult}",
+             "cloudSuccess": ${record.cloudSuccess},
+             "cloudSkippedReason": "${record.cloudSkippedReason ?: ""}",
+             "decisionSource": "${record.decisionSource}",
+@@ -615,6 +625,8 @@ class OneTapFeedbackExporter(
+         appendLine("- cloudSkippedReason: ${record.cloudSkippedReason ?: "none"}")
+         appendLine("- decisionSource: ${record.decisionSource}")
+         appendLine("- cloudFallbackUsed: ${record.cloudFallbackUsed}")
++        appendLine("- cloudContractVersion: ${record.cloudContractVersion}")
++        appendLine("- cloudContractValidationResult: ${record.cloudContractValidationResult}")
+         appendLine("- cloudLatencyMs: ${record.cloudLatencyMs ?: "null"}")
+         appendLine("- cloudErrorCode: ${record.cloudErrorCode ?: "none"}")
+         appendLine("- loadingStillVisible: ${record.loadingStillVisible}")
+@@ -687,6 +699,8 @@ class OneTapFeedbackExporter(
+           "cloudContractImplemented": ${record.cloudContractImplemented},
+           "cloudAttempted": ${record.cloudAttempted},
+           "cloudAnalysisAttempted": ${record.cloudAnalysisAttempted},
++          "cloudContractVersion": "${record.cloudContractVersion}",
++          "cloudContractValidationResult": "${record.cloudContractValidationResult}",
+           "cloudSkippedReason": ${record.cloudSkippedReason?.let { "\"${escape(it)}\"" } ?: "null"},
+           "cloudRequestId": ${record.cloudRequestId?.let { "\"${escape(it)}\"" } ?: "null"},
+           "cloudSuccess": ${record.cloudSuccess},
+diff --git a/app/src/test/java/com/huiyi/v4/CloudAnalysisMvpSafetyGateTest.kt b/app/src/test/java/com/huiyi/v4/CloudAnalysisMvpSafetyGateTest.kt
+index 9b7f201..824edae 100644
+--- a/app/src/test/java/com/huiyi/v4/CloudAnalysisMvpSafetyGateTest.kt
++++ b/app/src/test/java/com/huiyi/v4/CloudAnalysisMvpSafetyGateTest.kt
+@@ -6,6 +6,7 @@ import com.huiyi.v4.domain.cloud.CloudAnalysisException
+ import com.huiyi.v4.domain.cloud.CloudAnalysisInput
+ import com.huiyi.v4.domain.cloud.CloudAnalysisOutput
+ import com.huiyi.v4.domain.cloud.CloudAnalysisService
++import com.huiyi.v4.domain.cloud.CloudTacticalResponseValidator
+ import com.huiyi.v4.domain.cloud.CloudTacticalDecisionMapper
+ import com.huiyi.v4.domain.model.ReplyRoute
+ import com.huiyi.v4.domain.model.Speaker
+@@ -19,6 +20,8 @@ import com.huiyi.v4.domain.pipeline.SampleSource
+ import com.huiyi.v4.domain.tactical.ReplyRouteGenerator
+ import com.huiyi.v4.runtime.NextSentenceFlightRecordFactory
+ import kotlinx.coroutines.test.runTest
++import kotlinx.serialization.json.Json
++import kotlinx.serialization.json.jsonObject
+ import org.junit.Assert.assertEquals
+ import org.junit.Assert.assertFalse
+ import org.junit.Assert.assertTrue
+@@ -104,16 +107,28 @@ class CloudAnalysisMvpSafetyGateTest {
+
+     @Test
+     fun CloudSchemaInvalidFallsBackToLocalTest() = runTest {
+-        val result = pipeline(lastOtherMessages(), FakeCloudService(error = CloudAnalysisException("SCHEMA_INVALID"))).run(emptyPersona()).getOrThrow()
++        val result = pipeline(lastOtherMessages(), FakeCloudService(error = CloudAnalysisException("CLOUD_SCHEMA_INVALID"))).run(emptyPersona()).getOrThrow()
+
+         assertEquals("LOCAL_FALLBACK", result.cloudTrace.decisionSource)
+         assertTrue(result.cloudTrace.cloudFallbackUsed)
+-        assertEquals("SCHEMA_INVALID", result.cloudTrace.cloudErrorCode)
++        assertEquals("CLOUD_SCHEMA_INVALID", result.cloudTrace.cloudErrorCode)
++        assertEquals("FAIL", result.cloudTrace.cloudContractValidationResult)
+         assertEquals(5, result.routes.size)
+     }
+
+     @Test
+-    fun CloudNotConfiguredUsesLocalRoutesTest() = runTest {
++    fun CloudContractViolationFallsBackToLocalTest() = runTest {
++        val result = pipeline(lastOtherMessages(), FakeCloudService(error = CloudAnalysisException("CLOUD_CONTRACT_VIOLATION"))).run(emptyPersona()).getOrThrow()
++
++        assertEquals("LOCAL_FALLBACK", result.cloudTrace.decisionSource)
++        assertTrue(result.cloudTrace.cloudFallbackUsed)
++        assertEquals("CLOUD_CONTRACT_VIOLATION", result.cloudTrace.cloudErrorCode)
++        assertEquals("FAIL", result.cloudTrace.cloudContractValidationResult)
++        assertEquals(5, result.routes.size)
++    }
++
++    @Test
++    fun LastOtherCloudNotConfiguredFallsBackToLocalTest() = runTest {
+         val result = pipeline(lastOtherMessages(), FakeCloudService(CloudAnalysisConfig(cloudEnabled = false, endpoint = ""))).run(emptyPersona()).getOrThrow()
+
+         assertEquals("CLOUD_NOT_CONFIGURED", result.cloudTrace.cloudSkippedReason)
+@@ -122,9 +137,32 @@ class CloudAnalysisMvpSafetyGateTest {
+         assertEquals(5, result.routes.size)
+     }
+
++    @Test
++    fun UnknownSpeakerSkipsCloudTest() = runTest {
++        val cloud = FakeCloudService()
++        val result = pipeline(listOf(textNode("unknown", Speaker.UNKNOWN, "not sure", 1)), cloud).run(emptyPersona()).getOrThrow()
++
++        assertFalse(result.cloudTrace.cloudAttempted)
++        assertEquals("LAST_SPEAKER_UNKNOWN", result.cloudTrace.cloudSkippedReason)
++        assertEquals("LOCAL_FALLBACK", result.cloudTrace.decisionSource)
++        assertEquals(0, cloud.callCount)
++    }
++
++    @Test
++    fun UnsupportedAppSkipsCloudTest() = runTest {
++        val cloud = FakeCloudService()
++        val result = pipeline(lastOtherMessages(), cloud, appPackage = "com.unsupported.chat").run(emptyPersona()).getOrThrow()
++
++        assertFalse(result.cloudTrace.cloudAttempted)
++        assertEquals("UNSUPPORTED_APP", result.cloudTrace.cloudSkippedReason)
++        assertEquals("LOCAL_FALLBACK", result.cloudTrace.decisionSource)
++        assertEquals(0, cloud.callCount)
++    }
++
+     @Test
+     fun ApiKeyNotPresentInApkOrRepoTest() {
+         assertEquals("", BuildConfig.HUIYI_API_KEY)
++        assertEquals("", BuildConfig.HUIYI_CLOUD_ANALYSIS_CLIENT_TOKEN)
+     }
+
+     @Test
+@@ -147,6 +185,8 @@ class CloudAnalysisMvpSafetyGateTest {
+         assertTrue(record.cloudSuccess)
+         assertEquals("CLOUD", record.decisionSource)
+         assertEquals(123L, record.cloudLatencyMs)
++        assertEquals("HuiyiTacticalContract-v1", record.cloudContractVersion)
++        assertEquals("PASS", record.cloudContractValidationResult)
+     }
+
+     @Test(expected = CloudAnalysisException::class)
+@@ -162,6 +202,59 @@ class CloudAnalysisMvpSafetyGateTest {
+         )
+     }
+
++    @Test
++    fun LastOtherCloudSuccessMapsToRoutePanelTest() {
++        val output = CloudTacticalDecisionMapper().parseResponse(validCloudResponse(), 10L, Speaker.OTHER)
++
++        assertEquals(TacticalDecisionType.NORMAL_REPLY, output.decision.decisionType)
++        assertEquals(5, output.routes.size)
++        assertEquals("stable", output.routes.first().name)
++    }
++
++    @Test
++    fun CloudContractRequiresCoCreationPointTest() {
++        val invalid = validCloudResponse().replace("\"coCreationPoint\"", "\"missingCoCreationPoint\"")
++        val result = CloudTacticalResponseValidator().validate(Json.parseToJsonElement(invalid).jsonObject, Speaker.OTHER)
++
++        assertTrue(result.isFailure)
++        assertEquals("CLOUD_SCHEMA_INVALID", (result.exceptionOrNull() as CloudAnalysisException).code)
++    }
++
++    @Test
++    fun CloudContractRejectsManipulativeOutputTest() {
++        val invalid = validCloudResponse().replace("接住她现在的状态", "pua manipulate force her to reply")
++        val result = CloudTacticalResponseValidator().validate(Json.parseToJsonElement(invalid).jsonObject, Speaker.OTHER)
++
++        assertTrue(result.isFailure)
++        assertEquals("CLOUD_CONTRACT_VIOLATION", (result.exceptionOrNull() as CloudAnalysisException).code)
++    }
++
++    @Test
++    fun GithubUploadIsNotCloudAnalysisTest() {
++        val record = NextSentenceFlightRecordFactory.fromSuccess(
++            evidenceResult(
++                appPackage = "com.bajiao.im.liaoqi",
++                source = SampleSource.REAL_DEVICE_ACCESSIBILITY,
++                messages = lastOtherMessages()
++            ).copy(
++                cloudTrace = com.huiyi.v4.domain.cloud.CloudAnalysisTrace.skipped(
++                    CloudAnalysisConfig(cloudEnabled = false, endpoint = ""),
++                    reason = "CLOUD_NOT_CONFIGURED",
++                    decisionSource = "LOCAL_FALLBACK"
++                )
++            ),
++            NextSentenceSessionTrace("github-upload-is-not-cloud", 1L, endedAt = 2L)
++        ).withFeedbackTrace(
++            clickedAt = 3L,
++            targetSessionId = "github-upload-is-not-cloud",
++            exportSource = "ONE_TAP_FEEDBACK"
++        )
++
++        assertFalse(record.cloudAttempted)
++        assertEquals("CLOUD_NOT_CONFIGURED", record.cloudSkippedReason)
++        assertTrue(record.feedbackTargetSessionFound)
++    }
++
+     @Test
+     fun CloudFailureDoesNotShowGenericAnalysisFailedTest() = runTest {
+         val result = pipeline(lastOtherMessages(), FakeCloudService(error = CloudAnalysisException("NETWORK"))).run(emptyPersona()).getOrThrow()
+@@ -173,22 +266,24 @@ class CloudAnalysisMvpSafetyGateTest {
+
+     private fun pipeline(
+         messages: List<com.huiyi.v4.domain.model.MessageNode>,
+-        cloud: CloudAnalysisService?
++        cloud: CloudAnalysisService?,
++        appPackage: String = "com.bajiao.im.liaoqi"
+     ) = CurrentScreenPipelineUseCase(
+-        captureUseCase = FakeCaptureUseCase(messages),
++        captureUseCase = FakeCaptureUseCase(messages, appPackage),
+         cloudAnalysisService = cloud,
+         appVersionName = "test",
+         appVersionCode = 1
+     )
+
+     private class FakeCaptureUseCase(
+-        private val messages: List<com.huiyi.v4.domain.model.MessageNode>
++        private val messages: List<com.huiyi.v4.domain.model.MessageNode>,
++        private val appPackage: String
+     ) : CurrentScreenCaptureUseCase({ null }) {
+         override fun capture(): Result<CurrentScreenCaptureResult> {
+             return Result.success(
+                 CurrentScreenCaptureResult(
+                     snapshot = CurrentScreenSnapshot(
+-                        appPackage = "com.bajiao.im.liaoqi",
++                        appPackage = appPackage,
+                         windowTitle = "chat",
+                         screenWidth = 1080,
+                         screenHeight = 2400,
+@@ -233,6 +328,36 @@ class CloudAnalysisMvpSafetyGateTest {
+         textNode("other-5", Speaker.OTHER, "I need someone to listen", 5)
+     )
+
++    private fun validCloudResponse(): String = """
++        {
++          "schemaVersion": 1,
++          "decisionType": "NORMAL_REPLY",
++          "decisionTypeFamily": "REPLY_ROUTES",
++          "situation": "The other person is sharing pressure.",
++          "coCreationPoint": {
++            "exists": true,
++            "type": "daily_rhythm",
++            "evidence": "She said today was hard.",
++            "meaning": "Create a small shared safe rhythm."
++          },
++          "userLikelyMistake": "Replying too hard or changing topic too fast.",
++          "bestMove": "接住她现在的状态",
++          "intensityPolicy": {
++            "level": "LOW",
++            "reason": "Low pressure is safer here."
++          },
++          "riskWarning": "",
++          "fallbackMove": "Keep it light and let her answer when ready.",
++          "routes": [
++            {"slot":"stable","message":"听起来今天确实有点累，你先缓一缓。","why":"Receives the pressure without pushing.","riskLevel":"LOW","fallbackMove":"Keep waiting calmly."},
++            {"slot":"light","message":"那今晚先别硬撑，吃点舒服的。","why":"Adds daily-life care.","riskLevel":"LOW","fallbackMove":"Move back to light care."},
++            {"slot":"question","message":"是事情多，还是人让你累？","why":"Asks one gentle clarifying question.","riskLevel":"LOW","fallbackMove":"Stop if she does not expand."},
++            {"slot":"daily_life","message":"我在，等你忙完慢慢说。","why":"Keeps presence without pressure.","riskLevel":"LOW","fallbackMove":"Wait."},
++            {"slot":"warmer","message":"辛苦啦，今天先把自己放第一位。","why":"Warmer but still safe.","riskLevel":"LOW","fallbackMove":"Return to low intensity."}
++          ]
++        }
++    """.trimIndent()
++
+     private fun emptyPersona() = UserPersonaCorpus(
+         id = "test",
+         name = "test",
+diff --git a/app/src/test/java/com/huiyi/v4/OneTapFeedbackExportTest.kt b/app/src/test/java/com/huiyi/v4/OneTapFeedbackExportTest.kt
+index a89b8ea..ac80671 100644
+--- a/app/src/test/java/com/huiyi/v4/OneTapFeedbackExportTest.kt
++++ b/app/src/test/java/com/huiyi/v4/OneTapFeedbackExportTest.kt
+@@ -279,17 +279,19 @@ class OneTapFeedbackExportTest {
+     fun CloudUploadIsNotCloudAnalysisTest() {
+         val record = routeRecord("local")
+
+-        assertFalse(record.cloudContractImplemented)
++        assertTrue(record.cloudContractImplemented)
+         assertFalse(record.cloudAnalysisAttempted)
+         assertFalse(record.cloudAttempted)
++        assertEquals("NOT_RUN", record.cloudContractValidationResult)
+     }
+
+     @Test
+-    fun CloudContractNotImplementedIsReportedTest() {
++    fun CloudContractImplementedButNotConfiguredIsReportedTest() {
+         val record = routeRecord("local")
+
+-        assertFalse(record.cloudContractImplemented)
++        assertTrue(record.cloudContractImplemented)
+         assertFalse(record.cloudConfigured)
++        assertEquals("HuiyiTacticalContract-v1", record.cloudContractVersion)
+     }
+
+     @Test
+diff --git a/app/src/test/java/com/huiyi/v4/SimulationFirstValidationTest.kt b/app/src/test/java/com/huiyi/v4/SimulationFirstValidationTest.kt
+index 10cb84c..d1d02d3 100644
+--- a/app/src/test/java/com/huiyi/v4/SimulationFirstValidationTest.kt
++++ b/app/src/test/java/com/huiyi/v4/SimulationFirstValidationTest.kt
+@@ -87,13 +87,13 @@ class SimulationFirstValidationTest {
+         assertTrue(validation.isSuccess)
+         assertEquals(5, parsed.routes.size)
+         assertEquals(TacticalDecisionType.NORMAL_REPLY, parsed.decision.decisionType)
+-        assertEquals("Build a small shared meaning.", parsed.decision.coreInsight)
++        assertTrue(parsed.decision.coreInsight.contains("Build a small shared meaning."))
+     }
+
+     @Test(expected = CloudAnalysisException::class)
+     fun cloudContractV1RejectsMissingCoCreationPoint() {
+         CloudTacticalDecisionMapper().parseResponse(
+-            completeCloudOutput().replace("\"coCreationPoint\":\"Build a small shared meaning.\",", ""),
++            completeCloudOutput().replace("\"coCreationPoint\"", "\"missingCoCreationPoint\""),
+             latencyMs = 20
+         )
+     }
+@@ -104,12 +104,13 @@ class SimulationFirstValidationTest {
+             """
+             {
+               "decisionType":"NORMAL_REPLY",
+-              "coCreationPoint":"x",
++              "decisionTypeFamily":"REPLY_ROUTES",
++              "coCreationPoint":{"exists":true,"type":"x","evidence":"x","meaning":"x"},
+               "userLikelyMistake":"x",
+-              "intensityPolicy":"LOW",
++              "intensityPolicy":{"level":"LOW","reason":"x"},
+               "riskWarning":"x",
+               "fallbackMove":"x",
+-              "routes":[{"id":"r1","name":"one","routeType":"STABLE","message":"ok","fallbackMove":"fallback"}]
++              "routes":[{"id":"r1","name":"one","routeType":"STABLE","message":"ok","why":"x","fallbackMove":"fallback"}]
+             }
+             """.trimIndent(),
+             latencyMs = 20
+@@ -195,6 +196,7 @@ class SimulationFirstValidationTest {
+               "name":"route $index",
+               "routeType":"STABLE",
+               "message":"I hear you, let us keep this light $index.",
++              "why":"It keeps the pressure low.",
+               "riskLevel":"LOW",
+               "fallbackMove":"Pause and keep the door open."
+             }
+@@ -203,11 +205,19 @@ class SimulationFirstValidationTest {
+         return """
+             {
+               "cloudRequestId":"cloud-test",
++              "schemaVersion":1,
+               "decisionType":"NORMAL_REPLY",
++              "decisionTypeFamily":"REPLY_ROUTES",
+               "situation":"reply",
+-              "coCreationPoint":"Build a small shared meaning.",
++              "coCreationPoint":{
++                "exists":true,
++                "type":"shared_meaning",
++                "evidence":"She shared a small emotional signal.",
++                "meaning":"Build a small shared meaning."
++              },
+               "userLikelyMistake":"Pushing too hard.",
+-              "intensityPolicy":"LOW",
++              "bestMove":"Answer gently and keep the shared rhythm small.",
++              "intensityPolicy":{"level":"LOW","reason":"Keep the pressure low."},
+               "riskLevel":"LOW",
+               "riskWarning":"Keep pressure low.",
+               "fallbackMove":"Pause and keep the door open.",
+diff --git a/docs/HuiyiTacticalContract-v1.md b/docs/HuiyiTacticalContract-v1.md
+index 75ebc34..a7f7b9b 100644
+--- a/docs/HuiyiTacticalContract-v1.md
++++ b/docs/HuiyiTacticalContract-v1.md
+@@ -1,64 +1,131 @@
+ # HuiyiTacticalContract v1
+
+-Status: TODO only. This contract is not enabled in the app yet.
+-
+-## Foundation
+-
+-Huiyi assumes that a relationship is not built by chatting itself. A relationship is built when two people use chat to co-create shared meaning that did not previously exist.
+-
+-Huiyi is a relationship tactics HUD, not an auto-reply bot.
+-
+-## Local Safety Gates
+-
+-- Cloud analysis may only process LAST OTHER scenes.
+-- LAST ME must stay local.
+-- LAST ME must return WAIT, zero routes, and no cloud/model call.
+-- UNKNOWN speaker must not trigger high-confidence route generation.
+-- Voice without transcript must require a user summary before deep analysis.
+-
+-## Required Cloud Output
+-
+-Cloud output must include:
+-
+-- `situation`
+-- `coCreationPoint`
+-- `userLikelyMistake`
+-- `intensityPolicy`
+-- `riskWarning`
+-- `fallbackMove`
+-- `routes[5]`
+-
+-Each route must be concise, user-sendable, and safe under the local risk policy.
+-
+-## Cloud Must Not
+-
+-Cloud output must not contain:
+-
+-- PUA
+-- coercion
+-- begging
+-- pressure tactics
+-- excessive escalation
+-- auto-send behavior
+-- promises on behalf of the user
+-- treating the relationship as a script exploit
+-- ignoring shared meaning
+-
+-## Local Validation
+-
+-Every cloud response must pass a local `CloudTacticalResponseValidator` before it can be shown.
+-
+-The validator must reject:
+-
+-- non-JSON or invalid schema
+-- missing required fields
+-- route count not equal to 5
+-- blank route text
+-- unsafe manipulation
+-- LAST ME cloud responses
+-- UNKNOWN speaker cloud responses
+-- responses that override local WAIT or context-required safety gates
+-
+-## Current App Status
+-
+-This contract is documentation only in v4.1.21. The app keeps cloud analysis disabled until this contract is implemented and tested.
++## 1. Product Foundation
++
++Huiyi is a relationship tactical HUD. It is not an auto-reply bot, not a profile report, and not a tool that sends messages for the user.
++
++The foundation is:
++
++Relationship is not created by chat itself. It is created when two people use chat to co-create shared meaning that did not exist before.
++
++Cloud analysis may improve tactical content, but it must stay inside this product contract.
++
++## 2. Input Boundary
++
++The client sends only the current safe tactical context:
++
++- current effective chat messages
++- local last speaker decision
++- local decision before cloud
++- app package
++- message delivery/read status
++- privacy metadata
++
++The cloud must not decide who spoke last. LastSpeakerDecision is local truth.
++
++## 3. Output Schema
++
++```json
++{
++  "schemaVersion": 1,
++  "decisionType": "NORMAL_REPLY | EMPATHY_FIRST | CONTEXT_REQUIRED",
++  "decisionTypeFamily": "REPLY_ROUTES | CONTEXT_REQUIRED",
++  "situation": "",
++  "coCreationPoint": {
++    "exists": true,
++    "type": "",
++    "evidence": "",
++    "meaning": ""
++  },
++  "userLikelyMistake": "",
++  "bestMove": "",
++  "intensityPolicy": {
++    "level": "LOW | MEDIUM | HIGH",
++    "reason": ""
++  },
++  "riskWarning": "",
++  "fallbackMove": "",
++  "routes": [
++    {
++      "slot": "stable | light | question | daily_life | warmer",
++      "message": "",
++      "why": "",
++      "riskLevel": "LOW | MEDIUM | HIGH",
++      "fallbackMove": ""
++    }
++  ]
++}
++```
++
++## 4. Required Fields
++
++- `schemaVersion` must be `1`.
++- `decisionType` must be `NORMAL_REPLY`, `EMPATHY_FIRST`, or `CONTEXT_REQUIRED`.
++- `decisionTypeFamily` must be `REPLY_ROUTES` or `CONTEXT_REQUIRED`.
++- `coCreationPoint` must exist and include `exists`, `type`, `evidence`, and `meaning`.
++- `userLikelyMistake`, `bestMove`, `intensityPolicy.reason`, and `fallbackMove` must be non-empty.
++- `riskWarning` must exist. It may be empty only when risk is low.
++- `NORMAL_REPLY` and `EMPATHY_FIRST` must return exactly 5 unique routes.
++- `CONTEXT_REQUIRED` must not return routes.
++
++## 5. Forbidden Output
++
++Cloud output must not:
++
++- imply automatic sending
++- claim a message has already been sent
++- override local `LAST_ME -> WAIT`
++- use PUA, coercion, begging, manipulation, or pressure
++- escalate intensity beyond the local safety gate
++- generate routes when the local speaker is `ME` or `UNKNOWN`
++
++## 6. Local Safety Gate
++
++The local app always decides whether cloud may run.
++
++- `ME`: local `WAIT`, routeCount `0`, cloudAttempted `false`, decisionSource `LOCAL_WAIT`.
++- `UNKNOWN`: no cloud, decisionSource `LOCAL_FALLBACK` or local controlled fail.
++- unsupported app: no cloud, cloudSkippedReason `UNSUPPORTED_APP`.
++- `OTHER`: cloud may run only when `cloudEnabled=true` and endpoint is configured.
++
++## 7. Cloud Failure Fallback
++
++If cloud is disabled, not configured, times out, returns invalid schema, or violates this contract:
++
++- invalid cloud content is not shown
++- local routes remain available when local route generation is safe
++- `decisionSource=LOCAL_FALLBACK`
++- `cloudFallbackUsed=true` only when cloud was attempted
++- the UI must not show a generic failure when local fallback exists
++
++## 8. Validator Rules
++
++The validator enforces:
++
++- schema version and legal enums
++- required tactical fields
++- required co-creation point
++- exactly 5 unique routes for reply decisions
++- no routes for context-required decisions
++- non-empty route message and why
++- legal risk and intensity values
++- no auto-send implication
++- no coercive or manipulative language
++- no conflict with local last speaker safety gate
++
++## 9. Golden Replay Cases
++
++1. LAST_ME with cloud enabled:
++   `cloudAttempted=false`, `decisionType=WAIT`, `decisionSource=LOCAL_WAIT`.
++
++2. LAST_OTHER with cloud disabled:
++   `cloudAttempted=false`, `decisionSource=LOCAL_FALLBACK`, `routeCount=5`.
++
++3. LAST_OTHER with valid cloud response:
++   `cloudAttempted=true`, `cloudSuccess=true`, `decisionSource=CLOUD`, `routeCount=5`.
++
++4. Invalid cloud schema:
++   `cloudSuccess=false`, `cloudFallbackUsed=true`, `decisionSource=LOCAL_FALLBACK`.
++
++5. Manipulative cloud output:
++   validator fails, invalid content is not shown, local fallback is used.
+diff --git a/outputs/codex_to_gpt/README_FOR_GPT.md b/outputs/codex_to_gpt/README_FOR_GPT.md
+index bd126f1..8218c77 100644
+--- a/outputs/codex_to_gpt/README_FOR_GPT.md
++++ b/outputs/codex_to_gpt/README_FOR_GPT.md
+@@ -1,41 +1,25 @@
+ # Huiyi v4 GPT Review Inbox
+
+-## Current round
+-- taskName: local_state_chain_closure_before_cloud
+-- versionName: 4.1.23
+-- versionCode: 442
+-- currentOverallResult: CONTROLLED_LOCAL_PASS
+-- sessionBindingReportGenerated: true
++## Current Round
++- taskName: cloud_contract_mvp_with_local_safety_gate
++- versionName: 4.1.24
++- versionCode: 443
++- currentOverallResult: CLOUD_CONTRACT_LOCAL_PASS
+
+-## Current result split
+-- fixtureReplayResult: PASS
+-- mockChatBuildResult: PASS
+-- emulatorUiSmokeResult: NOT_RUN
+-- realDeviceSmokeResult: NOT_TESTED
+-- phoneLatestFreshness: NOT_AVAILABLE_CURRENT_NO_PHONE
+-- phoneLatestUsedForCurrentResult: false
+-
+-## Session binding
+-- feedbackExportsBoundSession: PASS
+-- feedbackTriggeredNewAnalysis: false
+-- feedbackReCapturedCurrentRoot: false
+-- feedbackUsedOverlayStateAsPreAnalysis: false
+-- preAnalysisSnapshotFrozen: PASS
+-- sessionImmutableAfterTerminalState: true
+-
+-## LAST ME hard gate
+-- lastMeHardWaitRule: PASS
+-- contextRequiredCanOverrideLastMe: false
+-- routePanelCanShowForLastMe: false
+-- cloudCanRunForLastMe: false
+-
+-## User testing
++## Cloud MVP
++- cloudContractImplemented: true
++- cloudValidatorImplemented: true
++- cloudClientSkeletonImplemented: true
++- cloudEnabledDefault: false
++- cloudEndpointConfigured: false
++- cloudAttemptedInTests: true
++- localFallbackResult: PASS
++- lastMeLocalSafetyGate: PASS
+ - userNeedsPhoneThisRound: false
+-- userInstruction: NO_PHONE_TEST_REQUIRED_THIS_ROUND
+
+-## Files GPT should inspect
+-1. session-binding-report-for-gpt.md
+-2. session-binding-report.json
+-3. huiyi-v4-review-for-gpt.md
+-4. changed-files-for-gpt.md
+-5. phone/latest/one-tap-feedback-manifest.json
++## Review Files
++1. cloud-contract-mvp-report-for-gpt.md
++2. cloud-contract-mvp-report.json
++3. gpt-review-manifest.json
++4. ../codex_to_gpt/result-manifest.json
++5. docs/HuiyiTacticalContract-v1.md
+diff --git a/outputs/codex_to_gpt/changed-files-for-gpt.md b/outputs/codex_to_gpt/changed-files-for-gpt.md
+index d1abdcc..154ec96 100644
+--- a/outputs/codex_to_gpt/changed-files-for-gpt.md
++++ b/outputs/codex_to_gpt/changed-files-for-gpt.md
+@@ -1,19 +1,22 @@
+ # Changed Files for GPT
+
+ ## Task
+-- taskName: local_state_chain_closure_before_cloud
+-- versionName: 4.1.23
+-- versionCode: 442
+-- currentOverallResult: CONTROLLED_LOCAL_PASS
++- taskName: cloud_contract_mvp_with_local_safety_gate
++- versionName: 4.1.24
++- versionCode: 443
++- currentOverallResult: CLOUD_CONTRACT_LOCAL_PASS
+
+-## Scope
+-- Unified v4.1.23 review package entry version to versionCode 442.
+-- Updated GPT review inbox README and manifest to the current task.
+-- Confirmed session-binding report files remain present.
+-- Updated phone/latest placeholder metadata so it does not report 441 or 443.
+-- Added fixed mailbox directories: outputs/gpt_to_codex and outputs/codex_to_gpt.
++## Summary
++- Added HuiyiTacticalContract v1 documentation.
++- Implemented CloudTacticalResponseValidator.
++- Hardened CloudAnalysisClient / Repository skeleton with default cloud disabled.
++- Preserved LAST_ME -> LOCAL_WAIT safety gate.
++- Added cloud contract trace fields to evidence and one-tap flight records.
++- Updated tests for cloud contract, fallback, and safety gates.
++- Published LAN update package v4.1.24 / 443.
+
+-## Not Changed
+-- No product feature added.
+-- No cloud enablement.
+-- No phone test required from user.
++## Not Done
++- No real API key.
++- No real endpoint required.
++- No phone testing.
++- No automatic sending.
+diff --git a/outputs/codex_to_gpt/result-manifest.json b/outputs/codex_to_gpt/result-manifest.json
+index aa53be2..c99e947 100644
+--- a/outputs/codex_to_gpt/result-manifest.json
++++ b/outputs/codex_to_gpt/result-manifest.json
+@@ -1,16 +1,28 @@
+ {
+   "project": "Huiyi v4 Core",
+-  "taskName": "local_state_chain_closure_before_cloud",
+-  "versionName": "4.1.23",
+-  "versionCode": 442,
+-  "currentOverallResult": "CONTROLLED_LOCAL_PASS",
+-  "sessionBindingReportGenerated": true,
+-  "phoneLatestVersionName": "4.1.23",
+-  "phoneLatestVersionCode": 442,
+-  "phoneLatestFreshness": "NOT_AVAILABLE_CURRENT_NO_PHONE",
+-  "phoneLatestUsedForCurrentResult": false,
++  "taskName": "cloud_contract_mvp_with_local_safety_gate",
++  "versionName": "4.1.24",
++  "versionCode": 443,
++  "currentOverallResult": "CLOUD_CONTRACT_LOCAL_PASS",
++  "cloudContractImplemented": true,
++  "cloudValidatorImplemented": true,
++  "cloudClientSkeletonImplemented": true,
++  "cloudEnabledDefault": false,
++  "cloudEndpointConfigured": false,
++  "cloudAttemptedInTests": true,
++  "localFallbackResult": "PASS",
++  "lastMeLocalSafetyGate": "PASS",
++  "apiKeyNotInRepoOrApk": true,
++  "realDevice": "NOT_TESTED",
+   "realDeviceSmokeResult": "NOT_TESTED",
+   "userNeedsPhoneThisRound": false,
+   "cloudEnabled": false,
+-  "generatedAt": "2026-07-03T11:13:08Z"
++  "cloudConfigured": false,
++  "cloudAttempted": false,
++  "cloudSkippedReason": "CLOUD_NOT_CONFIGURED",
++  "decisionSource": "LOCAL_FALLBACK_OR_LOCAL_WAIT_BY_LAST_SPEAKER",
++  "cloudFallbackUsed": false,
++  "cloudContractValidationResult": "PASS_FOR_VALID_FIXTURE_FAIL_FOR_INVALID_FIXTURE_NOT_RUN_WHEN_SKIPPED",
++  "containsSecrets": false,
++  "generatedAt": "2026-07-03T12:14:04Z"
+ }
 diff --git a/outputs/gpt_review_inbox/README_FOR_GPT.md b/outputs/gpt_review_inbox/README_FOR_GPT.md
-index 91fe89d..bd126f1 100644
+index bd126f1..8218c77 100644
 --- a/outputs/gpt_review_inbox/README_FOR_GPT.md
 +++ b/outputs/gpt_review_inbox/README_FOR_GPT.md
-@@ -3,15 +3,16 @@
- ## Current round
- - taskName: local_state_chain_closure_before_cloud
- - versionName: 4.1.23
--- versionCode: 443
-+- versionCode: 442
- - currentOverallResult: CONTROLLED_LOCAL_PASS
-+- sessionBindingReportGenerated: true
+@@ -1,41 +1,25 @@
+ # Huiyi v4 GPT Review Inbox
 
- ## Current result split
- - fixtureReplayResult: PASS
- - mockChatBuildResult: PASS
- - emulatorUiSmokeResult: NOT_RUN
- - realDeviceSmokeResult: NOT_TESTED
--- phoneLatestFreshness: NOT_AVAILABLE
-+- phoneLatestFreshness: NOT_AVAILABLE_CURRENT_NO_PHONE
- - phoneLatestUsedForCurrentResult: false
+-## Current round
+-- taskName: local_state_chain_closure_before_cloud
+-- versionName: 4.1.23
+-- versionCode: 442
+-- currentOverallResult: CONTROLLED_LOCAL_PASS
+-- sessionBindingReportGenerated: true
++## Current Round
++- taskName: cloud_contract_mvp_with_local_safety_gate
++- versionName: 4.1.24
++- versionCode: 443
++- currentOverallResult: CLOUD_CONTRACT_LOCAL_PASS
 
- ## Session binding
-@@ -30,7 +31,7 @@
-
- ## User testing
+-## Current result split
+-- fixtureReplayResult: PASS
+-- mockChatBuildResult: PASS
+-- emulatorUiSmokeResult: NOT_RUN
+-- realDeviceSmokeResult: NOT_TESTED
+-- phoneLatestFreshness: NOT_AVAILABLE_CURRENT_NO_PHONE
+-- phoneLatestUsedForCurrentResult: false
+-
+-## Session binding
+-- feedbackExportsBoundSession: PASS
+-- feedbackTriggeredNewAnalysis: false
+-- feedbackReCapturedCurrentRoot: false
+-- feedbackUsedOverlayStateAsPreAnalysis: false
+-- preAnalysisSnapshotFrozen: PASS
+-- sessionImmutableAfterTerminalState: true
+-
+-## LAST ME hard gate
+-- lastMeHardWaitRule: PASS
+-- contextRequiredCanOverrideLastMe: false
+-- routePanelCanShowForLastMe: false
+-- cloudCanRunForLastMe: false
+-
+-## User testing
++## Cloud MVP
++- cloudContractImplemented: true
++- cloudValidatorImplemented: true
++- cloudClientSkeletonImplemented: true
++- cloudEnabledDefault: false
++- cloudEndpointConfigured: false
++- cloudAttemptedInTests: true
++- localFallbackResult: PASS
++- lastMeLocalSafetyGate: PASS
  - userNeedsPhoneThisRound: false
--- userInstruction: 本轮用户不需要手机测试。
-+- userInstruction: NO_PHONE_TEST_REQUIRED_THIS_ROUND
+-- userInstruction: NO_PHONE_TEST_REQUIRED_THIS_ROUND
 
- ## Files GPT should inspect
- 1. session-binding-report-for-gpt.md
+-## Files GPT should inspect
+-1. session-binding-report-for-gpt.md
+-2. session-binding-report.json
+-3. huiyi-v4-review-for-gpt.md
+-4. changed-files-for-gpt.md
+-5. phone/latest/one-tap-feedback-manifest.json
++## Review Files
++1. cloud-contract-mvp-report-for-gpt.md
++2. cloud-contract-mvp-report.json
++3. gpt-review-manifest.json
++4. ../codex_to_gpt/result-manifest.json
++5. docs/HuiyiTacticalContract-v1.md
 diff --git a/outputs/gpt_review_inbox/changed-files-for-gpt.md b/outputs/gpt_review_inbox/changed-files-for-gpt.md
-index b976ae5..d1abdcc 100644
+index d1abdcc..154ec96 100644
 --- a/outputs/gpt_review_inbox/changed-files-for-gpt.md
 +++ b/outputs/gpt_review_inbox/changed-files-for-gpt.md
-@@ -1,31 +1,19 @@
--# Changed Files For GPT
-+# Changed Files for GPT
+@@ -1,19 +1,22 @@
+ # Changed Files for GPT
 
--## Files changed this round
--- app/src/main/java/com/huiyi/v4/runtime/OneTapFeedbackExporter.kt
--  - Adds sessionImmutableAfterTerminalState to exported records and reports session freeze/binding fields.
--- app/src/main/java/com/huiyi/v4/runtime/HuiyiRuntime.kt
--  - Keeps one-tap feedback bound to the current panel session id.
--- app/src/main/java/com/huiyi/v4/domain/pipeline/RealDeviceScenario.kt
--  - Treats Huiyi overlay title markers as contaminated preAnalysis.
--- app/src/test/java/com/huiyi/v4/LocalStateChainClosureTest.kt
--  - Adds local state chain closure tests.
--- app/build.gradle.kts
--  - Publishes current local closure APK as versionName 4.1.23 / versionCode 443.
--- outputs/gpt_review_inbox/session-binding-report-for-gpt.md
--  - Current round GPT evidence.
--- outputs/gpt_review_inbox/session-binding-report.json
--  - Machine-readable current round evidence.
-+## Task
-+- taskName: local_state_chain_closure_before_cloud
-+- versionName: 4.1.23
-+- versionCode: 442
-+- currentOverallResult: CONTROLLED_LOCAL_PASS
+ ## Task
+-- taskName: local_state_chain_closure_before_cloud
+-- versionName: 4.1.23
+-- versionCode: 442
+-- currentOverallResult: CONTROLLED_LOCAL_PASS
++- taskName: cloud_contract_mvp_with_local_safety_gate
++- versionName: 4.1.24
++- versionCode: 443
++- currentOverallResult: CLOUD_CONTRACT_LOCAL_PASS
 
--## Verification
--- LocalStateChainClosureTest: PASS
--- OneTapFeedbackExportTest: PASS
--- LastMeWaitPriorityAndStatusMetadataFixTest: PASS
--- CloudAnalysisMvpSafetyGateTest: PASS
--- SimulationFirstValidationTest: PASS
--- :mockchat:assembleDebug: PASS
--- :app:assembleDebug: PASS
-+## Scope
-+- Unified v4.1.23 review package entry version to versionCode 442.
-+- Updated GPT review inbox README and manifest to the current task.
-+- Confirmed session-binding report files remain present.
-+- Updated phone/latest placeholder metadata so it does not report 441 or 443.
-+- Added fixed mailbox directories: outputs/gpt_to_codex and outputs/codex_to_gpt.
-
--## Honest status
--- emulatorUiSmokeResult: NOT_RUN
--- realDeviceSmokeResult: NOT_TESTED
--- userNeedsPhoneThisRound: false
-+## Not Changed
-+- No product feature added.
-+- No cloud enablement.
-+- No phone test required from user.
-diff --git a/outputs/gpt_review_inbox/huiyi-v4-review-for-gpt.md b/outputs/gpt_review_inbox/huiyi-v4-review-for-gpt.md
-index 3c0b8bc..e07943a 100644
---- a/outputs/gpt_review_inbox/huiyi-v4-review-for-gpt.md
-+++ b/outputs/gpt_review_inbox/huiyi-v4-review-for-gpt.md
-@@ -1,35 +1,23 @@
--# Huiyi v4 Review For GPT
-+# Huiyi v4 Review for GPT
-
--## Current round
-+## Basic Info
-+- project: Huiyi v4 Core
- - taskName: local_state_chain_closure_before_cloud
- - versionName: 4.1.23
--- versionCode: 443
-+- versionCode: 442
- - currentOverallResult: CONTROLLED_LOCAL_PASS
--- overall_result: CONTROLLED_LOCAL_PASS
--- failReason: none
--
--## Current result split
--- fixtureReplayResult: PASS
--- mockChatBuildResult: PASS
--- emulatorUiSmokeResult: NOT_RUN
-+- sessionBindingReportGenerated: true
- - realDeviceSmokeResult: NOT_TESTED
--- phoneLatestFreshness: NOT_AVAILABLE
--- phoneLatestUsedForCurrentResult: false
-+- userNeedsPhoneThisRound: false
-+
-+## Result
-+This round only fixes review package consistency and the fixed GPT/Codex mailbox protocol. No product feature was added.
-
--## Session binding
--- feedbackExportsBoundSession: PASS
-+## Key Fields
-+- phoneLatestFreshness: NOT_AVAILABLE_CURRENT_NO_PHONE
-+- phoneLatestUsedForCurrentResult: false
- - feedbackTriggeredNewAnalysis: false
- - feedbackReCapturedCurrentRoot: false
- - feedbackUsedOverlayStateAsPreAnalysis: false
--- preAnalysisSnapshotFrozen: PASS
--- sessionImmutableAfterTerminalState: true
--
--## LAST ME hard gate
- - lastMeHardWaitRule: PASS
--- contextRequiredCanOverrideLastMe: false
--- routePanelCanShowForLastMe: false
--- cloudCanRunForLastMe: false
--
--## User testing
--- userNeedsPhoneThisRound: false
--- userInstruction: 本轮用户不需要手机测试。
-+- cloudEnabled: false
-diff --git a/outputs/gpt_review_inbox/phone/latest/README_FOR_GPT.md b/outputs/gpt_review_inbox/phone/latest/README_FOR_GPT.md
-index e5f5172..156157a 100644
---- a/outputs/gpt_review_inbox/phone/latest/README_FOR_GPT.md
-+++ b/outputs/gpt_review_inbox/phone/latest/README_FOR_GPT.md
-@@ -4,7 +4,7 @@
-
- - phoneLatestStatus: WAITING_FOR_CURRENT_VERSION_PHONE_SMOKE
- - appVersionName: 4.1.23
--- appVersionCode: 443
-+- appVersionCode: 442
- - replacedOldPollutedBundle: true
- - previousPollutedVersionRemovedFromLatest: 4.1.20
- - source: LOCAL_CURRENT_VERSION_PLACEHOLDER
-@@ -40,6 +40,6 @@
-
- ## Freshness For Current Round
-
--- phoneLatestFreshness: NOT_AVAILABLE
-+- phoneLatestFreshness: NOT_AVAILABLE_CURRENT_NO_PHONE
- - phoneLatestUsedForCurrentResult: false
- - phoneLatestIgnoredReason: NO_NEW_PHONE_BUNDLE_THIS_ROUND_USER_NOT_REQUIRED_TO_TEST
-diff --git a/outputs/gpt_review_inbox/phone/latest/current-screen/real-device-current-screen-report-for-gpt.md b/outputs/gpt_review_inbox/phone/latest/current-screen/real-device-current-screen-report-for-gpt.md
-index 99d498a..84c8347 100644
---- a/outputs/gpt_review_inbox/phone/latest/current-screen/real-device-current-screen-report-for-gpt.md
-+++ b/outputs/gpt_review_inbox/phone/latest/current-screen/real-device-current-screen-report-for-gpt.md
-@@ -1,7 +1,7 @@
- # Real Device Current Screen Report
-
- - appVersionName: 4.1.23
--- appVersionCode: 443
-+- appVersionCode: 442
- - currentOverallResult: NOT_TESTED
- - realDeviceSmoke: NOT_TESTED
- - phoneLatestStatus: WAITING_FOR_CURRENT_VERSION_PHONE_SMOKE
-@@ -11,14 +11,5 @@
- - actualDecisionType: NOT_TESTED
- - actualRouteCount: 0
- - lastMeRealDeviceResult: NOT_TESTED_USER_DID_NOT_HAVE_SAFE_SCENARIO
--- lastOtherRealDeviceResult: NOT_TESTED
--- unsupportedAppSmokeResult: NOT_TESTED
- - cloudEnabled: false
--- cloudContractImplemented: false
- - cloudAttempted: false
--
--## Required Smoke Set
--
--1. Liaoqi LAST_ME: ME -> WAIT
--2. Liaoqi LAST_OTHER: OTHER -> routes
--3. Unsupported App: show unsupported prompt and export adapter bundle
-diff --git a/outputs/gpt_review_inbox/phone/latest/current-screen/real-device-current-screen-report.json b/outputs/gpt_review_inbox/phone/latest/current-screen/real-device-current-screen-report.json
-index a5c60e7..0c85770 100644
---- a/outputs/gpt_review_inbox/phone/latest/current-screen/real-device-current-screen-report.json
-+++ b/outputs/gpt_review_inbox/phone/latest/current-screen/real-device-current-screen-report.json
-@@ -1,6 +1,6 @@
- {
-   "appVersionName": "4.1.23",
--  "appVersionCode": 443,
-+  "appVersionCode": 442,
-   "currentOverallResult": "NOT_TESTED",
-   "realDeviceSmoke": "NOT_TESTED",
-   "phoneLatestStatus": "WAITING_FOR_CURRENT_VERSION_PHONE_SMOKE",
-diff --git a/outputs/gpt_review_inbox/phone/latest/latest-session/next-sentence-flight-record-for-gpt.md b/outputs/gpt_review_inbox/phone/latest/latest-session/next-sentence-flight-record-for-gpt.md
-index 9bcf6b6..e78bbcc 100644
---- a/outputs/gpt_review_inbox/phone/latest/latest-session/next-sentence-flight-record-for-gpt.md
-+++ b/outputs/gpt_review_inbox/phone/latest/latest-session/next-sentence-flight-record-for-gpt.md
-@@ -1,28 +1,12 @@
- # Next Sentence Flight Record
-
- - sessionId: not-tested-current-version
--- terminalState: NOT_TESTED
- - appVersionName: 4.1.23
--- appVersionCode: 443
--- phoneLatestStatus: WAITING_FOR_CURRENT_VERSION_PHONE_SMOKE
--- replacedOldPollutedBundle: true
--- previousPollutedVersionRemovedFromLatest: 4.1.20
--- appPackage: NOT_TESTED
--- actualLastSpeaker: NOT_TESTED
--- decisionType: NOT_TESTED
--- decisionTypeFamily: NOT_TESTED
--- routeCount: 0
--- waitPanelShown: false
--- routePanelShown: false
--- feedbackTargetSessionFound: false
-+- appVersionCode: 442
-+- terminalState: NOT_TESTED
- - feedbackTriggeredNewAnalysis: false
- - feedbackReCapturedCurrentRoot: false
- - feedbackUsedOverlayStateAsPreAnalysis: false
- - cloudEnabled: false
--- cloudConfigured: false
--- cloudContractImplemented: false
- - cloudAttempted: false
--- cloudAnalysisAttempted: false
--- cloudSuccess: false
--- cloudSkippedReason: CLOUD_TODO_DISABLED
- - lastMeRealDeviceResult: NOT_TESTED_USER_DID_NOT_HAVE_SAFE_SCENARIO
-diff --git a/outputs/gpt_review_inbox/phone/latest/latest-session/next-sentence-flight-record.json b/outputs/gpt_review_inbox/phone/latest/latest-session/next-sentence-flight-record.json
-index ee00edb..711e9b0 100644
---- a/outputs/gpt_review_inbox/phone/latest/latest-session/next-sentence-flight-record.json
-+++ b/outputs/gpt_review_inbox/phone/latest/latest-session/next-sentence-flight-record.json
-@@ -21,5 +21,7 @@
-   "cloudSuccess": false,
-   "cloudSkippedReason": "CLOUD_TODO_DISABLED",
-   "reportConsistencyResult": "NOT_TESTED",
--  "lastMeRealDeviceResult": "NOT_TESTED_USER_DID_NOT_HAVE_SAFE_SCENARIO"
-+  "lastMeRealDeviceResult": "NOT_TESTED_USER_DID_NOT_HAVE_SAFE_SCENARIO",
-+  "appVersionName": "4.1.23",
-+  "appVersionCode": 442
- }
-diff --git a/outputs/gpt_review_inbox/phone/latest/metadata/app-build-info.json b/outputs/gpt_review_inbox/phone/latest/metadata/app-build-info.json
-index 82f28e7..1ce7f51 100644
---- a/outputs/gpt_review_inbox/phone/latest/metadata/app-build-info.json
-+++ b/outputs/gpt_review_inbox/phone/latest/metadata/app-build-info.json
-@@ -1,6 +1,6 @@
- {
-   "versionName": "4.1.23",
--  "versionCode": 443,
-+  "versionCode": 442,
-   "source": "LOCAL_CURRENT_VERSION_PLACEHOLDER",
-   "phoneLatestStatus": "WAITING_FOR_CURRENT_VERSION_PHONE_SMOKE",
-   "phoneLatestUpdatedToCurrentVersion": true
-diff --git a/outputs/gpt_review_inbox/phone/latest/one-tap-feedback-manifest.json b/outputs/gpt_review_inbox/phone/latest/one-tap-feedback-manifest.json
-index 9ac538c..00a0e52 100644
---- a/outputs/gpt_review_inbox/phone/latest/one-tap-feedback-manifest.json
-+++ b/outputs/gpt_review_inbox/phone/latest/one-tap-feedback-manifest.json
-@@ -2,7 +2,7 @@
-   "project": "huiyi-v4",
-   "bundleType": "PHONE_LATEST_PLACEHOLDER",
-   "appVersionName": "4.1.23",
--  "appVersionCode": 443,
-+  "appVersionCode": 442,
-   "phoneLatestStatus": "WAITING_FOR_CURRENT_VERSION_PHONE_SMOKE",
-   "replacedOldPollutedBundle": true,
-   "previousPollutedVersionRemovedFromLatest": "4.1.20",
-@@ -43,7 +43,7 @@
-     "containsKeystore": false,
-     "safeForPublicGitHub": true
-   },
--  "phoneLatestFreshness": "NOT_AVAILABLE",
-+  "phoneLatestFreshness": "NOT_AVAILABLE_CURRENT_NO_PHONE",
-   "phoneLatestUsedForCurrentResult": false,
-   "phoneLatestIgnoredReason": "NO_NEW_PHONE_BUNDLE_THIS_ROUND_USER_NOT_REQUIRED_TO_TEST",
-   "phoneBundleIncluded": false
-diff --git a/outputs/gpt_review_inbox/session-binding-report-for-gpt.md b/outputs/gpt_review_inbox/session-binding-report-for-gpt.md
-index 95abdb7..e944379 100644
---- a/outputs/gpt_review_inbox/session-binding-report-for-gpt.md
-+++ b/outputs/gpt_review_inbox/session-binding-report-for-gpt.md
-@@ -1,20 +1,17 @@
--# Session Binding Report For GPT
-+# Session Binding Report for GPT
-
--## Current round
+-## Scope
+-- Unified v4.1.23 review package entry version to versionCode 442.
+-- Updated GPT review inbox README and manifest to the current task.
+-- Confirmed session-binding report files remain present.
+-- Updated phone/latest placeholder metadata so it does not report 441 or 443.
+-- Added fixed mailbox directories: outputs/gpt_to_codex and outputs/codex_to_gpt.
 +## Summary
- - taskName: local_state_chain_closure_before_cloud
- - versionName: 4.1.23
--- versionCode: 443
-+- versionCode: 442
- - currentOverallResult: CONTROLLED_LOCAL_PASS
--
--## Current result split
--- fixtureReplayResult: PASS
--- mockChatBuildResult: PASS
--- emulatorUiSmokeResult: NOT_RUN
--- realDeviceSmokeResult: NOT_TESTED
--- phoneLatestFreshness: NOT_AVAILABLE
-+- sessionBindingReportGenerated: true
-+- phoneLatestFreshness: NOT_AVAILABLE_CURRENT_NO_PHONE
- - phoneLatestUsedForCurrentResult: false
-+- realDeviceSmokeResult: NOT_TESTED
-+- userNeedsPhoneThisRound: false
++- Added HuiyiTacticalContract v1 documentation.
++- Implemented CloudTacticalResponseValidator.
++- Hardened CloudAnalysisClient / Repository skeleton with default cloud disabled.
++- Preserved LAST_ME -> LOCAL_WAIT safety gate.
++- Added cloud contract trace fields to evidence and one-tap flight records.
++- Updated tests for cloud contract, fallback, and safety gates.
++- Published LAN update package v4.1.24 / 443.
 
--## Session binding
-+## Session Binding Assertions
- - feedbackExportsBoundSession: PASS
- - feedbackTriggeredNewAnalysis: false
- - feedbackReCapturedCurrentRoot: false
-@@ -24,37 +21,29 @@
- - postPanelSnapshotUsedForDecision: false
- - sessionImmutableAfterTerminalState: true
-
--## LAST ME hard gate
-+## LAST ME Hard WAIT Rule
- - lastMeHardWaitRule: PASS
-+- lastMeDecisionType: WAIT
-+- lastMeTerminalState: WAIT_PANEL
-+- lastMeRouteCount: 0
-+- lastMeCloudAttempted: false
- - contextRequiredCanOverrideLastMe: false
--- routePanelCanShowForLastMe: false
--- cloudCanRunForLastMe: false
--- actualLastSpeaker=ME -> decisionType=WAIT -> terminalState=WAIT_PANEL -> routeCount=0 -> cloudAttempted=false
-
--## phone/latest
-+## Validation Layer Split
-+- fixtureReplayResult: PASS
-+- mockChatBuildResult: PASS
-+- emulatorUiSmokeResult: NOT_RUN
-+- realDeviceSmokeResult: NOT_TESTED
-+- cloudEnabled: false
-+- cloudAttempted: false
-+
-+## Phone Latest
- - phoneLatestVersionName: 4.1.23
--- phoneLatestVersionCode: 443
--- phoneLatestFreshness: NOT_AVAILABLE
-+- phoneLatestVersionCode: 442
-+- phoneLatestFreshness: NOT_AVAILABLE_CURRENT_NO_PHONE
- - phoneLatestUsedForCurrentResult: false
- - phoneLatestIgnoredReason: NO_NEW_PHONE_BUNDLE_THIS_ROUND_USER_NOT_REQUIRED_TO_TEST
--- phoneBundleIncluded: false
--- phoneBundleRequiredFromUser: false
-
--## Cloud
--- cloudEnabled: false
--- cloudConfigured: false
--- cloudAttempted: false
--- decisionSource: LOCAL_WAIT / LOCAL_FALLBACK
--
--## User testing
-+## User Testing
- - userNeedsPhoneThisRound: false
--- userInstruction: 本轮用户不需要手机测试。
--
--## Tests
--- LocalStateChainClosureTest: PASS
--- OneTapFeedbackExportTest: PASS
--- LastMeWaitPriorityAndStatusMetadataFixTest: PASS
--- CloudAnalysisMvpSafetyGateTest: PASS
--- SimulationFirstValidationTest: PASS
--- mockChatBuildResult: PASS
--- assembleDebug: PASS
-+- userInstruction: NO_PHONE_TEST_REQUIRED_THIS_ROUND
-diff --git a/outputs/gpt_review_inbox/session-binding-report.json b/outputs/gpt_review_inbox/session-binding-report.json
-index 168065e..dd5f05a 100644
---- a/outputs/gpt_review_inbox/session-binding-report.json
-+++ b/outputs/gpt_review_inbox/session-binding-report.json
-@@ -1,8 +1,9 @@
+-## Not Changed
+-- No product feature added.
+-- No cloud enablement.
+-- No phone test required from user.
++## Not Done
++- No real API key.
++- No real endpoint required.
++- No phone testing.
++- No automatic sending.
+diff --git a/outputs/gpt_to_codex/current-task.json b/outputs/gpt_to_codex/current-task.json
+index 921ec09..f6c23e9 100644
+--- a/outputs/gpt_to_codex/current-task.json
++++ b/outputs/gpt_to_codex/current-task.json
+@@ -1,8 +1,31 @@
  {
-   "taskName": "local_state_chain_closure_before_cloud",
-   "versionName": "4.1.23",
--  "versionCode": 443,
-+  "versionCode": 442,
-   "currentOverallResult": "CONTROLLED_LOCAL_PASS",
-+  "sessionBindingReportGenerated": true,
-   "sessionBinding": "PASS",
-   "feedbackExportsBoundSession": "PASS",
-   "feedbackTriggeredNewAnalysis": false,
-@@ -23,8 +24,8 @@
-   "lastMeRouteCount": 0,
-   "lastMeCloudAttempted": false,
-   "phoneLatestVersionName": "4.1.23",
--  "phoneLatestVersionCode": 443,
--  "phoneLatestFreshness": "NOT_AVAILABLE",
-+  "phoneLatestVersionCode": 442,
-+  "phoneLatestFreshness": "NOT_AVAILABLE_CURRENT_NO_PHONE",
-   "phoneLatestUsedForCurrentResult": false,
-   "phoneLatestIgnoredReason": "NO_NEW_PHONE_BUNDLE_THIS_ROUND_USER_NOT_REQUIRED_TO_TEST",
-   "phoneBundleIncluded": false,
-@@ -38,5 +39,6 @@
-   "cloudAttempted": false,
-   "cloudSkippedReason": "CLOUD_NOT_CONFIGURED_OR_LAST_SPEAKER_ME_WAIT",
-   "userNeedsPhoneThisRound": false,
--  "userInstruction": "本轮用户不需要手机测试。"
-+  "userInstruction": "NO_PHONE_TEST_REQUIRED_THIS_ROUND",
-+  "generatedAt": "2026-07-03T11:13:08Z"
+-  "taskName": "phone_latest_current_session_binding_fix",
+-  "requestedAction": "unify_v4_1_23_review_package_entry_and_version_fields",
+-  "versionName": "4.1.23",
+-  "versionCode": 442,
+-  "noProductFeatureChanges": true,
+-  "userNeedsPhoneThisRound": false
++  "taskStatus": "PENDING",
++  "project": "Huiyi v4 Core",
++  "taskName": "cloud_contract_mvp_with_local_safety_gate",
++  "versionName": "4.1.24",
++  "versionCode": 443,
++  "createdBy": "GPT",
++  "userNeedsPhoneThisRound": false,
++  "realDeviceRequiredThisRound": false,
++  "cloudRealEndpointRequiredThisRound": false,
++  "goals": [
++    "implement HuiyiTacticalContract v1",
++    "implement CloudTacticalResponseValidator",
++    "implement CloudAnalysisClient skeleton",
++    "preserve local LAST_ME -> WAIT safety gate",
++    "fallback to local routes when cloud is not configured",
++    "report cloud fields clearly"
++  ],
++  "nonGoals": [
++    "no real API key",
++    "no real cloud endpoint required",
++    "no phone testing",
++    "no new app adapter",
++    "no automatic sending"
++  ],
++  "requiredReports": [
++    "outputs/gpt_review_inbox/cloud-contract-mvp-report-for-gpt.md",
++    "outputs/gpt_review_inbox/cloud-contract-mvp-report.json",
++    "outputs/codex_to_gpt/result-manifest.json"
++  ]
  }
+diff --git a/outputs/gpt_to_codex/current-task.md b/outputs/gpt_to_codex/current-task.md
+index 395e6fb..f31d0e7 100644
+--- a/outputs/gpt_to_codex/current-task.md
++++ b/outputs/gpt_to_codex/current-task.md
+@@ -1,8 +1,31 @@
+-# Current Task from GPT to Codex
+-
+-- taskName: phone_latest_current_session_binding_fix
+-- requestedAction: unify v4.1.23 review package entry and version fields
+-- versionName: 4.1.23
+-- versionCode: 442
+-- noProductFeatureChanges: true
+-- userNeedsPhoneThisRound: false
++# GPT -> Codex Current Task
++
++taskStatus: PENDING
++project: Huiyi v4 Core
++taskName: cloud_contract_mvp_with_local_safety_gate
++versionName: 4.1.24
++versionCode: 443
++createdBy: GPT
++userNeedsPhoneThisRound: false
++realDeviceRequiredThisRound: false
++cloudRealEndpointRequiredThisRound: false
++
++## Goals
++- implement HuiyiTacticalContract v1
++- implement CloudTacticalResponseValidator
++- implement CloudAnalysisClient skeleton
++- preserve local LAST_ME -> WAIT safety gate
++- fallback to local routes when cloud is not configured
++- report cloud fields clearly
++
++## Non Goals
++- no real API key
++- no real cloud endpoint required
++- no phone testing
++- no new app adapter
++- no automatic sending
++
++## Required Reports
++- outputs/gpt_review_inbox/cloud-contract-mvp-report-for-gpt.md
++- outputs/gpt_review_inbox/cloud-contract-mvp-report.json
++- outputs/codex_to_gpt/result-manifest.json
 diff --git a/outputs/review/huiyi-v4-review-for-gpt.md b/outputs/review/huiyi-v4-review-for-gpt.md
-index 3c0b8bc..e07943a 100644
+index e07943a..8b304c9 100644
 --- a/outputs/review/huiyi-v4-review-for-gpt.md
 +++ b/outputs/review/huiyi-v4-review-for-gpt.md
-@@ -1,35 +1,23 @@
--# Huiyi v4 Review For GPT
-+# Huiyi v4 Review for GPT
+@@ -1,23 +1,64 @@
+-# Huiyi v4 Review for GPT
++# Cloud Contract MVP Report for GPT
 
--## Current round
-+## Basic Info
-+- project: Huiyi v4 Core
- - taskName: local_state_chain_closure_before_cloud
- - versionName: 4.1.23
--- versionCode: 443
-+- versionCode: 442
- - currentOverallResult: CONTROLLED_LOCAL_PASS
--- overall_result: CONTROLLED_LOCAL_PASS
--- failReason: none
--
--## Current result split
--- fixtureReplayResult: PASS
--- mockChatBuildResult: PASS
--- emulatorUiSmokeResult: NOT_RUN
-+- sessionBindingReportGenerated: true
- - realDeviceSmokeResult: NOT_TESTED
--- phoneLatestFreshness: NOT_AVAILABLE
--- phoneLatestUsedForCurrentResult: false
-+- userNeedsPhoneThisRound: false
+ ## Basic Info
+-- project: Huiyi v4 Core
+-- taskName: local_state_chain_closure_before_cloud
+-- versionName: 4.1.23
+-- versionCode: 442
+-- currentOverallResult: CONTROLLED_LOCAL_PASS
+-- sessionBindingReportGenerated: true
+-- realDeviceSmokeResult: NOT_TESTED
++- taskName: cloud_contract_mvp_with_local_safety_gate
++- versionName: 4.1.24
++- versionCode: 443
++- generatedAt: 2026-07-03T12:14:04Z
++- currentOverallResult: CLOUD_CONTRACT_LOCAL_PASS
 +
-+## Result
-+This round only fixes review package consistency and the fixed GPT/Codex mailbox protocol. No product feature was added.
++## Implementation
++- cloudContractImplemented: true
++- cloudValidatorImplemented: true
++- cloudClientSkeletonImplemented: true
++- cloudContractVersion: HuiyiTacticalContract-v1
++- docs: docs/HuiyiTacticalContract-v1.md
++
++## Local Safety Gate
++- lastMeLocalSafetyGate: PASS
++- ME -> WAIT: enforced locally
++- ME -> cloudAttempted: false
++- ME -> decisionSource: LOCAL_WAIT
++- UNKNOWN -> cloudAttempted: false
++- unsupported app -> cloudAttempted: false
++
++## Cloud Defaults
++- cloudEnabledDefault: false
++- cloudEndpointConfigured: false
++- cloudRealEndpointRequiredThisRound: false
++- cloudAttemptedInRuntimeDefault: false
++- cloudSkippedReason: CLOUD_NOT_CONFIGURED
++- decisionSource: LOCAL_FALLBACK or LOCAL_WAIT
++- cloudFallbackUsed: false when cloud is not attempted
++
++## Contract Validation
++- valid five-route output: PASS
++- missing coCreationPoint: FAIL as expected
++- non-five route output: FAIL as expected
++- manipulative output: FAIL as expected
++- invalid cloud content shown: false
++- local fallback on invalid cloud: PASS
++
++## GitHub Upload Boundary
++- oneTapGithubUploaded equals cloudAttempted: false
++- GitHub feedback upload is review transport only, not model analysis.
++
++## Tests
++- :app:testDebugUnitTest: PASS
++- :app:assembleDebug: PASS
++- :mockchat:assembleDebug: PASS
++- realDevice: NOT_TESTED
+ - userNeedsPhoneThisRound: false
 
--## Session binding
--- feedbackExportsBoundSession: PASS
-+## Key Fields
-+- phoneLatestFreshness: NOT_AVAILABLE_CURRENT_NO_PHONE
-+- phoneLatestUsedForCurrentResult: false
- - feedbackTriggeredNewAnalysis: false
- - feedbackReCapturedCurrentRoot: false
- - feedbackUsedOverlayStateAsPreAnalysis: false
--- preAnalysisSnapshotFrozen: PASS
--- sessionImmutableAfterTerminalState: true
+-## Result
+-This round only fixes review package consistency and the fixed GPT/Codex mailbox protocol. No product feature was added.
 -
--## LAST ME hard gate
- - lastMeHardWaitRule: PASS
--- contextRequiredCanOverrideLastMe: false
--- routePanelCanShowForLastMe: false
--- cloudCanRunForLastMe: false
--
--## User testing
--- userNeedsPhoneThisRound: false
--- userInstruction: 本轮用户不需要手机测试。
-+- cloudEnabled: false
+-## Key Fields
+-- phoneLatestFreshness: NOT_AVAILABLE_CURRENT_NO_PHONE
+-- phoneLatestUsedForCurrentResult: false
+-- feedbackTriggeredNewAnalysis: false
+-- feedbackReCapturedCurrentRoot: false
+-- feedbackUsedOverlayStateAsPreAnalysis: false
+-- lastMeHardWaitRule: PASS
+-- cloudEnabled: false
++## Security Scan
++- apiKeyNotInRepoOrApk: true
++- containsSecrets: false
++- localPropertiesIncluded: false
++- keystoreIncluded: false
++- cloudClientTokenInBuildConfig: false
++- secretHits: []
++
++## User Testing
++- userNeedsPhoneThisRound: false
++- realDeviceRequiredThisRound: false
++- cloudRealEndpointRequiredThisRound: false
 diff --git a/outputs/update_server/latest.json b/outputs/update_server/latest.json
-index 15b4ec2..50608d6 100644
+index 50608d6..7ea529f 100644
 --- a/outputs/update_server/latest.json
 +++ b/outputs/update_server/latest.json
 @@ -1,9 +1,9 @@
  {
-     "versionName":  "4.1.23",
--    "versionCode":  443,
-+    "versionCode":  442,
-     "apkUrl":  "huiyi-v4.1.23-debug.apk",
--    "releaseNotes":  "v4.1.23 local state chain closure before cloud",
-+    "releaseNotes":  "v4.1.23 unified review package entry version 442",
+-    "versionName":  "4.1.23",
+-    "versionCode":  442,
+-    "apkUrl":  "huiyi-v4.1.23-debug.apk",
+-    "releaseNotes":  "v4.1.23 unified review package entry version 442",
++    "versionName":  "4.1.24",
++    "versionCode":  443,
++    "apkUrl":  "huiyi-v4.1.24-debug.apk",
++    "releaseNotes":  "v4.1.24 cloud contract MVP with local safety gate",
      "forceUpdate":  false,
--    "sha256":  "474183C2862EA0263354279878CC9C94DF4FF8139E2FB8228961A18DFF164D35",
--    "createdAt":  1783076211394
-+    "sha256":  "F148D28678A839B54E3346007528CC4F1F769D71B846E12D8C56908D7B48B5B1",
-+    "createdAt":  1783077109258
+-    "sha256":  "F148D28678A839B54E3346007528CC4F1F769D71B846E12D8C56908D7B48B5B1",
+-    "createdAt":  1783077109258
++    "sha256":  "D04DE0589FD8D1E28653CEAB5EA2D84B89E1CCACE8DD05A2E3594541C1E14810",
++    "createdAt":  1783080789647
  }
 \ No newline at end of file
