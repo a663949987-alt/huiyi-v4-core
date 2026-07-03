@@ -12,7 +12,8 @@ import com.huiyi.v4.accessibility.HuiyiAccessibilityService
 
 class FloatingBubbleController(
     private val context: Context,
-    private val onNextSentence: () -> Unit
+    private val onNextSentence: () -> Unit,
+    private val onOneTapFeedback: () -> Unit
 ) {
     private val windowManager = context.getSystemService(Context.WINDOW_SERVICE) as WindowManager
     private var rootView: LinearLayout? = null
@@ -85,7 +86,7 @@ class FloatingBubbleController(
     }
 
     private fun addMenu(container: LinearLayout) {
-        listOf("下一句", "救场", "升温", "我的底色", "暂停/隐藏").forEach { label ->
+        listOf("下一句", "这次不对，发给 GPT", "隐藏").forEach { label ->
             val button = Button(context).apply {
                 text = label
                 setOnClickListener {
@@ -94,7 +95,8 @@ class FloatingBubbleController(
                             OverlayStateStore.markBubbleClick()
                             onNextSentence()
                         }
-                        "暂停/隐藏" -> hide("user_hide")
+                        "这次不对，发给 GPT" -> onOneTapFeedback()
+                        "隐藏" -> hide("user_hide")
                     }
                 }
             }

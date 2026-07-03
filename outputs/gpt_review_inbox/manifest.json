@@ -1,10 +1,10 @@
 {
   "project": "Huiyi v4 Core",
-  "versionName": "4.1.12",
-  "versionCode": 430,
+  "versionName": "4.1.13",
+  "versionCode": 431,
   "branch": "main",
-  "commitHash": "80a2a13",
-  "generatedAt": "2026-07-03 15:09:24 +0800",
+  "commitHash": "186b3a8",
+  "generatedAt": "2026-07-03 15:36:59 +0800",
   "overallResult": "NOT_TESTED",
   "currentOverallResult": "NOT_TESTED",
   "lastMeRealDeviceResult": "NOT_TESTED",
@@ -18,7 +18,7 @@
   "scenarioAssertionResult": "NOT_TESTED",
   "scenarioDefinitionTrusted": false,
   "scenarioFailureCategory": "not_tested",
-  "taskName": "last_me_stuck_analyzing_and_phone_bundle_real_reports_fix",
+  "taskName": "one_tap_review_and_feedback_export_ux_fix",
   "sampleSources": [
     "not_tested"
   ],
@@ -28,7 +28,7 @@
     {
       "path": "outputs/review/huiyi-v4-review-for-gpt.md",
       "type": "review_markdown",
-      "sha256": "700656e797c6516bb91f1fe59855b7f7ffe6cdd2d0b3bdc32084da062832d919",
+      "sha256": "5bb12967c58040ed38dfa3ba80537fc1c4db098eaff7815310af96080b928068",
       "sendToGpt": true,
       "description": "Default file for GPT review.",
       "generatedAt": null,
@@ -40,14 +40,14 @@
       "stale": false
     },
     {
-      "path": "outputs/v4.1.12-last-me-stuck-analyzing-report-for-gpt.md",
+      "path": "outputs/one-tap-feedback-ux-report-for-gpt.md",
       "type": "report",
-      "sha256": "c9c3f2f0ff5c57fa2be4a75487827a9ecbafefdaf0b638fb7a29f75696815857",
+      "sha256": "1d53eef1cf3ef28075659a477b6782b42e9fc02626146b050f7bafde58be2d54",
       "sendToGpt": false,
       "description": "Current round evidence.",
-      "generatedAt": "2026-07-03 15:09:16 +08:00",
-      "taskName": "last_me_stuck_analyzing_and_phone_bundle_real_reports_fix",
-      "versionName": "4.1.12",
+      "generatedAt": "2026-07-03",
+      "taskName": "one_tap_review_and_feedback_export_ux_fix",
+      "versionName": "4.1.13",
       "isCurrentRound": true,
       "evidenceRole": "current",
       "sample_source": [],

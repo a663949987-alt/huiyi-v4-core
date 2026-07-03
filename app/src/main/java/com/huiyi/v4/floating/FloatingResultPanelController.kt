@@ -67,6 +67,11 @@ class FloatingResultPanelController(
             }
         }
 
+        container.addView(Button(context).apply {
+            text = "这次不对，发给 GPT"
+            setOnClickListener { runtime.exportOneTapFeedback() }
+        })
+
         val close = Button(context).apply {
             text = "收起"
             setOnClickListener { hide() }
@@ -132,6 +137,10 @@ class FloatingResultPanelController(
         }
         container.addView(text(title))
         container.addView(text(errorMessage))
+        container.addView(Button(context).apply {
+            text = "这次不对，发给 GPT"
+            setOnClickListener { runtime.exportOneTapFeedback() }
+        })
         container.addView(Button(context).apply {
             text = "重试"
             setOnClickListener { runtime.runNextSentence() }

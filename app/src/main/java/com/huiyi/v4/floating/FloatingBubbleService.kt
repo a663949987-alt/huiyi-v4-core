@@ -21,14 +21,20 @@ class FloatingBubbleService : Service() {
         OverlayStateStore.markFloatingServiceRunning(true)
         val runtime = HuiyiRuntime.get(this)
         resultPanelController = FloatingResultPanelController(this, runtime)
-        controller = FloatingBubbleController(this) {
-            runCatching {
-                runtime.runNextSentence()
-            }.onFailure { error ->
-                OverlayStateStore.recordPipelineException(error)
-                runtime.showOverlayError(error)
+        controller = FloatingBubbleController(
+            context = this,
+            onNextSentence = {
+                runCatching {
+                    runtime.runNextSentence()
+                }.onFailure { error ->
+                    OverlayStateStore.recordPipelineException(error)
+                    runtime.showOverlayError(error)
+                }
+            },
+            onOneTapFeedback = {
+                runtime.exportOneTapFeedback()
             }
-        }
+        )
         controller?.show()
         scope.launch {
             runtime.state.collectLatest { state ->

@@ -78,6 +78,9 @@ data class HuiyiRuntimeState(
     val latestNextSentenceFailureMarkdownPath: String? = null,
     val latestNextSentenceFailureJsonPath: String? = null,
     val latestPhoneGptReviewBundlePath: String? = null,
+    val latestOneTapFeedbackBundlePath: String? = null,
+    val latestFlightRecord: NextSentenceFlightRecord? = null,
+    val recentFlightRecords: List<NextSentenceFlightRecord> = emptyList(),
     val lanUpdateState: LanUpdateState = LanUpdateState()
 )
 
@@ -273,6 +276,7 @@ class HuiyiRuntime private constructor(
                                 userFacingMessageFor(NextSentenceErrorCode.LAST_SPEAKER_IS_ME_SHOULD_WAIT)
                             } else null
                         )
+                        val flightRecord = NextSentenceFlightRecordFactory.fromSuccess(resultWithVisualDebug, successTrace)
                         mutableState.update {
                             it.copy(
                                 demoState = it.demoState.copy(messages = messages),
@@ -281,7 +285,9 @@ class HuiyiRuntime private constructor(
                                 lastError = pipelineResult.persistenceError,
                                 lastVisualDebugOverlayPath = visualDebug.overlayImagePath,
                                 lastClickPipelineException = null,
-                                lastNextSentenceTrace = successTrace
+                                lastNextSentenceTrace = successTrace,
+                                latestFlightRecord = flightRecord,
+                                recentFlightRecords = (it.recentFlightRecords + flightRecord).takeLast(10)
                             )
                         }
                     },
@@ -355,12 +361,15 @@ class HuiyiRuntime private constructor(
                     trace = timeoutTrace
                 )
             }
+            val flightRecord = NextSentenceFlightRecordFactory.fromFailure(timeoutTrace)
             mutableState.update {
                 it.copy(
                     lastNextSentenceTrace = timeoutTrace,
                     lastError = timeoutTrace.userFacingMessage,
                     panelVisible = true,
-                    latestPipelineResult = null
+                    latestPipelineResult = null,
+                    latestFlightRecord = flightRecord,
+                    recentFlightRecords = (it.recentFlightRecords + flightRecord).takeLast(10)
                 )
             }
         }
@@ -417,6 +426,7 @@ class HuiyiRuntime private constructor(
             userFacingMessage = next.trace.userFacingMessage ?: userFacingMessageFor(next.code)
         )
         val paths = writeLatestFailureReports(finalTrace)
+        val flightRecord = NextSentenceFlightRecordFactory.fromFailure(finalTrace)
         mutableState.update {
             it.copy(
                 panelVisible = true,
@@ -425,7 +435,9 @@ class HuiyiRuntime private constructor(
                 lastClickPipelineException = "${error::class.java.name}: ${error.message}",
                 lastNextSentenceTrace = finalTrace,
                 latestNextSentenceFailureMarkdownPath = paths.first.absolutePath,
-                latestNextSentenceFailureJsonPath = paths.second.absolutePath
+                latestNextSentenceFailureJsonPath = paths.second.absolutePath,
+                latestFlightRecord = flightRecord,
+                recentFlightRecords = (it.recentFlightRecords + flightRecord).takeLast(10)
             )
         }
     }
@@ -719,6 +731,45 @@ class HuiyiRuntime private constructor(
                 onFailure = { error ->
                     mutableState.update {
                         it.copy(lastError = "GPT 验收包导出失败：${error.message}")
+                    }
+                }
+            )
+        }
+    }
+
+    fun exportOneTapFeedback(correctionLastSpeaker: String = "NONE") {
+        scope.launch {
+            val state = mutableState.value
+            val exporter = OneTapFeedbackExporter(appContext)
+            exporter.export(
+                latestRecord = state.latestFlightRecord,
+                recentRecords = state.recentFlightRecords,
+                latestResult = state.latestPipelineResult,
+                latestTrace = state.lastNextSentenceTrace,
+                feedback = UserFeedbackMark(
+                    markedWrong = true,
+                    userCorrectionLastSpeaker = correctionLastSpeaker
+                )
+            ).fold(
+                onSuccess = { output ->
+                    runCatching {
+                        appContext.startActivity(
+                            Intent.createChooser(output.shareIntent, "分享给 GPT")
+                                .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                        )
+                    }
+                    mutableState.update {
+                        it.copy(
+                            latestOneTapFeedbackBundlePath = output.zipFile.absolutePath,
+                            lastDebugExportPath = output.zipFile.absolutePath,
+                            lastPublicExportPath = output.publicCopyPath ?: output.displayPath,
+                            lastError = "一键反馈包已生成，只需要把这个 zip 发给 GPT。"
+                        )
+                    }
+                },
+                onFailure = { error ->
+                    mutableState.update {
+                        it.copy(lastError = "一键反馈包导出失败：${error.message}")
                     }
                 }
             )

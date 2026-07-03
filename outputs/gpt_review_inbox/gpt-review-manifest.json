@@ -1,9 +1,9 @@
 {
   "project": "huiyi-v4",
-  "taskName": "last_me_stuck_analyzing_and_phone_bundle_real_reports_fix",
-  "versionName": "4.1.12",
-  "versionCode": 430,
-  "generatedAt": "2026-07-03 15:09:24 +0800",
+  "taskName": "one_tap_review_and_feedback_export_ux_fix",
+  "versionName": "4.1.13",
+  "versionCode": 431,
+  "generatedAt": "2026-07-03 15:36:59 +0800",
   "currentOverallResult": "NOT_TESTED",
   "lastMeRealDeviceResult": "NOT_TESTED",
   "lastOtherRealDeviceResult": "NOT_TESTED",
@@ -57,7 +57,7 @@
       "required": true,
       "exists": true,
       "description": "Main GPT review report",
-      "sha256": "700656e797c6516bb91f1fe59855b7f7ffe6cdd2d0b3bdc32084da062832d919"
+      "sha256": "5bb12967c58040ed38dfa3ba80537fc1c4db098eaff7815310af96080b928068"
     },
     {
       "path": "manifest.json",
@@ -65,7 +65,7 @@
       "required": true,
       "exists": true,
       "description": "Review bundle manifest",
-      "sha256": "e9cf2a205fcda4c4835e8858f98642ba1c70bddb67ab4a528bccfde5933a0191"
+      "sha256": "1a89ed3197b7388306b6e8e2c28b8bc72c36875360d0b5bd7e276e9b5ecc9b04"
     },
     {
       "path": "real-device-current-screen-report-for-gpt.md",
@@ -208,7 +208,7 @@
       "required": true,
       "exists": true,
       "description": "Inbox overview for GPT",
-      "sha256": "b7160e81a00a8a488e42bae97c37a151e96246a2d7ce224c4e37b8edccb38b29"
+      "sha256": "632c53900eee6ffb22fc3ef8c2ff900faf41dd337eba5043edb741cf1e63368c"
     },
     {
       "path": "changed-files-for-gpt.md",

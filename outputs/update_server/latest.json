@@ -1,9 +1,9 @@
 {
-    "versionName":  "4.1.12",
-    "versionCode":  430,
-    "apkUrl":  "huiyi-v4.1.12-debug.apk",
-    "releaseNotes":  "v4.1.12 last-me stuck guard phone reports stale failure separation",
+    "versionName":  "4.1.13",
+    "versionCode":  431,
+    "apkUrl":  "huiyi-v4.1.13-debug.apk",
+    "releaseNotes":  "v4.1.13 one tap feedback zip UX",
     "forceUpdate":  false,
-    "sha256":  "ED1D024182CAB3675A89B93130041D417698433DC91067CC39A345B27F489B54",
-    "createdAt":  1783062527767
+    "sha256":  "95B2261325763F7837345662051FCB65222750555D45F6B8550919DA11B711C9",
+    "createdAt":  1783064189376
 }
