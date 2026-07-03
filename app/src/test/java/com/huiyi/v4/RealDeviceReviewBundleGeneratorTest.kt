@@ -3,6 +3,7 @@ package com.huiyi.v4
 import com.huiyi.v4.accessibility.HuiyiAccessibilityState
 import com.huiyi.v4.domain.model.Speaker
 import com.huiyi.v4.domain.pipeline.RealDeviceReviewBundleGenerator
+import com.huiyi.v4.domain.pipeline.RealDeviceScenario
 import com.huiyi.v4.domain.pipeline.SampleSource
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
@@ -25,7 +26,8 @@ class RealDeviceReviewBundleGeneratorTest {
             generatedAt = 1,
             versionName = "4.1.4",
             versionCode = 414,
-            ownAppPackage = "com.huiyi.v4"
+            ownAppPackage = "com.huiyi.v4",
+            scenario = RealDeviceScenario.LAST_OTHER
         )
 
         assertEquals("NOT_TESTED", bundle.realDeviceSmokeResult)
@@ -60,7 +62,8 @@ class RealDeviceReviewBundleGeneratorTest {
             generatedAt = 1,
             versionName = "4.1.4",
             versionCode = 414,
-            ownAppPackage = "com.huiyi.v4"
+            ownAppPackage = "com.huiyi.v4",
+            scenario = RealDeviceScenario.LAST_OTHER
         )
 
         assertEquals("PASS", bundle.realDeviceSmokeResult)
@@ -96,12 +99,13 @@ class RealDeviceReviewBundleGeneratorTest {
             generatedAt = 1,
             versionName = "4.1.7",
             versionCode = 417,
-            ownAppPackage = "com.huiyi.v4"
+            ownAppPackage = "com.huiyi.v4",
+            scenario = RealDeviceScenario.LAST_OTHER
         )
 
         assertEquals("FAIL", bundle.realDeviceSmokeResult)
         assertEquals("FAIL", bundle.overallResult)
-        assertTrue(bundle.failReason.contains("last speaker OTHER must generate 5 routes"))
+        assertTrue(bundle.failReason.contains("route_count_mismatch"))
         assertTrue(bundle.reviewMarkdown.contains("real_device_smoke_result: FAIL"))
         assertTrue(bundle.smokeMarkdown.contains("validationResult: FAIL"))
     }

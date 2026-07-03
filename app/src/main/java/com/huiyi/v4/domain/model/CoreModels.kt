@@ -86,7 +86,13 @@ data class MessageNode(
     val parentBounds: VisualBounds? = null,
     val bubbleBounds: VisualBounds? = null,
     val ancestorBoundsChain: List<VisualBounds> = emptyList(),
-    val unknownReason: String? = null
+    val unknownReason: String? = null,
+    val rawNodeOrder: Int? = null,
+    val finalVisualOrder: Int? = null,
+    val sideMarginLeft: Int? = null,
+    val sideMarginRight: Int? = null,
+    val finalDecisionSource: String? = null,
+    val possibleSpeakerConflict: Boolean = false
 )
 
 enum class Speaker {

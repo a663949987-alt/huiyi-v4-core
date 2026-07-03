@@ -31,6 +31,18 @@ class EffectiveMessageFilteringTest {
     }
 
     @Test
+    fun shortDashDateMetadataNotUnknown() {
+        val node = GenericVisualBubbleParser(screenWidth = 1000).parse(
+            listOf(VisualBubble("date", "07-02", bubbleBounds = VisualBounds(450, 100, 550, 150))),
+            MessageSource.ACCESSIBILITY_CURRENT_SCREEN
+        ).single()
+
+        assertEquals(Speaker.SYSTEM, node.speaker)
+        assertEquals(MetadataType.DATE, node.metadataType)
+        assertFalse(node.isEffectiveChatMessage)
+    }
+
+    @Test
     fun headerMetadataNotOther() {
         val nodes = GenericVisualBubbleParser(screenWidth = 1000).parse(
             listOf(

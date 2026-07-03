@@ -1,82 +1,63 @@
-# v4.1.5 Real Device Current Screen Report
+# Real Device Current Screen Evidence Pack
 
-## Basic
-
-- generatedAt: 2026-07-03 10:12:00 +0800
-- versionName: 4.1.5
 - overall_result: NOT_TESTED
 - realDeviceSmoke: NOT_TESTED
+- generatedAt: 2026-07-03 11:07:07 +08:00
+- versionName: 4.1.7
+- versionCode: 418
+- scenarioName: last_me
+- expectedLastSpeaker: ME
+- actualLastSpeaker: NOT_TESTED
+- expectedDecisionType: WAIT
+- actualDecisionType: NOT_TESTED
+- expectedRouteCount: 0
+- actualRouteCount: 0
+- scenarioResult: NOT_TESTED
+- failureReason: not_tested
 - sample_source: NOT_TESTED
 - appPackage: NOT_TESTED
 - windowTitle: NOT_TESTED
-- screenWidth: NOT_TESTED
-- screenHeight: NOT_TESTED
-- density: NOT_TESTED
-- scaledDensity: NOT_TESTED
-- fontScale: NOT_TESTED
-- fontScaleEstimate: NOT_TESTED
-- displaySizeCategory: NOT_TESTED
-- smallestScreenWidthDp: NOT_TESTED
-- currentBubbleSideRule: right=me
 - apiCalled: false
-- failReason: No physical Android device was connected in this Codex environment, so real chat App scenario A was not executed.
+- overlayShownInTargetApp: NOT_TESTED
+- mainActivityOpened: NOT_TESTED
+- parserName: NOT_TESTED
+- LiaoqiRealParserUsed: NOT_TESTED
+- GenericVisualBubbleParserFallbackUsed: NOT_TESTED
+- dateMetadataFiltering: implemented
+- dateMetadataPatterns: 07-02 / 06-30 / 7-02 / 7月2日 / 2026-07-02 / 今天 / 昨天 / 星期一
 
-deviceVisualConfig:
-  screenWidth: NOT_TESTED
-  screenHeight: NOT_TESTED
-  density: NOT_TESTED
-  scaledDensity: NOT_TESTED
-  fontScale: NOT_TESTED
-  fontScaleEstimate: NOT_TESTED
-  smallestScreenWidthDp: NOT_TESTED
-  displaySizeCategory: NOT_TESTED
-
-## Parser Calibration
-
-- parserThresholdMode: dynamic_screen_width_ratio
-- fixedPxThresholdsRemovedAsPrimaryRule: true
-- sideMarginStrong: screenWidth * 0.12
-- sideMarginWeak: screenWidth * 0.08
-- edgeDeltaStrong: screenWidth * 0.10
-- edgeDeltaWeak: screenWidth * 0.06
-- largeTextWrapHandling: bubbleBounds / rowBounds / parentBounds are preferred before text center.
-- unknownReasonIncluded: true
-
-## Effective Message Stats
-
-- parsedMessageCount: NOT_TESTED
-- metadataFilteredCount: NOT_TESTED
-- candidateChatMessageCount: NOT_TESTED
-- unknownSpeakerCount: NOT_TESTED
-- effectiveMessageCount: NOT_TESTED
-- effectiveMeCount: NOT_TESTED
-- effectiveOtherCount: NOT_TESTED
-- systemCount: NOT_TESTED
-
-## Scenario A
+## Scenario Validation
 
 - scenarioName: last_me
-- sample_source: NOT_TESTED
-- requiredSampleSource: real_device_accessibility
+- expectedLastSpeaker: ME
 - actualLastSpeaker: NOT_TESTED
-- decisionType: NOT_TESTED
-- routeCount: NOT_TESTED
-- apiCalled: false
+- expectedDecisionType: WAIT
+- actualDecisionType: NOT_TESTED
+- expectedRouteCount: 0
+- actualRouteCount: 0
 - scenarioResult: NOT_TESTED
-- note: 本轮没有物理 Android 设备，因此不能证明真实聊天 App 已通过。
+- failureReason: not_tested
 
-## UNKNOWN Details
+## Last Effective Message Preview
 
-- unknownReasonDistribution: NOT_TESTED
-- textBounds: NOT_TESTED
-- parentBounds: NOT_TESTED
-- rowBounds: NOT_TESTED
-- bubbleBounds: NOT_TESTED
-- ancestorBoundsChain: NOT_TESTED
+- lastEffectiveMessagePreview: NOT_TESTED
+- possible_speaker_conflict: NOT_TESTED
 
-## UI State
+## Visual Order Table
 
-- overlayShownInTargetApp: NOT_TESTED
-- foregroundPackageWhenPanelShown: NOT_TESTED
-- huiyiActivityOpened: NOT_TESTED
-- mainActivityOpened: NOT_TESTED
+| rawNodeOrder | finalVisualOrder | text | rawSpeaker | finalSpeaker | contentType | metadataType | isEffectiveChatMessage | textBounds.left/top/right/bottom | rowBounds.left/top/right/bottom | bubbleBounds.left/top/right/bottom | parentBounds.left/top/right/bottom | inferredSide | speakerReason | sideMarginLeft | sideMarginRight | finalDecisionSource | possible_speaker_conflict |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| NOT_TESTED | NOT_TESTED | NOT_TESTED | NOT_TESTED | NOT_TESTED | NOT_TESTED | NOT_TESTED | NOT_TESTED | NOT_TESTED | NOT_TESTED | NOT_TESTED | NOT_TESTED | NOT_TESTED | NOT_TESTED | NOT_TESTED | NOT_TESTED | NOT_TESTED | NOT_TESTED |
+
+## Effective Visual Order Table
+
+| rawNodeOrder | finalVisualOrder | text | rawSpeaker | finalSpeaker | contentType | metadataType | isEffectiveChatMessage | textBounds.left/top/right/bottom | rowBounds.left/top/right/bottom | bubbleBounds.left/top/right/bottom | parentBounds.left/top/right/bottom | inferredSide | speakerReason | sideMarginLeft | sideMarginRight | finalDecisionSource | possible_speaker_conflict |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| NOT_TESTED | NOT_TESTED | NOT_TESTED | NOT_TESTED | NOT_TESTED | NOT_TESTED | NOT_TESTED | NOT_TESTED | NOT_TESTED | NOT_TESTED | NOT_TESTED | NOT_TESTED | NOT_TESTED | NOT_TESTED | NOT_TESTED | NOT_TESTED | NOT_TESTED | NOT_TESTED |
+
+## Parser Notes
+
+- LiaoqiRealParser priority: appPackage=com.bajiao.im.liaoqi first.
+- Fallback order: LiaoqiRealParser -> GenericVisualBubbleParser -> UNKNOWN.
+- LastSpeakerDecision source: finalVisualOrder last effective message.
+- Local machine did not run a physical phone smoke test in this build.

@@ -29,7 +29,9 @@ class GenericVisualBubbleParser(
     private val metadataFilter = MetadataMessageFilter()
 
     fun parse(bubbles: List<VisualBubble>, source: MessageSource = MessageSource.ACCESSIBILITY_CURRENT_SCREEN): List<MessageNode> {
-        return bubbles.mapIndexed { index, bubble ->
+        return bubbles.mapIndexed { rawIndex, bubble -> rawIndex to bubble }
+            .sortedWith(compareBy<Pair<Int, VisualBubble>> { it.second.visualTop() }.thenBy { it.second.visualLeft() })
+            .mapIndexed { visualIndex, (rawIndex, bubble) ->
             val selectedBounds = bubble.bubbleBounds
                 ?: bubble.rowBounds?.takeUnless { it.isFullWidthRow() }
                 ?: bubble.contentBounds
@@ -71,6 +73,7 @@ class GenericVisualBubbleParser(
                     rawText.contains("图片") ||
                     rawText.contains("鍥剧墖")
                 )
+            val sideMarginBounds = selectedBounds ?: bubble.textBounds ?: bubble.parentBounds
             MessageNode(
                 id = "bubble-${bubble.id}",
                 contactId = null,
@@ -97,7 +100,7 @@ class GenericVisualBubbleParser(
                     else -> actualText
                 },
                 source = source,
-                localSequence = index.toLong(),
+                localSequence = visualIndex.toLong(),
                 confidence = bubble.confidence,
                 speakerConfidence = when {
                     isMetadata -> 100
@@ -107,7 +110,7 @@ class GenericVisualBubbleParser(
                 contentConfidence = bubble.confidence,
                 bounds = selectedBounds,
                 pageIndex = 0,
-                createdAt = System.currentTimeMillis() + index,
+                createdAt = System.currentTimeMillis() + visualIndex,
                 sceneId = null,
                 speakerReason = when {
                     isMetadata -> when (metadataType) {
@@ -132,10 +135,22 @@ class GenericVisualBubbleParser(
                 parentBounds = bubble.parentBounds,
                 bubbleBounds = bubble.bubbleBounds,
                 ancestorBoundsChain = bubble.ancestorBoundsChain,
-                unknownReason = if (!isMetadata && sideDecision.side == "unknown") sideDecision.reason else null
+                unknownReason = if (!isMetadata && sideDecision.side == "unknown") sideDecision.reason else null,
+                rawNodeOrder = rawIndex + 1,
+                finalVisualOrder = visualIndex + 1,
+                sideMarginLeft = sideMarginBounds?.left,
+                sideMarginRight = sideMarginBounds?.let { screenWidth - it.right },
+                finalDecisionSource = if (isMetadata) "metadata_filter" else sideDecision.reason,
+                possibleSpeakerConflict = speaker == Speaker.OTHER && actualText.hasPossibleSpeakerConflict()
             )
         }
     }
+
+    private fun VisualBubble.visualTop(): Int = listOfNotNull(textBounds, bubbleBounds, rowBounds, parentBounds, avatarBounds)
+        .minOfOrNull { it.top } ?: Int.MAX_VALUE
+
+    private fun VisualBubble.visualLeft(): Int = listOfNotNull(textBounds, bubbleBounds, rowBounds, parentBounds, avatarBounds)
+        .minOfOrNull { it.left } ?: Int.MAX_VALUE
 
     private fun inferSide(bubble: VisualBubble): SideDecision {
         val candidateBounds = listOfNotNull(
@@ -185,6 +200,11 @@ class GenericVisualBubbleParser(
         val marker = "实际回复："
         val index = indexOf(marker)
         return if (index >= 0) substring(index + marker.length).trim() else this
+    }
+
+    private fun String.hasPossibleSpeakerConflict(): Boolean {
+        val markers = listOf("我早上出操", "我进入机要室", "我查寝", "我今天战士们聚餐", "我们单位", "我不能用手机")
+        return markers.any { contains(it) }
     }
 
     private data class SideDecision(

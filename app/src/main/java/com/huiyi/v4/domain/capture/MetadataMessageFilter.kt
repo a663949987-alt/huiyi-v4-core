@@ -7,10 +7,10 @@ class MetadataMessageFilter {
         val value = text?.trim().orEmpty()
         if (value.isBlank()) return MetadataType.UNKNOWN_METADATA
 
-        if (timeRegex.matches(value) || dateTimeRegex.matches(value) || dayRegex.matches(value)) {
+        if (timeRegex.matches(value) || dateTimeRegex.matches(value)) {
             return MetadataType.TIME
         }
-        if (dateRegex.matches(value) || monthDayRegex.matches(value)) {
+        if (dateRegex.matches(value) || monthDayRegex.matches(value) || dateWordRegex.matches(value) || dayRegex.matches(value)) {
             return MetadataType.DATE
         }
         if (onlineStatusValues.any { value == it || value.startsWith(it) } || value.startsWith("涓婃")) {
@@ -37,8 +37,9 @@ class MetadataMessageFilter {
     private companion object {
         val timeRegex = Regex("""^\d{1,2}:\d{2}$""")
         val dateTimeRegex = Regex("""^(\u4eca\u5929|\u6628\u5929)?\s*\d{1,2}:\d{2}$|^\d{1,2}-\d{1,2}\s+\d{1,2}:\d{2}$|^\d{2}-\d{2}\s+\d{1,2}:\d{2}$""")
-        val dateRegex = Regex("""^\d{4}-\d{1,2}-\d{1,2}$""")
+        val dateRegex = Regex("""^(\d{4}-)?\d{1,2}-\d{1,2}$""")
         val monthDayRegex = Regex("""^\d{1,2}\u6708\d{1,2}\u65e5.*""")
+        val dateWordRegex = Regex("""^(\u4eca\u5929|\u6628\u5929)$""")
         val dayRegex = Regex("""^\u661f\u671f[\u4e00\u4e8c\u4e09\u56db\u4e94\u516d\u65e5\u5929]$""")
         val headers = setOf(
             "\u767d\u4e91\u84dd\u5929",

@@ -1,9 +1,9 @@
 {
     "versionName":  "4.1.7",
-    "versionCode":  417,
+    "versionCode":  418,
     "apkUrl":  "huiyi-v4.1.7-debug.apk",
-    "releaseNotes":  "v4.1.7 real-device review result validation fix",
+    "releaseNotes":  "v4.1.7 scenario A hard validation and Liaoqi parser diagnostics",
     "forceUpdate":  false,
-    "sha256":  "D6028FD8174F4CB04C9745581515902AC271999CB185CF866842E1EA8EC77402",
-    "createdAt":  1783046438199
+    "sha256":  "1FD5C02170F8B3A9F52447C28CCEFC94A59D54DA5F97487302CF4A1024062324",
+    "createdAt":  1783048014980
 }

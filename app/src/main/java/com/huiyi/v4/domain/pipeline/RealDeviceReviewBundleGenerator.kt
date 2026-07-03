@@ -30,35 +30,37 @@ class RealDeviceReviewBundleGenerator(
         generatedAt: Long,
         versionName: String,
         versionCode: Int,
-        ownAppPackage: String
+        ownAppPackage: String,
+        scenario: RealDeviceScenario = RealDeviceScenario.LAST_ME
     ): RealDeviceReviewBundleContent {
         val realResult = latestResult?.takeIf { it.isRealChatAppCapture(ownAppPackage) }
         val currentScreenMarkdown = if (realResult == null) {
-            buildNotTestedCurrentScreenReport(latestResult, accessibilityState, generatedAt, ownAppPackage)
+            buildNotTestedCurrentScreenReport(latestResult, accessibilityState, generatedAt, ownAppPackage, scenario)
         } else {
-            evidenceGenerator.buildMarkdown(realResult, accessibilityState, generatedAt)
+            evidenceGenerator.buildMarkdown(realResult, accessibilityState, generatedAt, scenario)
         }
         val currentScreenJson = if (realResult == null) {
-            buildNotTestedCurrentScreenJson(latestResult, accessibilityState, generatedAt, ownAppPackage)
+            buildNotTestedCurrentScreenJson(latestResult, accessibilityState, generatedAt, ownAppPackage, scenario)
         } else {
-            evidenceGenerator.buildJson(realResult, accessibilityState, generatedAt)
+            evidenceGenerator.buildJson(realResult, accessibilityState, generatedAt, scenario)
         }
 
-        val smokeValidation = validateRealDeviceSmoke(realResult)
-        val realDeviceSmokeResult = smokeValidation.result
+        val scenarioValidation = RealDeviceScenarioValidator.validate(realResult, scenario)
+        val realDeviceSmokeResult = scenarioValidation.scenarioResult
         val overallResult = when (realDeviceSmokeResult) {
             "PASS" -> "PASS"
             "FAIL" -> "FAIL"
             else -> "PARTIAL"
         }
-        val failReason = smokeValidation.failReason
+        val failReason = if (scenarioValidation.failureReason == "none") "none" else scenarioValidation.failureReason
         val smokeMarkdown = buildSmokeReport(
             latestResult = latestResult,
             realResult = realResult,
             generatedAt = generatedAt,
             realDeviceSmokeResult = realDeviceSmokeResult,
             failReason = failReason,
-            ownAppPackage = ownAppPackage
+            ownAppPackage = ownAppPackage,
+            scenarioValidation = scenarioValidation
         )
         val reviewMarkdown = buildReviewMarkdown(
             latestResult = latestResult,
@@ -68,7 +70,8 @@ class RealDeviceReviewBundleGenerator(
             versionCode = versionCode,
             realDeviceSmokeResult = realDeviceSmokeResult,
             overallResult = overallResult,
-            failReason = failReason
+            failReason = failReason,
+            scenarioValidation = scenarioValidation
         )
         return RealDeviceReviewBundleContent(
             reviewMarkdown = reviewMarkdown,
@@ -89,7 +92,8 @@ class RealDeviceReviewBundleGenerator(
         versionCode: Int,
         realDeviceSmokeResult: String,
         overallResult: String,
-        failReason: String
+        failReason: String,
+        scenarioValidation: RealDeviceScenarioValidation
     ): String {
         val capture = realResult?.captureResult
         val latestCapture = latestResult?.captureResult
@@ -106,6 +110,7 @@ class RealDeviceReviewBundleGenerator(
             appendLine("- versionCode: $versionCode")
             appendLine("- generatedAt: $generatedAt")
             appendLine("- taskName: Export Real Device Acceptance Bundle")
+            appendLine("- scenarioName: ${scenarioValidation.scenarioName}")
             appendLine("- review_freshness_result: PASS")
             appendLine("- mockchat_result: NOT_INCLUDED_IN_PHONE_EXPORT")
             appendLine("- real_device_smoke_result: $realDeviceSmokeResult")
@@ -124,6 +129,18 @@ class RealDeviceReviewBundleGenerator(
             appendLine("- isMock: ${sampleSource != SampleSource.REAL_DEVICE_ACCESSIBILITY.reportValue}")
             appendLine("- isEmulatorMockChat: ${latestCapture?.sampleSource == SampleSource.EMULATOR_MOCK_CHAT_ACCESSIBILITY}")
             appendLine("- apiCalled: ${realResult?.apiCalled ?: false}")
+            appendLine()
+            appendLine("## Scenario Validation")
+            appendLine()
+            appendLine("- scenarioName: ${scenarioValidation.scenarioName}")
+            appendLine("- expectedLastSpeaker: ${scenarioValidation.expectedLastSpeaker}")
+            appendLine("- actualLastSpeaker: ${scenarioValidation.actualLastSpeaker}")
+            appendLine("- expectedDecisionType: ${scenarioValidation.expectedDecisionType}")
+            appendLine("- actualDecisionType: ${scenarioValidation.actualDecisionType}")
+            appendLine("- expectedRouteCount: ${scenarioValidation.expectedRouteCount}")
+            appendLine("- actualRouteCount: ${scenarioValidation.actualRouteCount}")
+            appendLine("- scenarioResult: ${scenarioValidation.scenarioResult}")
+            appendLine("- failureReason: ${scenarioValidation.failureReason}")
             appendLine()
             appendLine("## Acceptance")
             appendLine()
@@ -161,7 +178,8 @@ class RealDeviceReviewBundleGenerator(
         generatedAt: Long,
         realDeviceSmokeResult: String,
         failReason: String,
-        ownAppPackage: String
+        ownAppPackage: String,
+        scenarioValidation: RealDeviceScenarioValidation
     ): String {
         val capture = realResult?.captureResult
         val latestCapture = latestResult?.captureResult
@@ -171,6 +189,7 @@ class RealDeviceReviewBundleGenerator(
             appendLine("## Basic")
             appendLine()
             appendLine("- generatedAt: $generatedAt")
+            appendLine("- scenarioName: ${scenarioValidation.scenarioName}")
             appendLine("- overall_result: $realDeviceSmokeResult")
             appendLine("- realDeviceSmoke: $realDeviceSmokeResult")
             appendLine("- failReason: $failReason")
@@ -185,6 +204,15 @@ class RealDeviceReviewBundleGenerator(
             appendLine()
             appendLine("## Smoke Decision Validation")
             appendLine()
+            appendLine("- scenarioName: ${scenarioValidation.scenarioName}")
+            appendLine("- expectedLastSpeaker: ${scenarioValidation.expectedLastSpeaker}")
+            appendLine("- actualLastSpeaker: ${scenarioValidation.actualLastSpeaker}")
+            appendLine("- expectedDecisionType: ${scenarioValidation.expectedDecisionType}")
+            appendLine("- actualDecisionType: ${scenarioValidation.actualDecisionType}")
+            appendLine("- expectedRouteCount: ${scenarioValidation.expectedRouteCount}")
+            appendLine("- actualRouteCount: ${scenarioValidation.actualRouteCount}")
+            appendLine("- scenarioResult: ${scenarioValidation.scenarioResult}")
+            appendLine("- failureReason: ${scenarioValidation.failureReason}")
             appendLine("- expectedIfLastSpeakerME: WAIT + 0 routes + no API")
             appendLine("- expectedIfLastSpeakerOTHER: 5 routes, unless voice/image/unknown requires context")
             appendLine("- actualLastSpeaker: ${realResult?.lastSpeakerDecision?.lastSpeaker ?: "NOT_TESTED"}")
@@ -205,55 +233,12 @@ class RealDeviceReviewBundleGenerator(
         }
     }
 
-    private fun validateRealDeviceSmoke(realResult: CurrentScreenPipelineResult?): RealDeviceSmokeValidation {
-        if (realResult == null) return RealDeviceSmokeValidation("NOT_TESTED", REAL_SMOKE_NOT_TESTED_NOTICE)
-        val capture = realResult.captureResult
-            ?: return RealDeviceSmokeValidation("FAIL", "Real Device Smoke failed: no current screen capture.")
-        if (capture.sampleSource != SampleSource.REAL_DEVICE_ACCESSIBILITY) {
-            return RealDeviceSmokeValidation("FAIL", "Real Device Smoke failed: sample_source is ${capture.sampleSource.reportValue}.")
-        }
-        val messages = capture.messages
-        val effectiveMessages = messages.filter { it.isEffectiveChatMessage && it.speaker != Speaker.SYSTEM }
-        val candidateMessages = messages.filter { it.metadataType == MetadataType.NONE && it.speaker != Speaker.SYSTEM }
-        val unknownRatio = candidateMessages.count { it.speaker == Speaker.UNKNOWN }
-            .toFloat() / candidateMessages.size.coerceAtLeast(1)
-        val lastSpeaker = realResult.lastSpeakerDecision.lastSpeaker
-        val decisionType = realResult.tacticalDecision.decisionType
-        val routeCount = realResult.routes.size
-        val lastContent = realResult.lastSpeakerDecision.lastEffectiveMessage?.content
-
-        val fail = { reason: String -> RealDeviceSmokeValidation("FAIL", "Real Device Smoke failed: $reason") }
-        return when {
-            realResult.apiCalled -> fail("apiCalled must be false during smoke validation.")
-            !realResult.overlayShownInTargetApp -> fail("overlayShownInTargetApp must be true.")
-            realResult.mainActivityOpened -> fail("mainActivityOpened must be false.")
-            effectiveMessages.isEmpty() -> fail("no effective chat message was parsed.")
-            unknownRatio > 0.30f -> fail("unknown speaker ratio is too high (${String.format("%.2f", unknownRatio)}).")
-            lastSpeaker == Speaker.ME && decisionType == TacticalDecisionType.WAIT && routeCount == 0 ->
-                RealDeviceSmokeValidation("PASS", "none")
-            lastSpeaker == Speaker.ME ->
-                fail("last speaker ME must produce WAIT and 0 routes, got $decisionType and $routeCount routes.")
-            lastSpeaker == Speaker.OTHER &&
-                lastContent is MessageContent.Voice &&
-                decisionType == TacticalDecisionType.VOICE_SUMMARY_REQUIRED &&
-                routeCount == 0 ->
-                RealDeviceSmokeValidation("PASS", "none")
-            lastSpeaker == Speaker.OTHER &&
-                lastContent !is MessageContent.Voice &&
-                decisionType !in setOf(TacticalDecisionType.WAIT, TacticalDecisionType.CONTEXT_REQUIRED, TacticalDecisionType.VOICE_SUMMARY_REQUIRED) &&
-                routeCount == 5 ->
-                RealDeviceSmokeValidation("PASS", "none")
-            lastSpeaker == Speaker.OTHER ->
-                fail("last speaker OTHER must generate 5 routes or request voice summary, got $decisionType and $routeCount routes.")
-            else -> fail("last speaker is $lastSpeaker, so the result cannot be accepted as a high-confidence smoke pass.")
-        }
-    }
-
     private fun buildNotTestedCurrentScreenReport(
         latestResult: CurrentScreenPipelineResult?,
         accessibilityState: HuiyiAccessibilityState,
         generatedAt: Long,
-        ownAppPackage: String
+        ownAppPackage: String,
+        scenario: RealDeviceScenario
     ): String {
         val latestCapture = latestResult?.captureResult
         return buildString {
@@ -262,6 +247,15 @@ class RealDeviceReviewBundleGenerator(
             appendLine("- overall_result: NOT_TESTED")
             appendLine("- realDeviceSmoke: NOT_TESTED")
             appendLine("- generatedAt: $generatedAt")
+            appendLine("- scenarioName: ${scenario.id}")
+            appendLine("- expectedLastSpeaker: ${scenario.expectedLastSpeaker?.name ?: "NO_FIXED_EXPECTATION"}")
+            appendLine("- actualLastSpeaker: NOT_TESTED")
+            appendLine("- expectedDecisionType: ${scenario.expectedDecisionType?.name ?: "NO_FIXED_EXPECTATION"}")
+            appendLine("- actualDecisionType: NOT_TESTED")
+            appendLine("- expectedRouteCount: ${scenario.expectedRouteCount?.toString() ?: "NO_FIXED_EXPECTATION"}")
+            appendLine("- actualRouteCount: 0")
+            appendLine("- scenarioResult: NOT_TESTED")
+            appendLine("- failureReason: not_tested")
             appendLine("- sample_source: NOT_TESTED")
             appendLine("- appPackage: NOT_TESTED")
             appendLine("- windowTitle: NOT_TESTED")
@@ -302,7 +296,8 @@ class RealDeviceReviewBundleGenerator(
         latestResult: CurrentScreenPipelineResult?,
         accessibilityState: HuiyiAccessibilityState,
         generatedAt: Long,
-        ownAppPackage: String
+        ownAppPackage: String,
+        scenario: RealDeviceScenario
     ): String {
         val latestCapture = latestResult?.captureResult
         return """
@@ -310,6 +305,15 @@ class RealDeviceReviewBundleGenerator(
               "overall_result": "NOT_TESTED",
               "realDeviceSmoke": "NOT_TESTED",
               "generatedAt": $generatedAt,
+              "scenarioName": "${scenario.id}",
+              "expectedLastSpeaker": "${scenario.expectedLastSpeaker?.name ?: "NO_FIXED_EXPECTATION"}",
+              "actualLastSpeaker": "NOT_TESTED",
+              "expectedDecisionType": "${scenario.expectedDecisionType?.name ?: "NO_FIXED_EXPECTATION"}",
+              "actualDecisionType": "NOT_TESTED",
+              "expectedRouteCount": "${scenario.expectedRouteCount?.toString() ?: "NO_FIXED_EXPECTATION"}",
+              "actualRouteCount": 0,
+              "scenarioResult": "NOT_TESTED",
+              "failureReason": "not_tested",
               "sample_source": "NOT_TESTED",
               "appPackage": "NOT_TESTED",
               "windowTitle": "NOT_TESTED",

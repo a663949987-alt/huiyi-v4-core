@@ -47,7 +47,9 @@ import com.huiyi.v4.accessibility.HuiyiAccessibilityService
 import com.huiyi.v4.domain.model.MessageContent
 import com.huiyi.v4.domain.model.ReplyRoute
 import com.huiyi.v4.domain.model.RiskLevel
+import com.huiyi.v4.domain.model.Speaker
 import com.huiyi.v4.domain.model.TacticalDecisionType
+import com.huiyi.v4.domain.pipeline.RealDeviceScenario
 import com.huiyi.v4.floating.FloatingBubbleService
 import com.huiyi.v4.runtime.HuiyiRuntime
 import com.huiyi.v4.runtime.HuiyiRuntimeState
@@ -458,6 +460,24 @@ private fun DeveloperSettingsPage(
         item {
             Text("开发者设置")
             StatusCard("API 配置", "${BuildConfig.HUIYI_API_BASE_URL} / ${BuildConfig.HUIYI_API_MODEL}")
+            Card(modifier = Modifier.fillMaxWidth()) {
+                Column(Modifier.padding(14.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                    Text("真机验收场景")
+                    StatusCard("当前选择", state.selectedRealDeviceScenario.displayName)
+                    RealDeviceScenario.entries.forEach { scenario ->
+                        OutlinedButton(
+                            onClick = { runtime.setRealDeviceScenario(scenario) },
+                            modifier = Modifier.fillMaxWidth()
+                        ) {
+                            Text(if (scenario == state.selectedRealDeviceScenario) "已选择 ${scenario.displayName}" else scenario.displayName)
+                        }
+                    }
+                }
+            }
+            Button(onClick = { runtime.toggleParserDiagnostics() }, modifier = Modifier.fillMaxWidth()) { Text("查看最近解析消息") }
+            if (state.showParserDiagnostics) {
+                ParserDiagnosticsCard(runtime, state)
+            }
             Button(onClick = { runtime.exportParserReport() }, modifier = Modifier.fillMaxWidth()) { Text("导出当前屏幕解析报告") }
             Button(onClick = { runtime.exportRealDeviceEvidencePack() }, modifier = Modifier.fillMaxWidth()) { Text("导出真机当前屏幕证据包") }
             Button(onClick = { runtime.exportRealDeviceReviewBundle() }, modifier = Modifier.fillMaxWidth()) { Text("\u5bfc\u51fa\u771f\u673a\u9a8c\u6536\u5305") }
@@ -494,6 +514,49 @@ private fun DeveloperSettingsPage(
             StatusCard("updateBaseUrl", BuildConfig.HUIYI_UPDATE_BASE_URL.ifBlank { "未配置" })
         }
     }
+}
+
+@Composable
+private fun ParserDiagnosticsCard(runtime: HuiyiRuntime, state: HuiyiRuntimeState) {
+    val result = state.latestPipelineResult
+    val messages = result?.captureResult?.messages.orEmpty()
+    val effective = messages.filter { it.isEffectiveChatMessage && it.speaker != Speaker.SYSTEM }
+    val last = result?.lastSpeakerDecision?.lastEffectiveMessage
+    Card(modifier = Modifier.fillMaxWidth()) {
+        Column(Modifier.padding(14.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+            Text("最近解析消息")
+            Text("我判断最后一句是：")
+            Text("「${last?.normalizedText ?: "[无文本]"}」")
+            Text("来自：${last?.speaker ?: "未识别"}")
+            Text("解析器：${result?.captureResult?.parserName ?: "暂无"}")
+            Text("fallback：${result?.captureResult?.parserFallbackUsed ?: false}")
+            state.lastDebugCorrection?.let { Text("最近调试纠正：$it") }
+            Row(horizontalArrangement = Arrangement.spacedBy(8.dp), modifier = Modifier.fillMaxWidth()) {
+                OutlinedButton(onClick = { runtime.applyLastMessageCorrection(Speaker.ME) }, modifier = Modifier.weight(1f)) { Text("实际是我") }
+                OutlinedButton(onClick = { runtime.applyLastMessageCorrection(Speaker.OTHER) }, modifier = Modifier.weight(1f)) { Text("实际是对方") }
+            }
+            OutlinedButton(onClick = { runtime.applyLastMessageCorrection(null) }, modifier = Modifier.fillMaxWidth()) {
+                Text("这不是聊天消息")
+            }
+            effective.takeLast(20).forEachIndexed { index, message ->
+                val side = message.inferredSide ?: when (message.speaker) {
+                    Speaker.ME -> "right"
+                    Speaker.OTHER -> "left"
+                    Speaker.SYSTEM -> "system"
+                    Speaker.UNKNOWN -> "unknown"
+                }
+                Text(
+                    "[${(index + 1).toString().padStart(2, '0')}][$side][${message.speaker} ${message.speakerConfidence}%] ${message.normalizedText ?: "[non-text]"}"
+                )
+                Text("reason ${message.speakerReason ?: "unknown"}")
+                Text("bounds row=${message.rowBounds?.toShortText() ?: "none"} text=${message.textBounds?.toShortText() ?: "none"} bubble=${message.bubbleBounds?.toShortText() ?: "none"}")
+            }
+        }
+    }
+}
+
+private fun com.huiyi.v4.domain.model.VisualBounds.toShortText(): String {
+    return "$left,$top,$right,$bottom"
 }
 
 private fun Context.openOverlaySettings() {

@@ -4,7 +4,9 @@ import com.huiyi.v4.accessibility.CurrentScreenSnapshot
 import com.huiyi.v4.accessibility.HuiyiAccessibilityService
 import com.huiyi.v4.accessibility.ScreenNodeSnapshot
 import com.huiyi.v4.domain.capture.GenericVisualBubbleParser
+import com.huiyi.v4.domain.capture.LiaoqiRealParser
 import com.huiyi.v4.domain.capture.VisualBubble
+import com.huiyi.v4.domain.model.MessageContent
 import com.huiyi.v4.domain.model.MessageNode
 import com.huiyi.v4.domain.model.MessageSource
 
@@ -12,19 +14,21 @@ data class CurrentScreenCaptureResult(
     val snapshot: CurrentScreenSnapshot,
     val messages: List<MessageNode>,
     val sampleSource: SampleSource,
-    val warning: String? = null
+    val warning: String? = null,
+    val parserName: String = "GenericVisualBubbleParser",
+    val parserFallbackUsed: Boolean = false
 )
 
 open class CurrentScreenCaptureUseCase(
-    private val serviceProvider: () -> HuiyiAccessibilityService? = { HuiyiAccessibilityService.instance },
-    private val parserFactory: (Int) -> GenericVisualBubbleParser = { width -> GenericVisualBubbleParser(screenWidth = width) }
+    private val serviceProvider: () -> HuiyiAccessibilityService? = { HuiyiAccessibilityService.instance }
 ) {
     open fun capture(): Result<CurrentScreenCaptureResult> {
         val service = serviceProvider() ?: return Result.failure(IllegalStateException("无障碍服务未连接。"))
         return service.captureCurrentScreen().mapCatching { snapshot ->
             val bubbles = snapshot.nodes.toVisualBubbles()
-            val messages = parserFactory(snapshot.screenWidth).parse(bubbles, MessageSource.ACCESSIBILITY_CURRENT_SCREEN)
-                .filter { it.normalizedText?.isNotBlank() == true || it.content is com.huiyi.v4.domain.model.MessageContent.Voice }
+            val parsed = parseForApp(snapshot.appPackage, snapshot.screenWidth, bubbles)
+            val messages = parsed.messages
+                .filter { it.normalizedText?.isNotBlank() == true || it.content is MessageContent.Voice }
             if (messages.isEmpty()) error("当前屏幕未识别到聊天消息。")
             val source = if (snapshot.appPackage == "com.huiyi.mockchat") {
                 SampleSource.EMULATOR_MOCK_CHAT_ACCESSIBILITY
@@ -35,9 +39,27 @@ open class CurrentScreenCaptureUseCase(
                 snapshot = snapshot,
                 messages = messages,
                 sampleSource = source,
-                warning = if (bubbles.size < snapshot.nodes.count { it.readableText != null }) "WARNING: fallback parser filtered low quality nodes." else null
+                warning = if (bubbles.size < snapshot.nodes.count { it.readableText != null }) "WARNING: fallback parser filtered low quality nodes." else null,
+                parserName = parsed.parserName,
+                parserFallbackUsed = parsed.fallbackUsed
             )
         }
+    }
+
+    private fun parseForApp(appPackage: String?, screenWidth: Int, bubbles: List<VisualBubble>): ParserSelection {
+        if (appPackage == "com.bajiao.im.liaoqi") {
+            val liaoqiMessages = LiaoqiRealParser(screenWidth = screenWidth).parse(bubbles, MessageSource.ACCESSIBILITY_CURRENT_SCREEN)
+            if (liaoqiMessages.any { it.isEffectiveChatMessage }) {
+                return ParserSelection(liaoqiMessages, "LiaoqiRealParser", fallbackUsed = false)
+            }
+            val genericMessages = GenericVisualBubbleParser(screenWidth = screenWidth).parse(bubbles, MessageSource.ACCESSIBILITY_CURRENT_SCREEN)
+            return ParserSelection(genericMessages, "GenericVisualBubbleParser", fallbackUsed = true)
+        }
+        return ParserSelection(
+            messages = GenericVisualBubbleParser(screenWidth = screenWidth).parse(bubbles, MessageSource.ACCESSIBILITY_CURRENT_SCREEN),
+            parserName = "GenericVisualBubbleParser",
+            fallbackUsed = false
+        )
     }
 
     private fun List<ScreenNodeSnapshot>.toVisualBubbles(): List<VisualBubble> {
@@ -50,8 +72,11 @@ open class CurrentScreenCaptureUseCase(
                 VisualBubble(
                     id = node.id,
                     text = node.readableText,
-                    rowBounds = node.bounds,
-                    bubbleBounds = node.bounds,
+                    rowBounds = node.parentBounds ?: node.bounds,
+                    bubbleBounds = node.ancestorBoundsChain.asReversed()
+                        .firstOrNull { bounds -> bounds != node.bounds && bounds.right > bounds.left && bounds.bottom > bounds.top }
+                        ?: node.parentBounds
+                        ?: node.bounds,
                     textBounds = node.bounds,
                     parentBounds = node.parentBounds,
                     ancestorBoundsChain = node.ancestorBoundsChain,
@@ -60,4 +85,10 @@ open class CurrentScreenCaptureUseCase(
             }
             .toList()
     }
+
+    private data class ParserSelection(
+        val messages: List<MessageNode>,
+        val parserName: String,
+        val fallbackUsed: Boolean
+    )
 }

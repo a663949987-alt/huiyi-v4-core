@@ -50,7 +50,8 @@ class EvidencePackReportGenerator {
     fun buildMarkdown(
         result: CurrentScreenPipelineResult,
         accessibilityState: HuiyiAccessibilityState,
-        generatedAt: Long = System.currentTimeMillis()
+        generatedAt: Long = System.currentTimeMillis(),
+        scenario: RealDeviceScenario = RealDeviceScenario.LAST_ME
     ): String {
         val capture = result.captureResult
         val context = result.context
@@ -65,11 +66,21 @@ class EvidencePackReportGenerator {
         val waitShown = decision.decisionType == TacticalDecisionType.WAIT
         val voiceShown = decision.decisionType == TacticalDecisionType.VOICE_SUMMARY_REQUIRED
         val contextShown = decision.decisionType == TacticalDecisionType.CONTEXT_REQUIRED
+        val scenarioValidation = RealDeviceScenarioValidator.validate(result, scenario)
         return buildString {
             appendLine("# Real Device Current Screen Evidence Pack")
             appendLine()
-            appendLine("- overall_result: ${overallResult(result)}")
+            appendLine("- overall_result: ${scenarioValidation.scenarioResult}")
             appendLine("- generatedAt: $generatedAt")
+            appendLine("- scenarioName: ${scenarioValidation.scenarioName}")
+            appendLine("- expectedLastSpeaker: ${scenarioValidation.expectedLastSpeaker}")
+            appendLine("- actualLastSpeaker: ${scenarioValidation.actualLastSpeaker}")
+            appendLine("- expectedDecisionType: ${scenarioValidation.expectedDecisionType}")
+            appendLine("- actualDecisionType: ${scenarioValidation.actualDecisionType}")
+            appendLine("- expectedRouteCount: ${scenarioValidation.expectedRouteCount}")
+            appendLine("- actualRouteCount: ${scenarioValidation.actualRouteCount}")
+            appendLine("- scenarioResult: ${scenarioValidation.scenarioResult}")
+            appendLine("- failureReason: ${scenarioValidation.failureReason}")
             appendLine("- sample_source: ${capture?.sampleSource?.reportValue ?: SampleSource.UNKNOWN.reportValue}")
             appendLine("- appPackage: ${capture?.snapshot?.appPackage ?: "unknown"}")
             appendLine("- windowTitle: ${capture?.snapshot?.windowTitle ?: "unknown"}")
@@ -84,8 +95,10 @@ class EvidencePackReportGenerator {
             appendLine("- serviceConnected: ${accessibilityState.serviceConnected}")
             appendLine("- rootAvailable: ${accessibilityState.rootAvailable}")
             appendLine("- capturedNodeCount: ${capture?.snapshot?.nodes?.size ?: 0}")
-            appendLine("- parserName: GenericVisualBubbleParser")
-            appendLine("- parserFallbackUsed: ${capture?.warning != null}")
+            appendLine("- parserName: ${capture?.parserName ?: "unknown"}")
+            appendLine("- LiaoqiRealParserUsed: ${capture?.parserName == "LiaoqiRealParser"}")
+            appendLine("- GenericVisualBubbleParserFallbackUsed: ${capture?.parserFallbackUsed == true}")
+            appendLine("- parserFallbackUsed: ${capture?.parserFallbackUsed == true || capture?.warning != null}")
             appendLine("- currentBubbleSideRule: right=me")
             appendLine()
             appendLine("deviceVisualConfig:")
@@ -122,6 +135,9 @@ class EvidencePackReportGenerator {
             appendLine("- systemCount: ${messages.count { it.speaker == Speaker.SYSTEM }}")
             appendLine("- voiceCount: ${voiceMessages.size}")
             appendLine("- imageCount: ${messages.count { it.content is MessageContent.Image }}")
+            appendLine("- dateMetadataFilteredCount: ${messages.count { it.metadataType == MetadataType.DATE && it.speaker == Speaker.SYSTEM && !it.isEffectiveChatMessage }}")
+            appendLine("- possible_speaker_conflict_count: ${messages.count { it.possibleSpeakerConflict }}")
+            appendLine("- lastEffectiveMessagePreview: ${result.lastSpeakerDecision.lastEffectiveMessage?.normalizedText ?: "[non-text-or-none]"}")
             appendLine()
             appendLine("### filteredMetadataSamples")
             if (metadataMessages.isEmpty()) {
@@ -155,6 +171,22 @@ class EvidencePackReportGenerator {
             appendLine("## 最近 30 条解析消息")
             messages.takeLast(30).forEachIndexed { index, message ->
                 appendLine(formatMessage(index + 1, message))
+            }
+            appendLine()
+            appendLine("## Visual Order Table")
+            appendLine()
+            appendLine("| rawNodeOrder | finalVisualOrder | text | rawSpeaker | finalSpeaker | contentType | metadataType | isEffectiveChatMessage | textBounds | rowBounds | bubbleBounds | parentBounds | inferredSide | speakerReason | sideMarginLeft | sideMarginRight | finalDecisionSource | possible_speaker_conflict |")
+            appendLine("| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |")
+            messages.forEach { message ->
+                appendLine(visualTableRow(message))
+            }
+            appendLine()
+            appendLine("## Effective Visual Order Table")
+            appendLine()
+            appendLine("| rawNodeOrder | finalVisualOrder | text | rawSpeaker | finalSpeaker | contentType | metadataType | isEffectiveChatMessage | textBounds | rowBounds | bubbleBounds | parentBounds | inferredSide | speakerReason | sideMarginLeft | sideMarginRight | finalDecisionSource | possible_speaker_conflict |")
+            appendLine("| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |")
+            effectiveMessages.forEach { message ->
+                appendLine(visualTableRow(message))
             }
             appendLine()
             appendLine("## LastSpeakerDecision")
@@ -237,15 +269,20 @@ class EvidencePackReportGenerator {
     fun buildJson(
         result: CurrentScreenPipelineResult,
         accessibilityState: HuiyiAccessibilityState,
-        generatedAt: Long = System.currentTimeMillis()
+        generatedAt: Long = System.currentTimeMillis(),
+        scenario: RealDeviceScenario = RealDeviceScenario.LAST_ME
     ): String {
         val capture = result.captureResult
+        val scenarioValidation = RealDeviceScenarioValidator.validate(result, scenario)
         val messagesJson = capture?.messages.orEmpty().mapIndexed { index, message ->
             """
               {
                 "index": ${index + 1},
+                "rawNodeOrder": ${message.rawNodeOrder ?: index + 1},
+                "finalVisualOrder": ${message.finalVisualOrder ?: index + 1},
                 "id": "${escape(message.id)}",
-                "speaker": "${message.speaker}",
+                "rawSpeaker": "${message.speaker}",
+                "finalSpeaker": "${message.speaker}",
                 "speakerConfidence": ${message.speakerConfidence},
                 "speakerReason": "${escape(message.speakerReason ?: "unknown_visual_bounds")}",
                 "contentType": "${contentType(message.content)}",
@@ -259,6 +296,10 @@ class EvidencePackReportGenerator {
                 "parentBounds": ${boundsJson(message.parentBounds)},
                 "bubbleBounds": ${boundsJson(message.bubbleBounds)},
                 "ancestorBoundsChain": [${message.ancestorBoundsChain.joinToString(",") { boundsJson(it) }}],
+                "sideMarginLeft": ${message.sideMarginLeft ?: -1},
+                "sideMarginRight": ${message.sideMarginRight ?: -1},
+                "finalDecisionSource": "${escape(message.finalDecisionSource ?: "")}",
+                "possible_speaker_conflict": ${message.possibleSpeakerConflict},
                 "unknownReason": "${escape(message.unknownReason ?: "")}"
               }
             """.trimIndent()
@@ -279,8 +320,17 @@ class EvidencePackReportGenerator {
         }
         return """
             {
-              "overall_result": "${overallResult(result)}",
+              "overall_result": "${scenarioValidation.scenarioResult}",
               "generatedAt": $generatedAt,
+              "scenarioName": "${scenarioValidation.scenarioName}",
+              "expectedLastSpeaker": "${scenarioValidation.expectedLastSpeaker}",
+              "actualLastSpeaker": "${scenarioValidation.actualLastSpeaker}",
+              "expectedDecisionType": "${scenarioValidation.expectedDecisionType}",
+              "actualDecisionType": "${scenarioValidation.actualDecisionType}",
+              "expectedRouteCount": "${scenarioValidation.expectedRouteCount}",
+              "actualRouteCount": ${scenarioValidation.actualRouteCount},
+              "scenarioResult": "${scenarioValidation.scenarioResult}",
+              "failureReason": "${scenarioValidation.failureReason}",
               "sample_source": "${capture?.sampleSource?.reportValue ?: SampleSource.UNKNOWN.reportValue}",
               "appPackage": "${escape(capture?.snapshot?.appPackage ?: "unknown")}",
               "windowTitle": "${escape(capture?.snapshot?.windowTitle ?: "unknown")}",
@@ -295,11 +345,17 @@ class EvidencePackReportGenerator {
               "serviceConnected": ${accessibilityState.serviceConnected},
               "rootAvailable": ${accessibilityState.rootAvailable},
               "capturedNodeCount": ${capture?.snapshot?.nodes?.size ?: 0},
+              "parserName": "${escape(capture?.parserName ?: "unknown")}",
+              "LiaoqiRealParserUsed": ${capture?.parserName == "LiaoqiRealParser"},
+              "GenericVisualBubbleParserFallbackUsed": ${capture?.parserFallbackUsed == true},
               "rawParsedNodeCount": ${capture?.messages?.size ?: 0},
               "metadataFilteredCount": ${capture?.messages?.count { it.metadataType != MetadataType.NONE || it.speaker == Speaker.SYSTEM } ?: 0},
+              "dateMetadataFilteredCount": ${capture?.messages?.count { it.metadataType == MetadataType.DATE && it.speaker == Speaker.SYSTEM && !it.isEffectiveChatMessage } ?: 0},
               "candidateChatMessageCount": ${capture?.messages?.count { it.metadataType == MetadataType.NONE && it.speaker != Speaker.SYSTEM } ?: 0},
               "unknownSpeakerCount": ${capture?.messages?.count { it.metadataType == MetadataType.NONE && it.speaker == Speaker.UNKNOWN } ?: 0},
               "effectiveMessageCount": ${capture?.messages?.count { it.isEffectiveChatMessage && it.speaker != Speaker.SYSTEM } ?: 0},
+              "possibleSpeakerConflictCount": ${capture?.messages?.count { it.possibleSpeakerConflict } ?: 0},
+              "lastEffectiveMessagePreview": "${escape(result.lastSpeakerDecision.lastEffectiveMessage?.normalizedText ?: "")}",
               "parsedMessageCount": ${capture?.messages?.size ?: 0},
               "parsedMessages": [
             $messagesJson
@@ -337,13 +393,18 @@ class EvidencePackReportGenerator {
         """.trimIndent()
     }
 
-    fun writeTo(directory: File, result: CurrentScreenPipelineResult, accessibilityState: HuiyiAccessibilityState): Result<EvidencePackFiles> = runCatching {
+    fun writeTo(
+        directory: File,
+        result: CurrentScreenPipelineResult,
+        accessibilityState: HuiyiAccessibilityState,
+        scenario: RealDeviceScenario = RealDeviceScenario.LAST_ME
+    ): Result<EvidencePackFiles> = runCatching {
         directory.mkdirs()
         val md = File(directory, "real-device-current-screen-report-for-gpt.md")
         val json = File(directory, "real-device-current-screen-report.json")
         val now = System.currentTimeMillis()
-        md.writeText(buildMarkdown(result, accessibilityState, now), Charsets.UTF_8)
-        json.writeText(buildJson(result, accessibilityState, now), Charsets.UTF_8)
+        md.writeText(buildMarkdown(result, accessibilityState, now, scenario), Charsets.UTF_8)
+        json.writeText(buildJson(result, accessibilityState, now, scenario), Charsets.UTF_8)
         EvidencePackFiles(md, json)
     }
 
@@ -359,7 +420,9 @@ class EvidencePackReportGenerator {
         val textBounds = message.textBounds ?: message.bounds
         val parent = message.parentBounds
         val bubble = message.bubbleBounds ?: message.bounds
-        val boundsInfo = " rowBounds=${row?.toReport()} textBounds=${textBounds?.toReport()} parentBounds=${parent?.toReport()} bubbleBounds=${bubble?.toReport()} inferredSide=${message.inferredSide ?: side} unknownReason=${message.unknownReason ?: "none"}"
+        val orderInfo = " rawNodeOrder=${message.rawNodeOrder ?: index} finalVisualOrder=${message.finalVisualOrder ?: index}"
+        val conflictInfo = " possible_speaker_conflict=${message.possibleSpeakerConflict}"
+        val boundsInfo = "$orderInfo rowBounds=${row?.toReport()} textBounds=${textBounds?.toReport()} parentBounds=${parent?.toReport()} bubbleBounds=${bubble?.toReport()} inferredSide=${message.inferredSide ?: side} sideMarginLeft=${message.sideMarginLeft ?: "none"} sideMarginRight=${message.sideMarginRight ?: "none"} finalDecisionSource=${message.finalDecisionSource ?: "none"} unknownReason=${message.unknownReason ?: "none"}$conflictInfo"
         return if (content is MessageContent.Voice) {
             "[m${index.toString().padStart(3, '0')}][$side][${message.speaker.name.lowercase()} voice ${content.transcriptStatus.name.lowercase()}] [语音 ${content.durationSeconds ?: "?"}秒]$boundsInfo speakerReason=${message.speakerReason}"
         } else {
@@ -387,6 +450,34 @@ class EvidencePackReportGenerator {
     private fun com.huiyi.v4.domain.model.VisualBounds.toReport(): String {
         return "${left},${top},${right},${bottom}"
     }
+
+    private fun visualTableRow(message: com.huiyi.v4.domain.model.MessageNode): String {
+        return listOf(
+            message.rawNodeOrder?.toString() ?: "",
+            message.finalVisualOrder?.toString() ?: "",
+            tableEscape(message.normalizedText ?: "[non-text]"),
+            message.speaker.name,
+            message.speaker.name,
+            contentType(message.content),
+            (message.metadataType ?: MetadataType.NONE).name,
+            message.isEffectiveChatMessage.toString(),
+            message.textBounds?.toReport() ?: "none",
+            message.rowBounds?.toReport() ?: "none",
+            message.bubbleBounds?.toReport() ?: "none",
+            message.parentBounds?.toReport() ?: "none",
+            message.inferredSide ?: "unknown",
+            tableEscape(message.speakerReason ?: "unknown_visual_bounds"),
+            message.sideMarginLeft?.toString() ?: "none",
+            message.sideMarginRight?.toString() ?: "none",
+            tableEscape(message.finalDecisionSource ?: "none"),
+            message.possibleSpeakerConflict.toString()
+        ).joinToString(prefix = "| ", separator = " | ", postfix = " |")
+    }
+
+    private fun tableEscape(value: String): String = value
+        .replace("|", "\\|")
+        .replace("\r", " ")
+        .replace("\n", " ")
 
     private fun escape(value: String): String = value
         .replace("\\", "\\\\")

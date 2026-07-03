@@ -8,6 +8,8 @@ import com.huiyi.v4.domain.context.ContextAssembler
 import com.huiyi.v4.domain.model.ReplyAttempt
 import com.huiyi.v4.domain.model.ReplyAttemptStatus
 import com.huiyi.v4.domain.model.ReplyRoute
+import com.huiyi.v4.domain.model.Speaker
+import com.huiyi.v4.domain.model.TacticalDecisionType
 import com.huiyi.v4.domain.model.UserAction
 import com.huiyi.v4.domain.model.UserPersonaCorpus
 import com.huiyi.v4.domain.persona.DefaultPersonaCorpus
@@ -15,8 +17,10 @@ import com.huiyi.v4.domain.pipeline.CurrentScreenCaptureUseCase
 import com.huiyi.v4.domain.pipeline.CurrentScreenPipelineResult
 import com.huiyi.v4.domain.pipeline.CurrentScreenPipelineUseCase
 import com.huiyi.v4.domain.pipeline.EvidencePackReportGenerator
+import com.huiyi.v4.domain.pipeline.LastSpeakerDecisionUseCase
 import com.huiyi.v4.domain.pipeline.ParserReportGenerator
 import com.huiyi.v4.domain.pipeline.RealDeviceReviewBundleGenerator
+import com.huiyi.v4.domain.pipeline.RealDeviceScenario
 import com.huiyi.v4.domain.pipeline.ReplyAttemptFactory
 import com.huiyi.v4.accessibility.HuiyiAccessibilityService
 import com.huiyi.v4.domain.pipeline.EvidencePackFiles
@@ -45,6 +49,9 @@ data class HuiyiRuntimeState(
     val lastDebugExportPath: String? = null,
     val lastEvidenceJsonPath: String? = null,
     val lastPublicExportPath: String? = null,
+    val selectedRealDeviceScenario: RealDeviceScenario = RealDeviceScenario.LAST_ME,
+    val showParserDiagnostics: Boolean = false,
+    val lastDebugCorrection: String? = null,
     val lanUpdateState: LanUpdateState = LanUpdateState()
 )
 
@@ -70,6 +77,14 @@ class HuiyiRuntime private constructor(
 
     fun setPanelVisible(visible: Boolean) {
         mutableState.update { it.copy(panelVisible = visible) }
+    }
+
+    fun setRealDeviceScenario(scenario: RealDeviceScenario) {
+        mutableState.update { it.copy(selectedRealDeviceScenario = scenario) }
+    }
+
+    fun toggleParserDiagnostics() {
+        mutableState.update { it.copy(showParserDiagnostics = !it.showParserDiagnostics) }
     }
 
     fun markOverlayPanelShown() {
@@ -153,6 +168,57 @@ class HuiyiRuntime private constructor(
         }
     }
 
+    fun applyLastMessageCorrection(correctedSpeaker: Speaker?) {
+        val state = mutableState.value
+        val result = state.latestPipelineResult ?: return
+        val capture = result.captureResult ?: return
+        val lastEffectiveId = result.lastSpeakerDecision.lastEffectiveMessage?.id ?: return
+        val updatedMessages = capture.messages.map { message ->
+            if (message.id != lastEffectiveId) {
+                message
+            } else if (correctedSpeaker == null) {
+                message.copy(
+                    speaker = Speaker.SYSTEM,
+                    isEffectiveChatMessage = false,
+                    metadataType = com.huiyi.v4.domain.model.MetadataType.SYSTEM_NOTICE,
+                    speakerReason = "debug_correction_not_chat_message",
+                    finalDecisionSource = "debug_correction_not_chat_message"
+                )
+            } else {
+                message.copy(
+                    speaker = correctedSpeaker,
+                    isEffectiveChatMessage = true,
+                    metadataType = com.huiyi.v4.domain.model.MetadataType.NONE,
+                    speakerReason = "debug_correction_${correctedSpeaker.name.lowercase()}",
+                    inferredSide = if (correctedSpeaker == Speaker.ME) "right" else "left",
+                    finalDecisionSource = "debug_correction"
+                )
+            }
+        }
+        val updatedCapture = capture.copy(messages = updatedMessages)
+        val context = ContextAssembler().assemble(updatedMessages, userPersonaCorpus = currentPersona())
+        val lastSpeaker = LastSpeakerDecisionUseCase().decide(updatedMessages)
+        val decision = TacticalDecisionEngine().decide(context)
+        val routes = if (decision.decisionType in setOf(TacticalDecisionType.WAIT, TacticalDecisionType.CONTEXT_REQUIRED) || lastSpeaker.unknownSpeaker) {
+            emptyList()
+        } else {
+            ReplyRouteGenerator().generate(context, decision)
+        }
+        mutableState.update {
+            it.copy(
+                latestPipelineResult = result.copy(
+                    captureResult = updatedCapture,
+                    context = context,
+                    lastSpeakerDecision = lastSpeaker,
+                    tacticalDecision = decision,
+                    routes = routes
+                ),
+                demoState = it.demoState.copy(messages = updatedMessages),
+                lastDebugCorrection = correctedSpeaker?.name ?: "NOT_CHAT_MESSAGE"
+            )
+        }
+    }
+
     fun exportParserReport(): File? {
         val capture = mutableState.value.latestPipelineResult?.captureResult ?: return null
         val text = ParserReportGenerator().build(capture)
@@ -172,15 +238,16 @@ class HuiyiRuntime private constructor(
         val result = mutableState.value.latestPipelineResult ?: return null
         val generator = EvidencePackReportGenerator()
         val now = System.currentTimeMillis()
-        val markdown = generator.buildMarkdown(result, HuiyiAccessibilityService.state.value, now)
-        val json = generator.buildJson(result, HuiyiAccessibilityService.state.value, now)
+        val scenario = mutableState.value.selectedRealDeviceScenario
+        val markdown = generator.buildMarkdown(result, HuiyiAccessibilityService.state.value, now, scenario)
+        val json = generator.buildJson(result, HuiyiAccessibilityService.state.value, now, scenario)
         val exporter = PublicDownloadExporter(appContext)
         val markdownExport = exporter.exportText("real-device-current-screen-report-for-gpt.md", markdown)
             .getOrElse { exporter.fallbackToPrivate("real-device-current-screen-report-for-gpt.md", markdown) }
         val jsonExport = exporter.exportText("real-device-current-screen-report.json", json, "application/json")
             .getOrElse { exporter.fallbackToPrivate("real-device-current-screen-report.json", json) }
         val files = EvidencePackReportGenerator()
-            .writeTo(File(appContext.filesDir, "debug"), result, HuiyiAccessibilityService.state.value)
+            .writeTo(File(appContext.filesDir, "debug"), result, HuiyiAccessibilityService.state.value, scenario)
             .getOrNull()
             ?: EvidencePackFiles(
                 markdown = markdownExport.privateFallbackFile ?: File(appContext.filesDir, "debug/real-device-current-screen-report-for-gpt.md"),
@@ -203,7 +270,8 @@ class HuiyiRuntime private constructor(
             generatedAt = System.currentTimeMillis(),
             versionName = BuildConfig.VERSION_NAME,
             versionCode = BuildConfig.VERSION_CODE,
-            ownAppPackage = BuildConfig.APPLICATION_ID
+            ownAppPackage = BuildConfig.APPLICATION_ID,
+            scenario = mutableState.value.selectedRealDeviceScenario
         )
         val exporter = PublicDownloadExporter(appContext)
         val files = listOf(
