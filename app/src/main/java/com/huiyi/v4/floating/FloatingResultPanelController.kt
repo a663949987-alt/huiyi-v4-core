@@ -43,7 +43,12 @@ class FloatingResultPanelController(
         val routes = result?.routes ?: state.demoState.routes
         val container = panelContainer()
 
-        if (decision.decisionType == TacticalDecisionType.WAIT) {
+        if (decision.decisionType == TacticalDecisionType.PRE_ANALYSIS_CONTAMINATED ||
+            decision.decisionType == TacticalDecisionType.CHAT_WINDOW_NOT_FOUND
+        ) {
+            container.addView(titleText("没读到聊天页"))
+            container.addView(text("没读到聊天页，请点一下聊起聊天窗口后再试。"))
+        } else if (decision.decisionType == TacticalDecisionType.WAIT) {
             container.addView(titleText("先等对方"))
             container.addView(text("你已经回过了，先等对方。"))
         } else {
@@ -161,6 +166,7 @@ class FloatingResultPanelController(
 
     private fun cloudStatusLine(result: com.huiyi.v4.domain.pipeline.CurrentScreenPipelineResult?): String? {
         val cloud = result?.cloudTrace ?: return null
+        if (cloud.cloudErrorCode == "NETWORK") return "云端连接失败，已使用本地建议。"
         return when {
             cloud.decisionSource == "CLOUD" -> "云端已就绪。"
             cloud.cloudFallbackUsed -> "云端暂不可用，已使用本地建议。"

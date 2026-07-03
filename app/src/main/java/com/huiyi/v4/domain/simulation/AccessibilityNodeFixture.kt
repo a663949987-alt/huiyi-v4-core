@@ -68,7 +68,8 @@ enum class PanelState {
     ROUTE_PANEL,
     CONTEXT_REQUIRED_PANEL,
     VOICE_SUMMARY_CARD,
-    UNSUPPORTED_APP_PANEL
+    UNSUPPORTED_APP_PANEL,
+    CONTROLLED_FAIL_PANEL
 }
 
 data class NormalizedConversation(
@@ -347,6 +348,8 @@ class AccessibilityNodeFixtureReplayer(
     private fun panelStateFor(appPackage: String, decision: TacticalDecisionType, routeCount: Int): PanelState {
         if (appPackage !in supportedPackages && routeCount == 0) return PanelState.UNSUPPORTED_APP_PANEL
         return when {
+            decision == TacticalDecisionType.PRE_ANALYSIS_CONTAMINATED ||
+                decision == TacticalDecisionType.CHAT_WINDOW_NOT_FOUND -> PanelState.CONTROLLED_FAIL_PANEL
             decision == TacticalDecisionType.WAIT -> PanelState.WAIT_PANEL
             decision == TacticalDecisionType.VOICE_SUMMARY_REQUIRED -> PanelState.VOICE_SUMMARY_CARD
             routeCount == 5 -> PanelState.ROUTE_PANEL

@@ -138,8 +138,8 @@ class PreconfiguredCloudRealUseMvpTest {
     ) = CurrentScreenPipelineUseCase(
         captureUseCase = FakeCaptureUseCase(messages),
         cloudAnalysisService = repository,
-        appVersionName = "4.1.26",
-        appVersionCode = 445
+        appVersionName = "4.1.27",
+        appVersionCode = 446
     )
 
     private fun relayConfig() = CloudAnalysisConfig(

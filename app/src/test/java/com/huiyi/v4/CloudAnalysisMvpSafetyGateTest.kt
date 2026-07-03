@@ -36,6 +36,7 @@ import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Test
+import java.io.File
 
 class CloudAnalysisMvpSafetyGateTest {
     @Test
@@ -450,12 +451,112 @@ class CloudAnalysisMvpSafetyGateTest {
         assertEquals(TacticalDecisionType.NORMAL_REPLY, result.tacticalDecision.decisionType)
     }
 
+    @Test
+    fun ContaminatedPreAnalysisDoesNotRouteTest() = runTest {
+        val result = pipeline(
+            lastOtherMessages(),
+            FakeCloudService(),
+            windowTitle = "没读到当前聊天 请回到聊起聊天窗口，再点一次‘下一句’。这次不对，发给 GPT 隐藏"
+        ).run(emptyPersona()).getOrThrow()
+
+        assertEquals(TacticalDecisionType.PRE_ANALYSIS_CONTAMINATED, result.tacticalDecision.decisionType)
+        assertEquals("CONTROLLED_FAIL", result.cloudTrace.decisionSource)
+        assertEquals(0, result.routes.size)
+        assertFalse(result.routePanelShown)
+    }
+
+    @Test
+    fun ContaminatedPreAnalysisSkipsCloudTest() = runTest {
+        val cloud = FakeCloudService()
+        val result = pipeline(
+            lastOtherMessages(),
+            cloud,
+            windowTitle = "会意雷达 这次不对，发给 GPT 隐藏"
+        ).run(emptyPersona()).getOrThrow()
+
+        assertFalse(result.cloudTrace.cloudAttempted)
+        assertFalse(result.apiCalled)
+        assertEquals(0, cloud.callCount)
+        assertEquals("PRE_ANALYSIS_CONTAMINATED", result.cloudTrace.cloudSkippedReason)
+    }
+
+    @Test
+    fun HuiyiPanelWindowTitleBlocksAnalysisTest() = runTest {
+        val result = pipeline(
+            lastOtherMessages(),
+            FakeCloudService(),
+            windowTitle = "没读到当前聊天 请回到聊起聊天窗口"
+        ).run(emptyPersona()).getOrThrow()
+
+        assertEquals(TacticalDecisionType.PRE_ANALYSIS_CONTAMINATED, result.tacticalDecision.decisionType)
+        assertEquals("CONTROLLED_FAIL", result.cloudTrace.decisionSource)
+        assertTrue(result.routes.isEmpty())
+    }
+
+    @Test
+    fun ChatWindowNotFoundShowsControlledFailNotRoutesTest() = runTest {
+        val result = pipeline(
+            lastOtherMessages(),
+            FakeCloudService(),
+            windowTitle = "隐藏 这次不对，发给 GPT"
+        ).run(emptyPersona()).getOrThrow()
+
+        assertEquals("CONTROLLED_FAIL", result.cloudTrace.decisionSource)
+        assertEquals(TacticalDecisionType.PRE_ANALYSIS_CONTAMINATED, result.tacticalDecision.decisionType)
+        assertEquals(0, result.routes.size)
+    }
+
+    @Test
+    fun CloudNetworkFailureShowsVisibleFallbackReasonTest() = runTest {
+        val result = pipeline(
+            lastOtherMessages(),
+            FakeCloudService(error = CloudAnalysisException("NETWORK", likelyCause = "DNS_FAILED", requestActuallySent = true))
+        ).run(emptyPersona()).getOrThrow()
+
+        assertEquals("LOCAL_FALLBACK", result.cloudTrace.decisionSource)
+        assertEquals("NETWORK", result.cloudTrace.cloudErrorCode)
+        assertTrue(result.cloudTrace.cloudNetworkFailureVisibleToUser)
+        assertTrue(result.cloudTrace.cloudRequestActuallySent)
+        assertEquals("DNS_FAILED", result.cloudTrace.cloudFailureLikelyCause)
+        assertEquals(5, result.routes.size)
+    }
+
+    @Test
+    fun LastOtherRoutesOnlyWhenPreAnalysisCleanTest() = runTest {
+        val result = pipeline(lastOtherMessages(), FakeCloudService(), windowTitle = "聊起").run(emptyPersona()).getOrThrow()
+
+        assertEquals(Speaker.OTHER, result.lastSpeakerDecision.lastSpeaker)
+        assertEquals(5, result.routes.size)
+        assertTrue(result.cloudTrace.cloudAttempted)
+    }
+
+    @Test
+    fun LastMeWaitOnlyWhenPreAnalysisCleanTest() = runTest {
+        val result = pipeline(lastMeMessages(), FakeCloudService(), windowTitle = "聊起").run(emptyPersona()).getOrThrow()
+
+        assertEquals(Speaker.ME, result.lastSpeakerDecision.lastSpeaker)
+        assertEquals(TacticalDecisionType.WAIT, result.tacticalDecision.decisionType)
+        assertEquals(0, result.routes.size)
+        assertFalse(result.cloudTrace.cloudAttempted)
+    }
+
+    @Test
+    fun InternetPermissionPresentForCloudTest() {
+        val manifest = listOf(
+            File("app/src/main/AndroidManifest.xml"),
+            File("src/main/AndroidManifest.xml")
+        ).first { it.exists() }.readText()
+
+        assertTrue(manifest.contains("android.permission.INTERNET"))
+    }
+
     private fun pipeline(
         messages: List<com.huiyi.v4.domain.model.MessageNode>,
         cloud: CloudAnalysisService?,
-        appPackage: String = "com.bajiao.im.liaoqi"
+        appPackage: String = "com.bajiao.im.liaoqi",
+        windowTitle: String = "chat"
     ) = CurrentScreenPipelineUseCase(
-        captureUseCase = FakeCaptureUseCase(messages, appPackage),
+        captureUseCase = FakeCaptureUseCase(messages, appPackage, windowTitle),
         cloudAnalysisService = cloud,
         appVersionName = "test",
         appVersionCode = 1
@@ -463,14 +564,15 @@ class CloudAnalysisMvpSafetyGateTest {
 
     private class FakeCaptureUseCase(
         private val messages: List<com.huiyi.v4.domain.model.MessageNode>,
-        private val appPackage: String
+        private val appPackage: String,
+        private val windowTitle: String
     ) : CurrentScreenCaptureUseCase({ null }) {
         override fun capture(): Result<CurrentScreenCaptureResult> {
             return Result.success(
                 CurrentScreenCaptureResult(
                     snapshot = CurrentScreenSnapshot(
                         appPackage = appPackage,
-                        windowTitle = "chat",
+                        windowTitle = windowTitle,
                         screenWidth = 1080,
                         screenHeight = 2400,
                         nodes = emptyList(),

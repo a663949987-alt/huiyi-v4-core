@@ -1,24 +1,41 @@
 {
-  "project": "huiyi-v4",
-  "phoneBundleIncluded": true,
-  "oneTapFeedbackIncluded": true,
-  "uploadedFromPhone": true,
-  "latestPhoneUploadAt": "2026-07-03T13:51:34.477170+00:00",
-  "latestPhoneSessionId": "7a0bd75f-53e7-4855-8b1a-866017a43b43",
-  "githubCommitHash": "e80dce7aa9c9a3933d059e1a838546731584249e",
-  "githubReviewPath": "outputs/gpt_review_inbox/phone/latest/",
-  "realDeviceTested": true,
-  "latestPhoneConclusion": {
-    "sessionId": "7a0bd75f-53e7-4855-8b1a-866017a43b43",
-    "terminalState": "ROUTE_PANEL",
-    "appPackage": "com.bajiao.im.liaoqi",
-    "actualLastSpeaker": "OTHER",
-    "decisionType": "NORMAL_REPLY",
-    "routeCount": 5,
-    "waitPanelShown": false,
-    "routePanelShown": true,
-    "errorCode": "",
-    "userMarkedWrong": true,
-    "userCorrectionLastSpeaker": "NONE"
-  }
+  "project": "Huiyi v4 Core",
+  "taskName": "contamination_hard_stop_and_cloud_network_visibility",
+  "versionName": "4.1.27",
+  "versionCode": 446,
+  "currentOverallResult": "LOCAL_TEST_PASS_PRIVATE_LAN_APK_DELIVERED_NEEDS_USER_SMOKE",
+  "privateApkDelivered": true,
+  "apkDeliveredOutOfBand": true,
+  "lanUpdateDelivered": true,
+  "apkCommittedToPublicGithub": false,
+  "privateApkContainsRelayConfig": true,
+  "userReceivedApk": "unknown",
+  "contaminatedPreAnalysisHardStop": true,
+  "cloudNetworkFailureVisibleToUser": true,
+  "routesOnlyWhenPreAnalysisClean": true,
+  "realDeviceSmokeResult": "NOT_TESTED_USER_NEEDED",
+  "userNeedsPhoneThisRound": true,
+  "containsSecrets": false,
+  "files": [
+    {
+      "path": "outputs/gpt_review_inbox/README_FOR_GPT.md",
+      "type": "report",
+      "sendToGpt": true
+    },
+    {
+      "path": "outputs/gpt_review_inbox/contamination-network-fix-report-for-gpt.md",
+      "type": "report",
+      "sendToGpt": true
+    },
+    {
+      "path": "outputs/gpt_review_inbox/contamination-network-fix-report.json",
+      "type": "json",
+      "sendToGpt": true
+    },
+    {
+      "path": "outputs/codex_to_gpt/result-manifest.json",
+      "type": "json",
+      "sendToGpt": true
+    }
+  ]
 }

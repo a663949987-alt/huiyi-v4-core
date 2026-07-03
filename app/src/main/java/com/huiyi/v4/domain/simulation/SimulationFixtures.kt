@@ -59,10 +59,10 @@ object AccessibilityNodeFixtureCatalog {
         name = "liaoqi_post_panel_contaminated",
         appPackage = "com.bajiao.im.liaoqi",
         windowTitle = "Huiyi Radar: last message is me, wait panel, send to GPT",
-        expectedLastSpeaker = Speaker.ME,
-        expectedDecisionType = TacticalDecisionType.WAIT,
+        expectedLastSpeaker = null,
+        expectedDecisionType = TacticalDecisionType.PRE_ANALYSIS_CONTAMINATED,
         expectedRouteCount = 0,
-        expectedPanelState = PanelState.WAIT_PANEL,
+        expectedPanelState = PanelState.CONTROLLED_FAIL_PANEL,
         rows = listOf(
             center("overlay-title", "Huiyi Radar"),
             center("overlay-copy", "last message is me, wait"),

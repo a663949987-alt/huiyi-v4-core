@@ -32,6 +32,7 @@ import okhttp3.Request
 import okhttp3.RequestBody.Companion.toRequestBody
 import java.util.UUID
 import java.util.concurrent.TimeUnit
+import javax.net.ssl.SSLException
 
 object HuiyiTacticalContract {
     const val VERSION = "HuiyiTacticalContract-v1"
@@ -93,7 +94,10 @@ data class CloudAnalysisTrace(
     val relayApiKeyConfigured: Boolean = false,
     val relayApiKeyStoredSecurely: Boolean = false,
     val relayApiKeyExposedInRepo: Boolean = false,
-    val relayApiKeyExposedInApk: Boolean = false
+    val relayApiKeyExposedInApk: Boolean = false,
+    val cloudNetworkFailureVisibleToUser: Boolean = false,
+    val cloudRequestActuallySent: Boolean = false,
+    val cloudFailureLikelyCause: String = "NONE"
 ) {
     companion object {
         fun skipped(config: CloudAnalysisConfig, reason: String, decisionSource: String): CloudAnalysisTrace = CloudAnalysisTrace(
@@ -125,14 +129,17 @@ data class CloudAnalysisTrace(
             providerType = config.providerType,
             relayBaseUrlConfigured = config.endpointConfigured,
             relayApiKeyConfigured = config.relayApiKeyConfigured,
-            relayApiKeyStoredSecurely = config.relayApiKeyStoredSecurely
+            relayApiKeyStoredSecurely = config.relayApiKeyStoredSecurely,
+            cloudRequestActuallySent = true
         )
 
         fun fallback(
             config: CloudAnalysisConfig,
             errorCode: String,
             latencyMs: Long?,
-            validationResult: String = "NOT_RUN"
+            validationResult: String = "NOT_RUN",
+            failureLikelyCause: String = "UNKNOWN",
+            requestActuallySent: Boolean = true
         ): CloudAnalysisTrace = CloudAnalysisTrace(
             cloudEnabled = config.cloudEnabled,
             endpointConfigured = config.endpointConfigured,
@@ -149,7 +156,10 @@ data class CloudAnalysisTrace(
             providerType = config.providerType,
             relayBaseUrlConfigured = config.endpointConfigured,
             relayApiKeyConfigured = config.relayApiKeyConfigured,
-            relayApiKeyStoredSecurely = config.relayApiKeyStoredSecurely
+            relayApiKeyStoredSecurely = config.relayApiKeyStoredSecurely,
+            cloudNetworkFailureVisibleToUser = errorCode == "NETWORK",
+            cloudRequestActuallySent = requestActuallySent,
+            cloudFailureLikelyCause = if (errorCode == "NETWORK") failureLikelyCause else "NONE"
         )
     }
 }
@@ -238,8 +248,20 @@ class CloudAnalysisRepository(
             )
         } catch (error: java.net.SocketTimeoutException) {
             throw CloudAnalysisException("TIMEOUT", error)
+        } catch (error: java.net.UnknownHostException) {
+            throw CloudAnalysisException("NETWORK", error, "DNS_FAILED", requestActuallySent = true)
+        } catch (error: SSLException) {
+            throw CloudAnalysisException("NETWORK", error, "HTTPS_CERT_ERROR", requestActuallySent = true)
         } catch (error: java.io.IOException) {
-            throw CloudAnalysisException("NETWORK", error)
+            val message = error.message.orEmpty()
+            val likelyCause = when {
+                message.contains("CLEARTEXT", ignoreCase = true) -> "BASE_URL_INVALID"
+                message.contains("timeout", ignoreCase = true) -> "TIMEOUT"
+                else -> "UNKNOWN"
+            }
+            throw CloudAnalysisException("NETWORK", error, likelyCause, requestActuallySent = true)
+        } catch (error: IllegalArgumentException) {
+            throw CloudAnalysisException("NETWORK", error, "BASE_URL_INVALID", requestActuallySent = false)
         } catch (error: IllegalStateException) {
             throw CloudAnalysisException(error.message?.substringBefore(":") ?: "SERVER_ERROR", error)
         }
@@ -247,7 +269,12 @@ class CloudAnalysisRepository(
     }
 }
 
-class CloudAnalysisException(val code: String, cause: Throwable? = null) : RuntimeException(code, cause)
+class CloudAnalysisException(
+    val code: String,
+    cause: Throwable? = null,
+    val likelyCause: String = "UNKNOWN",
+    val requestActuallySent: Boolean = true
+) : RuntimeException(code, cause)
 
 class CloudTacticalDecisionMapper(
     private val contractValidator: CloudTacticalResponseValidator = CloudTacticalResponseValidator()

@@ -260,7 +260,9 @@ enum class TacticalDecisionType {
     PUSH_LIGHTLY,
     PUSH_NOT_NOW,
     VOICE_SUMMARY_REQUIRED,
-    CONTEXT_REQUIRED
+    CONTEXT_REQUIRED,
+    CHAT_WINDOW_NOT_FOUND,
+    PRE_ANALYSIS_CONTAMINATED
 }
 
 data class InfluenceProfile(

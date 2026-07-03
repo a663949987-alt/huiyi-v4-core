@@ -57,6 +57,9 @@ data class NextSentenceFlightRecord(
     val cloudSuccess: Boolean,
     val cloudLatencyMs: Long?,
     val cloudErrorCode: String?,
+    val cloudNetworkFailureVisibleToUser: Boolean = false,
+    val cloudRequestActuallySent: Boolean = false,
+    val cloudFailureLikelyCause: String = "NONE",
     val cloudFallbackUsed: Boolean,
     val decisionSource: String,
     val captureSource: String,
@@ -132,6 +135,23 @@ data class NextSentenceFlightRecord(
         val contradiction = claimsLastMeWait && claimsOtherRoute
         val contaminated = looksLikePanel || contradiction
         return copy(
+            terminalState = if (contaminated) "CONTROLLED_FAIL" else terminalState,
+            actualLastSpeaker = if (contaminated) "UNKNOWN" else actualLastSpeaker,
+            decisionType = if (contaminated) "PRE_ANALYSIS_CONTAMINATED" else decisionType,
+            decisionTypeFamily = if (contaminated) "CONTROLLED_FAIL" else decisionTypeFamily,
+            routeCount = if (contaminated) 0 else routeCount,
+            waitPanelShown = if (contaminated) false else waitPanelShown,
+            routePanelShown = if (contaminated) false else routePanelShown,
+            contextRequiredPanelShown = if (contaminated) false else contextRequiredPanelShown,
+            apiCalled = if (contaminated) false else apiCalled,
+            modelCalled = if (contaminated) false else modelCalled,
+            cloudAttempted = if (contaminated) false else cloudAttempted,
+            cloudAnalysisAttempted = if (contaminated) false else cloudAnalysisAttempted,
+            cloudSuccess = if (contaminated) false else cloudSuccess,
+            cloudErrorCode = if (contaminated) null else cloudErrorCode,
+            cloudFallbackUsed = if (contaminated) false else cloudFallbackUsed,
+            cloudSkippedReason = if (contaminated) "PRE_ANALYSIS_CONTAMINATED" else cloudSkippedReason,
+            decisionSource = if (contaminated) "CONTROLLED_FAIL" else decisionSource,
             postPanelContaminationDetected = postPanelContaminationDetected || contaminated,
             feedbackUsedOverlayStateAsPreAnalysis = feedbackUsedOverlayStateAsPreAnalysis || contaminated,
             preAnalysisSnapshotTrusted = preAnalysisSnapshotTrusted && !contaminated,
@@ -141,8 +161,7 @@ data class NextSentenceFlightRecord(
             recordClaimsLastOtherRoutePanel = claimsOtherRoute,
             windowTitleAndDecisionContradiction = contradiction,
             reportConsistencyResult = if (contaminated) "FAIL_CONTAMINATED_EXPORT" else "PASS",
-            cloudConfigured = cloudEnabled,
-            cloudAnalysisAttempted = cloudAttempted
+            cloudConfigured = cloudEnabled
         )
     }
 }
@@ -150,6 +169,14 @@ data class NextSentenceFlightRecord(
 private fun looksLikeHuiyiPanel(title: String): Boolean {
     if (title.isBlank()) return false
     val markers = listOf(
+        "没读到当前聊天",
+        "没读到聊天",
+        "请回到聊起聊天窗口",
+        "这次不对，发给 GPT",
+        "这次不对",
+        "会意雷达",
+        "隐藏",
+        "正在上传 GitHub",
         "会意雷达",
         "最后一句是我",
         "你已经回过了",
@@ -278,6 +305,9 @@ object NextSentenceFlightRecordFactory {
             cloudSuccess = result.cloudTrace.cloudSuccess,
             cloudLatencyMs = result.cloudTrace.cloudLatencyMs,
             cloudErrorCode = result.cloudTrace.cloudErrorCode,
+            cloudNetworkFailureVisibleToUser = result.cloudTrace.cloudNetworkFailureVisibleToUser,
+            cloudRequestActuallySent = result.cloudTrace.cloudRequestActuallySent,
+            cloudFailureLikelyCause = result.cloudTrace.cloudFailureLikelyCause,
             cloudFallbackUsed = result.cloudTrace.cloudFallbackUsed,
             decisionSource = result.cloudTrace.decisionSource,
             captureSource = capture?.captureSource?.name ?: NextSentenceCaptureSource.NONE.name,
@@ -358,6 +388,9 @@ object NextSentenceFlightRecordFactory {
             cloudSuccess = false,
             cloudLatencyMs = null,
             cloudErrorCode = trace.errorCode?.name,
+            cloudNetworkFailureVisibleToUser = false,
+            cloudRequestActuallySent = false,
+            cloudFailureLikelyCause = "NONE",
             cloudFallbackUsed = false,
             decisionSource = "LOCAL_FALLBACK",
             captureSource = trace.captureSource.name,
@@ -400,6 +433,8 @@ object NextSentenceFlightRecordFactory {
 
     private fun terminalStateFor(type: TacticalDecisionType): String = when (type) {
         TacticalDecisionType.WAIT -> "WAIT_PANEL"
+        TacticalDecisionType.CHAT_WINDOW_NOT_FOUND,
+        TacticalDecisionType.PRE_ANALYSIS_CONTAMINATED -> "CONTROLLED_FAIL"
         TacticalDecisionType.CONTEXT_REQUIRED,
         TacticalDecisionType.VOICE_SUMMARY_REQUIRED -> "CONTEXT_REQUIRED_PANEL"
         else -> "ROUTE_PANEL"
@@ -407,6 +442,8 @@ object NextSentenceFlightRecordFactory {
 
     private fun decisionTypeFamily(type: TacticalDecisionType): String = when (type) {
         TacticalDecisionType.WAIT -> "WAIT"
+        TacticalDecisionType.CHAT_WINDOW_NOT_FOUND,
+        TacticalDecisionType.PRE_ANALYSIS_CONTAMINATED -> "CONTROLLED_FAIL"
         TacticalDecisionType.CONTEXT_REQUIRED,
         TacticalDecisionType.VOICE_SUMMARY_REQUIRED -> "CONTEXT_REQUIRED"
         TacticalDecisionType.NORMAL_REPLY,
@@ -535,6 +572,9 @@ class OneTapFeedbackExporter(
         appendLine("- cloudFallbackUsed: ${record.cloudFallbackUsed}")
         appendLine("- cloudLatencyMs: ${record.cloudLatencyMs ?: "null"}")
         appendLine("- cloudErrorCode: ${record.cloudErrorCode ?: "none"}")
+        appendLine("- cloudNetworkFailureVisibleToUser: ${record.cloudNetworkFailureVisibleToUser}")
+        appendLine("- cloudRequestActuallySent: ${record.cloudRequestActuallySent}")
+        appendLine("- cloudFailureLikelyCause: ${record.cloudFailureLikelyCause}")
         appendLine("- messageStatusArtifactCount: ${markdownField(currentScreenMarkdown, "messageStatusArtifactCount") ?: "0"}")
         appendLine("- lastMeDeliveryStatus: ${markdownField(currentScreenMarkdown, "lastMeDeliveryStatus") ?: "NONE"}")
         appendLine("- lastMeReadStatus: ${markdownField(currentScreenMarkdown, "lastMeReadStatus") ?: "NONE"}")
@@ -611,6 +651,9 @@ class OneTapFeedbackExporter(
             "cloudFallbackUsed": ${record.cloudFallbackUsed},
             "cloudLatencyMs": ${record.cloudLatencyMs ?: "null"},
             "cloudErrorCode": "${record.cloudErrorCode ?: ""}",
+            "cloudNetworkFailureVisibleToUser": ${record.cloudNetworkFailureVisibleToUser},
+            "cloudRequestActuallySent": ${record.cloudRequestActuallySent},
+            "cloudFailureLikelyCause": "${escape(record.cloudFailureLikelyCause)}",
             "loadingStillVisible": ${record.loadingStillVisible},
             "errorCode": "${record.errorCode ?: ""}",
             "failedStage": "${record.failedStage ?: ""}",
@@ -661,6 +704,9 @@ class OneTapFeedbackExporter(
         appendLine("- cloudSkippedReason: ${record.cloudSkippedReason ?: "none"}")
         appendLine("- decisionSource: ${record.decisionSource}")
         appendLine("- cloudFallbackUsed: ${record.cloudFallbackUsed}")
+        appendLine("- cloudNetworkFailureVisibleToUser: ${record.cloudNetworkFailureVisibleToUser}")
+        appendLine("- cloudRequestActuallySent: ${record.cloudRequestActuallySent}")
+        appendLine("- cloudFailureLikelyCause: ${record.cloudFailureLikelyCause}")
         appendLine("- cloudContractVersion: ${record.cloudContractVersion}")
         appendLine("- cloudContractValidationResult: ${record.cloudContractValidationResult}")
         appendLine("- cloudLatencyMs: ${record.cloudLatencyMs ?: "null"}")
@@ -748,6 +794,9 @@ class OneTapFeedbackExporter(
           "cloudSuccess": ${record.cloudSuccess},
           "cloudLatencyMs": ${record.cloudLatencyMs ?: "null"},
           "cloudErrorCode": ${record.cloudErrorCode?.let { "\"${escape(it)}\"" } ?: "null"},
+          "cloudNetworkFailureVisibleToUser": ${record.cloudNetworkFailureVisibleToUser},
+          "cloudRequestActuallySent": ${record.cloudRequestActuallySent},
+          "cloudFailureLikelyCause": "${escape(record.cloudFailureLikelyCause)}",
           "cloudFallbackUsed": ${record.cloudFallbackUsed},
           "decisionSource": "${record.decisionSource}",
           "loadingStillVisible": ${record.loadingStillVisible},
@@ -836,6 +885,9 @@ class OneTapFeedbackExporter(
         cloudSuccess = false,
         cloudLatencyMs = null,
         cloudErrorCode = null,
+        cloudNetworkFailureVisibleToUser = false,
+        cloudRequestActuallySent = false,
+        cloudFailureLikelyCause = "NONE",
         cloudFallbackUsed = false,
         decisionSource = "LOCAL_FALLBACK",
         captureSource = "NONE",

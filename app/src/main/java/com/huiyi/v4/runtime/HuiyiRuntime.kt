@@ -419,6 +419,8 @@ class HuiyiRuntime private constructor(
 
     private fun terminalStateFor(type: TacticalDecisionType): String = when (type) {
         TacticalDecisionType.WAIT -> "WAIT_PANEL"
+        TacticalDecisionType.CHAT_WINDOW_NOT_FOUND,
+        TacticalDecisionType.PRE_ANALYSIS_CONTAMINATED -> "CONTROLLED_FAIL"
         TacticalDecisionType.CONTEXT_REQUIRED,
         TacticalDecisionType.VOICE_SUMMARY_REQUIRED -> "CONTEXT_REQUIRED_PANEL"
         else -> "ROUTE_PANEL"
@@ -426,6 +428,8 @@ class HuiyiRuntime private constructor(
 
     private fun decisionTypeFamily(type: TacticalDecisionType): String = when (type) {
         TacticalDecisionType.WAIT -> "WAIT"
+        TacticalDecisionType.CHAT_WINDOW_NOT_FOUND,
+        TacticalDecisionType.PRE_ANALYSIS_CONTAMINATED -> "CONTROLLED_FAIL"
         TacticalDecisionType.CONTEXT_REQUIRED,
         TacticalDecisionType.VOICE_SUMMARY_REQUIRED -> "CONTEXT_REQUIRED"
         TacticalDecisionType.NORMAL_REPLY,

@@ -342,6 +342,7 @@ fun FloatingTacticalPanel(
         state.latestPipelineResult?.cloudTrace?.let { cloud ->
             if (decision.decisionType != TacticalDecisionType.WAIT) {
                 val label = when {
+                    cloud.cloudErrorCode == "NETWORK" -> "云端连接失败，已使用本地建议"
                     cloud.decisionSource == "CLOUD" -> "会意云端分析"
                     cloud.cloudFallbackUsed -> "云端暂不可用，已使用本地建议"
                     cloud.cloudSkippedReason == "CLOUD_NOT_CONFIGURED" -> "本地建议：云端暂未配置。"

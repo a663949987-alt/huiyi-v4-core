@@ -75,6 +75,10 @@ class CurrentScreenPipelineUseCase(
 ) {
     suspend fun run(userPersonaCorpus: UserPersonaCorpus): Result<CurrentScreenPipelineResult> {
         return captureUseCase.capture().mapCatching { capture ->
+            val contamination = PreAnalysisContaminationGuard.inspect(capture)
+            if (contamination.contaminated) {
+                return@mapCatching contaminatedResult(capture, contamination.reason)
+            }
             val lastSpeaker = lastSpeakerDecisionUseCase.decide(capture.messages)
             val context = contextAssembler.assemble(
                 currentScreenMessages = capture.messages,
@@ -188,12 +192,25 @@ class CurrentScreenPipelineUseCase(
             },
             onFailure = { error ->
                 val code = (error as? CloudAnalysisException)?.code ?: "NETWORK"
+                val likelyCause = (error as? CloudAnalysisException)?.likelyCause ?: "UNKNOWN"
+                val requestActuallySent = (error as? CloudAnalysisException)?.requestActuallySent ?: true
                 val validationResult = if (code in setOf("CLOUD_SCHEMA_INVALID", "CLOUD_CONTRACT_VIOLATION", "SCHEMA_INVALID")) {
                     "FAIL"
                 } else {
                     "NOT_RUN"
                 }
-                CloudPipelineResult(localDecision, localRoutes, CloudAnalysisTrace.fallback(config, code, System.currentTimeMillis() - startedAt, validationResult))
+                CloudPipelineResult(
+                    localDecision,
+                    localRoutes,
+                    CloudAnalysisTrace.fallback(
+                        config = config,
+                        errorCode = code,
+                        latencyMs = System.currentTimeMillis() - startedAt,
+                        validationResult = validationResult,
+                        failureLikelyCause = likelyCause,
+                        requestActuallySent = requestActuallySent
+                    )
+                )
             }
         )
     }
@@ -241,4 +258,90 @@ class CurrentScreenPipelineUseCase(
         ),
         fallbackMove = "先确认这条内容是什么意思。"
     )
+
+    private fun contaminatedResult(
+        capture: CurrentScreenCaptureResult,
+        reason: String
+    ): CurrentScreenPipelineResult {
+        val config = cloudAnalysisService?.config ?: CloudAnalysisConfig(cloudEnabled = false)
+        val decision = TacticalDecision(
+            decisionType = TacticalDecisionType.PRE_ANALYSIS_CONTAMINATED,
+            situation = "没有读到干净聊天页。",
+            coreInsight = reason,
+            userLikelyMistake = "当前采样像是会意自己的面板，继续分析会污染判断。",
+            bestMove = "没读到聊天页，请点一下聊起聊天窗口后再试。",
+            avoidMoves = listOf("不要生成路线", "不要调用云端", "不要使用本地 fallback 路线"),
+            coCreationOpportunity = null,
+            shouldUseUserStory = false,
+            selectedStoryCardIds = emptyList(),
+            influenceProfile = InfluenceProfile(
+                intensity = InfluenceIntensity.LOW,
+                riskLevel = RiskLevel.MEDIUM,
+                riskWarning = reason,
+                fallbackMove = "回到聊起聊天窗口后再点下一句。"
+            ),
+            fallbackMove = "回到聊起聊天窗口后再点下一句。"
+        )
+        return CurrentScreenPipelineResult(
+            captureResult = capture,
+            context = null,
+            lastSpeakerDecision = LastSpeakerDecision(
+                lastEffectiveMessage = null,
+                lastSpeaker = null,
+                shouldReply = false,
+                reason = reason,
+                unknownSpeaker = true
+            ),
+            tacticalDecision = decision,
+            routes = emptyList(),
+            apiCalled = false,
+            cloudTrace = CloudAnalysisTrace.skipped(config, "PRE_ANALYSIS_CONTAMINATED", "CONTROLLED_FAIL")
+        )
+    }
+}
+
+data class PreAnalysisContaminationResult(
+    val contaminated: Boolean,
+    val reason: String = ""
+)
+
+object PreAnalysisContaminationGuard {
+    private val markers = listOf(
+        "没读到当前聊天",
+        "没读到聊天",
+        "请回到聊起聊天窗口",
+        "这次不对，发给 GPT",
+        "这次不对",
+        "会意雷达",
+        "隐藏",
+        "云端未就绪",
+        "本地建议",
+        "会意云端分析",
+        "正在上传 GitHub",
+        "Huiyi Radar",
+        "send to GPT",
+        "浼氭剰",
+        "杩欐涓嶅",
+        "闅愯棌",
+        "娌¤鍒"
+    )
+
+    fun inspect(capture: CurrentScreenCaptureResult): PreAnalysisContaminationResult {
+        val title = capture.snapshot.windowTitle.orEmpty()
+        val titleHit = markers.firstOrNull { title.contains(it, ignoreCase = true) }
+        if (titleHit != null) {
+            return PreAnalysisContaminationResult(true, "preAnalysis window title looks like Huiyi panel: $titleHit")
+        }
+        val text = capture.snapshot.nodes.asSequence()
+            .mapNotNull { it.readableText }
+            .plus(capture.messages.asSequence().mapNotNull { it.normalizedText })
+            .joinToString(" ")
+            .take(1000)
+        val textHit = markers.firstOrNull { text.contains(it, ignoreCase = true) }
+        return if (textHit != null) {
+            PreAnalysisContaminationResult(true, "preAnalysis node text looks like Huiyi panel: $textHit")
+        } else {
+            PreAnalysisContaminationResult(false)
+        }
+    }
 }
