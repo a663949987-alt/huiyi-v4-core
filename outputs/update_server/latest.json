@@ -1,9 +1,9 @@
 {
-    "versionName":  "4.1.3-lan",
-    "versionCode":  413,
-    "apkUrl":  "huiyi-v4.1.3-lan-debug.apk",
-    "releaseNotes":  "Fix LAN update server response and allow local HTTP update downloads.",
+    "versionName":  "4.1.6",
+    "versionCode":  416,
+    "apkUrl":  "huiyi-v4.1.6-debug.apk",
+    "releaseNotes":  "v4.1.6 LAN discovery fallback fix",
     "forceUpdate":  false,
-    "sha256":  "B8205BE6B343F69A63F708CD36D17D73C16700456F6B2FCCF9BDCF1187C79C67",
-    "createdAt":  1783006513450
+    "sha256":  "E55E2B871F9E78ABB654A6A3D5E4AE14368C064CF8F7A0CB6347A961D894BA39",
+    "createdAt":  1783045412067
 }

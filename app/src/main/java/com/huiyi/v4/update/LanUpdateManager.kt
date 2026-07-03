@@ -5,8 +5,8 @@ import android.content.Intent
 import android.net.wifi.WifiManager
 import androidx.core.content.FileProvider
 import com.huiyi.v4.domain.model.UpdateManifest
-import kotlinx.coroutines.async
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.supervisorScope
 import kotlinx.coroutines.withContext
@@ -42,26 +42,29 @@ class LanUpdateManager(
 
     suspend fun discoverAndCheck(port: Int = 8787): Result<Triple<String, UpdateManifest, String>> = withContext(Dispatchers.IO) {
         runCatching {
-            val prefix = localIpv4Prefix() ?: error("无法读取当前 Wi-Fi 网段，请确认手机连接到和电脑相同的 Wi-Fi")
             val probeClient = client.newBuilder()
-                .connectTimeout(350, TimeUnit.MILLISECONDS)
-                .readTimeout(700, TimeUnit.MILLISECONDS)
+                .connectTimeout(500, TimeUnit.MILLISECONDS)
+                .readTimeout(900, TimeUnit.MILLISECONDS)
                 .build()
+
+            discoverySeedUrls(port).forEach { url ->
+                fetchManifestOrNull(probeClient, url)?.let { (manifest, raw) ->
+                    return@runCatching Triple(url, manifest, raw)
+                }
+            }
+
             supervisorScope {
-                (1..254).map { host ->
-                    async(Dispatchers.IO) {
-                        val url = "http://$prefix.$host:$port/latest.json"
-                        runCatching {
-                            val raw = probeClient.newCall(Request.Builder().url(url).build()).execute().use { response ->
-                                if (!response.isSuccessful) error("HTTP ${response.code}")
-                                response.body?.string() ?: error("empty")
+                discoveryPrefixes().flatMap { prefix ->
+                    (1..254).map { host ->
+                        async(Dispatchers.IO) {
+                            val url = "http://$prefix.$host:$port/latest.json"
+                            fetchManifestOrNull(probeClient, url)?.let { (manifest, raw) ->
+                                Triple(url, manifest, raw)
                             }
-                            val manifest = Json.decodeFromString(UpdateManifest.serializer(), raw)
-                            Triple(url, manifest, raw)
-                        }.getOrNull()
+                        }
                     }
                 }.awaitAll().firstOrNull()
-            } ?: error("没有在当前 Wi-Fi 网段发现会意更新服务，请确认电脑已运行 8787 端口更新服务")
+            } ?: error("没有发现会意局域网更新服务。请确认手机和电脑在同一 Wi-Fi，电脑防火墙允许 8787 端口，或临时填写 http://192.168.31.243:8787")
         }
     }
 
@@ -111,6 +114,17 @@ class LanUpdateManager(
         return Json.decodeFromString(UpdateManifest.serializer(), raw) to raw
     }
 
+    private fun fetchManifestOrNull(client: OkHttpClient, latestUrl: String): Pair<UpdateManifest, String>? {
+        return runCatching {
+            val request = Request.Builder().url(latestUrl).build()
+            val raw = client.newCall(request).execute().use { response ->
+                if (!response.isSuccessful) error("HTTP ${response.code}")
+                response.body?.string() ?: error("empty")
+            }
+            Json.decodeFromString(UpdateManifest.serializer(), raw) to raw
+        }.getOrNull()
+    }
+
     private fun resolveApkUrl(updateUrl: String, apkUrl: String): String {
         if (apkUrl.startsWith("http://") || apkUrl.startsWith("https://")) return apkUrl
         val latestUrl = normalizeLatestUrl(updateUrl)
@@ -140,5 +154,22 @@ class LanUpdateManager(
         val b = ip shr 8 and 0xff
         val c = ip shr 16 and 0xff
         return "$a.$b.$c"
+    }
+
+    private fun discoverySeedUrls(port: Int): List<String> {
+        return listOf(
+            "http://192.168.31.243:$port/latest.json",
+            "http://192.168.31.1:$port/latest.json"
+        ).distinct()
+    }
+
+    private fun discoveryPrefixes(): List<String> {
+        return (listOfNotNull(localIpv4Prefix()) + listOf(
+            "192.168.31",
+            "192.168.1",
+            "192.168.0",
+            "10.0.0",
+            "172.16.0"
+        )).distinct()
     }
 }
