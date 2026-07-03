@@ -34,7 +34,15 @@ data class CurrentScreenPipelineResult(
     val visualDebugResult: VisualDebugResult? = null,
     val userCorrectionProvided: Boolean = false,
     val correctedLastSpeaker: Speaker? = null,
-    val correctedMessageId: String? = null
+    val correctedMessageId: String? = null,
+    val sessionId: String? = null,
+    val previousSessionId: String? = null,
+    val panelSessionId: String? = null,
+    val panelContentFromCurrentSession: Boolean = true,
+    val staleRoutesClearedAtSessionStart: Boolean = true,
+    val staleRoutesReused: Boolean = false,
+    val waitPanelShown: Boolean = false,
+    val routePanelShown: Boolean = false
 )
 
 class CurrentScreenPipelineUseCase(

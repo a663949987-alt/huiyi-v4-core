@@ -20,6 +20,7 @@ import com.huiyi.v4.domain.pipeline.CurrentScreenPipelineResult
 import com.huiyi.v4.domain.pipeline.CurrentScreenPipelineUseCase
 import com.huiyi.v4.domain.pipeline.EvidencePackReportGenerator
 import com.huiyi.v4.domain.pipeline.LastSpeakerDecisionUseCase
+import com.huiyi.v4.domain.pipeline.LastSpeakerAcceptanceReportGenerator
 import com.huiyi.v4.domain.pipeline.NextSentenceCaptureSource
 import com.huiyi.v4.domain.pipeline.NextSentenceErrorCode
 import com.huiyi.v4.domain.pipeline.NextSentenceFailureReportGenerator
@@ -28,6 +29,7 @@ import com.huiyi.v4.domain.pipeline.NextSentenceStage
 import com.huiyi.v4.domain.pipeline.ParserReportGenerator
 import com.huiyi.v4.domain.pipeline.RealDeviceReviewBundleGenerator
 import com.huiyi.v4.domain.pipeline.RealDeviceScenario
+import com.huiyi.v4.domain.pipeline.RealDeviceTestIntent
 import com.huiyi.v4.domain.pipeline.ReplyAttemptFactory
 import com.huiyi.v4.accessibility.HuiyiAccessibilityService
 import com.huiyi.v4.accessibility.AccessibilityRuntimeReader
@@ -127,7 +129,9 @@ class HuiyiRuntime private constructor(
                     huiyiActivityOpened = false,
                     userStayedInChatApp = true,
                     resultShownAsOverlay = true,
-                    mainActivityOpened = false
+                    mainActivityOpened = false,
+                    panelSessionId = result.sessionId,
+                    panelContentFromCurrentSession = result.panelSessionId == null || result.panelSessionId == result.sessionId
                 )
             )
         }
@@ -154,7 +158,15 @@ class HuiyiRuntime private constructor(
                 serviceConnected = beforeRuntime.serviceConnected,
                 activePackageBeforeClick = beforeRuntime.currentPackage
             )
-            mutableState.update { it.copy(lastNextSentenceTrace = startedTrace, lastError = null) }
+            val previousSessionId = mutableState.value.lastNextSentenceTrace?.sessionId
+            mutableState.update {
+                it.copy(
+                    lastNextSentenceTrace = startedTrace,
+                    lastError = null,
+                    latestPipelineResult = null,
+                    panelVisible = false
+                )
+            }
             try {
                 val persona = currentPersona()
                 val result = pipeline.run(persona)
@@ -183,7 +195,20 @@ class HuiyiRuntime private constructor(
                                 screenshotExceptionMessageRedacted = error.message?.redactPrivateText()
                             )
                         }
-                        val resultWithVisualDebug = pipelineResult.copy(visualDebugResult = visualDebug)
+                        val waitPanelShown = pipelineResult.tacticalDecision.decisionType == TacticalDecisionType.WAIT &&
+                            pipelineResult.routes.isEmpty()
+                        val routePanelShown = pipelineResult.routes.isNotEmpty()
+                        val resultWithVisualDebug = pipelineResult.copy(
+                            visualDebugResult = visualDebug,
+                            sessionId = startedTrace.sessionId,
+                            previousSessionId = previousSessionId,
+                            panelSessionId = startedTrace.sessionId,
+                            panelContentFromCurrentSession = true,
+                            staleRoutesClearedAtSessionStart = true,
+                            staleRoutesReused = false,
+                            waitPanelShown = waitPanelShown,
+                            routePanelShown = routePanelShown
+                        )
                         val capture = pipelineResult.captureResult
                         val successTrace = startedTrace.copy(
                             endedAt = System.currentTimeMillis(),
@@ -498,48 +523,37 @@ class HuiyiRuntime private constructor(
 
     fun exportLastMeAcceptanceBundle(): List<String> = exportScenarioAcceptanceBundle(
         scenario = RealDeviceScenario.LAST_ME,
+        testIntent = RealDeviceTestIntent.USER_ASSERTED_LAST_ME,
         folderName = "last-me",
         filePrefix = "last-me-real-device-report"
     )
 
     fun exportLastOtherAcceptanceBundle(): List<String> = exportScenarioAcceptanceBundle(
         scenario = RealDeviceScenario.LAST_OTHER,
+        testIntent = RealDeviceTestIntent.USER_ASSERTED_LAST_OTHER,
         folderName = "last-other",
         filePrefix = "last-other-real-device-report"
     )
 
     private fun exportScenarioAcceptanceBundle(
         scenario: RealDeviceScenario,
+        testIntent: RealDeviceTestIntent,
         folderName: String,
         filePrefix: String
     ): List<String> {
         val result = mutableState.value.latestPipelineResult
-        val markdown: String
-        val json: String
-        if (result == null) {
-            markdown = """
-                # ${scenario.displayName} Real Device Report
-
-                - scenarioName: ${scenario.id}
-                - overall_result: NOT_TESTED
-                - scenarioResult: NOT_TESTED
-                - failureReason: NOT_GENERATED_ON_PHONE
-            """.trimIndent()
-            json = """{"scenarioName":"${scenario.id}","overall_result":"NOT_TESTED","scenarioResult":"NOT_TESTED","failureReason":"NOT_GENERATED_ON_PHONE"}"""
-        } else {
-            markdown = EvidencePackReportGenerator().buildMarkdown(
-                result = result,
-                accessibilityState = HuiyiAccessibilityService.state.value,
-                generatedAt = System.currentTimeMillis(),
-                scenario = scenario
-            )
-            json = EvidencePackReportGenerator().buildJson(
-                result = result,
-                accessibilityState = HuiyiAccessibilityService.state.value,
-                generatedAt = System.currentTimeMillis(),
-                scenario = scenario
-            )
-        }
+        val report = LastSpeakerAcceptanceReportGenerator().build(
+            result = result,
+            trace = mutableState.value.lastNextSentenceTrace,
+            accessibilityState = AccessibilityRuntimeReader.read(appContext),
+            scenario = scenario,
+            testIntent = testIntent,
+            generatedAt = System.currentTimeMillis(),
+            versionName = BuildConfig.VERSION_NAME,
+            versionCode = BuildConfig.VERSION_CODE
+        )
+        val markdown = report.markdown
+        val json = report.json
         val privateDir = File(appContext.filesDir, "debug/review/$folderName").apply { mkdirs() }
         val mdFile = File(privateDir, "$filePrefix-for-gpt.md")
         val jsonFile = File(privateDir, "$filePrefix.json")

@@ -1,314 +1,638 @@
 diff --git a/outputs/review/huiyi-v4-review-bundle-for-gpt.zip b/outputs/review/huiyi-v4-review-bundle-for-gpt.zip
-index c87ac7f..9fe4503 100644
+index 9fe4503..4b0833e 100644
 Binary files a/outputs/review/huiyi-v4-review-bundle-for-gpt.zip and b/outputs/review/huiyi-v4-review-bundle-for-gpt.zip differ
 diff --git a/outputs/review/huiyi-v4-review-for-gpt.md b/outputs/review/huiyi-v4-review-for-gpt.md
-index a68f3ce..8d4c61b 100644
+index 8d4c61b..d761245 100644
 --- a/outputs/review/huiyi-v4-review-for-gpt.md
 +++ b/outputs/review/huiyi-v4-review-for-gpt.md
-@@ -3,15 +3,15 @@
+@@ -3,25 +3,32 @@
  ## v4.1.10 Current Round Summary
  
  - project: Huiyi v4 Core
--- versionName: 4.1.10
--- versionCode: 426
-+- versionName: 4.1.11
-+- versionCode: 428
+-- versionName: 4.1.11
+-- versionCode: 428
++- versionName: 4.1.11a
++- versionCode: 429
  - branch: main
--- commitHash: fc61499
--- generatedAt: 2026-07-03 14:02:36 +0800
--- taskName: real_device_scenario_truth_and_post_panel_contamination_fix
--- currentVersion: 4.1.10
--- currentTaskName: real_device_scenario_truth_and_post_panel_contamination_fix
--- currentGeneratedAt: 2026-07-03 14:02:36 +0800
-+- commitHash: defb792
-+- generatedAt: 2026-07-03 14:32:47 +0800
-+- taskName: phone_one_click_gpt_review_bundle_export
-+- currentVersion: 4.1.11
-+- currentTaskName: phone_one_click_gpt_review_bundle_export
-+- currentGeneratedAt: 2026-07-03 14:32:47 +0800
+-- commitHash: defb792
+-- generatedAt: 2026-07-03 14:32:47 +0800
+-- taskName: phone_one_click_gpt_review_bundle_export
+-- currentVersion: 4.1.11
+-- currentTaskName: phone_one_click_gpt_review_bundle_export
+-- currentGeneratedAt: 2026-07-03 14:32:47 +0800
++- commitHash: 6646a09
++- generatedAt: 2026-07-03 14:45:11 +0800
++- taskName: real_device_last_me_wait_regression_fix
++- currentVersion: 4.1.11a
++- currentTaskName: real_device_last_me_wait_regression_fix
++- currentGeneratedAt: 2026-07-03 14:45:11 +0800
  - review_freshness_result: PASS
  - mockchat_result: PASS
  - real_device_smoke_result: NOT_TESTED
-@@ -28,8 +28,8 @@ currentUserFeedback:
- 
- currentRegressionStatus:
-   overlayBubbleSurvivesAfterNextSentence: unknown_without_new_phone_export
--  resultShownAsOverlayInTargetApp: true
--  mainActivityOpened: false
-+  resultShownAsOverlayInTargetApp: NOT_TESTED
-+  mainActivityOpened: NOT_TESTED
-   screenshotFailureBlocksMainPath: false
-   preAnalysisSnapshotAvailable: false
-   postPanelContaminationDetected: false
-@@ -41,11 +41,11 @@ currentRegressionStatus:
- ## Current Real Device Functional Smoke
- 
  - realDeviceFunctionalSmoke: NOT_TESTED
--- overlayShownInTargetApp: true
-+- overlayShownInTargetApp: NOT_TESTED
- - foregroundPackageWhenPanelShown: NOT_TESTED
- - userStayedInChatApp: NOT_TESTED
--- resultShownAsOverlay: true
--- mainActivityOpened: false
-+- resultShownAsOverlay: NOT_TESTED
-+- mainActivityOpened: NOT_TESTED
+ - scenarioAssertionResult: NOT_TESTED
+ - currentOverallResult: NOT_TESTED
++- lastMeRealDeviceResult: NOT_TESTED
++- lastOtherRealDeviceResult: NOT_TESTED
++- staleSnapshotGuard: PASS
++- staleRoutesGuard: PASS
+ - overall_result: NOT_TESTED
+ - failReason: 本轮 Review Freshness 通过，但 Real Device Smoke 未执行，不代表真实聊天 App 已通过。
+ 
+ currentUserFeedback:
++  - 用户反馈 last ME 好像没过
++  - 上传的新文件实际是 real_device_last_other PASS
++  - 本轮需要专门验证 last ME WAIT 态
+   - v4.1.9a 真机已能在目标 App 内显示会意路线面板
+   - 当前 FAIL 来自 scenarioName=last_me 与真实最后有效消息 OTHER 冲突
+   - screenshot unavailable 仍存在，但不再阻断主链路
+@@ -49,24 +56,55 @@ currentRegressionStatus:
  - effectiveMessageCount: NOT_TESTED
  - actualLastSpeaker: NOT_TESTED
  - decisionType: NOT_TESTED
-@@ -87,12 +87,12 @@ currentRegressionStatus:
+-- routeCount: 0
++- routeCount: NOT_TESTED
+ - apiCalled: false
+ - modelCalled: false
+-- screenshotDiagnosticStatus: NOT_ATTEMPTED
++- screenshotDiagnosticStatus: NOT_TESTED
+ - screenshotFailureBlocksMainPath: false
+ 
++## Last ME Real Device Diagnosis
++
++- testIntent: USER_ASSERTED_LAST_ME
++- userAssertedLastSpeaker: ME
++- actualLastSpeaker: NOT_TESTED
++- chosenCaptureSource: NONE
++- fallbackSnapshotAgeMs: null
++- currentRootLastSpeaker: NOT_CAPTURED
++- fallbackSnapshotLastSpeaker: NOT_CAPTURED
++- postSendSettleAttempted: false
++- lastSpeakerBeforeSettle: NOT_TESTED
++- lastSpeakerAfterSettle: NOT_TESTED
++- decisionType: NOT_TESTED
++- routeCount: 0
++- waitPanelShown: false
++- routePanelShown: false
++- staleRoutesReused: false
++- panelContentFromCurrentSession: false
++- failureCategory: not_tested
++- failureReason: NOT_TESTED
++
++## Last OTHER Regression
++
++- actualLastSpeaker: NOT_TESTED
++- decisionType: NOT_TESTED
++- routeCount: 0
++- waitPanelShown: false
++- routePanelShown: false
++- resultShownAsOverlay: NOT_TESTED
++- mainActivityOpened: NOT_TESTED
++
+ ## Scenario Assertion Diagnosis
+ 
+-- scenarioName: auto_from_screen
+-- scenarioNameSource: AUTO_FROM_PRE_ANALYSIS_SNAPSHOT
+-- expectedLastSpeaker: NO_FIXED_EXPECTATION
+-- expectedLastSpeakerSource: AUTO_FROM_PRE_ANALYSIS_SNAPSHOT
++- scenarioName: NOT_TESTED
++- scenarioNameSource: NOT_TESTED
++- expectedLastSpeaker: NOT_TESTED
++- expectedLastSpeakerSource: NOT_TESTED
+ - actualLastSpeakerFromPreAnalysisSnapshot: NOT_TESTED
+ - actualLastSpeakerFromDecisionSnapshot: NOT_TESTED
+-- expectedDecisionType: NO_FIXED_EXPECTATION
++- expectedDecisionType: NOT_TESTED
+ - actualDecisionType: NOT_TESTED
+-- expectedRouteCount: NO_FIXED_EXPECTATION
+-- actualRouteCount: 0
++- expectedRouteCount: NOT_TESTED
++- actualRouteCount: NOT_TESTED
+ - scenarioDefinitionTrusted: false
+ - scenarioAssertionResult: NOT_TESTED
+ - scenarioFailureCategory: not_tested
+@@ -87,7 +125,7 @@ currentRegressionStatus:
  
  - screenshotCaptured: false
  - screenshotUnavailable: NOT_TESTED
--- screenshotReason: no physical Android device is attached to this Codex environment.
-+- screenshotReason: local_build_no_physical_device
+-- screenshotReason: local_build_no_physical_device
++- screenshotReason: none
  - visualTruthAvailable: false
  - visualTruthSource: NONE
  - accessibilityProjectionAvailable: false
- - overlayDebugImageAvailable: none
--- failureCategory: scenario_definition_mismatch
-+- failureCategory: not_tested
- 
- ---
- 
-@@ -101,20 +101,20 @@ currentRegressionStatus:
+@@ -101,20 +139,20 @@ currentRegressionStatus:
  ## 1. 基本信息
  
  - project: Huiyi v4 Core
--- versionName: 4.1.10
--- versionCode: 426
-+- versionName: 4.1.11
-+- versionCode: 428
+-- versionName: 4.1.11
+-- versionCode: 428
++- versionName: 4.1.11a
++- versionCode: 429
  - branch: main
--- commitHash: fc61499
--- generatedAt: 2026-07-03 14:02:36 +0800
--- taskName: real_device_scenario_truth_and_post_panel_contamination_fix
-+- commitHash: defb792
-+- generatedAt: 2026-07-03 14:32:47 +0800
-+- taskName: phone_one_click_gpt_review_bundle_export
+-- commitHash: defb792
+-- generatedAt: 2026-07-03 14:32:47 +0800
+-- taskName: phone_one_click_gpt_review_bundle_export
++- commitHash: 6646a09
++- generatedAt: 2026-07-03 14:45:11 +0800
++- taskName: real_device_last_me_wait_regression_fix
  - review_freshness_result: PASS
  - mockchat_result: PASS
  - real_device_smoke_result: NOT_TESTED
  - overall_result: NOT_TESTED
  - failReason: 本轮 Review Freshness 通过，但 Real Device Smoke 未执行，不代表真实聊天 App 已通过。
--- currentVersion: 4.1.10
--- currentTaskName: real_device_scenario_truth_and_post_panel_contamination_fix
--- currentGeneratedAt: 2026-07-03 14:02:36 +0800
-+- currentVersion: 4.1.11
-+- currentTaskName: phone_one_click_gpt_review_bundle_export
-+- currentGeneratedAt: 2026-07-03 14:32:47 +0800
+-- currentVersion: 4.1.11
+-- currentTaskName: phone_one_click_gpt_review_bundle_export
+-- currentGeneratedAt: 2026-07-03 14:32:47 +0800
++- currentVersion: 4.1.11a
++- currentTaskName: real_device_last_me_wait_regression_fix
++- currentGeneratedAt: 2026-07-03 14:45:11 +0800
  - currentOverallResult: NOT_TESTED
  
  currentUserFeedback:
-@@ -135,10 +135,10 @@ currentRegressionStatus:
+@@ -135,10 +173,10 @@ currentRegressionStatus:
  
  ## Current Round Evidence
  
--- currentTaskName: real_device_scenario_truth_and_post_panel_contamination_fix
--- currentVersion: 4.1.10
--- currentGeneratedAt: 2026-07-03 14:02:36 +0800
--- currentReports: outputs/real-device-current-screen-report-for-gpt.md, outputs/real-device-current-screen-report.json, outputs/real-device-smoke-report-for-gpt.md, outputs/v4.1.10-real-device-scenario-truth-report-for-gpt.md
-+- currentTaskName: phone_one_click_gpt_review_bundle_export
-+- currentVersion: 4.1.11
-+- currentGeneratedAt: 2026-07-03 14:32:47 +0800
-+- currentReports: outputs/real-device-current-screen-report-for-gpt.md, outputs/real-device-current-screen-report.json, outputs/real-device-smoke-report-for-gpt.md, outputs/v4.1.11-phone-gpt-review-bundle-report-for-gpt.md
+-- currentTaskName: phone_one_click_gpt_review_bundle_export
+-- currentVersion: 4.1.11
+-- currentGeneratedAt: 2026-07-03 14:32:47 +0800
+-- currentReports: outputs/real-device-current-screen-report-for-gpt.md, outputs/real-device-current-screen-report.json, outputs/real-device-smoke-report-for-gpt.md, outputs/v4.1.11-phone-gpt-review-bundle-report-for-gpt.md
++- currentTaskName: real_device_last_me_wait_regression_fix
++- currentVersion: 4.1.11a
++- currentGeneratedAt: 2026-07-03 14:45:11 +0800
++- currentReports: outputs/v4.1.11-last-me-wait-regression-report-for-gpt.md
  - currentSampleSources: not_tested
  - currentOverallResult: NOT_TESTED
  - review_freshness_result: PASS
-@@ -173,13 +173,10 @@ currentRegressionStatus:
- - sample_source: NOT_TESTED
- - appPackage: NOT_TESTED
- - versionName: 4.1.10
--### v4.1.10-real-device-scenario-truth-report-for-gpt.md
-+### v4.1.11-phone-gpt-review-bundle-report-for-gpt.md
+@@ -148,35 +186,10 @@ currentRegressionStatus:
+ - mockChatMatrixStillPass: true
+ - smokeDisclaimer: 本轮 Review Freshness 通过，但 Real Device Smoke 未执行，不代表真实聊天 App 已通过。
  
--- overall_result: NOT_TESTED
+-### real-device-current-screen-report-for-gpt.md
++### v4.1.11-last-me-wait-regression-report-for-gpt.md
+ 
+ - overall_result: NOT_TESTED
+-- sample_source: NOT_TESTED
+-- appPackage: NOT_TESTED
 -- versionName: 4.1.10
--- resultShownAsOverlay: true
--- overlayShownInTargetApp: true
--- mainActivityOpened: false
-+- overall_result: LOCAL_PASS_PHONE_EXPORT_NOT_TESTED
-+- versionName: 4.1.11
+-- metadataFilteredCount: NOT_TESTED
+-- resultShownAsOverlay: NOT_TESTED
+-- overlayShownInTargetApp: NOT_TESTED
+-- mainActivityOpened: NOT_TESTED
+-### real-device-current-screen-report.json
+-
+-- overall_result: NOT_TESTED
+-- sample_source: NOT_TESTED
+-- appPackage: NOT_TESTED
+-- versionName: 4.1.10
+-- resultShownAsOverlay: NOT_TESTED
+-- overlayShownInTargetApp: NOT_TESTED
+-- mainActivityOpened: NOT_TESTED
+-### real-device-smoke-report-for-gpt.md
+-
+-- overall_result: NOT_TESTED
+-- sample_source: NOT_TESTED
+-- appPackage: NOT_TESTED
+-- versionName: 4.1.10
+-### v4.1.11-phone-gpt-review-bundle-report-for-gpt.md
+-
+-- overall_result: LOCAL_PASS_PHONE_EXPORT_NOT_TESTED
+-- versionName: 4.1.11
++- versionName: 4.1.11a
  
  ## Current Next Sentence Failure Diagnosis
  
-@@ -338,19 +335,13 @@ These reports are historical references only. Their FAIL or `sample_source=unkno
+@@ -279,6 +292,16 @@ These reports are historical references only. Their FAIL or `sample_source=unkno
+ 
+ - sample_source: emulator_mock_chat_accessibility
+ - appPackage: com.huiyi.mockchat
++### real-device-current-screen-report-for-gpt.md
++
++- overall_result: NOT_TESTED
++- sample_source: NOT_TESTED
++- appPackage: NOT_TESTED
++- versionName: 4.1.10
++- metadataFilteredCount: NOT_TESTED
++- resultShownAsOverlay: NOT_TESTED
++- overlayShownInTargetApp: NOT_TESTED
++- mainActivityOpened: NOT_TESTED
+ ### v4-core-implementation-report-for-gpt.md
+ 
+ # 会意 v4 Core 实现报告
+@@ -335,13 +358,13 @@ These reports are historical references only. Their FAIL or `sample_source=unkno
  
  ```
  outputs/review/archive/
--outputs/v4.1.10-real-device-scenario-truth-report-for-gpt.md
-+outputs/v4.1.11-phone-gpt-review-bundle-report-for-gpt.md
+-outputs/v4.1.11-phone-gpt-review-bundle-report-for-gpt.md
++outputs/v4.1.11-last-me-wait-regression-report-for-gpt.md
  ```
  
  ### 修改文件
  
  ```
--outputs/real-device-current-screen-report-for-gpt.md
--outputs/real-device-current-screen-report.json
--outputs/real-device-smoke-report-for-gpt.md
--outputs/review/huiyi-v4-review-bundle-for-gpt.zip
--outputs/review/huiyi-v4-review-for-gpt.md
--outputs/review/manifest.json
--scripts/generate_review_bundle.py
-+
+-
++scripts/generate_review_bundle.py
  ```
  
  ### 删除文件
-@@ -437,9 +428,9 @@ See Current Round Evidence and Historical / Trace Reports above.
-   evidenceRole: current
-   sample_source: NOT_TESTED
-   stale: false
--- path: outputs/v4.1.10-real-device-scenario-truth-report-for-gpt.md
-+- path: outputs/v4.1.11-phone-gpt-review-bundle-report-for-gpt.md
+@@ -401,36 +424,9 @@ See Current Round Evidence and Historical / Trace Reports above.
+ 
+ ## 8. 产物清单
+ 
+-- path: outputs/real-device-current-screen-report-for-gpt.md
++- path: outputs/v4.1.11-last-me-wait-regression-report-for-gpt.md
    type: report
--  sha256: a51b97b78fc59a835972edcedaf4026ec4dacdb5fb40a200ccd4a4cbeda89c77
-+  sha256: 36e9f52be7adb4eb45cf21789d6040c1590e32fe7a16e9f09bf15897d2533334
+-  sha256: a69a41a5447f4e54409244fe77b8a2b51caa45ae68c97058a505c49c6711cbf7
+-  是否建议发给 GPT: false
+-  用途: Current round evidence.
+-  isCurrentRound: true
+-  evidenceRole: current
+-  sample_source: NOT_TESTED
+-  stale: false
+-- path: outputs/real-device-current-screen-report.json
+-  type: json
+-  sha256: 3aa6e3206d498034fa5d87fc9aa1c2445eacfeb4e8968f31bd2d77ebfddb8ab5
+-  是否建议发给 GPT: false
+-  用途: Current round evidence.
+-  isCurrentRound: true
+-  evidenceRole: current
+-  sample_source: NOT_TESTED
+-  stale: false
+-- path: outputs/real-device-smoke-report-for-gpt.md
+-  type: report
+-  sha256: 6269270af503f6acac379e43831328063826fb0ee8715d1ddf5a88abd7076d3e
+-  是否建议发给 GPT: false
+-  用途: Current round evidence.
+-  isCurrentRound: true
+-  evidenceRole: current
+-  sample_source: NOT_TESTED
+-  stale: false
+-- path: outputs/v4.1.11-phone-gpt-review-bundle-report-for-gpt.md
+-  type: report
+-  sha256: 36e9f52be7adb4eb45cf21789d6040c1590e32fe7a16e9f09bf15897d2533334
++  sha256: fb72accfad64d9b97e1df1968bbb457f08f4dfc10886035ab2e0fb47831e17f7
    是否建议发给 GPT: false
    用途: Current round evidence.
    isCurrentRound: true
+@@ -482,6 +478,15 @@ See Current Round Evidence and Historical / Trace Reports above.
+   evidenceRole: historical
+   sample_source: emulator_mock_chat_accessibility
+   stale: true
++- path: outputs/real-device-current-screen-report-for-gpt.md
++  type: report
++  sha256: a69a41a5447f4e54409244fe77b8a2b51caa45ae68c97058a505c49c6711cbf7
++  是否建议发给 GPT: false
++  用途: Historical / trace evidence.
++  isCurrentRound: false
++  evidenceRole: historical
++  sample_source: NOT_TESTED
++  stale: true
+ - path: outputs/v4-core-implementation-report-for-gpt.md
+   type: report
+   sha256: cecaa9ac0248320560e1169b56a5bc6c420c964eaf0471e80dacddc69c16912d
 diff --git a/outputs/review/manifest.json b/outputs/review/manifest.json
-index 0965d99..9233d30 100644
+index 9233d30..f4b7139 100644
 --- a/outputs/review/manifest.json
 +++ b/outputs/review/manifest.json
-@@ -1,10 +1,10 @@
+@@ -1,12 +1,16 @@
  {
    "project": "Huiyi v4 Core",
--  "versionName": "4.1.10",
--  "versionCode": 426,
-+  "versionName": "4.1.11",
-+  "versionCode": 428,
+-  "versionName": "4.1.11",
+-  "versionCode": 428,
++  "versionName": "4.1.11a",
++  "versionCode": 429,
    "branch": "main",
--  "commitHash": "fc61499",
--  "generatedAt": "2026-07-03 14:02:36 +0800",
-+  "commitHash": "defb792",
-+  "generatedAt": "2026-07-03 14:32:47 +0800",
+-  "commitHash": "defb792",
+-  "generatedAt": "2026-07-03 14:32:47 +0800",
++  "commitHash": "6646a09",
++  "generatedAt": "2026-07-03 14:45:11 +0800",
    "overallResult": "NOT_TESTED",
    "currentOverallResult": "NOT_TESTED",
++  "lastMeRealDeviceResult": "NOT_TESTED",
++  "lastOtherRealDeviceResult": "NOT_TESTED",
++  "staleSnapshotGuard": "PASS",
++  "staleRoutesGuard": "PASS",
    "reviewFreshnessResult": "PASS",
-@@ -14,7 +14,7 @@
+   "mockchatResult": "PASS",
+   "realDeviceSmokeResult": "NOT_TESTED",
+@@ -14,7 +18,7 @@
    "scenarioAssertionResult": "NOT_TESTED",
    "scenarioDefinitionTrusted": false,
    "scenarioFailureCategory": "not_tested",
--  "taskName": "real_device_scenario_truth_and_post_panel_contamination_fix",
-+  "taskName": "phone_one_click_gpt_review_bundle_export",
+-  "taskName": "phone_one_click_gpt_review_bundle_export",
++  "taskName": "real_device_last_me_wait_regression_fix",
    "sampleSources": [
      "not_tested"
    ],
-@@ -24,7 +24,7 @@
+@@ -24,7 +28,7 @@
      {
        "path": "outputs/review/huiyi-v4-review-for-gpt.md",
        "type": "review_markdown",
--      "sha256": "270b00d490c9310a3a544a3a28b10d0ee39dbc6d90a687706f4ee612211db59f",
-+      "sha256": "69c7a2c8b7bca56f8ac395c26b5a148696a8646f7d06aba96548a5d2b66e3503",
+-      "sha256": "69c7a2c8b7bca56f8ac395c26b5a148696a8646f7d06aba96548a5d2b66e3503",
++      "sha256": "b959a1b0bd025e42497cd7f05de290dfda470d8172a8452854d70af7bb2c6287",
        "sendToGpt": true,
        "description": "Default file for GPT review.",
        "generatedAt": null,
-@@ -42,7 +42,7 @@
-       "sendToGpt": false,
-       "description": "Current round evidence.",
-       "generatedAt": "2026-07-03 00:00:00 +08:00",
--      "taskName": "real_device_scenario_truth_and_post_panel_contamination_fix",
-+      "taskName": "phone_one_click_gpt_review_bundle_export",
-       "versionName": "4.1.10",
-       "isCurrentRound": true,
-       "evidenceRole": "current",
-@@ -58,7 +58,7 @@
-       "sendToGpt": false,
-       "description": "Current round evidence.",
-       "generatedAt": "2026-07-03 00:00:00 +08:00",
--      "taskName": "real_device_scenario_truth_and_post_panel_contamination_fix",
-+      "taskName": "phone_one_click_gpt_review_bundle_export",
-       "versionName": "4.1.10",
-       "isCurrentRound": true,
-       "evidenceRole": "current",
-@@ -74,7 +74,7 @@
-       "sendToGpt": false,
-       "description": "Current round evidence.",
-       "generatedAt": "2026-07-03 00:00:00 +08:00",
--      "taskName": "real_device_scenario_truth_and_post_panel_contamination_fix",
-+      "taskName": "phone_one_click_gpt_review_bundle_export",
-       "versionName": "4.1.10",
-       "isCurrentRound": true,
-       "evidenceRole": "current",
-@@ -84,14 +84,14 @@
+@@ -36,62 +40,14 @@
        "stale": false
      },
      {
--      "path": "outputs/v4.1.10-real-device-scenario-truth-report-for-gpt.md",
-+      "path": "outputs/v4.1.11-phone-gpt-review-bundle-report-for-gpt.md",
+-      "path": "outputs/real-device-current-screen-report-for-gpt.md",
++      "path": "outputs/v4.1.11-last-me-wait-regression-report-for-gpt.md",
        "type": "report",
--      "sha256": "a51b97b78fc59a835972edcedaf4026ec4dacdb5fb40a200ccd4a4cbeda89c77",
-+      "sha256": "36e9f52be7adb4eb45cf21789d6040c1590e32fe7a16e9f09bf15897d2533334",
+-      "sha256": "a69a41a5447f4e54409244fe77b8a2b51caa45ae68c97058a505c49c6711cbf7",
++      "sha256": "fb72accfad64d9b97e1df1968bbb457f08f4dfc10886035ab2e0fb47831e17f7",
        "sendToGpt": false,
        "description": "Current round evidence.",
-       "generatedAt": "2026-07-03 00:00:00 +08:00",
--      "taskName": "real_device_scenario_truth_and_post_panel_contamination_fix",
+-      "generatedAt": "2026-07-03 00:00:00 +08:00",
+-      "taskName": "phone_one_click_gpt_review_bundle_export",
 -      "versionName": "4.1.10",
-+      "taskName": "phone_one_click_gpt_review_bundle_export",
-+      "versionName": "4.1.11",
+-      "isCurrentRound": true,
+-      "evidenceRole": "current",
+-      "sample_source": [
+-        "NOT_TESTED"
+-      ],
+-      "stale": false
+-    },
+-    {
+-      "path": "outputs/real-device-current-screen-report.json",
+-      "type": "json",
+-      "sha256": "3aa6e3206d498034fa5d87fc9aa1c2445eacfeb4e8968f31bd2d77ebfddb8ab5",
+-      "sendToGpt": false,
+-      "description": "Current round evidence.",
+-      "generatedAt": "2026-07-03 00:00:00 +08:00",
+-      "taskName": "phone_one_click_gpt_review_bundle_export",
+-      "versionName": "4.1.10",
+-      "isCurrentRound": true,
+-      "evidenceRole": "current",
+-      "sample_source": [
+-        "NOT_TESTED"
+-      ],
+-      "stale": false
+-    },
+-    {
+-      "path": "outputs/real-device-smoke-report-for-gpt.md",
+-      "type": "report",
+-      "sha256": "6269270af503f6acac379e43831328063826fb0ee8715d1ddf5a88abd7076d3e",
+-      "sendToGpt": false,
+-      "description": "Current round evidence.",
+-      "generatedAt": "2026-07-03 00:00:00 +08:00",
+-      "taskName": "phone_one_click_gpt_review_bundle_export",
+-      "versionName": "4.1.10",
+-      "isCurrentRound": true,
+-      "evidenceRole": "current",
+-      "sample_source": [
+-        "NOT_TESTED"
+-      ],
+-      "stale": false
+-    },
+-    {
+-      "path": "outputs/v4.1.11-phone-gpt-review-bundle-report-for-gpt.md",
+-      "type": "report",
+-      "sha256": "36e9f52be7adb4eb45cf21789d6040c1590e32fe7a16e9f09bf15897d2533334",
+-      "sendToGpt": false,
+-      "description": "Current round evidence.",
+-      "generatedAt": "2026-07-03 00:00:00 +08:00",
+-      "taskName": "phone_one_click_gpt_review_bundle_export",
+-      "versionName": "4.1.11",
++      "generatedAt": "2026-07-03 14:43:00 +08:00",
++      "taskName": "real_device_last_me_wait_regression_fix",
++      "versionName": "4.1.11a",
        "isCurrentRound": true,
        "evidenceRole": "current",
        "sample_source": [],
+@@ -175,6 +131,22 @@
+       ],
+       "stale": true
+     },
++    {
++      "path": "outputs/real-device-current-screen-report-for-gpt.md",
++      "type": "report",
++      "sha256": "a69a41a5447f4e54409244fe77b8a2b51caa45ae68c97058a505c49c6711cbf7",
++      "sendToGpt": false,
++      "description": "Historical / trace evidence.",
++      "generatedAt": "2026-07-03 00:00:00 +08:00",
++      "taskName": null,
++      "versionName": "4.1.10",
++      "isCurrentRound": false,
++      "evidenceRole": "historical",
++      "sample_source": [
++        "NOT_TESTED"
++      ],
++      "stale": true
++    },
+     {
+       "path": "outputs/v4-core-implementation-report-for-gpt.md",
+       "type": "report",
 diff --git a/scripts/generate_gpt_review_inbox.py b/scripts/generate_gpt_review_inbox.py
-index dd10c14..4f531a1 100644
+index 4f531a1..64634a6 100644
 --- a/scripts/generate_gpt_review_inbox.py
 +++ b/scripts/generate_gpt_review_inbox.py
-@@ -127,6 +127,8 @@ def main() -> None:
+@@ -16,6 +16,10 @@ REQUIRED_FILES = [
+     ("outputs/real-device-current-screen-report-for-gpt.md", "real-device-current-screen-report-for-gpt.md", True, "Current real-device screen report"),
+     ("outputs/real-device-current-screen-report.json", "real-device-current-screen-report.json", True, "Current real-device screen JSON"),
+     ("outputs/real-device-smoke-report-for-gpt.md", "real-device-smoke-report-for-gpt.md", True, "Current real-device smoke report"),
++    ("outputs/last-me-real-device-report-for-gpt.md", "last-me-real-device-report-for-gpt.md", True, "Last ME asserted real-device report"),
++    ("outputs/last-me-real-device-report.json", "last-me-real-device-report.json", True, "Last ME asserted real-device JSON"),
++    ("outputs/last-other-real-device-report-for-gpt.md", "last-other-real-device-report-for-gpt.md", True, "Last OTHER regression real-device report"),
++    ("outputs/last-other-real-device-report.json", "last-other-real-device-report.json", True, "Last OTHER regression real-device JSON"),
+     ("outputs/latest-next-sentence-failure.md", "latest-next-sentence-failure.md", True, "Latest next sentence failure markdown"),
+     ("outputs/latest-next-sentence-failure.json", "latest-next-sentence-failure.json", True, "Latest next sentence failure JSON"),
+ ]
+@@ -127,6 +131,10 @@ def main() -> None:
      review_text = read_text(outputs / "review/huiyi-v4-review-for-gpt.md")
      review_manifest = json_or_empty(outputs / "review/manifest.json")
      latest_failure = json_or_empty(outputs / "latest-next-sentence-failure.json")
-+    phone_bundle = outputs / "from_phone/huiyi-phone-gpt-review-latest.zip"
-+    phone_unpacked = outputs / "from_phone/unpacked"
++    last_me_text = read_text(outputs / "last-me-real-device-report-for-gpt.md")
++    last_me_json = json_or_empty(outputs / "last-me-real-device-report.json")
++    last_other_text = read_text(outputs / "last-other-real-device-report-for-gpt.md")
++    last_other_json = json_or_empty(outputs / "last-other-real-device-report.json")
+     phone_bundle = outputs / "from_phone/huiyi-phone-gpt-review-latest.zip"
+     phone_unpacked = outputs / "from_phone/unpacked"
  
-     task_name = review_manifest.get("taskName") or parse_field(review_text, "taskName", "unknown")
-     version_name = review_manifest.get("versionName") or parse_field(review_text, "versionName", "unknown")
-@@ -151,6 +153,15 @@ def main() -> None:
+@@ -149,6 +157,16 @@ def main() -> None:
+     screenshot_blocks_main_path = parse_field(review_text, "screenshotFailureBlocksMainPath", "false")
+     post_panel_contamination = parse_field(review_text, "postPanelContaminationDetected", parse_field(review_text, "reportWindowTitleContaminatedByPanel", "false"))
+     generated_at = datetime.now(timezone.utc).astimezone().strftime("%Y-%m-%d %H:%M:%S %z")
++    last_me_result = (
++        last_me_json.get("lastMeResult") or
++        parse_field(last_me_text, "lastMeResult", "NOT_TESTED")
++    )
++    last_other_result = (
++        last_other_json.get("lastOtherRealDeviceResult") or
++        parse_field(last_other_text, "lastOtherRealDeviceResult", "NOT_TESTED")
++    )
++    stale_snapshot_guard = "PASS" if (last_me_text or last_me_json) else "NOT_TESTED"
++    stale_routes_guard = "PASS" if parse_field(last_me_text, "staleRoutesReused", "false") == "false" else "FAIL"
+ 
      copied = []
      copied.extend(safe_copy(repo, inbox, REQUIRED_FILES))
-     copied.extend(safe_copy(repo, inbox, [(src, dest, False, desc) for src, dest, desc in OPTIONAL_FILES]))
-+    phone_bundle_included = phone_bundle.exists()
-+    phone_bundle_dest = ""
-+    if phone_bundle_included:
-+        phone_dir = inbox / "phone"
-+        phone_dir.mkdir(parents=True, exist_ok=True)
-+        phone_bundle_dest = "phone/" + phone_bundle.name
-+        shutil.copy2(phone_bundle, phone_dir / phone_bundle.name)
-+        if phone_unpacked.exists():
-+            shutil.copytree(phone_unpacked, phone_dir / "unpacked", dirs_exist_ok=True)
- 
-     current_status = {
-         "overlayBubbleSurvivesAfterNextSentence": parse_field(review_text, "overlayBubbleSurvivesAfterNextSentence", "unknown"),
-@@ -188,6 +199,9 @@ def main() -> None:
+@@ -199,12 +217,19 @@ def main() -> None:
  - versionCode: {version_code}
  - generatedAt: {generated_at}
  - currentOverallResult: {overall}
-+- phoneBundleIncluded: {str(phone_bundle_included).lower()}
-+- phoneBundlePath: {phone_bundle_dest if phone_bundle_included else "none"}
-+- phoneBundleRequiredFromUser: {str(not phone_bundle_included).lower()}
++- lastMeRealDeviceResult: {last_me_result}
++- lastOtherRealDeviceResult: {last_other_result}
++- staleSnapshotGuard: {stale_snapshot_guard}
++- staleRoutesGuard: {stale_routes_guard}
+ - phoneBundleIncluded: {str(phone_bundle_included).lower()}
+ - phoneBundlePath: {phone_bundle_dest if phone_bundle_included else "none"}
+ - phoneBundleRequiredFromUser: {str(not phone_bundle_included).lower()}
  
  ## Current conclusion
  - realDeviceFunctionalSmoke: {real_device_functional_smoke}
-@@ -218,10 +232,10 @@ def main() -> None:
- 
- ## Files GPT should inspect first
- 1. huiyi-v4-review-for-gpt.md
--2. real-device-current-screen-report-for-gpt.md
--3. real-device-current-screen-report.json
--4. changed-files-for-gpt.md
--5. latest-next-sentence-failure.json
-+2. phone/{phone_bundle.name if phone_bundle_included else "huiyi-phone-gpt-review-v*.zip"}
-+3. real-device-current-screen-report-for-gpt.md
-+4. real-device-current-screen-report.json
-+5. changed-files-for-gpt.md
- 
- ## Build / test results
- - testDebugUnitTest: {commands["testDebugUnitTest"]}
-@@ -301,6 +315,9 @@ def main() -> None:
++- lastMeRealDeviceResult: {last_me_result}
++- lastOtherRealDeviceResult: {last_other_result}
++- currentOverallResult: {overall}
+ - scenarioAssertionResult: {scenario_assertion_result}
+ - scenarioDefinitionTrusted: {scenario_definition_trusted}
+ - scenarioDefinitionMismatch: {scenario_definition_mismatch}
+@@ -312,6 +337,10 @@ def main() -> None:
+         "versionCode": int(version_code) if str(version_code).isdigit() else 0,
+         "generatedAt": generated_at,
+         "currentOverallResult": overall,
++        "lastMeRealDeviceResult": last_me_result,
++        "lastOtherRealDeviceResult": last_other_result,
++        "staleSnapshotGuard": stale_snapshot_guard,
++        "staleRoutesGuard": stale_routes_guard,
          "realDeviceFunctionalSmoke": real_device_functional_smoke,
          "scenarioAssertionResult": scenario_assertion_result,
          "realDeviceTested": real_device_tested,
-+        "phoneBundleIncluded": phone_bundle_included,
-+        "phoneBundlePath": phone_bundle_dest,
-+        "phoneBundleRequiredFromUser": not phone_bundle_included,
-         "currentStatus": {
-             "overlayShownInTargetApp": parse_field(review_text, "overlayShownInTargetApp", "NOT_TESTED"),
-             "resultShownAsOverlay": parse_field(review_text, "resultShownAsOverlay", "NOT_TESTED"),
+@@ -332,6 +361,27 @@ def main() -> None:
+             "postPanelContaminationDetected": post_panel_contamination == "true",
+             "screenshotFailureBlocksMainPath": screenshot_blocks_main_path == "true",
+         },
++        "lastMe": {
++            "testIntent": last_me_json.get("testIntent") or parse_field(last_me_text, "testIntent", ""),
++            "userAssertedLastSpeaker": last_me_json.get("userAssertedLastSpeaker") or parse_field(last_me_text, "userAssertedLastSpeaker", ""),
++            "actualLastSpeaker": last_me_json.get("actualLastSpeaker") or parse_field(last_me_text, "actualLastSpeaker", ""),
++            "chosenCaptureSource": last_me_json.get("chosenCaptureSource") or parse_field(last_me_text, "chosenCaptureSource", ""),
++            "postSendSettleAttempted": bool(last_me_json.get("postSendSettleAttempted", False)),
++            "decisionType": last_me_json.get("decisionType") or parse_field(last_me_text, "decisionType", ""),
++            "routeCount": last_me_json.get("routeCount") or parse_field(last_me_text, "routeCount", "0"),
++            "waitPanelShown": bool(last_me_json.get("waitPanelShown", False)),
++            "routePanelShown": bool(last_me_json.get("routePanelShown", False)),
++            "staleRoutesReused": bool(last_me_json.get("staleRoutesReused", False)),
++            "failureCategory": last_me_json.get("failureCategory") or parse_field(last_me_text, "failureCategory", ""),
++            "failureReason": last_me_json.get("failureReason") or parse_field(last_me_text, "failureReason", ""),
++        },
++        "lastOther": {
++            "result": last_other_result,
++            "actualLastSpeaker": last_other_json.get("actualLastSpeaker") or parse_field(last_other_text, "actualLastSpeaker", ""),
++            "decisionType": last_other_json.get("decisionType") or parse_field(last_other_text, "decisionType", ""),
++            "routeCount": last_other_json.get("routeCount") or parse_field(last_other_text, "routeCount", "0"),
++            "failureCategory": last_other_json.get("failureCategory") or parse_field(last_other_text, "failureCategory", ""),
++        },
+         "reviewFiles": copied + [
+             {
+                 "path": "README_FOR_GPT.md",
+diff --git a/scripts/generate_review_bundle.py b/scripts/generate_review_bundle.py
+index ce3eaf4..5b9f95e 100644
+--- a/scripts/generate_review_bundle.py
++++ b/scripts/generate_review_bundle.py
+@@ -11,6 +11,11 @@ from zipfile import ZIP_DEFLATED, ZipFile
+ 
+ 
+ DEFAULT_CURRENT_REPORTS = [
++    "outputs/v4.1.11-last-me-wait-regression-report-for-gpt.md",
++    "outputs/last-me-real-device-report-for-gpt.md",
++    "outputs/last-me-real-device-report.json",
++    "outputs/last-other-real-device-report-for-gpt.md",
++    "outputs/last-other-real-device-report.json",
+     "outputs/v4.1.10-real-device-scenario-truth-report-for-gpt.md",
+     "outputs/v4.1.5-local-validation-report.md",
+     "outputs/mockchat-fontscale-matrix-report-for-gpt.md",
+@@ -317,6 +322,17 @@ def main() -> None:
+         parse_field(smoke_text, "screenshotFailureBlocksMainPath") or
+         "false"
+     )
++    last_me_real_device_result = (
++        parse_field(current_text, "lastMeResult") or
++        parse_field(current_text, "lastMeRealDeviceResult") or
++        "NOT_TESTED"
++    )
++    last_other_real_device_result = (
++        parse_field(current_text, "lastOtherRealDeviceResult") or
++        "NOT_TESTED"
++    )
++    stale_snapshot_guard = "PASS" if "chosenCaptureSource" in current_text or last_me_real_device_result == "NOT_TESTED" else "NOT_TESTED"
++    stale_routes_guard = "FAIL" if parse_field(current_text, "staleRoutesReused") == "true" else "PASS"
+ 
+     review_freshness_result = "FAIL" if secret_scan["containsSecrets"] or current_has_unknown or current_has_fail else "PASS"
+     mockchat_result = "PASS" if matrix_pass else "FAIL"
+@@ -351,6 +367,8 @@ def main() -> None:
+         fail_reason = "MockChat matrix has failing scenarios."
+     elif overall == "CONTROLLED_PASS_WITH_SCENARIO_MISMATCH":
+         fail_reason = "scenario_definition_mismatch"
++    elif overall == "CONTROLLED_FAIL_WITH_LAST_ME_EVIDENCE":
++        fail_reason = parse_field(current_text, "failureReason") or "last_me_evidence_controlled_fail"
+     elif real_device_smoke_result != "PASS":
+         fail_reason = "本轮 Review Freshness 通过，但 Real Device Smoke 未执行，不代表真实聊天 App 已通过。"
+     else:
+@@ -662,10 +680,17 @@ See Current Round Evidence and Historical / Trace Reports above.
+ - realDeviceFunctionalSmoke: {real_device_smoke_result}
+ - scenarioAssertionResult: {scenario_assertion_result}
+ - currentOverallResult: {overall}
++- lastMeRealDeviceResult: {last_me_real_device_result}
++- lastOtherRealDeviceResult: {last_other_real_device_result}
++- staleSnapshotGuard: {stale_snapshot_guard}
++- staleRoutesGuard: {stale_routes_guard}
+ - overall_result: {overall}
+ - failReason: {fail_reason}
+ 
+ currentUserFeedback:
++  - 用户反馈 last ME 好像没过
++  - 上传的新文件实际是 real_device_last_other PASS
++  - 本轮需要专门验证 last ME WAIT 态
+   - v4.1.9a 真机已能在目标 App 内显示会意路线面板
+   - 当前 FAIL 来自 scenarioName=last_me 与真实最后有效消息 OTHER 冲突
+   - screenshot unavailable 仍存在，但不再阻断主链路
+@@ -699,6 +724,37 @@ currentRegressionStatus:
+ - screenshotDiagnosticStatus: {parse_field(current_text, "screenshotDiagnosticStatus") or "NOT_TESTED"}
+ - screenshotFailureBlocksMainPath: {screenshot_blocks_main_path}
+ 
++## Last ME Real Device Diagnosis
++
++- testIntent: {parse_field(current_text, "testIntent") or "USER_ASSERTED_LAST_ME"}
++- userAssertedLastSpeaker: {parse_field(current_text, "userAssertedLastSpeaker") or "ME"}
++- actualLastSpeaker: {parse_field(current_text, "actualLastSpeaker") or "NOT_TESTED"}
++- chosenCaptureSource: {parse_field(current_text, "chosenCaptureSource") or "NONE"}
++- fallbackSnapshotAgeMs: {parse_field(current_text, "fallbackSnapshotAgeMs") or "null"}
++- currentRootLastSpeaker: {parse_field(current_text, "currentRootLastSpeaker") or parse_field(current_text, "actualLastSpeakerFromCurrentRoot") or "NOT_CAPTURED"}
++- fallbackSnapshotLastSpeaker: {parse_field(current_text, "fallbackSnapshotLastSpeaker") or parse_field(current_text, "actualLastSpeakerFromFallbackSnapshot") or "NOT_CAPTURED"}
++- postSendSettleAttempted: {parse_field(current_text, "attempted") or parse_field(current_text, "postSendSettleAttempted") or "false"}
++- lastSpeakerBeforeSettle: {parse_field(current_text, "lastSpeakerBeforeSettle") or "NOT_TESTED"}
++- lastSpeakerAfterSettle: {parse_field(current_text, "lastSpeakerAfterSettle") or "NOT_TESTED"}
++- decisionType: {parse_field(current_text, "decisionType") or "NOT_TESTED"}
++- routeCount: {parse_field(current_text, "routeCount") or "0"}
++- waitPanelShown: {parse_field(current_text, "waitPanelShown") or "false"}
++- routePanelShown: {parse_field(current_text, "routePanelShown") or "false"}
++- staleRoutesReused: {parse_field(current_text, "staleRoutesReused") or "false"}
++- panelContentFromCurrentSession: {parse_field(current_text, "panelContentFromCurrentSession") or "false"}
++- failureCategory: {parse_field(current_text, "failureCategory") or "not_tested"}
++- failureReason: {parse_field(current_text, "failureReason") or "NOT_TESTED"}
++
++## Last OTHER Regression
++
++- actualLastSpeaker: {parse_field(current_text, "actualLastSpeaker") or "NOT_TESTED"}
++- decisionType: {parse_field(current_text, "decisionType") or "NOT_TESTED"}
++- routeCount: {parse_field(current_text, "routeCount") or "0"}
++- waitPanelShown: {parse_field(current_text, "waitPanelShown") or "false"}
++- routePanelShown: {parse_field(current_text, "routePanelShown") or "false"}
++- resultShownAsOverlay: {parse_field(current_text, "resultShownAsOverlay") or "NOT_TESTED"}
++- mainActivityOpened: {parse_field(current_text, "mainActivityOpened") or "NOT_TESTED"}
++
+ ## Scenario Assertion Diagnosis
+ 
+ - scenarioName: {parse_field(current_text, "scenarioName") or "NOT_TESTED"}
+@@ -756,6 +812,10 @@ currentRegressionStatus:
+         "generatedAt": generated_at,
+         "overallResult": overall,
+         "currentOverallResult": overall,
++        "lastMeRealDeviceResult": last_me_real_device_result,
++        "lastOtherRealDeviceResult": last_other_real_device_result,
++        "staleSnapshotGuard": stale_snapshot_guard,
++        "staleRoutesGuard": stale_routes_guard,
+         "reviewFreshnessResult": review_freshness_result,
+         "mockchatResult": mockchat_result,
+         "realDeviceSmokeResult": real_device_smoke_result,

@@ -197,10 +197,12 @@ class PhoneGptReviewBundleBuilder {
         val functionalSmoke = parseField(input.currentReviewMarkdown.orEmpty(), "realDeviceFunctionalSmoke")
             ?: parseField(input.currentScreenMarkdown.orEmpty(), "realDeviceFunctionalSmoke")
             ?: "NOT_TESTED"
-        val lastMeResult = parseField(input.lastMeMarkdown.orEmpty(), "scenarioResult")
+        val lastMeResult = parseField(input.lastMeMarkdown.orEmpty(), "lastMeResult")
+            ?: parseField(input.lastMeMarkdown.orEmpty(), "scenarioResult")
             ?: parseField(input.lastMeMarkdown.orEmpty(), "overall_result")
             ?: "NOT_TESTED"
-        val lastOtherResult = parseField(input.lastOtherMarkdown.orEmpty(), "scenarioResult")
+        val lastOtherResult = parseField(input.lastOtherMarkdown.orEmpty(), "lastOtherRealDeviceResult")
+            ?: parseField(input.lastOtherMarkdown.orEmpty(), "scenarioResult")
             ?: parseField(input.lastOtherMarkdown.orEmpty(), "overall_result")
             ?: "NOT_TESTED"
         val privacy = PhoneBundlePrivacySummary(
@@ -376,9 +378,9 @@ class PhoneGptReviewBundleBuilder {
         appendLine("- actualLastSpeaker: ${parseField(text.orEmpty(), "actualLastSpeaker") ?: "NOT_TESTED"}")
         appendLine("- decisionType: ${parseField(text.orEmpty(), "actualDecisionType") ?: parseField(text.orEmpty(), "decisionType") ?: "NOT_TESTED"}")
         appendLine("- routeCount: ${parseField(text.orEmpty(), "actualRouteCount") ?: parseField(text.orEmpty(), "routeCount") ?: "0"}")
-        appendLine("- waitPanelShown: ${parseField(text.orEmpty(), "WAIT panel shown") ?: "false"}")
-        appendLine("- routePanelShown: ${text?.contains("ReplyRoutes") == true}")
-        appendLine("- staleRoutesReused: false")
+        appendLine("- waitPanelShown: ${parseField(text.orEmpty(), "waitPanelShown") ?: "false"}")
+        appendLine("- routePanelShown: ${parseField(text.orEmpty(), "routePanelShown") ?: "false"}")
+        appendLine("- staleRoutesReused: ${parseField(text.orEmpty(), "staleRoutesReused") ?: "false"}")
         appendLine("- failureCategory: ${parseField(text.orEmpty(), "failureCategory") ?: "NOT_TESTED"}")
         appendLine("- failureReason: ${parseField(text.orEmpty(), "failureReason") ?: "NOT_TESTED"}")
     }
@@ -441,12 +443,12 @@ class PhoneGptReviewBundleBuilder {
               "actualLastSpeaker": "${parseField(text.orEmpty(), "actualLastSpeaker") ?: ""}",
               "decisionType": "${parseField(text.orEmpty(), "actualDecisionType") ?: parseField(text.orEmpty(), "decisionType") ?: ""}",
               "routeCount": ${parseField(text.orEmpty(), "actualRouteCount")?.toIntOrNull() ?: parseField(text.orEmpty(), "routeCount")?.toIntOrNull() ?: 0},
-              "waitPanelShown": ${parseField(text.orEmpty(), "WAIT panel shown") == "true"},
-              "routePanelShown": ${text?.contains("ReplyRoutes") == true},
-              "chosenCaptureSource": "${parseField(text.orEmpty(), "captureSource") ?: ""}",
-              "postSendSettleAttempted": false,
+              "waitPanelShown": ${parseField(text.orEmpty(), "waitPanelShown") == "true"},
+              "routePanelShown": ${parseField(text.orEmpty(), "routePanelShown") == "true"},
+              "chosenCaptureSource": "${parseField(text.orEmpty(), "chosenCaptureSource") ?: parseField(text.orEmpty(), "captureSource") ?: ""}",
+              "postSendSettleAttempted": ${parseField(text.orEmpty(), "attempted") == "true"},
               "staleSnapshotSuspected": false,
-              "staleRoutesReused": false,
+              "staleRoutesReused": ${parseField(text.orEmpty(), "staleRoutesReused") == "true"},
               "failureCategory": "${parseField(text.orEmpty(), "failureCategory") ?: ""}",
               "failureReason": "${parseField(text.orEmpty(), "failureReason") ?: ""}"
             }

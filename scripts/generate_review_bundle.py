@@ -11,6 +11,11 @@ from zipfile import ZIP_DEFLATED, ZipFile
 
 
 DEFAULT_CURRENT_REPORTS = [
+    "outputs/v4.1.11-last-me-wait-regression-report-for-gpt.md",
+    "outputs/last-me-real-device-report-for-gpt.md",
+    "outputs/last-me-real-device-report.json",
+    "outputs/last-other-real-device-report-for-gpt.md",
+    "outputs/last-other-real-device-report.json",
     "outputs/v4.1.10-real-device-scenario-truth-report-for-gpt.md",
     "outputs/v4.1.5-local-validation-report.md",
     "outputs/mockchat-fontscale-matrix-report-for-gpt.md",
@@ -317,6 +322,17 @@ def main() -> None:
         parse_field(smoke_text, "screenshotFailureBlocksMainPath") or
         "false"
     )
+    last_me_real_device_result = (
+        parse_field(current_text, "lastMeResult") or
+        parse_field(current_text, "lastMeRealDeviceResult") or
+        "NOT_TESTED"
+    )
+    last_other_real_device_result = (
+        parse_field(current_text, "lastOtherRealDeviceResult") or
+        "NOT_TESTED"
+    )
+    stale_snapshot_guard = "PASS" if "chosenCaptureSource" in current_text or last_me_real_device_result == "NOT_TESTED" else "NOT_TESTED"
+    stale_routes_guard = "FAIL" if parse_field(current_text, "staleRoutesReused") == "true" else "PASS"
 
     review_freshness_result = "FAIL" if secret_scan["containsSecrets"] or current_has_unknown or current_has_fail else "PASS"
     mockchat_result = "PASS" if matrix_pass else "FAIL"
@@ -351,6 +367,8 @@ def main() -> None:
         fail_reason = "MockChat matrix has failing scenarios."
     elif overall == "CONTROLLED_PASS_WITH_SCENARIO_MISMATCH":
         fail_reason = "scenario_definition_mismatch"
+    elif overall == "CONTROLLED_FAIL_WITH_LAST_ME_EVIDENCE":
+        fail_reason = parse_field(current_text, "failureReason") or "last_me_evidence_controlled_fail"
     elif real_device_smoke_result != "PASS":
         fail_reason = "本轮 Review Freshness 通过，但 Real Device Smoke 未执行，不代表真实聊天 App 已通过。"
     else:
@@ -662,10 +680,17 @@ See Current Round Evidence and Historical / Trace Reports above.
 - realDeviceFunctionalSmoke: {real_device_smoke_result}
 - scenarioAssertionResult: {scenario_assertion_result}
 - currentOverallResult: {overall}
+- lastMeRealDeviceResult: {last_me_real_device_result}
+- lastOtherRealDeviceResult: {last_other_real_device_result}
+- staleSnapshotGuard: {stale_snapshot_guard}
+- staleRoutesGuard: {stale_routes_guard}
 - overall_result: {overall}
 - failReason: {fail_reason}
 
 currentUserFeedback:
+  - 用户反馈 last ME 好像没过
+  - 上传的新文件实际是 real_device_last_other PASS
+  - 本轮需要专门验证 last ME WAIT 态
   - v4.1.9a 真机已能在目标 App 内显示会意路线面板
   - 当前 FAIL 来自 scenarioName=last_me 与真实最后有效消息 OTHER 冲突
   - screenshot unavailable 仍存在，但不再阻断主链路
@@ -698,6 +723,37 @@ currentRegressionStatus:
 - modelCalled: false
 - screenshotDiagnosticStatus: {parse_field(current_text, "screenshotDiagnosticStatus") or "NOT_TESTED"}
 - screenshotFailureBlocksMainPath: {screenshot_blocks_main_path}
+
+## Last ME Real Device Diagnosis
+
+- testIntent: {parse_field(current_text, "testIntent") or "USER_ASSERTED_LAST_ME"}
+- userAssertedLastSpeaker: {parse_field(current_text, "userAssertedLastSpeaker") or "ME"}
+- actualLastSpeaker: {parse_field(current_text, "actualLastSpeaker") or "NOT_TESTED"}
+- chosenCaptureSource: {parse_field(current_text, "chosenCaptureSource") or "NONE"}
+- fallbackSnapshotAgeMs: {parse_field(current_text, "fallbackSnapshotAgeMs") or "null"}
+- currentRootLastSpeaker: {parse_field(current_text, "currentRootLastSpeaker") or parse_field(current_text, "actualLastSpeakerFromCurrentRoot") or "NOT_CAPTURED"}
+- fallbackSnapshotLastSpeaker: {parse_field(current_text, "fallbackSnapshotLastSpeaker") or parse_field(current_text, "actualLastSpeakerFromFallbackSnapshot") or "NOT_CAPTURED"}
+- postSendSettleAttempted: {parse_field(current_text, "attempted") or parse_field(current_text, "postSendSettleAttempted") or "false"}
+- lastSpeakerBeforeSettle: {parse_field(current_text, "lastSpeakerBeforeSettle") or "NOT_TESTED"}
+- lastSpeakerAfterSettle: {parse_field(current_text, "lastSpeakerAfterSettle") or "NOT_TESTED"}
+- decisionType: {parse_field(current_text, "decisionType") or "NOT_TESTED"}
+- routeCount: {parse_field(current_text, "routeCount") or "0"}
+- waitPanelShown: {parse_field(current_text, "waitPanelShown") or "false"}
+- routePanelShown: {parse_field(current_text, "routePanelShown") or "false"}
+- staleRoutesReused: {parse_field(current_text, "staleRoutesReused") or "false"}
+- panelContentFromCurrentSession: {parse_field(current_text, "panelContentFromCurrentSession") or "false"}
+- failureCategory: {parse_field(current_text, "failureCategory") or "not_tested"}
+- failureReason: {parse_field(current_text, "failureReason") or "NOT_TESTED"}
+
+## Last OTHER Regression
+
+- actualLastSpeaker: {parse_field(current_text, "actualLastSpeaker") or "NOT_TESTED"}
+- decisionType: {parse_field(current_text, "decisionType") or "NOT_TESTED"}
+- routeCount: {parse_field(current_text, "routeCount") or "0"}
+- waitPanelShown: {parse_field(current_text, "waitPanelShown") or "false"}
+- routePanelShown: {parse_field(current_text, "routePanelShown") or "false"}
+- resultShownAsOverlay: {parse_field(current_text, "resultShownAsOverlay") or "NOT_TESTED"}
+- mainActivityOpened: {parse_field(current_text, "mainActivityOpened") or "NOT_TESTED"}
 
 ## Scenario Assertion Diagnosis
 
@@ -756,6 +812,10 @@ currentRegressionStatus:
         "generatedAt": generated_at,
         "overallResult": overall,
         "currentOverallResult": overall,
+        "lastMeRealDeviceResult": last_me_real_device_result,
+        "lastOtherRealDeviceResult": last_other_real_device_result,
+        "staleSnapshotGuard": stale_snapshot_guard,
+        "staleRoutesGuard": stale_routes_guard,
         "reviewFreshnessResult": review_freshness_result,
         "mockchatResult": mockchat_result,
         "realDeviceSmokeResult": real_device_smoke_result,

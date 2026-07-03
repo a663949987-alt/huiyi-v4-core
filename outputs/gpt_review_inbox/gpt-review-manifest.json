@@ -1,10 +1,14 @@
 {
   "project": "huiyi-v4",
-  "taskName": "phone_one_click_gpt_review_bundle_export",
-  "versionName": "4.1.11",
-  "versionCode": 428,
-  "generatedAt": "2026-07-03 14:32:48 +0800",
+  "taskName": "real_device_last_me_wait_regression_fix",
+  "versionName": "4.1.11a",
+  "versionCode": 429,
+  "generatedAt": "2026-07-03 14:45:11 +0800",
   "currentOverallResult": "NOT_TESTED",
+  "lastMeRealDeviceResult": "NOT_TESTED",
+  "lastOtherRealDeviceResult": "NOT_TESTED",
+  "staleSnapshotGuard": "PASS",
+  "staleRoutesGuard": "PASS",
   "realDeviceFunctionalSmoke": "NOT_TESTED",
   "scenarioAssertionResult": "NOT_TESTED",
   "realDeviceTested": false,
@@ -17,13 +21,34 @@
     "mainActivityOpened": "NOT_TESTED",
     "actualLastSpeaker": "NOT_TESTED",
     "decisionType": "NOT_TESTED",
-    "routeCount": "0",
-    "scenarioName": "auto_from_screen",
-    "expectedLastSpeaker": "NO_FIXED_EXPECTATION",
+    "routeCount": "NOT_TESTED",
+    "scenarioName": "NOT_TESTED",
+    "expectedLastSpeaker": "NOT_TESTED",
     "scenarioDefinitionTrusted": false,
     "scenarioDefinitionMismatch": false,
     "postPanelContaminationDetected": false,
     "screenshotFailureBlocksMainPath": false
+  },
+  "lastMe": {
+    "testIntent": "USER_ASSERTED_LAST_ME",
+    "userAssertedLastSpeaker": "ME",
+    "actualLastSpeaker": "NOT_TESTED",
+    "chosenCaptureSource": "NONE",
+    "postSendSettleAttempted": false,
+    "decisionType": "NOT_TESTED",
+    "routeCount": "0",
+    "waitPanelShown": false,
+    "routePanelShown": false,
+    "staleRoutesReused": false,
+    "failureCategory": "not_tested",
+    "failureReason": "NOT_GENERATED_ON_PHONE"
+  },
+  "lastOther": {
+    "result": "NOT_TESTED",
+    "actualLastSpeaker": "NOT_TESTED",
+    "decisionType": "NOT_TESTED",
+    "routeCount": "0",
+    "failureCategory": "not_tested"
   },
   "reviewFiles": [
     {
@@ -32,7 +57,7 @@
       "required": true,
       "exists": true,
       "description": "Main GPT review report",
-      "sha256": "69c7a2c8b7bca56f8ac395c26b5a148696a8646f7d06aba96548a5d2b66e3503"
+      "sha256": "b959a1b0bd025e42497cd7f05de290dfda470d8172a8452854d70af7bb2c6287"
     },
     {
       "path": "manifest.json",
@@ -40,7 +65,7 @@
       "required": true,
       "exists": true,
       "description": "Review bundle manifest",
-      "sha256": "6de04c02dbfdbab28c0fa9648a13edaee9d576ea8b726612ea4f0cc15b0dbd2a"
+      "sha256": "96ae7cb5d6e596fae960293dee99ee7229248de6cb6bb0ea8257f45b988d4fe0"
     },
     {
       "path": "real-device-current-screen-report-for-gpt.md",
@@ -65,6 +90,38 @@
       "exists": true,
       "description": "Current real-device smoke report",
       "sha256": "6269270af503f6acac379e43831328063826fb0ee8715d1ddf5a88abd7076d3e"
+    },
+    {
+      "path": "last-me-real-device-report-for-gpt.md",
+      "source": "outputs/last-me-real-device-report-for-gpt.md",
+      "required": true,
+      "exists": true,
+      "description": "Last ME asserted real-device report",
+      "sha256": "62e516f9bc1c4d4f28042b31a79c294282c081d2b6272e853dd126525e69bfe2"
+    },
+    {
+      "path": "last-me-real-device-report.json",
+      "source": "outputs/last-me-real-device-report.json",
+      "required": true,
+      "exists": true,
+      "description": "Last ME asserted real-device JSON",
+      "sha256": "28341cbc996c49e3881676279e71fff07895269430019fbad0d45c243328a31e"
+    },
+    {
+      "path": "last-other-real-device-report-for-gpt.md",
+      "source": "outputs/last-other-real-device-report-for-gpt.md",
+      "required": true,
+      "exists": true,
+      "description": "Last OTHER regression real-device report",
+      "sha256": "fc68e8358789fae6e4f4e45f53838decc61e1963fa0a015bb917245b4ecb4921"
+    },
+    {
+      "path": "last-other-real-device-report.json",
+      "source": "outputs/last-other-real-device-report.json",
+      "required": true,
+      "exists": true,
+      "description": "Last OTHER regression real-device JSON",
+      "sha256": "3f343d574939e1c43df6cda7472d9927a081c14ab5f2f3afdbcf9b310959f676"
     },
     {
       "path": "latest-next-sentence-failure.md",
@@ -151,7 +208,7 @@
       "required": true,
       "exists": true,
       "description": "Inbox overview for GPT",
-      "sha256": "ca82b5ca3fd0ffecb9b0fb45e3ddd2bb357e7d6c61981f623d6644791da4dfa3"
+      "sha256": "0e05effffcc63d0030438ddba65c752643944535121ac4512d52d7f002a57155"
     },
     {
       "path": "changed-files-for-gpt.md",

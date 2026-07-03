@@ -1,17 +1,24 @@
 # Huiyi v4 GPT Review Inbox
 
 ## Current round
-- taskName: phone_one_click_gpt_review_bundle_export
-- versionName: 4.1.11
-- versionCode: 428
-- generatedAt: 2026-07-03 14:32:48 +0800
+- taskName: real_device_last_me_wait_regression_fix
+- versionName: 4.1.11a
+- versionCode: 429
+- generatedAt: 2026-07-03 14:45:11 +0800
 - currentOverallResult: NOT_TESTED
+- lastMeRealDeviceResult: NOT_TESTED
+- lastOtherRealDeviceResult: NOT_TESTED
+- staleSnapshotGuard: PASS
+- staleRoutesGuard: PASS
 - phoneBundleIncluded: false
 - phoneBundlePath: none
 - phoneBundleRequiredFromUser: true
 
 ## Current conclusion
 - realDeviceFunctionalSmoke: NOT_TESTED
+- lastMeRealDeviceResult: NOT_TESTED
+- lastOtherRealDeviceResult: NOT_TESTED
+- currentOverallResult: NOT_TESTED
 - scenarioAssertionResult: NOT_TESTED
 - scenarioDefinitionTrusted: false
 - scenarioDefinitionMismatch: false
@@ -51,7 +58,7 @@
 - realDeviceSmoke: NOT_TESTED
 
 ## APK
-- debugApkPath: outputs/huiyi-v4.1.11-debug.apk
+- debugApkPath: outputs/huiyi-v4.1.11a-debug.apk
 - APK is not included in this review zip.
 
 ## Known remaining problems

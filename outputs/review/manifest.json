@@ -1,12 +1,16 @@
 {
   "project": "Huiyi v4 Core",
-  "versionName": "4.1.11",
-  "versionCode": 428,
+  "versionName": "4.1.11a",
+  "versionCode": 429,
   "branch": "main",
-  "commitHash": "defb792",
-  "generatedAt": "2026-07-03 14:32:47 +0800",
+  "commitHash": "6646a09",
+  "generatedAt": "2026-07-03 14:45:11 +0800",
   "overallResult": "NOT_TESTED",
   "currentOverallResult": "NOT_TESTED",
+  "lastMeRealDeviceResult": "NOT_TESTED",
+  "lastOtherRealDeviceResult": "NOT_TESTED",
+  "staleSnapshotGuard": "PASS",
+  "staleRoutesGuard": "PASS",
   "reviewFreshnessResult": "PASS",
   "mockchatResult": "PASS",
   "realDeviceSmokeResult": "NOT_TESTED",
@@ -14,7 +18,7 @@
   "scenarioAssertionResult": "NOT_TESTED",
   "scenarioDefinitionTrusted": false,
   "scenarioFailureCategory": "not_tested",
-  "taskName": "phone_one_click_gpt_review_bundle_export",
+  "taskName": "real_device_last_me_wait_regression_fix",
   "sampleSources": [
     "not_tested"
   ],
@@ -24,7 +28,7 @@
     {
       "path": "outputs/review/huiyi-v4-review-for-gpt.md",
       "type": "review_markdown",
-      "sha256": "69c7a2c8b7bca56f8ac395c26b5a148696a8646f7d06aba96548a5d2b66e3503",
+      "sha256": "b959a1b0bd025e42497cd7f05de290dfda470d8172a8452854d70af7bb2c6287",
       "sendToGpt": true,
       "description": "Default file for GPT review.",
       "generatedAt": null,
@@ -36,62 +40,14 @@
       "stale": false
     },
     {
-      "path": "outputs/real-device-current-screen-report-for-gpt.md",
+      "path": "outputs/v4.1.11-last-me-wait-regression-report-for-gpt.md",
       "type": "report",
-      "sha256": "a69a41a5447f4e54409244fe77b8a2b51caa45ae68c97058a505c49c6711cbf7",
+      "sha256": "fb72accfad64d9b97e1df1968bbb457f08f4dfc10886035ab2e0fb47831e17f7",
       "sendToGpt": false,
       "description": "Current round evidence.",
-      "generatedAt": "2026-07-03 00:00:00 +08:00",
-      "taskName": "phone_one_click_gpt_review_bundle_export",
-      "versionName": "4.1.10",
-      "isCurrentRound": true,
-      "evidenceRole": "current",
-      "sample_source": [
-        "NOT_TESTED"
-      ],
-      "stale": false
-    },
-    {
-      "path": "outputs/real-device-current-screen-report.json",
-      "type": "json",
-      "sha256": "3aa6e3206d498034fa5d87fc9aa1c2445eacfeb4e8968f31bd2d77ebfddb8ab5",
-      "sendToGpt": false,
-      "description": "Current round evidence.",
-      "generatedAt": "2026-07-03 00:00:00 +08:00",
-      "taskName": "phone_one_click_gpt_review_bundle_export",
-      "versionName": "4.1.10",
-      "isCurrentRound": true,
-      "evidenceRole": "current",
-      "sample_source": [
-        "NOT_TESTED"
-      ],
-      "stale": false
-    },
-    {
-      "path": "outputs/real-device-smoke-report-for-gpt.md",
-      "type": "report",
-      "sha256": "6269270af503f6acac379e43831328063826fb0ee8715d1ddf5a88abd7076d3e",
-      "sendToGpt": false,
-      "description": "Current round evidence.",
-      "generatedAt": "2026-07-03 00:00:00 +08:00",
-      "taskName": "phone_one_click_gpt_review_bundle_export",
-      "versionName": "4.1.10",
-      "isCurrentRound": true,
-      "evidenceRole": "current",
-      "sample_source": [
-        "NOT_TESTED"
-      ],
-      "stale": false
-    },
-    {
-      "path": "outputs/v4.1.11-phone-gpt-review-bundle-report-for-gpt.md",
-      "type": "report",
-      "sha256": "36e9f52be7adb4eb45cf21789d6040c1590e32fe7a16e9f09bf15897d2533334",
-      "sendToGpt": false,
-      "description": "Current round evidence.",
-      "generatedAt": "2026-07-03 00:00:00 +08:00",
-      "taskName": "phone_one_click_gpt_review_bundle_export",
-      "versionName": "4.1.11",
+      "generatedAt": "2026-07-03 14:43:00 +08:00",
+      "taskName": "real_device_last_me_wait_regression_fix",
+      "versionName": "4.1.11a",
       "isCurrentRound": true,
       "evidenceRole": "current",
       "sample_source": [],
@@ -172,6 +128,22 @@
       "evidenceRole": "historical",
       "sample_source": [
         "emulator_mock_chat_accessibility"
+      ],
+      "stale": true
+    },
+    {
+      "path": "outputs/real-device-current-screen-report-for-gpt.md",
+      "type": "report",
+      "sha256": "a69a41a5447f4e54409244fe77b8a2b51caa45ae68c97058a505c49c6711cbf7",
+      "sendToGpt": false,
+      "description": "Historical / trace evidence.",
+      "generatedAt": "2026-07-03 00:00:00 +08:00",
+      "taskName": null,
+      "versionName": "4.1.10",
+      "isCurrentRound": false,
+      "evidenceRole": "historical",
+      "sample_source": [
+        "NOT_TESTED"
       ],
       "stale": true
     },

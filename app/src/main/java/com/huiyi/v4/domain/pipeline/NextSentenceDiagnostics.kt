@@ -37,6 +37,14 @@ enum class NextSentenceErrorCode {
     SCREENSHOT_FAILED,
     PANEL_ADD_FAILED,
     PANEL_RENDER_FAILED,
+    LAST_STABLE_SNAPSHOT_STALE_AFTER_USER_SEND,
+    CURRENT_ROOT_NEWER_THAN_FALLBACK,
+    FALLBACK_SNAPSHOT_CONFLICTS_WITH_CURRENT_ROOT,
+    RECENT_USER_SEND_NEEDS_SETTLE,
+    PANEL_SESSION_MISMATCH,
+    STALE_ROUTES_REUSED,
+    WAIT_DECISION_BUT_ROUTES_NOT_EMPTY,
+    WAIT_DECISION_BUT_ROUTE_PANEL_SHOWN,
     SESSION_CANCELLED,
     SESSION_TIMEOUT,
     UNKNOWN_EXCEPTION
@@ -199,6 +207,7 @@ fun userFacingMessageFor(code: NextSentenceErrorCode): String {
         NextSentenceErrorCode.UNKNOWN_EXCEPTION -> "这次分析失败，已保存诊断。"
         NextSentenceErrorCode.NONE -> ""
         NextSentenceErrorCode.DECISION_EMPTY -> "分析结果为空，已保留诊断。"
+        else -> "Next sentence diagnostics were saved."
     }
 }
 

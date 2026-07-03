@@ -3,25 +3,32 @@
 ## v4.1.10 Current Round Summary
 
 - project: Huiyi v4 Core
-- versionName: 4.1.11
-- versionCode: 428
+- versionName: 4.1.11a
+- versionCode: 429
 - branch: main
-- commitHash: defb792
-- generatedAt: 2026-07-03 14:32:47 +0800
-- taskName: phone_one_click_gpt_review_bundle_export
-- currentVersion: 4.1.11
-- currentTaskName: phone_one_click_gpt_review_bundle_export
-- currentGeneratedAt: 2026-07-03 14:32:47 +0800
+- commitHash: 6646a09
+- generatedAt: 2026-07-03 14:45:11 +0800
+- taskName: real_device_last_me_wait_regression_fix
+- currentVersion: 4.1.11a
+- currentTaskName: real_device_last_me_wait_regression_fix
+- currentGeneratedAt: 2026-07-03 14:45:11 +0800
 - review_freshness_result: PASS
 - mockchat_result: PASS
 - real_device_smoke_result: NOT_TESTED
 - realDeviceFunctionalSmoke: NOT_TESTED
 - scenarioAssertionResult: NOT_TESTED
 - currentOverallResult: NOT_TESTED
+- lastMeRealDeviceResult: NOT_TESTED
+- lastOtherRealDeviceResult: NOT_TESTED
+- staleSnapshotGuard: PASS
+- staleRoutesGuard: PASS
 - overall_result: NOT_TESTED
 - failReason: 本轮 Review Freshness 通过，但 Real Device Smoke 未执行，不代表真实聊天 App 已通过。
 
 currentUserFeedback:
+  - 用户反馈 last ME 好像没过
+  - 上传的新文件实际是 real_device_last_other PASS
+  - 本轮需要专门验证 last ME WAIT 态
   - v4.1.9a 真机已能在目标 App 内显示会意路线面板
   - 当前 FAIL 来自 scenarioName=last_me 与真实最后有效消息 OTHER 冲突
   - screenshot unavailable 仍存在，但不再阻断主链路
@@ -49,24 +56,55 @@ currentRegressionStatus:
 - effectiveMessageCount: NOT_TESTED
 - actualLastSpeaker: NOT_TESTED
 - decisionType: NOT_TESTED
-- routeCount: 0
+- routeCount: NOT_TESTED
 - apiCalled: false
 - modelCalled: false
-- screenshotDiagnosticStatus: NOT_ATTEMPTED
+- screenshotDiagnosticStatus: NOT_TESTED
 - screenshotFailureBlocksMainPath: false
+
+## Last ME Real Device Diagnosis
+
+- testIntent: USER_ASSERTED_LAST_ME
+- userAssertedLastSpeaker: ME
+- actualLastSpeaker: NOT_TESTED
+- chosenCaptureSource: NONE
+- fallbackSnapshotAgeMs: null
+- currentRootLastSpeaker: NOT_CAPTURED
+- fallbackSnapshotLastSpeaker: NOT_CAPTURED
+- postSendSettleAttempted: false
+- lastSpeakerBeforeSettle: NOT_TESTED
+- lastSpeakerAfterSettle: NOT_TESTED
+- decisionType: NOT_TESTED
+- routeCount: 0
+- waitPanelShown: false
+- routePanelShown: false
+- staleRoutesReused: false
+- panelContentFromCurrentSession: false
+- failureCategory: not_tested
+- failureReason: NOT_TESTED
+
+## Last OTHER Regression
+
+- actualLastSpeaker: NOT_TESTED
+- decisionType: NOT_TESTED
+- routeCount: 0
+- waitPanelShown: false
+- routePanelShown: false
+- resultShownAsOverlay: NOT_TESTED
+- mainActivityOpened: NOT_TESTED
 
 ## Scenario Assertion Diagnosis
 
-- scenarioName: auto_from_screen
-- scenarioNameSource: AUTO_FROM_PRE_ANALYSIS_SNAPSHOT
-- expectedLastSpeaker: NO_FIXED_EXPECTATION
-- expectedLastSpeakerSource: AUTO_FROM_PRE_ANALYSIS_SNAPSHOT
+- scenarioName: NOT_TESTED
+- scenarioNameSource: NOT_TESTED
+- expectedLastSpeaker: NOT_TESTED
+- expectedLastSpeakerSource: NOT_TESTED
 - actualLastSpeakerFromPreAnalysisSnapshot: NOT_TESTED
 - actualLastSpeakerFromDecisionSnapshot: NOT_TESTED
-- expectedDecisionType: NO_FIXED_EXPECTATION
+- expectedDecisionType: NOT_TESTED
 - actualDecisionType: NOT_TESTED
-- expectedRouteCount: NO_FIXED_EXPECTATION
-- actualRouteCount: 0
+- expectedRouteCount: NOT_TESTED
+- actualRouteCount: NOT_TESTED
 - scenarioDefinitionTrusted: false
 - scenarioAssertionResult: NOT_TESTED
 - scenarioFailureCategory: not_tested
@@ -87,7 +125,7 @@ currentRegressionStatus:
 
 - screenshotCaptured: false
 - screenshotUnavailable: NOT_TESTED
-- screenshotReason: local_build_no_physical_device
+- screenshotReason: none
 - visualTruthAvailable: false
 - visualTruthSource: NONE
 - accessibilityProjectionAvailable: false
@@ -101,20 +139,20 @@ currentRegressionStatus:
 ## 1. 基本信息
 
 - project: Huiyi v4 Core
-- versionName: 4.1.11
-- versionCode: 428
+- versionName: 4.1.11a
+- versionCode: 429
 - branch: main
-- commitHash: defb792
-- generatedAt: 2026-07-03 14:32:47 +0800
-- taskName: phone_one_click_gpt_review_bundle_export
+- commitHash: 6646a09
+- generatedAt: 2026-07-03 14:45:11 +0800
+- taskName: real_device_last_me_wait_regression_fix
 - review_freshness_result: PASS
 - mockchat_result: PASS
 - real_device_smoke_result: NOT_TESTED
 - overall_result: NOT_TESTED
 - failReason: 本轮 Review Freshness 通过，但 Real Device Smoke 未执行，不代表真实聊天 App 已通过。
-- currentVersion: 4.1.11
-- currentTaskName: phone_one_click_gpt_review_bundle_export
-- currentGeneratedAt: 2026-07-03 14:32:47 +0800
+- currentVersion: 4.1.11a
+- currentTaskName: real_device_last_me_wait_regression_fix
+- currentGeneratedAt: 2026-07-03 14:45:11 +0800
 - currentOverallResult: NOT_TESTED
 
 currentUserFeedback:
@@ -135,10 +173,10 @@ currentRegressionStatus:
 
 ## Current Round Evidence
 
-- currentTaskName: phone_one_click_gpt_review_bundle_export
-- currentVersion: 4.1.11
-- currentGeneratedAt: 2026-07-03 14:32:47 +0800
-- currentReports: outputs/real-device-current-screen-report-for-gpt.md, outputs/real-device-current-screen-report.json, outputs/real-device-smoke-report-for-gpt.md, outputs/v4.1.11-phone-gpt-review-bundle-report-for-gpt.md
+- currentTaskName: real_device_last_me_wait_regression_fix
+- currentVersion: 4.1.11a
+- currentGeneratedAt: 2026-07-03 14:45:11 +0800
+- currentReports: outputs/v4.1.11-last-me-wait-regression-report-for-gpt.md
 - currentSampleSources: not_tested
 - currentOverallResult: NOT_TESTED
 - review_freshness_result: PASS
@@ -148,35 +186,10 @@ currentRegressionStatus:
 - mockChatMatrixStillPass: true
 - smokeDisclaimer: 本轮 Review Freshness 通过，但 Real Device Smoke 未执行，不代表真实聊天 App 已通过。
 
-### real-device-current-screen-report-for-gpt.md
+### v4.1.11-last-me-wait-regression-report-for-gpt.md
 
 - overall_result: NOT_TESTED
-- sample_source: NOT_TESTED
-- appPackage: NOT_TESTED
-- versionName: 4.1.10
-- metadataFilteredCount: NOT_TESTED
-- resultShownAsOverlay: NOT_TESTED
-- overlayShownInTargetApp: NOT_TESTED
-- mainActivityOpened: NOT_TESTED
-### real-device-current-screen-report.json
-
-- overall_result: NOT_TESTED
-- sample_source: NOT_TESTED
-- appPackage: NOT_TESTED
-- versionName: 4.1.10
-- resultShownAsOverlay: NOT_TESTED
-- overlayShownInTargetApp: NOT_TESTED
-- mainActivityOpened: NOT_TESTED
-### real-device-smoke-report-for-gpt.md
-
-- overall_result: NOT_TESTED
-- sample_source: NOT_TESTED
-- appPackage: NOT_TESTED
-- versionName: 4.1.10
-### v4.1.11-phone-gpt-review-bundle-report-for-gpt.md
-
-- overall_result: LOCAL_PASS_PHONE_EXPORT_NOT_TESTED
-- versionName: 4.1.11
+- versionName: 4.1.11a
 
 ## Current Next Sentence Failure Diagnosis
 
@@ -279,6 +292,16 @@ These reports are historical references only. Their FAIL or `sample_source=unkno
 
 - sample_source: emulator_mock_chat_accessibility
 - appPackage: com.huiyi.mockchat
+### real-device-current-screen-report-for-gpt.md
+
+- overall_result: NOT_TESTED
+- sample_source: NOT_TESTED
+- appPackage: NOT_TESTED
+- versionName: 4.1.10
+- metadataFilteredCount: NOT_TESTED
+- resultShownAsOverlay: NOT_TESTED
+- overlayShownInTargetApp: NOT_TESTED
+- mainActivityOpened: NOT_TESTED
 ### v4-core-implementation-report-for-gpt.md
 
 # 会意 v4 Core 实现报告
@@ -335,13 +358,13 @@ These reports are historical references only. Their FAIL or `sample_source=unkno
 
 ```
 outputs/review/archive/
-outputs/v4.1.11-phone-gpt-review-bundle-report-for-gpt.md
+outputs/v4.1.11-last-me-wait-regression-report-for-gpt.md
 ```
 
 ### 修改文件
 
 ```
-
+scripts/generate_review_bundle.py
 ```
 
 ### 删除文件
@@ -401,36 +424,9 @@ See Current Round Evidence and Historical / Trace Reports above.
 
 ## 8. 产物清单
 
-- path: outputs/real-device-current-screen-report-for-gpt.md
+- path: outputs/v4.1.11-last-me-wait-regression-report-for-gpt.md
   type: report
-  sha256: a69a41a5447f4e54409244fe77b8a2b51caa45ae68c97058a505c49c6711cbf7
-  是否建议发给 GPT: false
-  用途: Current round evidence.
-  isCurrentRound: true
-  evidenceRole: current
-  sample_source: NOT_TESTED
-  stale: false
-- path: outputs/real-device-current-screen-report.json
-  type: json
-  sha256: 3aa6e3206d498034fa5d87fc9aa1c2445eacfeb4e8968f31bd2d77ebfddb8ab5
-  是否建议发给 GPT: false
-  用途: Current round evidence.
-  isCurrentRound: true
-  evidenceRole: current
-  sample_source: NOT_TESTED
-  stale: false
-- path: outputs/real-device-smoke-report-for-gpt.md
-  type: report
-  sha256: 6269270af503f6acac379e43831328063826fb0ee8715d1ddf5a88abd7076d3e
-  是否建议发给 GPT: false
-  用途: Current round evidence.
-  isCurrentRound: true
-  evidenceRole: current
-  sample_source: NOT_TESTED
-  stale: false
-- path: outputs/v4.1.11-phone-gpt-review-bundle-report-for-gpt.md
-  type: report
-  sha256: 36e9f52be7adb4eb45cf21789d6040c1590e32fe7a16e9f09bf15897d2533334
+  sha256: fb72accfad64d9b97e1df1968bbb457f08f4dfc10886035ab2e0fb47831e17f7
   是否建议发给 GPT: false
   用途: Current round evidence.
   isCurrentRound: true
@@ -481,6 +477,15 @@ See Current Round Evidence and Historical / Trace Reports above.
   isCurrentRound: false
   evidenceRole: historical
   sample_source: emulator_mock_chat_accessibility
+  stale: true
+- path: outputs/real-device-current-screen-report-for-gpt.md
+  type: report
+  sha256: a69a41a5447f4e54409244fe77b8a2b51caa45ae68c97058a505c49c6711cbf7
+  是否建议发给 GPT: false
+  用途: Historical / trace evidence.
+  isCurrentRound: false
+  evidenceRole: historical
+  sample_source: NOT_TESTED
   stale: true
 - path: outputs/v4-core-implementation-report-for-gpt.md
   type: report

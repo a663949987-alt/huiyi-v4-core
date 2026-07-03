@@ -1,9 +1,9 @@
 {
-    "versionName":  "4.1.11",
-    "versionCode":  428,
-    "apkUrl":  "huiyi-v4.1.11-debug.apk",
-    "releaseNotes":  "v4.1.11: 新增手机端一键导出 GPT 验收总包 zip。",
+    "versionName":  "4.1.11a",
+    "versionCode":  429,
+    "apkUrl":  "huiyi-v4.1.11a-debug.apk",
+    "releaseNotes":  "v4.1.11a last-me wait evidence and stale route guard",
     "forceUpdate":  false,
-    "sha256":  "C39E87B455E317DAD313F5892323433BE5AAF7877A43A6F68C08B2D2FDCF197D",
-    "createdAt":  1783060257783
+    "sha256":  "47B9C04962C5C2A468EEFE2BE6672778A3A5CE43446F2D28FF1FC1EEC63C694A",
+    "createdAt":  1783061148429
 }

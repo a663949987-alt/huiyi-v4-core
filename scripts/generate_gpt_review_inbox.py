@@ -16,6 +16,10 @@ REQUIRED_FILES = [
     ("outputs/real-device-current-screen-report-for-gpt.md", "real-device-current-screen-report-for-gpt.md", True, "Current real-device screen report"),
     ("outputs/real-device-current-screen-report.json", "real-device-current-screen-report.json", True, "Current real-device screen JSON"),
     ("outputs/real-device-smoke-report-for-gpt.md", "real-device-smoke-report-for-gpt.md", True, "Current real-device smoke report"),
+    ("outputs/last-me-real-device-report-for-gpt.md", "last-me-real-device-report-for-gpt.md", True, "Last ME asserted real-device report"),
+    ("outputs/last-me-real-device-report.json", "last-me-real-device-report.json", True, "Last ME asserted real-device JSON"),
+    ("outputs/last-other-real-device-report-for-gpt.md", "last-other-real-device-report-for-gpt.md", True, "Last OTHER regression real-device report"),
+    ("outputs/last-other-real-device-report.json", "last-other-real-device-report.json", True, "Last OTHER regression real-device JSON"),
     ("outputs/latest-next-sentence-failure.md", "latest-next-sentence-failure.md", True, "Latest next sentence failure markdown"),
     ("outputs/latest-next-sentence-failure.json", "latest-next-sentence-failure.json", True, "Latest next sentence failure JSON"),
 ]
@@ -127,6 +131,10 @@ def main() -> None:
     review_text = read_text(outputs / "review/huiyi-v4-review-for-gpt.md")
     review_manifest = json_or_empty(outputs / "review/manifest.json")
     latest_failure = json_or_empty(outputs / "latest-next-sentence-failure.json")
+    last_me_text = read_text(outputs / "last-me-real-device-report-for-gpt.md")
+    last_me_json = json_or_empty(outputs / "last-me-real-device-report.json")
+    last_other_text = read_text(outputs / "last-other-real-device-report-for-gpt.md")
+    last_other_json = json_or_empty(outputs / "last-other-real-device-report.json")
     phone_bundle = outputs / "from_phone/huiyi-phone-gpt-review-latest.zip"
     phone_unpacked = outputs / "from_phone/unpacked"
 
@@ -149,6 +157,16 @@ def main() -> None:
     screenshot_blocks_main_path = parse_field(review_text, "screenshotFailureBlocksMainPath", "false")
     post_panel_contamination = parse_field(review_text, "postPanelContaminationDetected", parse_field(review_text, "reportWindowTitleContaminatedByPanel", "false"))
     generated_at = datetime.now(timezone.utc).astimezone().strftime("%Y-%m-%d %H:%M:%S %z")
+    last_me_result = (
+        last_me_json.get("lastMeResult") or
+        parse_field(last_me_text, "lastMeResult", "NOT_TESTED")
+    )
+    last_other_result = (
+        last_other_json.get("lastOtherRealDeviceResult") or
+        parse_field(last_other_text, "lastOtherRealDeviceResult", "NOT_TESTED")
+    )
+    stale_snapshot_guard = "PASS" if (last_me_text or last_me_json) else "NOT_TESTED"
+    stale_routes_guard = "PASS" if parse_field(last_me_text, "staleRoutesReused", "false") == "false" else "FAIL"
 
     copied = []
     copied.extend(safe_copy(repo, inbox, REQUIRED_FILES))
@@ -199,12 +217,19 @@ def main() -> None:
 - versionCode: {version_code}
 - generatedAt: {generated_at}
 - currentOverallResult: {overall}
+- lastMeRealDeviceResult: {last_me_result}
+- lastOtherRealDeviceResult: {last_other_result}
+- staleSnapshotGuard: {stale_snapshot_guard}
+- staleRoutesGuard: {stale_routes_guard}
 - phoneBundleIncluded: {str(phone_bundle_included).lower()}
 - phoneBundlePath: {phone_bundle_dest if phone_bundle_included else "none"}
 - phoneBundleRequiredFromUser: {str(not phone_bundle_included).lower()}
 
 ## Current conclusion
 - realDeviceFunctionalSmoke: {real_device_functional_smoke}
+- lastMeRealDeviceResult: {last_me_result}
+- lastOtherRealDeviceResult: {last_other_result}
+- currentOverallResult: {overall}
 - scenarioAssertionResult: {scenario_assertion_result}
 - scenarioDefinitionTrusted: {scenario_definition_trusted}
 - scenarioDefinitionMismatch: {scenario_definition_mismatch}
@@ -312,6 +337,10 @@ def main() -> None:
         "versionCode": int(version_code) if str(version_code).isdigit() else 0,
         "generatedAt": generated_at,
         "currentOverallResult": overall,
+        "lastMeRealDeviceResult": last_me_result,
+        "lastOtherRealDeviceResult": last_other_result,
+        "staleSnapshotGuard": stale_snapshot_guard,
+        "staleRoutesGuard": stale_routes_guard,
         "realDeviceFunctionalSmoke": real_device_functional_smoke,
         "scenarioAssertionResult": scenario_assertion_result,
         "realDeviceTested": real_device_tested,
@@ -331,6 +360,27 @@ def main() -> None:
             "scenarioDefinitionMismatch": scenario_assertion_result == "MISMATCH",
             "postPanelContaminationDetected": post_panel_contamination == "true",
             "screenshotFailureBlocksMainPath": screenshot_blocks_main_path == "true",
+        },
+        "lastMe": {
+            "testIntent": last_me_json.get("testIntent") or parse_field(last_me_text, "testIntent", ""),
+            "userAssertedLastSpeaker": last_me_json.get("userAssertedLastSpeaker") or parse_field(last_me_text, "userAssertedLastSpeaker", ""),
+            "actualLastSpeaker": last_me_json.get("actualLastSpeaker") or parse_field(last_me_text, "actualLastSpeaker", ""),
+            "chosenCaptureSource": last_me_json.get("chosenCaptureSource") or parse_field(last_me_text, "chosenCaptureSource", ""),
+            "postSendSettleAttempted": bool(last_me_json.get("postSendSettleAttempted", False)),
+            "decisionType": last_me_json.get("decisionType") or parse_field(last_me_text, "decisionType", ""),
+            "routeCount": last_me_json.get("routeCount") or parse_field(last_me_text, "routeCount", "0"),
+            "waitPanelShown": bool(last_me_json.get("waitPanelShown", False)),
+            "routePanelShown": bool(last_me_json.get("routePanelShown", False)),
+            "staleRoutesReused": bool(last_me_json.get("staleRoutesReused", False)),
+            "failureCategory": last_me_json.get("failureCategory") or parse_field(last_me_text, "failureCategory", ""),
+            "failureReason": last_me_json.get("failureReason") or parse_field(last_me_text, "failureReason", ""),
+        },
+        "lastOther": {
+            "result": last_other_result,
+            "actualLastSpeaker": last_other_json.get("actualLastSpeaker") or parse_field(last_other_text, "actualLastSpeaker", ""),
+            "decisionType": last_other_json.get("decisionType") or parse_field(last_other_text, "decisionType", ""),
+            "routeCount": last_other_json.get("routeCount") or parse_field(last_other_text, "routeCount", "0"),
+            "failureCategory": last_other_json.get("failureCategory") or parse_field(last_other_text, "failureCategory", ""),
         },
         "reviewFiles": copied + [
             {
