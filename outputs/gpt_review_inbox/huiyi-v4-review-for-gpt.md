@@ -3,15 +3,15 @@
 ## v4.1.10 Current Round Summary
 
 - project: Huiyi v4 Core
-- versionName: 4.1.15
-- versionCode: 433
+- versionName: 4.1.16
+- versionCode: 434
 - branch: main
-- commitHash: e8a1c9d
-- generatedAt: 2026-07-03 16:07:58 +0800
-- taskName: one_tap_feedback_duplicate_entry_fix
-- currentVersion: 4.1.15
-- currentTaskName: one_tap_feedback_duplicate_entry_fix
-- currentGeneratedAt: 2026-07-03 16:07:58 +0800
+- commitHash: e2bd834
+- generatedAt: 2026-07-03 16:14:13 +0800
+- taskName: one_tap_feedback_lan_github_gateway
+- currentVersion: 4.1.16
+- currentTaskName: one_tap_feedback_lan_github_gateway
+- currentGeneratedAt: 2026-07-03 16:14:13 +0800
 - review_freshness_result: PASS
 - mockchat_result: PASS
 - real_device_smoke_result: NOT_TESTED
@@ -139,20 +139,20 @@ currentRegressionStatus:
 ## 1. 基本信息
 
 - project: Huiyi v4 Core
-- versionName: 4.1.15
-- versionCode: 433
+- versionName: 4.1.16
+- versionCode: 434
 - branch: main
-- commitHash: e8a1c9d
-- generatedAt: 2026-07-03 16:07:58 +0800
-- taskName: one_tap_feedback_duplicate_entry_fix
+- commitHash: e2bd834
+- generatedAt: 2026-07-03 16:14:13 +0800
+- taskName: one_tap_feedback_lan_github_gateway
 - review_freshness_result: PASS
 - mockchat_result: PASS
 - real_device_smoke_result: NOT_TESTED
 - overall_result: NOT_TESTED
 - failReason: 本轮 Review Freshness 通过，但 Real Device Smoke 未执行，不代表真实聊天 App 已通过。
-- currentVersion: 4.1.15
-- currentTaskName: one_tap_feedback_duplicate_entry_fix
-- currentGeneratedAt: 2026-07-03 16:07:58 +0800
+- currentVersion: 4.1.16
+- currentTaskName: one_tap_feedback_lan_github_gateway
+- currentGeneratedAt: 2026-07-03 16:14:13 +0800
 - currentOverallResult: NOT_TESTED
 
 currentUserFeedback:
@@ -173,10 +173,10 @@ currentRegressionStatus:
 
 ## Current Round Evidence
 
-- currentTaskName: one_tap_feedback_duplicate_entry_fix
-- currentVersion: 4.1.15
-- currentGeneratedAt: 2026-07-03 16:07:58 +0800
-- currentReports: outputs/one-tap-feedback-duplicate-entry-fix-report-for-gpt.md
+- currentTaskName: one_tap_feedback_lan_github_gateway
+- currentVersion: 4.1.16
+- currentGeneratedAt: 2026-07-03 16:14:13 +0800
+- currentReports: outputs/one-tap-lan-github-gateway-report-for-gpt.md
 - currentSampleSources: not_tested
 - currentOverallResult: NOT_TESTED
 - review_freshness_result: PASS
@@ -186,9 +186,9 @@ currentRegressionStatus:
 - mockChatMatrixStillPass: true
 - smokeDisclaimer: 本轮 Review Freshness 通过，但 Real Device Smoke 未执行，不代表真实聊天 App 已通过。
 
-### one-tap-feedback-duplicate-entry-fix-report-for-gpt.md
+### one-tap-lan-github-gateway-report-for-gpt.md
 
-- versionName: 4.1.15
+- versionName: 4.1.16
 
 ## Current Next Sentence Failure Diagnosis
 
@@ -356,7 +356,7 @@ These reports are historical references only. Their FAIL or `sample_source=unkno
 ### 新增文件
 
 ```
-outputs/one-tap-feedback-duplicate-entry-fix-report-for-gpt.md
+outputs/one-tap-lan-github-gateway-report-for-gpt.md
 outputs/review/archive/
 ```
 
@@ -423,9 +423,9 @@ See Current Round Evidence and Historical / Trace Reports above.
 
 ## 8. 产物清单
 
-- path: outputs/one-tap-feedback-duplicate-entry-fix-report-for-gpt.md
+- path: outputs/one-tap-lan-github-gateway-report-for-gpt.md
   type: report
-  sha256: b625d03eff854830a1ef3cda3a7bfef60412ffe958e818602312fb0a44e15061
+  sha256: c9522fa38be282f6845aee54419c70b6cb70002f8a060a84872e4ee8a296f891
   是否建议发给 GPT: false
   用途: Current round evidence.
   isCurrentRound: true

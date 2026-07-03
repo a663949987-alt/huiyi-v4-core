@@ -1,0 +1,31 @@
+{
+  "project": "huiyi-v4",
+  "bundleType": "ONE_TAP_FEEDBACK",
+  "generatedAt": "1783066490536",
+  "appVersionName": "4.1.16",
+  "appVersionCode": 434,
+  "latestSession": {
+    "sessionId": "cccf0bf4-2e4a-4cb9-8955-e148afa8a2c4",
+    "terminalState": "CONTEXT_REQUIRED_PANEL",
+    "appPackage": "com.bajiao.im.liaoqi",
+    "targetAppSupported": true,
+    "adapterName": "LiaoqiRealParser",
+    "actualLastSpeaker": "ME",
+    "decisionType": "CONTEXT_REQUIRED",
+    "decisionTypeFamily": "CONTEXT_REQUIRED",
+    "routeCount": 0,
+    "waitPanelShown": false,
+    "routePanelShown": false,
+    "loadingStillVisible": false,
+    "errorCode": "",
+    "failedStage": "",
+    "userMarkedWrong": true,
+    "userCorrectionLastSpeaker": "NONE"
+  },
+  "quickConclusion": {
+    "status": "USER_MARKED_WRONG",
+    "humanReadable": "session exported for review."
+  },
+  "privacy": {"containsRawPrivateChat":false,"containsRawScreenshot":false,"containsApiKey":false,"containsToken":false,"containsKeystore":false,"safeForPublicGitHub":true},
+  "staleReports": []
+}
