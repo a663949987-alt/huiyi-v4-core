@@ -50,6 +50,7 @@ data class CloudRuntimeSettings(
     val timeoutMs: Long = 6000,
     val relayApiKeyConfigured: Boolean = false,
     val relayApiKeyStoredSecurely: Boolean = false,
+    val relaySecureStorageAvailable: Boolean = false,
     val relayApiKeyStorageMode: String = "DEBUG_ONLY_INSECURE_STORAGE"
 ) {
     val relayBaseUrlConfigured: Boolean get() = baseUrl.isNotBlank()
@@ -69,7 +70,7 @@ data class CloudAnalysisConfig(
 ) {
     val endpointConfigured: Boolean get() = endpoint.isNotBlank()
     val relayApiKeyConfigured: Boolean get() = apiKey.isNotBlank()
-    val configuredAndEnabled: Boolean get() = cloudEnabled && endpointConfigured && relayApiKeyConfigured
+    val configuredAndEnabled: Boolean get() = cloudEnabled && endpointConfigured && relayApiKeyConfigured && relayApiKeyStoredSecurely
 }
 
 data class CloudAnalysisTrace(
@@ -285,7 +286,8 @@ class CloudTacticalDecisionMapper(
     }
 
     fun parseResponse(responseJson: String, latencyMs: Long, actualLastSpeaker: Speaker? = Speaker.OTHER): CloudAnalysisOutput {
-        val root = json.parseToJsonElement(responseJson).jsonObject
+        val root = runCatching { extractContractJson(responseJson) }
+            .getOrElse { throw CloudAnalysisException("CLOUD_SCHEMA_INVALID", it) }
         contractValidator.validate(root, actualLastSpeaker).getOrElse { throw it }
         val decisionType = root.string("decisionType").toDecisionType()
         val routes = root["routes"]?.jsonArray.orEmpty().mapIndexed { index, element ->
@@ -310,6 +312,35 @@ class CloudTacticalDecisionMapper(
             fallbackMove = root.string("fallbackMove")
         )
         return CloudAnalysisOutput(root.string("cloudRequestId").ifBlank { UUID.randomUUID().toString() }, decision, routes, latencyMs)
+    }
+
+    fun extractContractJson(responseJson: String): JsonObject {
+        val parsed = json.parseToJsonElement(responseJson)
+        val direct = parsed.jsonObject
+        val completionContent = direct["choices"]?.jsonArray
+            ?.firstOrNull()
+            ?.jsonObject
+            ?.get("message")
+            ?.jsonObject
+            ?.get("content")
+            ?.jsonPrimitive
+            ?.contentOrNull
+        return if (completionContent.isNullOrBlank()) {
+            direct
+        } else {
+            json.parseToJsonElement(stripJsonFence(completionContent)).jsonObject
+        }
+    }
+
+    private fun stripJsonFence(content: String): String {
+        val trimmed = content.trim()
+        if (!trimmed.startsWith("```")) return trimmed
+        return trimmed
+            .removePrefix("```json")
+            .removePrefix("```JSON")
+            .removePrefix("```")
+            .removeSuffix("```")
+            .trim()
     }
 
     private fun JsonElement.toRoute(index: Int): ReplyRoute {

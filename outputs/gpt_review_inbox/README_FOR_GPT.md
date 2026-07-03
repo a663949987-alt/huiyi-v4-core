@@ -1,24 +1,38 @@
 # Huiyi v4 GPT Review Inbox
 
 ## Current Round
-- taskName: cloud_contract_mvp_with_local_safety_gate
-- versionName: 4.1.24
-- versionCode: 443
-- currentOverallResult: CLOUD_CONTRACT_LOCAL_PASS
+- taskName: relay_secure_runtime_config_and_response_parsing_mvp
+- versionName: 4.1.25
+- versionCode: 444
+- currentOverallResult: CLOUD_RUNTIME_CONFIG_LOCAL_PASS
 - userNeedsPhoneThisRound: false
+- realDeviceRequiredThisRound: false
+- realDeviceSmokeResult: NOT_TESTED
 - cloudRealEndpointRequiredThisRound: false
 
-## Relay Runtime Skeleton
+## Cloud Runtime Config MVP
+- relaySettingsUiImplemented: true
 - providerType: OPENAI_COMPATIBLE_RELAY
-- relayBaseUrlConfigured: false
 - relayApiKeyConfigured: false
-- relayApiKeyStoredSecurely: false
-- relayApiKeyStorageMode: DEBUG_ONLY_INSECURE_STORAGE
+- relayApiKeyStoredSecurely: true
 - relayApiKeyExposedInRepo: false
 - relayApiKeyExposedInApk: false
+- cloudEnabledDefault: false
+- cloudCanBeEnabledOnlyWhenSecureKeyStorage: true
+- relayResponseParsed: true
+- localFallbackOnInvalidCloud: true
+- lastMeSkipsCloud: true
+- lastOtherCloudPathReady: true
+
+## Phone / Real Device
+- phoneLatestVersionName: 4.1.25
+- phoneLatestVersionCode: 444
+- phoneLatestUsedForCurrentResult: false
+- realDeviceSmokeResult: NOT_TESTED
+- userNeedsPhoneThisRound: false
 
 ## Review Files
-1. cloud-contract-mvp-report-for-gpt.md
-2. cloud-contract-mvp-report.json
+1. cloud-runtime-config-report-for-gpt.md
+2. cloud-runtime-config-report.json
 3. gpt-review-manifest.json
 4. ../codex_to_gpt/result-manifest.json

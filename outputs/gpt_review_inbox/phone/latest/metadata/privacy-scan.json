@@ -3,6 +3,5 @@
   "containsRawScreenshot": false,
   "containsApiKey": false,
   "containsToken": false,
-  "containsKeystore": false,
-  "safeForPublicGitHub": true
+  "containsKeystore": false
 }

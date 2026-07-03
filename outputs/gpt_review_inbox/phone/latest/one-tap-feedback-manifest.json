@@ -1,11 +1,12 @@
 {
   "project": "huiyi-v4",
-  "bundleType": "PHONE_LATEST_PLACEHOLDER",
-  "appVersionName": "4.1.23",
-  "appVersionCode": 442,
-  "phoneLatestStatus": "WAITING_FOR_CURRENT_VERSION_PHONE_SMOKE",
-  "replacedOldPollutedBundle": true,
-  "previousPollutedVersionRemovedFromLatest": "4.1.20",
+  "bundleType": "PHONE_LATEST_PLACEHOLDER_CURRENT_NO_PHONE",
+  "appVersionName": "4.1.25",
+  "appVersionCode": 444,
+  "phoneLatestStatus": "CURRENT_PLACEHOLDER_NO_PHONE_THIS_ROUND",
+  "phoneLatestFreshness": "CURRENT_PLACEHOLDER_NO_PHONE",
+  "phoneLatestUsedForCurrentResult": false,
+  "phoneLatestIgnoredReason": "NO_PHONE_TEST_REQUIRED_FOR_CLOUD_RUNTIME_CONFIG_MVP",
   "feedback": {
     "feedbackTargetSessionFound": false,
     "feedbackTriggeredNewAnalysis": false,
@@ -15,26 +16,14 @@
   "latestSession": {
     "sessionId": "not-tested-current-version",
     "terminalState": "NOT_TESTED",
-    "appPackage": "NOT_TESTED",
     "actualLastSpeaker": "NOT_TESTED",
     "decisionType": "NOT_TESTED",
     "routeCount": 0,
-    "waitPanelShown": false,
-    "routePanelShown": false,
     "cloudEnabled": false,
     "cloudConfigured": false,
-    "cloudContractImplemented": false,
     "cloudAttempted": false,
-    "cloudAnalysisAttempted": false,
-    "cloudSuccess": false,
-    "cloudSkippedReason": "CLOUD_TODO_DISABLED"
+    "cloudSkippedReason": "NOT_TESTED_NO_PHONE_THIS_ROUND"
   },
-  "realDeviceSmokePolicy": {
-    "lastMe": "Liaoqi LAST_ME: ME -> WAIT",
-    "lastOther": "Liaoqi LAST_OTHER: OTHER -> routes",
-    "unsupportedApp": "Unsupported App: show unsupported prompt and export adapter bundle"
-  },
-  "lastMeRealDeviceResult": "NOT_TESTED_USER_DID_NOT_HAVE_SAFE_SCENARIO",
   "privacy": {
     "containsRawPrivateChat": false,
     "containsRawScreenshot": false,
@@ -42,9 +31,5 @@
     "containsToken": false,
     "containsKeystore": false,
     "safeForPublicGitHub": true
-  },
-  "phoneLatestFreshness": "NOT_AVAILABLE_CURRENT_NO_PHONE",
-  "phoneLatestUsedForCurrentResult": false,
-  "phoneLatestIgnoredReason": "NO_NEW_PHONE_BUNDLE_THIS_ROUND_USER_NOT_REQUIRED_TO_TEST",
-  "phoneBundleIncluded": false
+  }
 }

@@ -1,9 +1,9 @@
 {
-    "versionName":  "4.1.24",
-    "versionCode":  443,
-    "apkUrl":  "huiyi-v4.1.24-debug.apk",
-    "releaseNotes":  "v4.1.24 relay runtime settings skeleton",
+    "versionName":  "4.1.25",
+    "versionCode":  444,
+    "apkUrl":  "huiyi-v4.1.25-debug.apk",
+    "releaseNotes":  "v4.1.25 secure relay runtime config and cloud response parsing MVP",
     "forceUpdate":  false,
-    "sha256":  "8512B160CB355E30349860B5789A13802962F2F46C80FFA5E7DB41BBEE0E9188",
-    "createdAt":  1783081797353
+    "sha256":  "D90FE00449FB6871C8F6CA17A8D4E15870365E903B5A8614AD349820868E83EE",
+    "createdAt":  1783083038308
 }

@@ -1,27 +1,11 @@
 {
   "sessionId": "not-tested-current-version",
   "terminalState": "NOT_TESTED",
-  "appPackage": "NOT_TESTED",
   "actualLastSpeaker": "NOT_TESTED",
   "decisionType": "NOT_TESTED",
-  "decisionTypeFamily": "NOT_TESTED",
   "routeCount": 0,
-  "waitPanelShown": false,
-  "routePanelShown": false,
-  "contextRequiredPanelShown": false,
-  "feedbackTargetSessionFound": false,
-  "feedbackTriggeredNewAnalysis": false,
-  "feedbackReCapturedCurrentRoot": false,
-  "feedbackUsedOverlayStateAsPreAnalysis": false,
   "cloudEnabled": false,
   "cloudConfigured": false,
-  "cloudContractImplemented": false,
   "cloudAttempted": false,
-  "cloudAnalysisAttempted": false,
-  "cloudSuccess": false,
-  "cloudSkippedReason": "CLOUD_TODO_DISABLED",
-  "reportConsistencyResult": "NOT_TESTED",
-  "lastMeRealDeviceResult": "NOT_TESTED_USER_DID_NOT_HAVE_SAFE_SCENARIO",
-  "appVersionName": "4.1.23",
-  "appVersionCode": 442
+  "cloudSkippedReason": "NOT_TESTED_NO_PHONE_THIS_ROUND"
 }

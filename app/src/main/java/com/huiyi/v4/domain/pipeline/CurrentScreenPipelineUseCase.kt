@@ -160,6 +160,9 @@ class CurrentScreenPipelineUseCase(
         if (!config.relayApiKeyConfigured) {
             return CloudPipelineResult(localDecision, localRoutes, CloudAnalysisTrace.skipped(config, "RELAY_API_KEY_MISSING", "LOCAL_FALLBACK"))
         }
+        if (!config.relayApiKeyStoredSecurely) {
+            return CloudPipelineResult(localDecision, localRoutes, CloudAnalysisTrace.skipped(config, "RELAY_API_KEY_INSECURE_STORAGE", "LOCAL_FALLBACK"))
+        }
         if (lastSpeaker.lastSpeaker != Speaker.OTHER || localRoutes.size != 5) {
             return CloudPipelineResult(localDecision, localRoutes, CloudAnalysisTrace.skipped(config, "LOCAL_CONTEXT_REQUIRED", "LOCAL_FALLBACK"))
         }

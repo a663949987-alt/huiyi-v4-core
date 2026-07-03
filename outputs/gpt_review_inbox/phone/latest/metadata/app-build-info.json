@@ -1,7 +1,7 @@
 {
-  "versionName": "4.1.23",
-  "versionCode": 442,
-  "source": "LOCAL_CURRENT_VERSION_PLACEHOLDER",
-  "phoneLatestStatus": "WAITING_FOR_CURRENT_VERSION_PHONE_SMOKE",
-  "phoneLatestUpdatedToCurrentVersion": true
+  "versionName": "4.1.25",
+  "versionCode": 444,
+  "generatedAt": "2026-07-03 20:47:56 +0800",
+  "lanLatestJson": "outputs/update_server/latest.json",
+  "lanApk": "outputs/update_server/huiyi-v4.1.25-debug.apk"
 }

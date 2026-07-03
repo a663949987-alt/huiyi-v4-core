@@ -1,20 +1,36 @@
 # Changed Files for GPT
 
-## Task
-- taskName: cloud_contract_mvp_with_local_safety_gate
-- versionName: 4.1.24
-- versionCode: 443
-- currentOverallResult: CLOUD_CONTRACT_LOCAL_PASS
-
-## Summary
-- Synced GPT review inbox and Codex-to-GPT manifest to v4.1.24.
-- Added OPENAI_COMPATIBLE_RELAY runtime configuration skeleton.
-- Added runtime-only relay API key handling with report redaction.
-- Added relay fallback reasons for missing endpoint/key.
-- Added cloud report fields for providerType and relay key safety.
-- Added tests for relay key redaction, missing-key fallback, LAST_ME safety, LAST_OTHER relay success, and invalid relay fallback.
-
-## Safety
-- No real key committed.
-- BuildConfig cloud client token remains empty.
-- Reports only expose hasRelayApiKey / relayApiKeyConfigured booleans.
+- app/build.gradle.kts
+- app/src/main/java/com/huiyi/v4/domain/cloud/CloudAnalysis.kt
+- app/src/main/java/com/huiyi/v4/domain/modelprovider/OpenAICompatibleProvider.kt
+- app/src/main/java/com/huiyi/v4/domain/pipeline/CurrentScreenPipelineUseCase.kt
+- app/src/main/java/com/huiyi/v4/floating/FloatingResultPanelController.kt
+- app/src/main/java/com/huiyi/v4/runtime/HuiyiRuntime.kt
+- app/src/main/java/com/huiyi/v4/runtime/RuntimeCloudSettingsRepository.kt
+- app/src/main/java/com/huiyi/v4/ui/HuiyiRoot.kt
+- app/src/test/java/com/huiyi/v4/CloudAnalysisMvpSafetyGateTest.kt
+- outputs/codex_to_gpt/README_FOR_GPT.md
+- outputs/codex_to_gpt/changed-files-for-gpt.md
+- outputs/codex_to_gpt/result-manifest.json
+- outputs/gpt_review_inbox/README_FOR_GPT.md
+- outputs/gpt_review_inbox/changed-files-for-gpt.md
+- outputs/gpt_review_inbox/gpt-review-manifest.json
+- outputs/gpt_review_inbox/manifest.json
+- outputs/gpt_review_inbox/phone/latest/README_FOR_GPT.md
+- outputs/gpt_review_inbox/phone/latest/current-screen/real-device-current-screen-report-for-gpt.md
+- outputs/gpt_review_inbox/phone/latest/current-screen/real-device-current-screen-report.json
+- outputs/gpt_review_inbox/phone/latest/latest-session/next-sentence-flight-record-for-gpt.md
+- outputs/gpt_review_inbox/phone/latest/latest-session/next-sentence-flight-record.json
+- outputs/gpt_review_inbox/phone/latest/metadata/app-build-info.json
+- outputs/gpt_review_inbox/phone/latest/metadata/file-list.txt
+- outputs/gpt_review_inbox/phone/latest/metadata/privacy-scan.json
+- outputs/gpt_review_inbox/phone/latest/one-tap-feedback-manifest.json
+- outputs/gpt_to_codex/current-task.json
+- outputs/gpt_to_codex/current-task.md
+- outputs/huiyi-gpt-review-inbox.zip
+- outputs/review/huiyi-v4-review-bundle-for-gpt.zip
+- outputs/review/huiyi-v4-review-for-gpt.md
+- outputs/review/manifest.json
+- outputs/update_server/latest.json
+- outputs/gpt_review_inbox/cloud-runtime-config-report-for-gpt.md
+- outputs/gpt_review_inbox/cloud-runtime-config-report.json

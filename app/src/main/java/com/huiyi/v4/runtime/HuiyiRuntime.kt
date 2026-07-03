@@ -105,7 +105,7 @@ class HuiyiRuntime private constructor(
     private val persistence = HuiyiPersistenceRepository(DatabaseProvider.get(appContext).huiyiDao())
     private val updateManager = LanUpdateManager(appContext)
     private val prefs = appContext.getSharedPreferences("huiyi-runtime", Context.MODE_PRIVATE)
-    private val cloudSettingsRepository = RuntimeCloudSettingsRepository(prefs)
+    private val cloudSettingsRepository = RuntimeCloudSettingsRepository.create(appContext)
     private val pipeline = CurrentScreenPipelineUseCase(
         captureUseCase = CurrentScreenCaptureUseCase(),
         persistenceRepository = persistence,

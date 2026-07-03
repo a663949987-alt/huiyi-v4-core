@@ -200,7 +200,7 @@ class FloatingResultPanelController(
         if (decisionType == TacticalDecisionType.WAIT) return null
         return when {
             cloud.decisionSource == "CLOUD" -> "会意云端分析"
-            cloud.cloudFallbackUsed -> "本地建议：云端暂不可用，已自动降级。"
+            cloud.cloudFallbackUsed -> "云端暂不可用，已使用本地建议"
             cloud.cloudSkippedReason == "CLOUD_NOT_CONFIGURED" -> "本地建议：云端暂未配置。"
             else -> null
         }

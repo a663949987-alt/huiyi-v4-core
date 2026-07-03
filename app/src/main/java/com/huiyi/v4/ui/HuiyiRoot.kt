@@ -342,7 +342,7 @@ fun FloatingTacticalPanel(
             if (decision.decisionType != TacticalDecisionType.WAIT) {
                 val label = when {
                     cloud.decisionSource == "CLOUD" -> "会意云端分析"
-                    cloud.cloudFallbackUsed -> "本地建议：云端暂不可用，已自动降级。"
+                    cloud.cloudFallbackUsed -> "云端暂不可用，已使用本地建议"
                     cloud.cloudSkippedReason == "CLOUD_NOT_CONFIGURED" -> "本地建议：云端暂未配置。"
                     else -> null
                 }
@@ -580,6 +580,9 @@ private fun DeveloperSettingsPage(
                     StatusCard("providerType", CloudProviderType.OPENAI_COMPATIBLE_RELAY)
                     StatusCard("hasRelayApiKey", state.cloudSettings.relayApiKeyConfigured.toString())
                     StatusCard("keyStorage", state.cloudSettings.relayApiKeyStorageMode)
+                    if (!state.cloudSettings.relaySecureStorageAvailable) {
+                        Text("当前版本未启用安全密钥存储，不能保存中转站 Key。")
+                    }
                     StatusCard("testStatus", state.cloudSettingsTestStatus)
                     OutlinedButton(
                         onClick = { cloudEnabled = !cloudEnabled },

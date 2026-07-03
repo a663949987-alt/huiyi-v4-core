@@ -1,5 +1,7 @@
 package com.huiyi.v4.domain.modelprovider
 
+import com.huiyi.v4.domain.cloud.CloudTacticalDecisionMapper
+import com.huiyi.v4.domain.cloud.HuiyiTacticalContract
 import com.huiyi.v4.domain.model.Speaker
 import com.huiyi.v4.domain.model.TacticalDecisionType
 import okhttp3.MediaType.Companion.toMediaType
@@ -16,13 +18,13 @@ data class OpenAICompatibleConfig(
 )
 
 class OpenAICompatibleProvider(
-    private val config: OpenAICompatibleConfig
-) : TacticalModelProvider {
-    private val client = OkHttpClient.Builder()
+    private val config: OpenAICompatibleConfig,
+    private val mapper: CloudTacticalDecisionMapper = CloudTacticalDecisionMapper(),
+    private val client: OkHttpClient = OkHttpClient.Builder()
         .connectTimeout(config.timeoutSeconds, TimeUnit.SECONDS)
         .readTimeout(config.timeoutSeconds, TimeUnit.SECONDS)
         .build()
-
+) : TacticalModelProvider {
     override suspend fun generateTacticalReply(input: TacticalPromptInput): TacticalReplyResult {
         val last = input.context.lastMessage
         require(last?.speaker != Speaker.ME) { "Last speaker is ME; live API call is forbidden." }
@@ -31,17 +33,19 @@ class OpenAICompatibleProvider(
         require(config.apiKey.isNotBlank()) { "API key is missing." }
 
         val prompt = buildString {
-            appendLine("你是会意 v4 Core 的关系战术 HUD。")
-            appendLine("只输出战术判断和 5 条简短回复路线。")
-            appendLine("当前判断：${input.decision.decisionType}")
-            appendLine("上下文：")
+            appendLine("You are Huiyi v4 relationship tactical HUD.")
+            appendLine("Return only ${HuiyiTacticalContract.VERSION} JSON.")
+            appendLine("Do not decide last speaker. Local last speaker is ${last?.speaker}.")
+            appendLine("Current local decision: ${input.decision.decisionType}.")
+            appendLine("Required fields: schemaVersion, decisionType, decisionTypeFamily, situation, coCreationPoint, userLikelyMistake, bestMove, intensityPolicy, riskWarning, fallbackMove, routes[5].")
+            appendLine("Recent context:")
             input.context.allMessages.takeLast(12).forEach {
                 appendLine("${it.speaker}: ${it.normalizedText.orEmpty()}")
             }
         }
         val json = """
             {
-              "model": "${config.model}",
+              "model": "${config.model.jsonEscape()}",
               "messages": [
                 {"role":"user","content":${prompt.jsonString()}}
               ]
@@ -52,16 +56,19 @@ class OpenAICompatibleProvider(
             .header("Authorization", "Bearer ${config.apiKey}")
             .post(json.toRequestBody("application/json".toMediaType()))
             .build()
-        client.newCall(request).execute().use { response ->
+        val responseBody = client.newCall(request).execute().use { response ->
             if (!response.isSuccessful) error("API call failed: ${response.code}")
+            response.body?.string() ?: error("API call failed: empty body")
         }
+        val parsed = mapper.parseResponse(responseBody, latencyMs = 0L, actualLastSpeaker = last?.speaker)
         return TacticalReplyResult(
-            decision = input.decision,
-            routes = com.huiyi.v4.domain.tactical.ReplyRouteGenerator().generate(input.context, input.decision),
+            decision = parsed.decision,
+            routes = parsed.routes,
             providerName = "OpenAICompatibleProvider",
             apiCalled = true
         )
     }
 
-    private fun String.jsonString(): String = "\"" + replace("\\", "\\\\").replace("\"", "\\\"").replace("\n", "\\n") + "\""
+    private fun String.jsonString(): String = "\"" + jsonEscape().replace("\n", "\\n") + "\""
+    private fun String.jsonEscape(): String = replace("\\", "\\\\").replace("\"", "\\\"")
 }

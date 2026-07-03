@@ -1,29 +1,30 @@
 {
-  "taskStatus": "PENDING",
+  "taskStatus": "DONE",
   "project": "Huiyi v4 Core",
-  "taskName": "cloud_contract_mvp_with_local_safety_gate",
-  "versionName": "4.1.24",
-  "versionCode": 443,
+  "taskName": "relay_secure_runtime_config_and_response_parsing_mvp",
+  "versionName": "4.1.25",
+  "versionCode": 444,
   "createdBy": "GPT",
   "userNeedsPhoneThisRound": false,
   "realDeviceRequiredThisRound": false,
   "cloudRealEndpointRequiredThisRound": false,
   "goals": [
-    "sync GPT review inbox to v4.1.24 cloud contract MVP",
-    "support OpenAI-compatible relay runtime configuration skeleton",
-    "keep relay API key runtime-only and redacted from reports",
-    "preserve local LAST_ME UNKNOWN unsupported-app safety gates",
-    "fallback locally when endpoint or runtime relay key is missing"
+    "implement secure relay runtime settings UI",
+    "store relay API key through Android Keystore / EncryptedSharedPreferences",
+    "parse OpenAI-compatible chat.completions response into HuiyiTacticalContract v1",
+    "validate cloud response before display",
+    "preserve LAST_ME / UNKNOWN / unsupported local safety gates",
+    "fallback to local routes when cloud is missing, invalid, or unavailable"
   ],
   "nonGoals": [
     "no real API key",
-    "no real cloud endpoint required",
+    "no real endpoint required",
     "no phone testing",
     "no automatic sending"
   ],
   "requiredReports": [
-    "outputs/gpt_review_inbox/cloud-contract-mvp-report-for-gpt.md",
-    "outputs/gpt_review_inbox/cloud-contract-mvp-report.json",
+    "outputs/gpt_review_inbox/cloud-runtime-config-report-for-gpt.md",
+    "outputs/gpt_review_inbox/cloud-runtime-config-report.json",
     "outputs/codex_to_gpt/result-manifest.json"
   ]
 }
