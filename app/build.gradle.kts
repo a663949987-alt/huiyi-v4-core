@@ -7,9 +7,28 @@ plugins {
 
 import java.util.Properties
 
-val localProps = Properties().apply {
-    val file = rootProject.file("local.properties")
+fun loadPropertiesFile(name: String): Properties = Properties().apply {
+    val file = rootProject.file(name)
     if (file.exists()) file.inputStream().use(::load)
+}
+
+val localProps = loadPropertiesFile("local.properties")
+val cloudProps = loadPropertiesFile("huiyi-cloud.properties")
+val envLocalProps = loadPropertiesFile(".env.local")
+
+fun localConfig(vararg keys: String, default: String = ""): String {
+    keys.forEach { key ->
+        cloudProps.getProperty(key)?.takeIf { it.isNotBlank() }?.let { return it }
+        envLocalProps.getProperty(key)?.takeIf { it.isNotBlank() }?.let { return it }
+        localProps.getProperty(key)?.takeIf { it.isNotBlank() }?.let { return it }
+        System.getenv(key)?.takeIf { it.isNotBlank() }?.let { return it }
+    }
+    return default
+}
+
+fun String.asBuildConfigString(): String {
+    val escaped = replace("\\", "\\\\").replace("\"", "\\\"")
+    return "\"$escaped\""
 }
 
 android {
@@ -35,6 +54,11 @@ android {
         buildConfigField("String", "HUIYI_CLOUD_ANALYSIS_ENDPOINT", "\"${localProps.getProperty("huiyi.cloud.endpoint", "")}\"")
         buildConfigField("String", "HUIYI_CLOUD_ANALYSIS_CLIENT_ID", "\"${localProps.getProperty("huiyi.cloud.clientId", "huiyi-v4-dev")}\"")
         buildConfigField("String", "HUIYI_CLOUD_ANALYSIS_CLIENT_TOKEN", "\"\"")
+        buildConfigField("String", "HUIYI_RELAY_BASE_URL", localConfig("huiyi.relay.baseUrl", "HUIYI_RELAY_BASE_URL").asBuildConfigString())
+        buildConfigField("String", "HUIYI_RELAY_MODEL", localConfig("huiyi.relay.model", "HUIYI_RELAY_MODEL", default = "gpt-5.5").asBuildConfigString())
+        buildConfigField("String", "HUIYI_RELAY_API_KEY", localConfig("huiyi.relay.apiKey", "HUIYI_RELAY_API_KEY").asBuildConfigString())
+        buildConfigField("Long", "HUIYI_RELAY_TIMEOUT_MS", "${localConfig("huiyi.relay.timeoutMs", "HUIYI_RELAY_TIMEOUT_MS", default = "6000")}L")
+        buildConfigField("Boolean", "HUIYI_RELAY_CONFIGURED_FOR_BUILD", (localConfig("huiyi.relay.baseUrl", "HUIYI_RELAY_BASE_URL").isNotBlank() && localConfig("huiyi.relay.apiKey", "HUIYI_RELAY_API_KEY").isNotBlank()).toString())
     }
 
     buildFeatures {

@@ -2,6 +2,8 @@
 build/
 **/build/
 local.properties
+huiyi-cloud.properties
+.env.local
 *.jks
 *.keystore
 keystore.properties

@@ -260,6 +260,7 @@ private fun HomePage(
             Text("今日状态")
             Spacer(Modifier.height(8.dp))
             StatusCard("当前模式", "手动开挂")
+            StatusCard("云端状态", if (state.cloudSettings.cloudEnabled && state.cloudSettings.relayBaseUrlConfigured && state.cloudSettings.relayApiKeyConfigured) "已就绪" else "未配置")
             StatusCard("无障碍状态", accessibilityLabel)
             StatusCard("悬浮球状态", "可在设置中开启")
             StatusCard("我的底色", if (state.demoState.personaEnabled) "已启用" else "已关闭")

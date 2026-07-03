@@ -1,17 +1,22 @@
 # Huiyi v4 GPT Review Inbox
 
-- taskName: liaoqi_real_use_mvp_no_more_report_engineering
+- taskName: preconfigured_cloud_real_use_mvp
 - versionName: 4.1.25
 - versionCode: 444
-- apkPath: outputs/huiyi-v4.1.25-liaoqi-real-use.apk
-- lastMeRuleReady: true
-- lastOtherLocalFallbackReady: true
-- cloudOptionalNotBlockingUse: true
+- apkPath: outputs/huiyi-v4.1.25-cloud-preconfigured.apk
+- preconfiguredCloudApkGenerated: true
+- relayConfiguredForBuild: true
+- relayBaseUrlConfigured: true
+- relayModelConfigured: true
+- relayApiKeyConfigured: true
+- relayApiKeyLeaked: false
+- cloudResponseParsed: true
+- cloudFallbackWorks: true
+- lastMeSafetyGate: PASS
 - userNeedsPhoneThisRound: true
-- realDeviceSmoke: NOT_TESTED
-- overallResult: REAL_USE_MVP_LOCAL_PASS_NEEDS_USER_PHONE_SMOKE
+- overallResult: PRECONFIGURED_CLOUD_LOCAL_PASS_NEEDS_USER_PHONE_SMOKE
 
 Main evidence:
-1. real-use-mvp-report-for-gpt.md
-2. real-use-mvp-report.json
+1. preconfigured-cloud-mvp-report-for-gpt.md
+2. preconfigured-cloud-mvp-report.json
 3. outputs/codex_to_gpt/result-manifest.json

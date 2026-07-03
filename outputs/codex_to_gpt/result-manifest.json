@@ -1,29 +1,34 @@
 {
-  "taskName": "liaoqi_real_use_mvp_no_more_report_engineering",
+  "taskName": "preconfigured_cloud_real_use_mvp",
   "versionName": "4.1.25",
   "versionCode": 444,
-  "apkPath": "outputs/huiyi-v4.1.25-liaoqi-real-use.apk",
-  "lastMeRuleReady": true,
-  "lastOtherLocalFallbackReady": true,
-  "cloudOptionalNotBlockingUse": true,
+  "apkPath": "outputs/huiyi-v4.1.25-cloud-preconfigured.apk",
+  "preconfiguredCloudApkGenerated": true,
+  "relayConfiguredForBuild": true,
+  "relayBaseUrlConfigured": true,
+  "relayModelConfigured": true,
+  "relayApiKeyConfigured": true,
+  "relayApiKeyLeaked": false,
+  "cloudResponseParsed": true,
+  "cloudFallbackWorks": true,
+  "lastMeSafetyGate": "PASS",
   "userNeedsPhoneThisRound": true,
-  "realDeviceSmoke": "NOT_TESTED",
-  "overallResult": "REAL_USE_MVP_LOCAL_PASS_NEEDS_USER_PHONE_SMOKE",
+  "overallResult": "PRECONFIGURED_CLOUD_LOCAL_PASS_NEEDS_USER_PHONE_SMOKE",
   "files": [
     {
       "path": "outputs/gpt_review_inbox/README_FOR_GPT.md",
       "sendToGpt": true
     },
     {
-      "path": "outputs/gpt_review_inbox/real-use-mvp-report-for-gpt.md",
+      "path": "outputs/gpt_review_inbox/preconfigured-cloud-mvp-report-for-gpt.md",
       "sendToGpt": true
     },
     {
-      "path": "outputs/gpt_review_inbox/real-use-mvp-report.json",
+      "path": "outputs/gpt_review_inbox/preconfigured-cloud-mvp-report.json",
       "sendToGpt": true
     },
     {
-      "path": "outputs/huiyi-v4.1.25-liaoqi-real-use.apk",
+      "path": "outputs/huiyi-v4.1.25-cloud-preconfigured.apk",
       "sendToGpt": false
     }
   ]

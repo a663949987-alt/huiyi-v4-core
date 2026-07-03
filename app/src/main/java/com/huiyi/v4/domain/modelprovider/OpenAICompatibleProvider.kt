@@ -2,6 +2,7 @@ package com.huiyi.v4.domain.modelprovider
 
 import com.huiyi.v4.domain.cloud.CloudTacticalDecisionMapper
 import com.huiyi.v4.domain.cloud.HuiyiTacticalContract
+import com.huiyi.v4.domain.cloud.RelayEndpointBuilder
 import com.huiyi.v4.domain.model.Speaker
 import com.huiyi.v4.domain.model.TacticalDecisionType
 import okhttp3.MediaType.Companion.toMediaType
@@ -52,7 +53,7 @@ class OpenAICompatibleProvider(
             }
         """.trimIndent()
         val request = Request.Builder()
-            .url(config.baseUrl.trimEnd('/') + "/chat/completions")
+            .url(RelayEndpointBuilder.chatCompletionsUrl(config.baseUrl))
             .header("Authorization", "Bearer ${config.apiKey}")
             .post(json.toRequestBody("application/json".toMediaType()))
             .build()

@@ -2,8 +2,8 @@
     "versionName":  "4.1.25",
     "versionCode":  444,
     "apkUrl":  "huiyi-v4.1.25-debug.apk",
-    "releaseNotes":  "v4.1.25 liaoqi real-use MVP",
+    "releaseNotes":  "v4.1.25 preconfigured cloud real-use MVP",
     "forceUpdate":  false,
-    "sha256":  "C247C3FC540CBA6504904DA242ED3AE1AEBF4AEAC807B3013D2364A370101D90",
-    "createdAt":  1783083767525
+    "sha256":  "AD92676E76589353BEEE632D30B0302B25CFE402DFD1BC71F33E93B9F6ECC945",
+    "createdAt":  1783084236227
 }

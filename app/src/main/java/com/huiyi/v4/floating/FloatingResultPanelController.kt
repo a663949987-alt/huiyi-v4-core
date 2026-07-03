@@ -49,6 +49,11 @@ class FloatingResultPanelController(
         } else {
             container.addView(titleText(resultTitle(state)))
             cloudStatusLine(result)?.let { container.addView(text(it)) }
+            decision.coreInsight?.takeIf { it.isNotBlank() }?.let { container.addView(smallText("共创点：$it")) }
+            decision.userLikelyMistake?.takeIf { it.isNotBlank() }?.let { container.addView(smallText("容易犯的错：$it")) }
+            container.addView(smallText("强度：${decision.influenceProfile.intensity}"))
+            decision.influenceProfile.riskWarning?.let { container.addView(smallText("风险：$it")) }
+            decision.fallbackMove?.let { container.addView(smallText("撤退方案：$it")) }
             if (routes.isEmpty()) {
                 container.addView(text("云端未就绪，已使用本地建议。请回到聊起聊天窗口再试一次。"))
             } else {

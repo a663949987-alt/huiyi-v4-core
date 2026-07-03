@@ -4,6 +4,7 @@ import android.content.Context
 import android.content.SharedPreferences
 import androidx.security.crypto.EncryptedSharedPreferences
 import androidx.security.crypto.MasterKey
+import com.huiyi.v4.BuildConfig
 import com.huiyi.v4.domain.cloud.CloudAnalysisConfig
 import com.huiyi.v4.domain.cloud.CloudAnalysisInput
 import com.huiyi.v4.domain.cloud.CloudAnalysisOutput
@@ -19,17 +20,28 @@ class RuntimeCloudSettingsRepository(
     fun load(): CloudRuntimeSettings {
         val baseUrl = prefs.getString(KEY_BASE_URL, "").orEmpty()
         val apiKeyConfigured = secureStorageAvailable && prefs.getString(KEY_API_KEY, "").orEmpty().isNotBlank()
+        val buildConfigured = BuildConfig.HUIYI_RELAY_CONFIGURED_FOR_BUILD
+        val effectiveBaseUrl = baseUrl.ifBlank { BuildConfig.HUIYI_RELAY_BASE_URL }
+        val effectiveModel = prefs.getString(KEY_MODEL, "gpt-5.5").orEmpty()
+            .ifBlank { BuildConfig.HUIYI_RELAY_MODEL.ifBlank { "gpt-5.5" } }
+        val effectiveTimeoutMs = prefs.getLong(KEY_TIMEOUT_MS, BuildConfig.HUIYI_RELAY_TIMEOUT_MS)
+            .coerceIn(1000L, 30000L)
         return CloudRuntimeSettings(
-            cloudEnabled = secureStorageAvailable && prefs.getBoolean(KEY_ENABLED, false),
+            cloudEnabled = (secureStorageAvailable && prefs.getBoolean(KEY_ENABLED, false)) || buildConfigured,
             providerType = prefs.getString(KEY_PROVIDER_TYPE, CloudProviderType.OPENAI_COMPATIBLE_RELAY).orEmpty()
                 .ifBlank { CloudProviderType.OPENAI_COMPATIBLE_RELAY },
-            baseUrl = baseUrl,
-            model = prefs.getString(KEY_MODEL, "gpt-5.5").orEmpty().ifBlank { "gpt-5.5" },
-            timeoutMs = prefs.getLong(KEY_TIMEOUT_MS, 6000L),
-            relayApiKeyConfigured = apiKeyConfigured,
-            relayApiKeyStoredSecurely = secureStorageAvailable && apiKeyConfigured,
+            baseUrl = effectiveBaseUrl,
+            model = effectiveModel,
+            timeoutMs = effectiveTimeoutMs,
+            relayApiKeyConfigured = apiKeyConfigured || BuildConfig.HUIYI_RELAY_API_KEY.isNotBlank(),
+            relayApiKeyStoredSecurely = (secureStorageAvailable && apiKeyConfigured) || buildConfigured,
             relaySecureStorageAvailable = secureStorageAvailable,
-            relayApiKeyStorageMode = if (secureStorageAvailable) "ANDROID_KEYSTORE_ENCRYPTED_SHARED_PREFERENCES" else "DEBUG_ONLY_INSECURE_STORAGE"
+            relayApiKeyStorageMode = when {
+                secureStorageAvailable && apiKeyConfigured -> "ANDROID_KEYSTORE_ENCRYPTED_SHARED_PREFERENCES"
+                buildConfigured -> "PRECONFIGURED_BUILD_REDACTED"
+                secureStorageAvailable -> "ANDROID_KEYSTORE_ENCRYPTED_SHARED_PREFERENCES"
+                else -> "DEBUG_ONLY_INSECURE_STORAGE"
+            }
         )
     }
 
@@ -61,7 +73,11 @@ class RuntimeCloudSettingsRepository(
 
     fun currentConfig(): CloudAnalysisConfig {
         val settings = load()
-        val apiKey = if (settings.relayApiKeyStoredSecurely) prefs.getString(KEY_API_KEY, "").orEmpty() else ""
+        val apiKey = when {
+            secureStorageAvailable && prefs.getString(KEY_API_KEY, "").orEmpty().isNotBlank() -> prefs.getString(KEY_API_KEY, "").orEmpty()
+            BuildConfig.HUIYI_RELAY_CONFIGURED_FOR_BUILD -> BuildConfig.HUIYI_RELAY_API_KEY
+            else -> ""
+        }
         return CloudAnalysisConfig(
             cloudEnabled = settings.cloudEnabled,
             providerType = settings.providerType,

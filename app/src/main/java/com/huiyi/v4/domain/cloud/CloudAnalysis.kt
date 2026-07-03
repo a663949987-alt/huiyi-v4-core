@@ -200,6 +200,17 @@ class OkHttpCloudAnalysisClient : CloudAnalysisClient {
     }
 }
 
+object RelayEndpointBuilder {
+    fun chatCompletionsUrl(baseUrl: String): String {
+        val trimmed = baseUrl.trim().trimEnd('/')
+        return if (trimmed.endsWith("/chat/completions")) {
+            trimmed
+        } else {
+            "$trimmed/chat/completions"
+        }
+    }
+}
+
 class CloudAnalysisRepository(
     override val config: CloudAnalysisConfig,
     private val client: CloudAnalysisClient = OkHttpCloudAnalysisClient(),
@@ -207,10 +218,19 @@ class CloudAnalysisRepository(
 ) : CloudAnalysisService {
     override suspend fun analyze(input: CloudAnalysisInput): Result<CloudAnalysisOutput> = runCatching {
         val startedAt = System.currentTimeMillis()
-        val requestJson = mapper.buildRequest(input, config)
+        val requestJson = if (config.providerType == CloudProviderType.OPENAI_COMPATIBLE_RELAY) {
+            mapper.buildOpenAiChatCompletionsRequest(input, config)
+        } else {
+            mapper.buildRequest(input, config)
+        }
+        val endpoint = if (config.providerType == CloudProviderType.OPENAI_COMPATIBLE_RELAY) {
+            RelayEndpointBuilder.chatCompletionsUrl(config.endpoint)
+        } else {
+            config.endpoint
+        }
         val responseJson = try {
             client.postJson(
-                endpoint = config.endpoint,
+                endpoint = endpoint,
                 body = requestJson,
                 timeoutMs = config.timeoutMs,
                 clientId = config.clientId,
@@ -235,10 +255,32 @@ class CloudTacticalDecisionMapper(
     private val json = Json { ignoreUnknownKeys = true }
 
     fun buildRequest(input: CloudAnalysisInput, config: CloudAnalysisConfig): String {
+        return buildContractPayload(input, config).toString()
+    }
+
+    fun buildOpenAiChatCompletionsRequest(input: CloudAnalysisInput, config: CloudAnalysisConfig): String {
+        val payload = buildContractPayload(input, config).toString()
+        return buildJsonObject {
+            put("model", config.model)
+            put("temperature", 0.7)
+            put("messages", buildJsonArray {
+                add(buildJsonObject {
+                    put("role", "system")
+                    put("content", "You are Huiyi v4. Return only ${HuiyiTacticalContract.VERSION} JSON with schemaVersion, decisionType, decisionTypeFamily, situation, coCreationPoint, userLikelyMistake, bestMove, intensityPolicy, riskWarning, fallbackMove, and routes[5].")
+                })
+                add(buildJsonObject {
+                    put("role", "user")
+                    put("content", payload)
+                })
+            })
+        }.toString()
+    }
+
+    private fun buildContractPayload(input: CloudAnalysisInput, config: CloudAnalysisConfig): JsonObject {
         val messages = input.context.currentScreenMessages
             .filter { it.isEffectiveChatMessage && it.speaker in setOf(Speaker.ME, Speaker.OTHER) }
             .takeLast(12)
-        val root = buildJsonObject {
+        return buildJsonObject {
             put("schemaVersion", HuiyiTacticalContract.SCHEMA_VERSION)
             put("contractVersion", HuiyiTacticalContract.VERSION)
             put("sessionId", input.sessionId)
@@ -282,7 +324,6 @@ class CloudTacticalDecisionMapper(
                 put("redactedForPublicLog", true)
             })
         }
-        return root.toString()
     }
 
     fun parseResponse(responseJson: String, latencyMs: Long, actualLastSpeaker: Speaker? = Speaker.OTHER): CloudAnalysisOutput {
