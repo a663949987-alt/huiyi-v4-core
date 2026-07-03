@@ -278,13 +278,26 @@ def main() -> None:
     smoke_text = read_text(outputs / "real-device-smoke-report-for-gpt.md")
     smoke_status = parse_field(smoke_text, "overall_result") or "NOT_TESTED"
 
-    overall = "FAIL" if secret_scan["containsSecrets"] or current_has_unknown or current_has_fail else "PASS"
+    review_freshness_result = "FAIL" if secret_scan["containsSecrets"] or current_has_unknown or current_has_fail else "PASS"
+    mockchat_result = "PASS" if matrix_pass else "FAIL"
+    real_device_smoke_result = smoke_status.upper()
+    if review_freshness_result == "FAIL" or mockchat_result == "FAIL" or real_device_smoke_result == "FAIL":
+        overall = "FAIL"
+    elif real_device_smoke_result == "PASS":
+        overall = "PASS"
+    else:
+        overall = "PARTIAL"
+
     if secret_scan["containsSecrets"]:
         fail_reason = "Secret scan found suspected sensitive content."
     elif current_has_unknown:
         fail_reason = "Current round sample sources include unexpected unknown."
     elif current_has_fail:
         fail_reason = "A current round report has overall_result=FAIL."
+    elif not matrix_pass:
+        fail_reason = "MockChat matrix has failing scenarios."
+    elif real_device_smoke_result != "PASS":
+        fail_reason = "本轮 Review Freshness 通过，但 Real Device Smoke 未执行，不代表真实聊天 App 已通过。"
     else:
         fail_reason = "none"
 
@@ -362,6 +375,9 @@ def main() -> None:
 - commitHash: {commit_hash}
 - generatedAt: {generated_at}
 - taskName: {args.task_name}
+- review_freshness_result: {review_freshness_result}
+- mockchat_result: {mockchat_result}
+- real_device_smoke_result: {real_device_smoke_result}
 - overall_result: {overall}
 - failReason: {fail_reason}
 
@@ -373,8 +389,12 @@ def main() -> None:
 - currentReports: {', '.join(sorted(current_rel_paths))}
 - currentSampleSources: {', '.join(current_sources)}
 - currentOverallResult: {overall}
-- realDeviceSmoke: {smoke_status}
+- review_freshness_result: {review_freshness_result}
+- mockchat_result: {mockchat_result}
+- real_device_smoke_result: {real_device_smoke_result}
+- realDeviceSmoke: {real_device_smoke_result}
 - mockChatMatrixStillPass: {'true' if matrix_pass else 'false'}
+- smokeDisclaimer: {"本轮 Review Freshness 通过，但 Real Device Smoke 未执行，不代表真实聊天 App 已通过。" if real_device_smoke_result != "PASS" else "none"}
 
 {chr(10).join(current_summaries)}
 
@@ -483,6 +503,9 @@ See Current Round Evidence and Historical / Trace Reports above.
         "commitHash": commit_hash,
         "generatedAt": generated_at,
         "overallResult": overall,
+        "reviewFreshnessResult": review_freshness_result,
+        "mockchatResult": mockchat_result,
+        "realDeviceSmokeResult": real_device_smoke_result,
         "taskName": args.task_name,
         "sampleSources": current_sources,
         "apiCalled": False,

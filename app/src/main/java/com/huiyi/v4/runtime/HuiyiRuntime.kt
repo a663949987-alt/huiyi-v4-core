@@ -16,9 +16,11 @@ import com.huiyi.v4.domain.pipeline.CurrentScreenPipelineResult
 import com.huiyi.v4.domain.pipeline.CurrentScreenPipelineUseCase
 import com.huiyi.v4.domain.pipeline.EvidencePackReportGenerator
 import com.huiyi.v4.domain.pipeline.ParserReportGenerator
+import com.huiyi.v4.domain.pipeline.RealDeviceReviewBundleGenerator
 import com.huiyi.v4.domain.pipeline.ReplyAttemptFactory
 import com.huiyi.v4.accessibility.HuiyiAccessibilityService
 import com.huiyi.v4.domain.pipeline.EvidencePackFiles
+import com.huiyi.v4.BuildConfig
 import com.huiyi.v4.domain.tactical.ReplyRouteGenerator
 import com.huiyi.v4.domain.tactical.TacticalDecisionEngine
 import com.huiyi.v4.ui.HuiyiDemoState
@@ -192,6 +194,39 @@ class HuiyiRuntime private constructor(
             )
         }
         return files.markdown to files.json
+    }
+
+    fun exportRealDeviceReviewBundle(): List<String> {
+        val content = RealDeviceReviewBundleGenerator().build(
+            latestResult = mutableState.value.latestPipelineResult,
+            accessibilityState = HuiyiAccessibilityService.state.value,
+            generatedAt = System.currentTimeMillis(),
+            versionName = BuildConfig.VERSION_NAME,
+            versionCode = BuildConfig.VERSION_CODE,
+            ownAppPackage = BuildConfig.APPLICATION_ID
+        )
+        val exporter = PublicDownloadExporter(appContext)
+        val files = listOf(
+            "huiyi-v4-review-for-gpt.md" to content.reviewMarkdown,
+            "real-device-smoke-report-for-gpt.md" to content.smokeMarkdown,
+            "real-device-current-screen-report-for-gpt.md" to content.currentScreenMarkdown,
+            "real-device-current-screen-report.json" to content.currentScreenJson
+        )
+        val displayPaths = files.map { (fileName, text) ->
+            val mimeType = if (fileName.endsWith(".json")) "application/json" else "text/markdown"
+            exporter.exportText(fileName, text, mimeType, relativePath = "Huiyi/review")
+                .getOrElse { exporter.fallbackToPrivate(fileName, text, subDirectory = "debug/review") }
+                .displayPath
+        }
+        mutableState.update {
+            it.copy(
+                lastDebugExportPath = "realDeviceSmoke=${content.realDeviceSmokeResult}; overall=${content.overallResult}",
+                lastEvidenceJsonPath = displayPaths.firstOrNull { path -> path.endsWith("real-device-current-screen-report.json") },
+                lastPublicExportPath = displayPaths.joinToString(" / "),
+                lastError = if (content.realDeviceSmokeResult == "NOT_TESTED") content.failReason else null
+            )
+        }
+        return displayPaths
     }
 
     fun exportTextDebug(name: String, text: String): File {

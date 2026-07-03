@@ -460,6 +460,7 @@ private fun DeveloperSettingsPage(
             StatusCard("API 配置", "${BuildConfig.HUIYI_API_BASE_URL} / ${BuildConfig.HUIYI_API_MODEL}")
             Button(onClick = { runtime.exportParserReport() }, modifier = Modifier.fillMaxWidth()) { Text("导出当前屏幕解析报告") }
             Button(onClick = { runtime.exportRealDeviceEvidencePack() }, modifier = Modifier.fillMaxWidth()) { Text("导出真机当前屏幕证据包") }
+            Button(onClick = { runtime.exportRealDeviceReviewBundle() }, modifier = Modifier.fillMaxWidth()) { Text("\u5bfc\u51fa\u771f\u673a\u9a8c\u6536\u5305") }
             Button(
                 onClick = { runtime.exportTextDebug("latest-context.txt", state.latestPipelineResult?.context.toString()) },
                 modifier = Modifier.fillMaxWidth()

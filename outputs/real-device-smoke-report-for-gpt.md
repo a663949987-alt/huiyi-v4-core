@@ -72,5 +72,6 @@
 ## Conclusion
 
 - realDeviceSmokePass: NOT_TESTED
+- disclaimer: 本轮 Review Freshness 通过，但 Real Device Smoke 未执行，不代表真实聊天 App 已通过。
 - shouldContinueBroaderRealDeviceTesting: true
 - nextRequiredAction: Connect a physical Android phone, open a real chat window in `com.bajiao.im.liaoqi` or another real chat App, enable Huiyi accessibility and overlay permissions, then run scenarios A/B/C.

@@ -3,9 +3,12 @@
   "versionName": "4.1.4",
   "versionCode": 414,
   "branch": "main",
-  "commitHash": "a646212",
-  "generatedAt": "2026-07-03 09:11:49 +0800",
-  "overallResult": "PASS",
+  "commitHash": "3a783a9",
+  "generatedAt": "2026-07-03 09:32:39 +0800",
+  "overallResult": "PARTIAL",
+  "reviewFreshnessResult": "PASS",
+  "mockchatResult": "PASS",
+  "realDeviceSmokeResult": "NOT_TESTED",
   "taskName": "Review Freshness + Real Device Smoke Test",
   "sampleSources": [
     "emulator_mock_chat_accessibility"
@@ -16,7 +19,7 @@
     {
       "path": "outputs/review/huiyi-v4-review-for-gpt.md",
       "type": "review_markdown",
-      "sha256": "0470c9138c57c9a491b0aed67289aacda1858921d54d4430b317d1c665ed55dc",
+      "sha256": "5411fd786e0a92e648246d27de015a804c3b1e059192653debdc71b0ce932bf6",
       "sendToGpt": true,
       "description": "Default file for GPT review.",
       "generatedAt": null,
@@ -62,7 +65,7 @@
     {
       "path": "outputs/real-device-smoke-report-for-gpt.md",
       "type": "report",
-      "sha256": "2b75fe9450f222a27650fd11d96d4a707fed9b879b914793a003b42f7b3b5bee",
+      "sha256": "ae24d0cd6a3c6bbc0277143721e2cbb470b39fa3544d5d03d13ab014b422ae83",
       "sendToGpt": false,
       "description": "Current round evidence.",
       "generatedAt": "2026-07-03 09:05:00 +0800",
@@ -106,7 +109,7 @@
     {
       "path": "outputs/mockchat-current-screen-report-for-gpt.md",
       "type": "report",
-      "sha256": "4caaf7457797d87c8ffa315cde13439a0b43c7796b671ad63ec27444f8aa9e05",
+      "sha256": "56999d6a16d8f2f4f67c3150ce9039fc82240f1258aa631d8198cb2cc4617a30",
       "sendToGpt": false,
       "description": "Historical / trace evidence.",
       "generatedAt": "1783008000000",
@@ -138,7 +141,7 @@
     {
       "path": "outputs/mockchat-validation-report-for-gpt.md",
       "type": "report",
-      "sha256": "3a92b969e5c3e2e629424047ac38d258d1e3e93831596a19a3b4542a7c80e685",
+      "sha256": "3a422188e4c512656482e10eafbdefc4558bb0c0e29f7173687b788e2a8a6c51",
       "sendToGpt": false,
       "description": "Historical / trace evidence.",
       "generatedAt": null,

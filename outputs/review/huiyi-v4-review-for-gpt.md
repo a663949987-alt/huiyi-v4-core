@@ -6,22 +6,29 @@
 - versionName: 4.1.4
 - versionCode: 414
 - branch: main
-- commitHash: a646212
-- generatedAt: 2026-07-03 09:11:49 +0800
+- commitHash: 3a783a9
+- generatedAt: 2026-07-03 09:32:39 +0800
 - taskName: Review Freshness + Real Device Smoke Test
-- overall_result: PASS
-- failReason: none
+- review_freshness_result: PASS
+- mockchat_result: PASS
+- real_device_smoke_result: NOT_TESTED
+- overall_result: PARTIAL
+- failReason: 本轮 Review Freshness 通过，但 Real Device Smoke 未执行，不代表真实聊天 App 已通过。
 
 ## Current Round Evidence
 
 - currentTaskName: Review Freshness + Real Device Smoke Test
 - currentVersion: 4.1.4
-- currentGeneratedAt: 2026-07-03 09:11:49 +0800
+- currentGeneratedAt: 2026-07-03 09:32:39 +0800
 - currentReports: outputs/real-device-current-screen-report-for-gpt.md, outputs/real-device-current-screen-report.json, outputs/real-device-smoke-report-for-gpt.md, outputs/v4.1.4-local-validation-report.md
 - currentSampleSources: emulator_mock_chat_accessibility
-- currentOverallResult: PASS
+- currentOverallResult: PARTIAL
+- review_freshness_result: PASS
+- mockchat_result: PASS
+- real_device_smoke_result: NOT_TESTED
 - realDeviceSmoke: NOT_TESTED
 - mockChatMatrixStillPass: true
+- smokeDisclaimer: 本轮 Review Freshness 通过，但 Real Device Smoke 未执行，不代表真实聊天 App 已通过。
 
 ### real-device-current-screen-report-for-gpt.md
 
@@ -141,18 +148,17 @@ These reports are historical references only. Their FAIL or `sample_source=unkno
 ### 新增文件
 
 ```
-outputs/real-device-smoke-report-for-gpt.md
-outputs/review/
-outputs/v4.1.4-local-validation-report.md
-scripts/generate-review-bundle.ps1
-scripts/generate_review_bundle.py
+outputs/review/archive/
 ```
 
 ### 修改文件
 
 ```
-outputs/real-device-current-screen-report-for-gpt.md
-outputs/real-device-current-screen-report.json
+outputs/real-device-smoke-report-for-gpt.md
+outputs/review/huiyi-v4-review-bundle-for-gpt.zip
+outputs/review/huiyi-v4-review-for-gpt.md
+outputs/review/manifest.json
+scripts/generate_review_bundle.py
 ```
 
 ### 删除文件
@@ -231,7 +237,7 @@ See Current Round Evidence and Historical / Trace Reports above.
   stale: false
 - path: outputs/real-device-smoke-report-for-gpt.md
   type: report
-  sha256: 2b75fe9450f222a27650fd11d96d4a707fed9b879b914793a003b42f7b3b5bee
+  sha256: ae24d0cd6a3c6bbc0277143721e2cbb470b39fa3544d5d03d13ab014b422ae83
   是否建议发给 GPT: false
   用途: Current round evidence.
   isCurrentRound: true
@@ -258,7 +264,7 @@ See Current Round Evidence and Historical / Trace Reports above.
   stale: true
 - path: outputs/mockchat-current-screen-report-for-gpt.md
   type: report
-  sha256: 4caaf7457797d87c8ffa315cde13439a0b43c7796b671ad63ec27444f8aa9e05
+  sha256: 56999d6a16d8f2f4f67c3150ce9039fc82240f1258aa631d8198cb2cc4617a30
   是否建议发给 GPT: false
   用途: Historical / trace evidence.
   isCurrentRound: false
@@ -276,7 +282,7 @@ See Current Round Evidence and Historical / Trace Reports above.
   stale: false
 - path: outputs/mockchat-validation-report-for-gpt.md
   type: report
-  sha256: 3a92b969e5c3e2e629424047ac38d258d1e3e93831596a19a3b4542a7c80e685
+  sha256: 3a422188e4c512656482e10eafbdefc4558bb0c0e29f7173687b788e2a8a6c51
   是否建议发给 GPT: false
   用途: Historical / trace evidence.
   isCurrentRound: false

@@ -201,6 +201,39 @@ class EvidencePackReportGenerator {
         generatedAt: Long = System.currentTimeMillis()
     ): String {
         val capture = result.captureResult
+        val messagesJson = capture?.messages.orEmpty().mapIndexed { index, message ->
+            """
+              {
+                "index": ${index + 1},
+                "id": "${escape(message.id)}",
+                "speaker": "${message.speaker}",
+                "speakerConfidence": ${message.speakerConfidence},
+                "speakerReason": "${escape(message.speakerReason ?: "unknown_visual_bounds")}",
+                "contentType": "${contentType(message.content)}",
+                "text": "${escape(message.normalizedText ?: "")}",
+                "isEffectiveChatMessage": ${message.isEffectiveChatMessage},
+                "metadataType": "${message.metadataType ?: com.huiyi.v4.domain.model.MetadataType.NONE}",
+                "inferredSide": "${escape(message.inferredSide ?: "")}",
+                "bounds": ${boundsJson(message.bounds)},
+                "rowBounds": ${boundsJson(message.rowBounds)},
+                "textBounds": ${boundsJson(message.textBounds)}
+              }
+            """.trimIndent()
+        }.joinToString(",\n")
+        val routesJson = result.routes.joinToString(",\n") { route ->
+            """
+              {
+                "id": "${escape(route.id)}",
+                "name": "${escape(route.name)}",
+                "routeType": "${route.routeType}",
+                "message": "${escape(route.message)}",
+                "intensity": "${route.intensity}",
+                "riskLevel": "${route.riskLevel}",
+                "riskWarning": "${escape(route.riskWarning ?: "")}",
+                "fallbackMove": "${escape(route.fallbackMove ?: "")}"
+              }
+            """.trimIndent()
+        }
         return """
             {
               "overall_result": "${overallResult(result)}",
@@ -217,6 +250,24 @@ class EvidencePackReportGenerator {
               "metadataFilteredCount": ${capture?.messages?.count { !it.isEffectiveChatMessage || it.metadataType != com.huiyi.v4.domain.model.MetadataType.NONE } ?: 0},
               "effectiveMessageCount": ${capture?.messages?.count { it.isEffectiveChatMessage && it.speaker != Speaker.SYSTEM } ?: 0},
               "parsedMessageCount": ${capture?.messages?.size ?: 0},
+              "parsedMessages": [
+            $messagesJson
+              ],
+              "LastSpeakerDecision": {
+                "lastEffectiveMessageId": "${escape(result.lastSpeakerDecision.lastEffectiveMessage?.id ?: "none")}",
+                "lastEffectiveMessageText": "${escape(result.lastSpeakerDecision.lastEffectiveMessage?.normalizedText ?: "none")}",
+                "lastSpeaker": "${result.lastSpeakerDecision.lastSpeaker ?: "none"}",
+                "shouldReply": ${result.lastSpeakerDecision.shouldReply},
+                "reason": "${escape(result.lastSpeakerDecision.reason)}"
+              },
+              "TacticalDecision": {
+                "decisionType": "${result.tacticalDecision.decisionType}",
+                "situation": "${escape(result.tacticalDecision.situation)}",
+                "coreInsight": "${escape(result.tacticalDecision.coreInsight)}",
+                "bestMove": "${escape(result.tacticalDecision.bestMove)}",
+                "riskLevel": "${result.tacticalDecision.influenceProfile.riskLevel}",
+                "fallbackMove": "${escape(result.tacticalDecision.fallbackMove ?: "")}"
+              },
               "lastSpeaker": "${result.lastSpeakerDecision.lastSpeaker ?: "none"}",
               "shouldReply": ${result.lastSpeakerDecision.shouldReply},
               "decisionType": "${result.tacticalDecision.decisionType}",
@@ -227,7 +278,10 @@ class EvidencePackReportGenerator {
               "userStayedInChatApp": ${result.userStayedInChatApp},
               "resultShownAsOverlay": ${result.resultShownAsOverlay},
               "mainActivityOpened": ${result.mainActivityOpened},
-              "routesCount": ${result.routes.size}
+              "routesCount": ${result.routes.size},
+              "ReplyRoutes": [
+            $routesJson
+              ]
             }
         """.trimIndent()
     }
@@ -261,5 +315,25 @@ class EvidencePackReportGenerator {
         }
     }
 
-    private fun escape(value: String): String = value.replace("\\", "\\\\").replace("\"", "\\\"").replace("\n", "\\n")
+    private fun contentType(content: MessageContent): String = when (content) {
+        is MessageContent.Text -> "text"
+        is MessageContent.Voice -> "voice"
+        is MessageContent.Image -> "image"
+        is MessageContent.Video -> "video"
+        is MessageContent.Sticker -> "sticker"
+    }
+
+    private fun boundsJson(bounds: com.huiyi.v4.domain.model.VisualBounds?): String {
+        return if (bounds == null) {
+            "null"
+        } else {
+            """{"left":${bounds.left},"top":${bounds.top},"right":${bounds.right},"bottom":${bounds.bottom}}"""
+        }
+    }
+
+    private fun escape(value: String): String = value
+        .replace("\\", "\\\\")
+        .replace("\"", "\\\"")
+        .replace("\r", "\\r")
+        .replace("\n", "\\n")
 }

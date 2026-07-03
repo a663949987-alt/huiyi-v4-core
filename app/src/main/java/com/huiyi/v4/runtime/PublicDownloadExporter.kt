@@ -15,12 +15,17 @@ data class ExportedTextFile(
 class PublicDownloadExporter(
     private val context: Context
 ) {
-    fun exportText(fileName: String, text: String, mimeType: String = "text/markdown"): Result<ExportedTextFile> = runCatching {
+    fun exportText(
+        fileName: String,
+        text: String,
+        mimeType: String = "text/markdown",
+        relativePath: String = "HuiyiV4"
+    ): Result<ExportedTextFile> = runCatching {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
             val values = ContentValues().apply {
                 put(MediaStore.Downloads.DISPLAY_NAME, fileName)
                 put(MediaStore.Downloads.MIME_TYPE, mimeType)
-                put(MediaStore.Downloads.RELATIVE_PATH, Environment.DIRECTORY_DOWNLOADS + "/HuiyiV4")
+                put(MediaStore.Downloads.RELATIVE_PATH, Environment.DIRECTORY_DOWNLOADS + "/$relativePath")
                 put(MediaStore.Downloads.IS_PENDING, 1)
             }
             val resolver = context.contentResolver
@@ -32,9 +37,9 @@ class PublicDownloadExporter(
             values.clear()
             values.put(MediaStore.Downloads.IS_PENDING, 0)
             resolver.update(uri, values, null, null)
-            ExportedTextFile("Download/HuiyiV4/$fileName")
+            ExportedTextFile("Download/$relativePath/$fileName")
         } else {
-            val dir = File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS), "HuiyiV4")
+            val dir = File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS), relativePath)
             dir.mkdirs()
             val file = File(dir, fileName)
             file.writeText(text, Charsets.UTF_8)
@@ -42,8 +47,8 @@ class PublicDownloadExporter(
         }
     }
 
-    fun fallbackToPrivate(fileName: String, text: String): ExportedTextFile {
-        val file = File(context.filesDir, "debug/$fileName")
+    fun fallbackToPrivate(fileName: String, text: String, subDirectory: String = "debug"): ExportedTextFile {
+        val file = File(context.filesDir, "$subDirectory/$fileName")
         file.parentFile?.mkdirs()
         file.writeText(text, Charsets.UTF_8)
         return ExportedTextFile(file.absolutePath, file)
