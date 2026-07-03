@@ -1,64 +1,69 @@
 {
   "project": "Huiyi v4 Core",
-  "taskName": "relay_secure_runtime_config_and_response_parsing_mvp",
+  "taskName": "preconfigured_cloud_real_use_mvp_delivery_closure",
   "versionName": "4.1.25",
   "versionCode": 444,
   "branch": "main",
   "commitHash": "GENERATED_BEFORE_COMMIT_PUSH_SEE_GITHUB_HEAD",
-  "generatedAt": "2026-07-03 20:47:56 +0800",
-  "overallResult": "CLOUD_RUNTIME_CONFIG_LOCAL_PASS",
-  "currentOverallResult": "CLOUD_RUNTIME_CONFIG_LOCAL_PASS",
-  "userNeedsPhoneThisRound": false,
+  "generatedAt": "2026-07-03 21:30:00 +0800",
+  "overallResult": "DELIVERY_READY_NEEDS_USER_PHONE_SMOKE",
+  "currentOverallResult": "DELIVERY_READY_NEEDS_USER_PHONE_SMOKE",
+  "deliveryMethod": "CODEX_LOCAL_ARTIFACT",
+  "deliveryOptionSatisfied": "C",
+  "apkActuallyDownloadableForUser": true,
+  "githubApkCommitted": false,
+  "githubReleaseUploaded": false,
+  "apkNotCommittedReason": "preconfigured cloud APK contains local relay credential",
+  "userInstallApkAbsolutePath": "C:\\Users\\fbjdf\\Downloads\\Huiyi\\huiyi-v4.1.25-cloud-preconfigured.apk",
+  "workspaceInstallApkAbsolutePath": "C:\\Users\\fbjdf\\Documents\\Codex\\2026-07-02\\new-chat-3\\outputs\\huiyi-v4.1.25-cloud-preconfigured.apk",
+  "lanUpdateLatestJsonAbsolutePath": "C:\\Users\\fbjdf\\Documents\\Codex\\2026-07-02\\new-chat-3\\outputs\\update_server\\latest.json",
+  "lanUpdateApkAbsolutePath": "C:\\Users\\fbjdf\\Documents\\Codex\\2026-07-02\\new-chat-3\\outputs\\update_server\\huiyi-v4.1.25-debug.apk",
+  "localInstallApkSha256": "ad92676e76589353beee632d30b0302b25cfe402dfd1bc71f33e93b9f6ecc945",
+  "lanUpdateApkSha256": "ad92676e76589353beee632d30b0302b25cfe402dfd1bc71f33e93b9f6ecc945",
+  "localAndLanApkHashesMatch": true,
+  "latestJsonVersionName": "4.1.25",
+  "latestJsonVersionCode": 444,
+  "latestJsonApkUrl": "huiyi-v4.1.25-debug.apk",
+  "latestJsonPointsToExistingLocalApk": true,
+  "userNeedsPhoneThisRound": true,
   "realDeviceSmokeResult": "NOT_TESTED",
-  "cloudRealEndpointRequiredThisRound": false,
-  "cloudRuntimeConfigReportGenerated": true,
-  "relaySettingsUiImplemented": true,
-  "relayApiKeyStoredSecurely": true,
-  "relayApiKeyExposedInRepo": false,
-  "relayApiKeyExposedInApk": false,
-  "relayResponseParsed": true,
-  "localFallbackOnInvalidCloud": true,
-  "lastMeSkipsCloud": true,
-  "lastOtherCloudPathReady": true,
-  "phoneLatestVersionName": "4.1.25",
-  "phoneLatestVersionCode": 444,
-  "phoneLatestUsedForCurrentResult": false,
+  "containsSecrets": false,
   "files": [
     {
       "path": "outputs/gpt_review_inbox/README_FOR_GPT.md",
       "type": "report",
-      "sha256": "a134d1d4d03e6ffe8a037173a2ac76aee8d0882f18e700f5d6253f75ddf59fbd",
       "sendToGpt": true,
-      "description": "Current v4.1.25 review evidence"
+      "description": "Current delivery closure entry point"
     },
     {
-      "path": "outputs/gpt_review_inbox/cloud-runtime-config-report-for-gpt.md",
+      "path": "outputs/gpt_review_inbox/APK_DELIVERY_FOR_GPT.md",
       "type": "report",
-      "sha256": "975989d44c0e8385fa0df3de9f4bad750c92cb6be083395f0737f2f7df98d6d3",
       "sendToGpt": true,
-      "description": "Current v4.1.25 review evidence"
+      "description": "APK delivery evidence and user install path"
     },
     {
-      "path": "outputs/gpt_review_inbox/cloud-runtime-config-report.json",
-      "type": "json",
-      "sha256": "bbd9c0a221f1e7d715d6dfaf2ef1f1d52d0acc4b19678c35db328444839eaf96",
-      "sendToGpt": true,
-      "description": "Current v4.1.25 review evidence"
-    },
-    {
-      "path": "outputs/gpt_review_inbox/phone/latest/one-tap-feedback-manifest.json",
-      "type": "json",
-      "sha256": "071d632a8b7a8249604ba882774c1974809ff994bf9383d6d9e8887b9fddf2e5",
-      "sendToGpt": true,
-      "description": "Current v4.1.25 review evidence"
-    },
-    {
-      "path": "outputs/codex_to_gpt/README_FOR_GPT.md",
+      "path": "outputs/gpt_review_inbox/preconfigured-cloud-mvp-report-for-gpt.md",
       "type": "report",
-      "sha256": "a134d1d4d03e6ffe8a037173a2ac76aee8d0882f18e700f5d6253f75ddf59fbd",
       "sendToGpt": true,
-      "description": "Current v4.1.25 review evidence"
+      "description": "Preconfigured cloud MVP report"
+    },
+    {
+      "path": "outputs/gpt_review_inbox/preconfigured-cloud-mvp-report.json",
+      "type": "json",
+      "sendToGpt": true,
+      "description": "Preconfigured cloud MVP machine-readable report"
+    },
+    {
+      "path": "outputs/update_server/latest.json",
+      "type": "json",
+      "sendToGpt": true,
+      "description": "LAN update metadata"
+    },
+    {
+      "path": "outputs/codex_to_gpt/result-manifest.json",
+      "type": "json",
+      "sendToGpt": true,
+      "description": "Current Codex to GPT result manifest"
     }
-  ],
-  "containsSecrets": false
+  ]
 }

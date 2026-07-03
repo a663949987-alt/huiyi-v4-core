@@ -1,38 +1,37 @@
-# Huiyi v4 GPT Review Inbox
+# Huiyi v4 Codex To GPT
 
 ## Current Round
-- taskName: relay_secure_runtime_config_and_response_parsing_mvp
+- taskName: preconfigured_cloud_real_use_mvp_delivery_closure
 - versionName: 4.1.25
 - versionCode: 444
-- currentOverallResult: CLOUD_RUNTIME_CONFIG_LOCAL_PASS
-- userNeedsPhoneThisRound: false
-- realDeviceRequiredThisRound: false
+- currentOverallResult: DELIVERY_READY_NEEDS_USER_PHONE_SMOKE
+- deliveryMethod: CODEX_LOCAL_ARTIFACT
+- deliveryOptionSatisfied: C
+- apkActuallyDownloadableForUser: true
+- userNeedsPhoneThisRound: true
 - realDeviceSmokeResult: NOT_TESTED
-- cloudRealEndpointRequiredThisRound: false
 
-## Cloud Runtime Config MVP
-- relaySettingsUiImplemented: true
-- providerType: OPENAI_COMPATIBLE_RELAY
-- relayApiKeyConfigured: false
-- relayApiKeyStoredSecurely: true
-- relayApiKeyExposedInRepo: false
-- relayApiKeyExposedInApk: false
-- cloudEnabledDefault: false
-- cloudCanBeEnabledOnlyWhenSecureKeyStorage: true
-- relayResponseParsed: true
-- localFallbackOnInvalidCloud: true
-- lastMeSkipsCloud: true
-- lastOtherCloudPathReady: true
-
-## Phone / Real Device
-- phoneLatestVersionName: 4.1.25
-- phoneLatestVersionCode: 444
-- phoneLatestUsedForCurrentResult: false
-- realDeviceSmokeResult: NOT_TESTED
-- userNeedsPhoneThisRound: false
+## APK Delivery
+- githubApkCommitted: false
+- githubReleaseUploaded: false
+- reasonNoGithubApk: preconfigured cloud APK contains local relay credential; public GitHub delivery would leak it.
+- userInstallApkAbsolutePath: C:\Users\fbjdf\Downloads\Huiyi\huiyi-v4.1.25-cloud-preconfigured.apk
+- workspaceInstallApkAbsolutePath: C:\Users\fbjdf\Documents\Codex\2026-07-02\new-chat-3\outputs\huiyi-v4.1.25-cloud-preconfigured.apk
+- lanUpdateLatestJsonAbsolutePath: C:\Users\fbjdf\Documents\Codex\2026-07-02\new-chat-3\outputs\update_server\latest.json
+- lanUpdateApkAbsolutePath: C:\Users\fbjdf\Documents\Codex\2026-07-02\new-chat-3\outputs\update_server\huiyi-v4.1.25-debug.apk
+- apkSha256: ad92676e76589353beee632d30b0302b25cfe402dfd1bc71f33e93b9f6ecc945
+- latestJsonVersionName: 4.1.25
+- latestJsonVersionCode: 444
+- latestJsonApkUrl: huiyi-v4.1.25-debug.apk
+- latestJsonPointsToExistingLocalApk: true
 
 ## Review Files
-1. cloud-runtime-config-report-for-gpt.md
-2. cloud-runtime-config-report.json
-3. gpt-review-manifest.json
-4. ../codex_to_gpt/result-manifest.json
+1. outputs/gpt_review_inbox/README_FOR_GPT.md
+2. outputs/gpt_review_inbox/APK_DELIVERY_FOR_GPT.md
+3. outputs/gpt_review_inbox/preconfigured-cloud-mvp-report-for-gpt.md
+4. outputs/gpt_review_inbox/preconfigured-cloud-mvp-report.json
+5. outputs/update_server/latest.json
+6. outputs/codex_to_gpt/result-manifest.json
+
+## GPT Verification Rule
+This satisfies delivery option C. Do not require the preconfigured APK to be committed to GitHub or uploaded to a public Release.
