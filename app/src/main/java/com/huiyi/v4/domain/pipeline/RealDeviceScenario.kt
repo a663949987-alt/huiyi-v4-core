@@ -132,7 +132,7 @@ object RealDeviceScenarioValidator {
             else -> "none"
         }
         val title = result?.captureResult?.snapshot?.windowTitle.orEmpty()
-        val titleContaminated = isPostPanelWindowTitle(title)
+        val titleContaminated = isPostPanelWindowTitle(title) || isKnownHuiyiOverlayTitle(title)
         val visualDebug = result?.visualDebugResult
         val visualTruthAvailable = visualDebug?.screenshotCaptured == true ||
             result?.userCorrectionProvided == true
@@ -194,6 +194,31 @@ object RealDeviceScenarioValidator {
     fun isPostPanelWindowTitle(title: String?): Boolean {
         if (title.isNullOrBlank()) return false
         val markers = listOf("会意雷达", "路线", "打法", "判断：", "复制路线", "VoiceSummaryCard")
+        return markers.any { title.contains(it, ignoreCase = true) }
+    }
+
+    private fun isKnownHuiyiOverlayTitle(title: String?): Boolean {
+        if (title.isNullOrBlank()) return false
+        val markers = listOf(
+            "会意雷达",
+            "下一句没有跑完",
+            "正在上传 GitHub",
+            "这次不对",
+            "发给 GPT",
+            "导出诊断",
+            "打开无障碍设置",
+            "隐藏悬浮球",
+            "重试",
+            "浼氭剰闆疯揪",
+            "涓嬩竴鍙ユ病鏈夎窇瀹",
+            "姝ｅ湪涓婁紶 GitHub",
+            "杩欐",
+            "鍙戠粰 GPT",
+            "瀵煎嚭璇婃柇",
+            "鎵撳紑鏃犻殰",
+            "闅愯棌",
+            "閲嶈瘯"
+        )
         return markers.any { title.contains(it, ignoreCase = true) }
     }
 

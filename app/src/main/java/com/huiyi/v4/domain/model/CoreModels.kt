@@ -99,7 +99,10 @@ data class MessageNode(
     val visualProjectedSide: String? = null,
     val visualConflict: Boolean = false,
     val visualConflictReason: String? = null,
-    val visualSpeakerFallbackUsed: Boolean = false
+    val visualSpeakerFallbackUsed: Boolean = false,
+    val attachedDeliveryStatus: MessageDeliveryStatus = MessageDeliveryStatus.NONE,
+    val attachedReadStatus: MessageDeliveryStatus = MessageDeliveryStatus.NONE,
+    val statusArtifact: MessageStatusArtifact? = null
 )
 
 enum class Speaker {
@@ -117,8 +120,36 @@ enum class MetadataType {
     ONLINE_STATUS,
     UI_CONTROL,
     SYSTEM_NOTICE,
+    READ_RECEIPT,
+    DELIVERY_STATUS,
+    SEND_STATUS,
+    MESSAGE_STATUS_ICON,
     UNKNOWN_METADATA
 }
+
+enum class MessageDeliveryStatus {
+    NONE,
+    SENDING,
+    SEND_FAILED,
+    SENT,
+    DELIVERED,
+    READ,
+    UNREAD_OR_UNSEEN,
+    UNKNOWN
+}
+
+data class MessageStatusArtifact(
+    val id: String,
+    val status: MessageDeliveryStatus,
+    val rawTextRedacted: String?,
+    val contentDescriptionRedacted: String?,
+    val stateDescriptionRedacted: String?,
+    val bounds: String?,
+    val source: String,
+    val attachedToMessageId: String?,
+    val confidence: Int,
+    val reason: String
+)
 
 data class Turn(
     val id: String,

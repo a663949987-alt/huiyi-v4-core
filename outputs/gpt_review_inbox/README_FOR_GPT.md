@@ -1,28 +1,73 @@
 # Huiyi v4 GPT Review Inbox
 
-## Source
-- phoneBundleIncluded: true
-- oneTapFeedbackIncluded: true
-- uploadedFromPhone: true
-- latestPhoneUploadAt: 2026-07-03T08:16:07.572004+00:00
-- latestPhoneSessionId: a7f7a12d-9b5e-4f23-8253-bc60dc32dd15
-- githubCommitHash: 648772f18b14d3778e6f1e4a97ef2b450d53db2b
-- githubReviewPath: outputs/gpt_review_inbox/phone/latest/
-- realDeviceTested: true
+## Current round
+- taskName: last_me_wait_priority_and_message_status_metadata_fix
+- versionName: 4.1.17
+- versionCode: 435
+- generatedAt: 2026-07-03 16:38:49 +0800
+- currentOverallResult: NOT_TESTED
+- lastMeRealDeviceResult: NOT_TESTED
+- lastOtherRealDeviceResult: NOT_TESTED
+- staleSnapshotGuard: PASS
+- staleRoutesGuard: PASS
+- phoneBundleIncluded: false
+- phoneBundlePath: none
+- phoneBundleRequiredFromUser: true
 
-## Latest Phone Conclusion
-- terminalState: CONTEXT_REQUIRED_PANEL
-- appPackage: com.bajiao.im.liaoqi
-- actualLastSpeaker: ME
-- decisionType: CONTEXT_REQUIRED
-- routeCount: 0
-- waitPanelShown: False
-- routePanelShown: False
-- errorCode: 
-- userMarkedWrong: True
-- userCorrectionLastSpeaker: NONE
+## Current conclusion
+- realDeviceFunctionalSmoke: NOT_TESTED
+- lastMeRealDeviceResult: NOT_TESTED
+- lastOtherRealDeviceResult: NOT_TESTED
+- currentOverallResult: NOT_TESTED
+- scenarioAssertionResult: NOT_TESTED
+- scenarioDefinitionTrusted: false
+- scenarioDefinitionMismatch: false
+- screenshotFailureBlocksMainPath: false
+- postPanelContaminationDetected: false
 
-## GPT Should Inspect
-1. outputs/gpt_review_inbox/phone/latest/README_FOR_GPT.md
-2. outputs/gpt_review_inbox/phone/latest/one-tap-feedback-manifest.json
-3. outputs/gpt_review_inbox/phone/latest/latest-session/next-sentence-flight-record.json
+## What changed this round
+1. Split product functional smoke from scenario assertion.
+2. Mark last_me expected speaker conflicts as scenario_definition_mismatch instead of parser/product failure.
+3. Separate pre-analysis snapshot fields from post-panel overlay state.
+4. Keep screenshot failure as optional diagnostic.
+
+## Current real-device status
+- realDeviceTested: false
+- realDeviceDataSource: user_upload_required
+- deviceSource: not_tested
+- overlayBubbleSurvivesAfterNextSentence: unknown
+- permissionFalseAlarmObserved: unknown
+- nextSentenceAnalysisResult: NOT_TESTED
+- currentPrimaryErrorCode: NOT_TESTED
+- currentSecondaryErrorCode: none
+- failedStage: NOT_TESTED
+- pipelineExceptionClass: none
+- pipelineExceptionMessageRedacted: none
+
+## Files GPT should inspect first
+1. huiyi-v4-review-for-gpt.md
+2. phone/huiyi-phone-gpt-review-v*.zip
+3. real-device-current-screen-report-for-gpt.md
+4. real-device-current-screen-report.json
+5. changed-files-for-gpt.md
+
+## Build / test results
+- testDebugUnitTest: PASS
+- assembleDebug: PASS
+- assembleRelease: PASS
+- realDeviceSmoke: NOT_TESTED
+
+## APK
+- debugApkPath: outputs/huiyi-v4.1.17-debug.apk
+- APK is not included in this review zip.
+
+## Known remaining problems
+- This local Codex run cannot execute a physical-phone smoke test by itself.
+- User should install the v4.1.10 APK through LAN update, run one phone scenario, then export the review bundle from the app.
+- Historical MockChat output files may be dirty in the workspace; they are not included as current-round evidence.
+
+## Privacy / secret scan
+- containsRawPrivateChat: false
+- containsApiKey: false
+- containsKeystore: false
+- containsLocalProperties: false

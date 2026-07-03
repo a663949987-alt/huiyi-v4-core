@@ -1,10 +1,10 @@
 {
   "project": "Huiyi v4 Core",
-  "versionName": "4.1.16",
-  "versionCode": 434,
+  "versionName": "4.1.17",
+  "versionCode": 435,
   "branch": "main",
-  "commitHash": "e2bd834",
-  "generatedAt": "2026-07-03 16:14:13 +0800",
+  "commitHash": "65ea029",
+  "generatedAt": "2026-07-03 16:38:48 +0800",
   "overallResult": "NOT_TESTED",
   "currentOverallResult": "NOT_TESTED",
   "lastMeRealDeviceResult": "NOT_TESTED",
@@ -18,7 +18,7 @@
   "scenarioAssertionResult": "NOT_TESTED",
   "scenarioDefinitionTrusted": false,
   "scenarioFailureCategory": "not_tested",
-  "taskName": "one_tap_feedback_lan_github_gateway",
+  "taskName": "last_me_wait_priority_and_message_status_metadata_fix",
   "sampleSources": [
     "not_tested"
   ],
@@ -28,7 +28,7 @@
     {
       "path": "outputs/review/huiyi-v4-review-for-gpt.md",
       "type": "review_markdown",
-      "sha256": "89581124d91321202f4e66477a91b85d3bf0ccfafabcba1bb375a693e0d3f2fa",
+      "sha256": "b365041f4f33cb5989abb916654b6e1a40f919c7c0081aa7eb741ce5f283bf8b",
       "sendToGpt": true,
       "description": "Default file for GPT review.",
       "generatedAt": null,
@@ -40,14 +40,14 @@
       "stale": false
     },
     {
-      "path": "outputs/one-tap-lan-github-gateway-report-for-gpt.md",
+      "path": "outputs/last-me-wait-priority-status-metadata-report-for-gpt.md",
       "type": "report",
-      "sha256": "c9522fa38be282f6845aee54419c70b6cb70002f8a060a84872e4ee8a296f891",
+      "sha256": "d47b61a81504dcdd30b035231f0ab9bad75be6b0e5f231129bee412d7ad12007",
       "sendToGpt": false,
       "description": "Current round evidence.",
-      "generatedAt": null,
-      "taskName": "one_tap_feedback_lan_github_gateway",
-      "versionName": "4.1.16",
+      "generatedAt": "2026-07-03 16:38:29 +08:00",
+      "taskName": "last_me_wait_priority_and_message_status_metadata_fix",
+      "versionName": "4.1.17",
       "isCurrentRound": true,
       "evidenceRole": "current",
       "sample_source": [],
@@ -70,7 +70,7 @@
     {
       "path": "outputs/mockchat-current-screen-report-for-gpt.md",
       "type": "report",
-      "sha256": "2e3f252b763bdd9c1dc0700c35266ea8542049a8a6ecce267eea4edda89d4400",
+      "sha256": "74f6047e6ff163d06f90dbbe345361e50d431ac79c362b6da29320021bee75df",
       "sendToGpt": false,
       "description": "Historical / trace evidence.",
       "generatedAt": "1783008000000",

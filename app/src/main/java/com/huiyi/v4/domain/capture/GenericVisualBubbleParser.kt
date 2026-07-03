@@ -2,8 +2,10 @@ package com.huiyi.v4.domain.capture
 
 import com.huiyi.v4.domain.model.DescriptionStatus
 import com.huiyi.v4.domain.model.MessageContent
+import com.huiyi.v4.domain.model.MessageDeliveryStatus
 import com.huiyi.v4.domain.model.MessageNode
 import com.huiyi.v4.domain.model.MessageSource
+import com.huiyi.v4.domain.model.MessageStatusArtifact
 import com.huiyi.v4.domain.model.MetadataType
 import com.huiyi.v4.domain.model.Speaker
 import com.huiyi.v4.domain.model.TranscriptStatus
@@ -29,7 +31,7 @@ class GenericVisualBubbleParser(
     private val metadataFilter = MetadataMessageFilter()
 
     fun parse(bubbles: List<VisualBubble>, source: MessageSource = MessageSource.ACCESSIBILITY_CURRENT_SCREEN): List<MessageNode> {
-        return bubbles.mapIndexed { rawIndex, bubble -> rawIndex to bubble }
+        val parsed = bubbles.mapIndexed { rawIndex, bubble -> rawIndex to bubble }
             .sortedWith(compareBy<Pair<Int, VisualBubble>> { it.second.visualTop() }.thenBy { it.second.visualLeft() })
             .mapIndexed { visualIndex, (rawIndex, bubble) ->
             val selectedBounds = bubble.bubbleBounds
@@ -42,6 +44,7 @@ class GenericVisualBubbleParser(
             val actualText = rawText.actualReplyText()
             val metadataType = metadataFilter.classify(actualText)
             val isMetadata = metadataType != MetadataType.NONE
+            val deliveryStatus = deliveryStatusFor(metadataType, actualText)
             val sideDecision = inferSide(bubble)
             val inferredSide = sideDecision.side
             val speaker = if (isMetadata) {
@@ -119,6 +122,10 @@ class GenericVisualBubbleParser(
                         MetadataType.ONLINE_STATUS -> "online_status_metadata"
                         MetadataType.UI_CONTROL -> "ui_control_metadata"
                         MetadataType.SYSTEM_NOTICE -> "system_notice_metadata"
+                        MetadataType.READ_RECEIPT -> "read_receipt_metadata"
+                        MetadataType.DELIVERY_STATUS -> "delivery_status_metadata"
+                        MetadataType.SEND_STATUS -> "send_status_metadata"
+                        MetadataType.MESSAGE_STATUS_ICON -> "message_status_icon_metadata"
                         else -> "header_metadata"
                     }
                     sideDecision.side == "unknown" -> "ambiguous_center_bounds"
@@ -141,8 +148,66 @@ class GenericVisualBubbleParser(
                 sideMarginLeft = sideMarginBounds?.left,
                 sideMarginRight = sideMarginBounds?.let { screenWidth - it.right },
                 finalDecisionSource = if (isMetadata) "metadata_filter" else sideDecision.reason,
-                possibleSpeakerConflict = speaker == Speaker.OTHER && actualText.hasPossibleSpeakerConflict()
+                possibleSpeakerConflict = speaker == Speaker.OTHER && actualText.hasPossibleSpeakerConflict(),
+                attachedDeliveryStatus = deliveryStatus,
+                attachedReadStatus = if (deliveryStatus == MessageDeliveryStatus.READ) MessageDeliveryStatus.READ else MessageDeliveryStatus.NONE,
+                statusArtifact = if (metadataType in statusMetadataTypes) {
+                    MessageStatusArtifact(
+                        id = "status-${bubble.id}",
+                        status = deliveryStatus,
+                        rawTextRedacted = actualText.take(40),
+                        contentDescriptionRedacted = null,
+                        stateDescriptionRedacted = null,
+                        bounds = selectedBounds?.let { "${it.left},${it.top},${it.right},${it.bottom}" },
+                        source = "accessibility_text",
+                        attachedToMessageId = null,
+                        confidence = 82,
+                        reason = "metadata_message_status"
+                    )
+                } else null
             )
+        }
+        return attachStatusArtifacts(parsed)
+    }
+
+    private val statusMetadataTypes = setOf(
+        MetadataType.READ_RECEIPT,
+        MetadataType.DELIVERY_STATUS,
+        MetadataType.SEND_STATUS,
+        MetadataType.MESSAGE_STATUS_ICON
+    )
+
+    private fun deliveryStatusFor(type: MetadataType, text: String): MessageDeliveryStatus = when (type) {
+        MetadataType.READ_RECEIPT -> MessageDeliveryStatus.READ
+        MetadataType.SEND_STATUS -> if (
+            text.contains("\u5931\u8d25") ||
+            text.contains("\u672a\u53d1\u51fa") ||
+            text.contains("failed", ignoreCase = true)
+        ) {
+            MessageDeliveryStatus.SEND_FAILED
+        } else {
+            MessageDeliveryStatus.SENT
+        }
+        MetadataType.DELIVERY_STATUS -> when {
+            text.contains("\u672a\u8bfb") || text.contains("\u672a\u770b") || text.contains("unread", ignoreCase = true) -> MessageDeliveryStatus.UNREAD_OR_UNSEEN
+            text.contains("\u9001\u8fbe") || text.contains("delivered", ignoreCase = true) -> MessageDeliveryStatus.DELIVERED
+            else -> MessageDeliveryStatus.SENT
+        }
+        MetadataType.MESSAGE_STATUS_ICON -> MessageDeliveryStatus.UNKNOWN
+        else -> MessageDeliveryStatus.NONE
+    }
+
+    private fun attachStatusArtifacts(nodes: List<MessageNode>): List<MessageNode> {
+        var lastMeMessageId: String? = null
+        return nodes.map { node ->
+            if (node.isEffectiveChatMessage && node.speaker == Speaker.ME) {
+                lastMeMessageId = node.id
+                node
+            } else if (node.statusArtifact != null && lastMeMessageId != null) {
+                node.copy(statusArtifact = node.statusArtifact.copy(attachedToMessageId = lastMeMessageId))
+            } else {
+                node
+            }
         }
     }
 

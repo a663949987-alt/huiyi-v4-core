@@ -4,6 +4,7 @@ import com.huiyi.v4.accessibility.HuiyiAccessibilityState
 import com.huiyi.v4.accessibility.displaySizeLabel
 import com.huiyi.v4.accessibility.fontScaleEstimate
 import com.huiyi.v4.domain.model.MessageContent
+import com.huiyi.v4.domain.model.MessageDeliveryStatus
 import com.huiyi.v4.domain.model.MetadataType
 import com.huiyi.v4.domain.model.Speaker
 import com.huiyi.v4.domain.model.TacticalDecisionType
@@ -58,6 +59,15 @@ class EvidencePackReportGenerator {
         val messages = capture?.messages.orEmpty()
         val effectiveMessages = messages.filter { it.isEffectiveChatMessage && it.speaker != Speaker.SYSTEM }
         val metadataMessages = messages.filter { it.metadataType != MetadataType.NONE || it.speaker == Speaker.SYSTEM }
+        val statusArtifacts = messages.mapNotNull { it.statusArtifact }
+        val lastMeMessage = effectiveMessages.lastOrNull { it.speaker == Speaker.ME }
+        val lastMeStatusArtifacts = statusArtifacts.filter { it.attachedToMessageId == lastMeMessage?.id }
+        val lastMeDeliveryStatus = lastMeStatusArtifacts.lastOrNull { it.status != MessageDeliveryStatus.READ }?.status
+            ?: lastMeMessage?.attachedDeliveryStatus
+            ?: MessageDeliveryStatus.NONE
+        val lastMeReadStatus = lastMeStatusArtifacts.lastOrNull {
+            it.status == MessageDeliveryStatus.READ || it.status == MessageDeliveryStatus.UNREAD_OR_UNSEEN
+        }?.status ?: lastMeMessage?.attachedReadStatus ?: MessageDeliveryStatus.NONE
         val candidateMessages = messages.filter { it.metadataType == MetadataType.NONE && it.speaker != Speaker.SYSTEM }
         val decision = result.tacticalDecision
         val voiceMessages = messages.filter { it.content is MessageContent.Voice }
@@ -190,6 +200,13 @@ class EvidencePackReportGenerator {
             appendLine("- voiceCount: ${voiceMessages.size}")
             appendLine("- imageCount: ${messages.count { it.content is MessageContent.Image }}")
             appendLine("- dateMetadataFilteredCount: ${messages.count { it.metadataType == MetadataType.DATE && it.speaker == Speaker.SYSTEM && !it.isEffectiveChatMessage }}")
+            appendLine("- messageStatusArtifactCount: ${statusArtifacts.size}")
+            appendLine("- readReceiptCount: ${messages.count { it.metadataType == MetadataType.READ_RECEIPT || it.statusArtifact?.status == MessageDeliveryStatus.READ }}")
+            appendLine("- deliveryStatusCount: ${messages.count { it.metadataType in setOf(MetadataType.DELIVERY_STATUS, MetadataType.SEND_STATUS, MetadataType.MESSAGE_STATUS_ICON) }}")
+            appendLine("- lastMeDeliveryStatus: $lastMeDeliveryStatus")
+            appendLine("- lastMeReadStatus: $lastMeReadStatus")
+            appendLine("- statusArtifactsFilteredFromEffectiveMessages: ${messages.none { it.statusArtifact != null && it.isEffectiveChatMessage }}")
+            appendLine("- statusArtifactsAttachedToMessageCount: ${statusArtifacts.count { it.attachedToMessageId != null }}")
             appendLine("- possible_speaker_conflict_count: ${messages.count { it.possibleSpeakerConflict }}")
             appendLine("- lastEffectiveMessagePreview: ${result.lastSpeakerDecision.lastEffectiveMessage?.normalizedText ?: "[non-text-or-none]"}")
             appendLine()
@@ -327,9 +344,20 @@ class EvidencePackReportGenerator {
         scenario: RealDeviceScenario = RealDeviceScenario.AUTO_FROM_SCREEN
     ): String {
         val capture = result.captureResult
+        val messages = capture?.messages.orEmpty()
+        val effectiveMessages = messages.filter { it.isEffectiveChatMessage && it.speaker != Speaker.SYSTEM }
+        val statusArtifacts = messages.mapNotNull { it.statusArtifact }
+        val lastMeMessage = effectiveMessages.lastOrNull { it.speaker == Speaker.ME }
+        val lastMeStatusArtifacts = statusArtifacts.filter { it.attachedToMessageId == lastMeMessage?.id }
+        val lastMeDeliveryStatus = lastMeStatusArtifacts.lastOrNull { it.status != MessageDeliveryStatus.READ }?.status
+            ?: lastMeMessage?.attachedDeliveryStatus
+            ?: MessageDeliveryStatus.NONE
+        val lastMeReadStatus = lastMeStatusArtifacts.lastOrNull {
+            it.status == MessageDeliveryStatus.READ || it.status == MessageDeliveryStatus.UNREAD_OR_UNSEEN
+        }?.status ?: lastMeMessage?.attachedReadStatus ?: MessageDeliveryStatus.NONE
         val scenarioValidation = RealDeviceScenarioValidator.validate(result, scenario)
         val visualDebug = result.visualDebugResult
-        val messagesJson = capture?.messages.orEmpty().mapIndexed { index, message ->
+        val messagesJson = messages.mapIndexed { index, message ->
             """
               {
                 "index": ${index + 1},
@@ -361,6 +389,9 @@ class EvidencePackReportGenerator {
                 "sideMarginLeft": ${message.sideMarginLeft ?: -1},
                 "sideMarginRight": ${message.sideMarginRight ?: -1},
                 "finalDecisionSource": "${escape(message.finalDecisionSource ?: "")}",
+                "attachedDeliveryStatus": "${message.attachedDeliveryStatus}",
+                "attachedReadStatus": "${message.attachedReadStatus}",
+                "statusArtifact": ${statusArtifactJson(message.statusArtifact)},
                 "possible_speaker_conflict": ${message.possibleSpeakerConflict},
                 "unknownReason": "${escape(message.unknownReason ?: "")}"
               }
@@ -466,6 +497,13 @@ class EvidencePackReportGenerator {
               "rawParsedNodeCount": ${capture?.messages?.size ?: 0},
               "metadataFilteredCount": ${capture?.messages?.count { it.metadataType != MetadataType.NONE || it.speaker == Speaker.SYSTEM } ?: 0},
               "dateMetadataFilteredCount": ${capture?.messages?.count { it.metadataType == MetadataType.DATE && it.speaker == Speaker.SYSTEM && !it.isEffectiveChatMessage } ?: 0},
+              "messageStatusArtifactCount": ${statusArtifacts.size},
+              "readReceiptCount": ${messages.count { it.metadataType == MetadataType.READ_RECEIPT || it.statusArtifact?.status == MessageDeliveryStatus.READ }},
+              "deliveryStatusCount": ${messages.count { it.metadataType in setOf(MetadataType.DELIVERY_STATUS, MetadataType.SEND_STATUS, MetadataType.MESSAGE_STATUS_ICON) }},
+              "lastMeDeliveryStatus": "$lastMeDeliveryStatus",
+              "lastMeReadStatus": "$lastMeReadStatus",
+              "statusArtifactsFilteredFromEffectiveMessages": ${messages.none { it.statusArtifact != null && it.isEffectiveChatMessage }},
+              "statusArtifactsAttachedToMessageCount": ${statusArtifacts.count { it.attachedToMessageId != null }},
               "candidateChatMessageCount": ${capture?.messages?.count { it.metadataType == MetadataType.NONE && it.speaker != Speaker.SYSTEM } ?: 0},
               "unknownSpeakerCount": ${capture?.messages?.count { it.metadataType == MetadataType.NONE && it.speaker == Speaker.UNKNOWN } ?: 0},
               "effectiveMessageCount": ${capture?.messages?.count { it.isEffectiveChatMessage && it.speaker != Speaker.SYSTEM } ?: 0},
@@ -559,6 +597,27 @@ class EvidencePackReportGenerator {
             "null"
         } else {
             """{"left":${bounds.left},"top":${bounds.top},"right":${bounds.right},"bottom":${bounds.bottom}}"""
+        }
+    }
+
+    private fun statusArtifactJson(artifact: com.huiyi.v4.domain.model.MessageStatusArtifact?): String {
+        return if (artifact == null) {
+            "null"
+        } else {
+            """
+              {
+                "id": "${escape(artifact.id)}",
+                "status": "${artifact.status}",
+                "rawTextRedacted": "${escape(artifact.rawTextRedacted ?: "")}",
+                "contentDescriptionRedacted": "${escape(artifact.contentDescriptionRedacted ?: "")}",
+                "stateDescriptionRedacted": "${escape(artifact.stateDescriptionRedacted ?: "")}",
+                "bounds": "${escape(artifact.bounds ?: "")}",
+                "source": "${escape(artifact.source)}",
+                "attachedToMessageId": "${escape(artifact.attachedToMessageId ?: "")}",
+                "confidence": ${artifact.confidence},
+                "reason": "${escape(artifact.reason)}"
+              }
+            """.trimIndent()
         }
     }
 

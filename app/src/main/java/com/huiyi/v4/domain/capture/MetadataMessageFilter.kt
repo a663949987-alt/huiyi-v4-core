@@ -22,6 +22,18 @@ class MetadataMessageFilter {
         if (systemNoticeKeywords.any { value.contains(it) }) {
             return MetadataType.SYSTEM_NOTICE
         }
+        if (readReceiptValues.any { value.equals(it, ignoreCase = true) || value.contains(it, ignoreCase = true) }) {
+            return MetadataType.READ_RECEIPT
+        }
+        if (sendFailedValues.any { value.equals(it, ignoreCase = true) || value.contains(it, ignoreCase = true) }) {
+            return MetadataType.SEND_STATUS
+        }
+        if (deliveryStatusValues.any { value.equals(it, ignoreCase = true) || value.contains(it, ignoreCase = true) }) {
+            return MetadataType.DELIVERY_STATUS
+        }
+        if (messageStatusIconValues.contains(value)) {
+            return MetadataType.MESSAGE_STATUS_ICON
+        }
         if (looksLikeHeader(value)) {
             return MetadataType.HEADER
         }
@@ -92,6 +104,36 @@ class MetadataMessageFilter {
             "浠ヤ笂鏄墦鎷涘懠鍐呭",
             "宸茶",
             "鏈"
+        )
+        val readReceiptValues = listOf(
+            "\u5df2\u8bfb",
+            "\u5bf9\u65b9\u5df2\u8bfb",
+            "read",
+            "seen"
+        )
+        val deliveryStatusValues = listOf(
+            "\u672a\u8bfb",
+            "\u672a\u770b",
+            "\u5df2\u9001\u8fbe",
+            "\u5df2\u53d1\u9001",
+            "\u53d1\u9001\u6210\u529f",
+            "delivered",
+            "sent",
+            "unread"
+        )
+        val sendFailedValues = listOf(
+            "\u53d1\u9001\u5931\u8d25",
+            "\u672a\u53d1\u51fa",
+            "\u91cd\u53d1",
+            "failed"
+        )
+        val messageStatusIconValues = setOf(
+            "\u2713",
+            "\u2713\u2713",
+            "\u2714",
+            "\u2714\u2714",
+            "\u25cf",
+            "\u2022"
         )
     }
 }

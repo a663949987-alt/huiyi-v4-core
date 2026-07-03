@@ -244,12 +244,12 @@ class OneTapFeedbackExporter(
         val outDir = File(context.filesDir, "exports/one_tap_feedback").apply { mkdirs() }
         val zip = File(outDir, fileName)
         val recentSessionRecords = OneTapFeedbackZipContract.recentSessionRecords(recentRecords, record)
+        val currentReports = currentScreenReports(latestResult)
         ZipOutputStream(zip.outputStream()).use { stream ->
-            addText(stream, "README_FOR_GPT.md", readme(record))
+            addText(stream, "README_FOR_GPT.md", readme(record, currentReports.first))
             addText(stream, "one-tap-feedback-manifest.json", manifest(record, now))
             addText(stream, "latest-session/next-sentence-flight-record.json", recordJson(record))
             addText(stream, "latest-session/next-sentence-flight-record-for-gpt.md", recordMarkdown(record))
-            val currentReports = currentScreenReports(latestResult)
             addText(stream, "current-screen/real-device-current-screen-report-for-gpt.md", currentReports.first)
             addText(stream, "current-screen/real-device-current-screen-report.json", currentReports.second)
             addText(stream, "recent-sessions/session-index.md", sessionIndex(recentSessionRecords))
@@ -293,7 +293,7 @@ class OneTapFeedbackExporter(
         return markdown.safeForPublic() to json.safeForPublic()
     }
 
-    private fun readme(record: NextSentenceFlightRecord): String = buildString {
+    private fun readme(record: NextSentenceFlightRecord, currentScreenMarkdown: String): String = buildString {
         appendLine("# Huiyi One Tap Feedback")
         appendLine()
         appendLine("- bundleType: ONE_TAP_FEEDBACK")
@@ -301,6 +301,16 @@ class OneTapFeedbackExporter(
         appendLine("- appVersionCode: ${BuildConfig.VERSION_CODE}")
         appendLine("- latestSessionId: ${record.sessionId}")
         appendLine("- terminalState: ${record.terminalState}")
+        appendLine("- latestSessionTerminalState: ${record.terminalState}")
+        appendLine("- actualLastSpeaker: ${record.actualLastSpeaker}")
+        appendLine("- decisionType: ${record.decisionType}")
+        appendLine("- decisionTypeFamily: ${record.decisionTypeFamily}")
+        appendLine("- waitPanelShown: ${record.waitPanelShown}")
+        appendLine("- contextRequiredPanelShown: ${record.contextRequiredPanelShown}")
+        appendLine("- messageStatusArtifactCount: ${markdownField(currentScreenMarkdown, "messageStatusArtifactCount") ?: "0"}")
+        appendLine("- lastMeDeliveryStatus: ${markdownField(currentScreenMarkdown, "lastMeDeliveryStatus") ?: "NONE"}")
+        appendLine("- lastMeReadStatus: ${markdownField(currentScreenMarkdown, "lastMeReadStatus") ?: "NONE"}")
+        appendLine("- reportWindowTitleContaminatedByPanel: ${markdownField(currentScreenMarkdown, "reportWindowTitleContaminatedByPanel") ?: "false"}")
         appendLine("- quickConclusion: ${quickConclusion(record)}")
         appendLine()
         appendLine("GPT should inspect `latest-session/next-sentence-flight-record.json` first.")
@@ -516,6 +526,13 @@ class OneTapFeedbackExporter(
     private fun String.safeForPublic(): String = redactPrivateText(100_000)
         .replace(Regex("(?m)^(\\s*-?\\s*(text|message|lastEffectiveMessageText|currentSceneSummary|coreInsight|situation|bestMove)\\s*[:=]\\s*).+$"), "$1[REDACTED_PRIVATE_CHAT]")
         .replace(Regex("\"(text|message|lastEffectiveMessageText|currentSceneSummary|coreInsight|situation|bestMove)\"\\s*:\\s*\"(?:\\\\.|[^\"])*\""), "\"$1\":\"[REDACTED_PRIVATE_CHAT]\"")
+
+    private fun markdownField(text: String, name: String): String? {
+        return text.lineSequence()
+            .firstOrNull { it.startsWith("- $name:") }
+            ?.substringAfter(":")
+            ?.trim()
+    }
 
     private fun escape(value: String): String = value
         .replace("\\", "\\\\")

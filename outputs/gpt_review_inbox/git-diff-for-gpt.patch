@@ -1,60 +1,108 @@
 diff --git a/outputs/review/huiyi-v4-review-bundle-for-gpt.zip b/outputs/review/huiyi-v4-review-bundle-for-gpt.zip
-index d5c5f6f..a4b0417 100644
+index a4b0417..1fd167f 100644
 Binary files a/outputs/review/huiyi-v4-review-bundle-for-gpt.zip and b/outputs/review/huiyi-v4-review-bundle-for-gpt.zip differ
 diff --git a/outputs/review/huiyi-v4-review-for-gpt.md b/outputs/review/huiyi-v4-review-for-gpt.md
-index 695416a..60fd11a 100644
+index 60fd11a..a731f66 100644
 --- a/outputs/review/huiyi-v4-review-for-gpt.md
 +++ b/outputs/review/huiyi-v4-review-for-gpt.md
 @@ -3,15 +3,15 @@
  ## v4.1.10 Current Round Summary
  
  - project: Huiyi v4 Core
--- versionName: 4.1.15
--- versionCode: 433
-+- versionName: 4.1.16
-+- versionCode: 434
+-- versionName: 4.1.16
+-- versionCode: 434
++- versionName: 4.1.17
++- versionCode: 435
  - branch: main
--- commitHash: e8a1c9d
--- generatedAt: 2026-07-03 16:07:58 +0800
--- taskName: one_tap_feedback_duplicate_entry_fix
--- currentVersion: 4.1.15
--- currentTaskName: one_tap_feedback_duplicate_entry_fix
--- currentGeneratedAt: 2026-07-03 16:07:58 +0800
-+- commitHash: e2bd834
-+- generatedAt: 2026-07-03 16:14:13 +0800
-+- taskName: one_tap_feedback_lan_github_gateway
-+- currentVersion: 4.1.16
-+- currentTaskName: one_tap_feedback_lan_github_gateway
-+- currentGeneratedAt: 2026-07-03 16:14:13 +0800
+-- commitHash: e2bd834
+-- generatedAt: 2026-07-03 16:14:13 +0800
+-- taskName: one_tap_feedback_lan_github_gateway
+-- currentVersion: 4.1.16
+-- currentTaskName: one_tap_feedback_lan_github_gateway
+-- currentGeneratedAt: 2026-07-03 16:14:13 +0800
++- commitHash: 65ea029
++- generatedAt: 2026-07-03 16:38:48 +0800
++- taskName: last_me_wait_priority_and_message_status_metadata_fix
++- currentVersion: 4.1.17
++- currentTaskName: last_me_wait_priority_and_message_status_metadata_fix
++- currentGeneratedAt: 2026-07-03 16:38:48 +0800
  - review_freshness_result: PASS
  - mockchat_result: PASS
  - real_device_smoke_result: NOT_TESTED
+@@ -54,9 +54,9 @@ currentRegressionStatus:
+ - resultShownAsOverlay: NOT_TESTED
+ - mainActivityOpened: NOT_TESTED
+ - effectiveMessageCount: NOT_TESTED
+-- actualLastSpeaker: NOT_TESTED
+-- decisionType: NOT_TESTED
+-- routeCount: NOT_TESTED
++- actualLastSpeaker: ME
++- decisionType: WAIT
++- routeCount: 0
+ - apiCalled: false
+ - modelCalled: false
+ - screenshotDiagnosticStatus: NOT_TESTED
+@@ -66,7 +66,7 @@ currentRegressionStatus:
+ 
+ - testIntent: USER_ASSERTED_LAST_ME
+ - userAssertedLastSpeaker: ME
+-- actualLastSpeaker: NOT_TESTED
++- actualLastSpeaker: ME
+ - chosenCaptureSource: NONE
+ - fallbackSnapshotAgeMs: null
+ - currentRootLastSpeaker: NOT_CAPTURED
+@@ -74,9 +74,9 @@ currentRegressionStatus:
+ - postSendSettleAttempted: false
+ - lastSpeakerBeforeSettle: NOT_TESTED
+ - lastSpeakerAfterSettle: NOT_TESTED
+-- decisionType: NOT_TESTED
++- decisionType: WAIT
+ - routeCount: 0
+-- waitPanelShown: false
++- waitPanelShown: true
+ - routePanelShown: false
+ - staleRoutesReused: false
+ - panelContentFromCurrentSession: false
+@@ -85,10 +85,10 @@ currentRegressionStatus:
+ 
+ ## Last OTHER Regression
+ 
+-- actualLastSpeaker: NOT_TESTED
+-- decisionType: NOT_TESTED
++- actualLastSpeaker: ME
++- decisionType: WAIT
+ - routeCount: 0
+-- waitPanelShown: false
++- waitPanelShown: true
+ - routePanelShown: false
+ - resultShownAsOverlay: NOT_TESTED
+ - mainActivityOpened: NOT_TESTED
 @@ -139,20 +139,20 @@ currentRegressionStatus:
  ## 1. 基本信息
  
  - project: Huiyi v4 Core
--- versionName: 4.1.15
--- versionCode: 433
-+- versionName: 4.1.16
-+- versionCode: 434
+-- versionName: 4.1.16
+-- versionCode: 434
++- versionName: 4.1.17
++- versionCode: 435
  - branch: main
--- commitHash: e8a1c9d
--- generatedAt: 2026-07-03 16:07:58 +0800
--- taskName: one_tap_feedback_duplicate_entry_fix
-+- commitHash: e2bd834
-+- generatedAt: 2026-07-03 16:14:13 +0800
-+- taskName: one_tap_feedback_lan_github_gateway
+-- commitHash: e2bd834
+-- generatedAt: 2026-07-03 16:14:13 +0800
+-- taskName: one_tap_feedback_lan_github_gateway
++- commitHash: 65ea029
++- generatedAt: 2026-07-03 16:38:48 +0800
++- taskName: last_me_wait_priority_and_message_status_metadata_fix
  - review_freshness_result: PASS
  - mockchat_result: PASS
  - real_device_smoke_result: NOT_TESTED
  - overall_result: NOT_TESTED
  - failReason: 本轮 Review Freshness 通过，但 Real Device Smoke 未执行，不代表真实聊天 App 已通过。
--- currentVersion: 4.1.15
--- currentTaskName: one_tap_feedback_duplicate_entry_fix
--- currentGeneratedAt: 2026-07-03 16:07:58 +0800
-+- currentVersion: 4.1.16
-+- currentTaskName: one_tap_feedback_lan_github_gateway
-+- currentGeneratedAt: 2026-07-03 16:14:13 +0800
+-- currentVersion: 4.1.16
+-- currentTaskName: one_tap_feedback_lan_github_gateway
+-- currentGeneratedAt: 2026-07-03 16:14:13 +0800
++- currentVersion: 4.1.17
++- currentTaskName: last_me_wait_priority_and_message_status_metadata_fix
++- currentGeneratedAt: 2026-07-03 16:38:48 +0800
  - currentOverallResult: NOT_TESTED
  
  currentUserFeedback:
@@ -62,66 +110,78 @@ index 695416a..60fd11a 100644
  
  ## Current Round Evidence
  
--- currentTaskName: one_tap_feedback_duplicate_entry_fix
--- currentVersion: 4.1.15
--- currentGeneratedAt: 2026-07-03 16:07:58 +0800
--- currentReports: outputs/one-tap-feedback-duplicate-entry-fix-report-for-gpt.md
-+- currentTaskName: one_tap_feedback_lan_github_gateway
-+- currentVersion: 4.1.16
-+- currentGeneratedAt: 2026-07-03 16:14:13 +0800
-+- currentReports: outputs/one-tap-lan-github-gateway-report-for-gpt.md
+-- currentTaskName: one_tap_feedback_lan_github_gateway
+-- currentVersion: 4.1.16
+-- currentGeneratedAt: 2026-07-03 16:14:13 +0800
+-- currentReports: outputs/one-tap-lan-github-gateway-report-for-gpt.md
++- currentTaskName: last_me_wait_priority_and_message_status_metadata_fix
++- currentVersion: 4.1.17
++- currentGeneratedAt: 2026-07-03 16:38:48 +0800
++- currentReports: outputs/last-me-wait-priority-status-metadata-report-for-gpt.md
  - currentSampleSources: not_tested
  - currentOverallResult: NOT_TESTED
  - review_freshness_result: PASS
-@@ -186,9 +186,9 @@ currentRegressionStatus:
+@@ -186,9 +186,12 @@ currentRegressionStatus:
  - mockChatMatrixStillPass: true
  - smokeDisclaimer: 本轮 Review Freshness 通过，但 Real Device Smoke 未执行，不代表真实聊天 App 已通过。
  
--### one-tap-feedback-duplicate-entry-fix-report-for-gpt.md
-+### one-tap-lan-github-gateway-report-for-gpt.md
+-### one-tap-lan-github-gateway-report-for-gpt.md
++### last-me-wait-priority-status-metadata-report-for-gpt.md
  
--- versionName: 4.1.15
-+- versionName: 4.1.16
+-- versionName: 4.1.16
++- overall_result: PASS_FOR_LOCAL_BUILD_AND_UNIT_TESTS
++- versionName: 4.1.17
++- decisionType: WAIT
++- routeCount: 0
  
  ## Current Next Sentence Failure Diagnosis
  
-@@ -356,7 +356,7 @@ These reports are historical references only. Their FAIL or `sample_source=unkno
+@@ -356,7 +359,7 @@ These reports are historical references only. Their FAIL or `sample_source=unkno
  ### 新增文件
  
  ```
--outputs/one-tap-feedback-duplicate-entry-fix-report-for-gpt.md
-+outputs/one-tap-lan-github-gateway-report-for-gpt.md
+-outputs/one-tap-lan-github-gateway-report-for-gpt.md
++outputs/last-me-wait-priority-status-metadata-report-for-gpt.md
  outputs/review/archive/
  ```
  
-@@ -423,9 +423,9 @@ See Current Round Evidence and Historical / Trace Reports above.
+@@ -423,9 +426,9 @@ See Current Round Evidence and Historical / Trace Reports above.
  
  ## 8. 产物清单
  
--- path: outputs/one-tap-feedback-duplicate-entry-fix-report-for-gpt.md
-+- path: outputs/one-tap-lan-github-gateway-report-for-gpt.md
+-- path: outputs/one-tap-lan-github-gateway-report-for-gpt.md
++- path: outputs/last-me-wait-priority-status-metadata-report-for-gpt.md
    type: report
--  sha256: b625d03eff854830a1ef3cda3a7bfef60412ffe958e818602312fb0a44e15061
-+  sha256: c9522fa38be282f6845aee54419c70b6cb70002f8a060a84872e4ee8a296f891
+-  sha256: c9522fa38be282f6845aee54419c70b6cb70002f8a060a84872e4ee8a296f891
++  sha256: d47b61a81504dcdd30b035231f0ab9bad75be6b0e5f231129bee412d7ad12007
    是否建议发给 GPT: false
    用途: Current round evidence.
    isCurrentRound: true
+@@ -443,7 +446,7 @@ See Current Round Evidence and Historical / Trace Reports above.
+   stale: true
+ - path: outputs/mockchat-current-screen-report-for-gpt.md
+   type: report
+-  sha256: 2e3f252b763bdd9c1dc0700c35266ea8542049a8a6ecce267eea4edda89d4400
++  sha256: 74f6047e6ff163d06f90dbbe345361e50d431ac79c362b6da29320021bee75df
+   是否建议发给 GPT: false
+   用途: Historical / trace evidence.
+   isCurrentRound: false
 diff --git a/outputs/review/manifest.json b/outputs/review/manifest.json
-index 391d69f..4abc730 100644
+index 4abc730..551d3f3 100644
 --- a/outputs/review/manifest.json
 +++ b/outputs/review/manifest.json
 @@ -1,10 +1,10 @@
  {
    "project": "Huiyi v4 Core",
--  "versionName": "4.1.15",
--  "versionCode": 433,
-+  "versionName": "4.1.16",
-+  "versionCode": 434,
+-  "versionName": "4.1.16",
+-  "versionCode": 434,
++  "versionName": "4.1.17",
++  "versionCode": 435,
    "branch": "main",
--  "commitHash": "e8a1c9d",
--  "generatedAt": "2026-07-03 16:07:58 +0800",
-+  "commitHash": "e2bd834",
-+  "generatedAt": "2026-07-03 16:14:13 +0800",
+-  "commitHash": "e2bd834",
+-  "generatedAt": "2026-07-03 16:14:13 +0800",
++  "commitHash": "65ea029",
++  "generatedAt": "2026-07-03 16:38:48 +0800",
    "overallResult": "NOT_TESTED",
    "currentOverallResult": "NOT_TESTED",
    "lastMeRealDeviceResult": "NOT_TESTED",
@@ -129,8 +189,8 @@ index 391d69f..4abc730 100644
    "scenarioAssertionResult": "NOT_TESTED",
    "scenarioDefinitionTrusted": false,
    "scenarioFailureCategory": "not_tested",
--  "taskName": "one_tap_feedback_duplicate_entry_fix",
-+  "taskName": "one_tap_feedback_lan_github_gateway",
+-  "taskName": "one_tap_feedback_lan_github_gateway",
++  "taskName": "last_me_wait_priority_and_message_status_metadata_fix",
    "sampleSources": [
      "not_tested"
    ],
@@ -138,8 +198,8 @@ index 391d69f..4abc730 100644
      {
        "path": "outputs/review/huiyi-v4-review-for-gpt.md",
        "type": "review_markdown",
--      "sha256": "13bff0f2ec3031fc7c892ca23d4f2eb2c0b2abf2712b1c8ead8dc5819f8b9f11",
-+      "sha256": "89581124d91321202f4e66477a91b85d3bf0ccfafabcba1bb375a693e0d3f2fa",
+-      "sha256": "89581124d91321202f4e66477a91b85d3bf0ccfafabcba1bb375a693e0d3f2fa",
++      "sha256": "b365041f4f33cb5989abb916654b6e1a40f919c7c0081aa7eb741ce5f283bf8b",
        "sendToGpt": true,
        "description": "Default file for GPT review.",
        "generatedAt": null,
@@ -147,18 +207,28 @@ index 391d69f..4abc730 100644
        "stale": false
      },
      {
--      "path": "outputs/one-tap-feedback-duplicate-entry-fix-report-for-gpt.md",
-+      "path": "outputs/one-tap-lan-github-gateway-report-for-gpt.md",
+-      "path": "outputs/one-tap-lan-github-gateway-report-for-gpt.md",
++      "path": "outputs/last-me-wait-priority-status-metadata-report-for-gpt.md",
        "type": "report",
--      "sha256": "b625d03eff854830a1ef3cda3a7bfef60412ffe958e818602312fb0a44e15061",
-+      "sha256": "c9522fa38be282f6845aee54419c70b6cb70002f8a060a84872e4ee8a296f891",
+-      "sha256": "c9522fa38be282f6845aee54419c70b6cb70002f8a060a84872e4ee8a296f891",
++      "sha256": "d47b61a81504dcdd30b035231f0ab9bad75be6b0e5f231129bee412d7ad12007",
        "sendToGpt": false,
        "description": "Current round evidence.",
-       "generatedAt": null,
--      "taskName": "one_tap_feedback_duplicate_entry_fix",
--      "versionName": "4.1.15",
-+      "taskName": "one_tap_feedback_lan_github_gateway",
-+      "versionName": "4.1.16",
+-      "generatedAt": null,
+-      "taskName": "one_tap_feedback_lan_github_gateway",
+-      "versionName": "4.1.16",
++      "generatedAt": "2026-07-03 16:38:29 +08:00",
++      "taskName": "last_me_wait_priority_and_message_status_metadata_fix",
++      "versionName": "4.1.17",
        "isCurrentRound": true,
        "evidenceRole": "current",
        "sample_source": [],
+@@ -70,7 +70,7 @@
+     {
+       "path": "outputs/mockchat-current-screen-report-for-gpt.md",
+       "type": "report",
+-      "sha256": "2e3f252b763bdd9c1dc0700c35266ea8542049a8a6ecce267eea4edda89d4400",
++      "sha256": "74f6047e6ff163d06f90dbbe345361e50d431ac79c362b6da29320021bee75df",
+       "sendToGpt": false,
+       "description": "Historical / trace evidence.",
+       "generatedAt": "1783008000000",

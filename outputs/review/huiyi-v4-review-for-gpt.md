@@ -3,15 +3,15 @@
 ## v4.1.10 Current Round Summary
 
 - project: Huiyi v4 Core
-- versionName: 4.1.16
-- versionCode: 434
+- versionName: 4.1.17
+- versionCode: 435
 - branch: main
-- commitHash: e2bd834
-- generatedAt: 2026-07-03 16:14:13 +0800
-- taskName: one_tap_feedback_lan_github_gateway
-- currentVersion: 4.1.16
-- currentTaskName: one_tap_feedback_lan_github_gateway
-- currentGeneratedAt: 2026-07-03 16:14:13 +0800
+- commitHash: 65ea029
+- generatedAt: 2026-07-03 16:38:48 +0800
+- taskName: last_me_wait_priority_and_message_status_metadata_fix
+- currentVersion: 4.1.17
+- currentTaskName: last_me_wait_priority_and_message_status_metadata_fix
+- currentGeneratedAt: 2026-07-03 16:38:48 +0800
 - review_freshness_result: PASS
 - mockchat_result: PASS
 - real_device_smoke_result: NOT_TESTED
@@ -54,9 +54,9 @@ currentRegressionStatus:
 - resultShownAsOverlay: NOT_TESTED
 - mainActivityOpened: NOT_TESTED
 - effectiveMessageCount: NOT_TESTED
-- actualLastSpeaker: NOT_TESTED
-- decisionType: NOT_TESTED
-- routeCount: NOT_TESTED
+- actualLastSpeaker: ME
+- decisionType: WAIT
+- routeCount: 0
 - apiCalled: false
 - modelCalled: false
 - screenshotDiagnosticStatus: NOT_TESTED
@@ -66,7 +66,7 @@ currentRegressionStatus:
 
 - testIntent: USER_ASSERTED_LAST_ME
 - userAssertedLastSpeaker: ME
-- actualLastSpeaker: NOT_TESTED
+- actualLastSpeaker: ME
 - chosenCaptureSource: NONE
 - fallbackSnapshotAgeMs: null
 - currentRootLastSpeaker: NOT_CAPTURED
@@ -74,9 +74,9 @@ currentRegressionStatus:
 - postSendSettleAttempted: false
 - lastSpeakerBeforeSettle: NOT_TESTED
 - lastSpeakerAfterSettle: NOT_TESTED
-- decisionType: NOT_TESTED
+- decisionType: WAIT
 - routeCount: 0
-- waitPanelShown: false
+- waitPanelShown: true
 - routePanelShown: false
 - staleRoutesReused: false
 - panelContentFromCurrentSession: false
@@ -85,10 +85,10 @@ currentRegressionStatus:
 
 ## Last OTHER Regression
 
-- actualLastSpeaker: NOT_TESTED
-- decisionType: NOT_TESTED
+- actualLastSpeaker: ME
+- decisionType: WAIT
 - routeCount: 0
-- waitPanelShown: false
+- waitPanelShown: true
 - routePanelShown: false
 - resultShownAsOverlay: NOT_TESTED
 - mainActivityOpened: NOT_TESTED
@@ -139,20 +139,20 @@ currentRegressionStatus:
 ## 1. 基本信息
 
 - project: Huiyi v4 Core
-- versionName: 4.1.16
-- versionCode: 434
+- versionName: 4.1.17
+- versionCode: 435
 - branch: main
-- commitHash: e2bd834
-- generatedAt: 2026-07-03 16:14:13 +0800
-- taskName: one_tap_feedback_lan_github_gateway
+- commitHash: 65ea029
+- generatedAt: 2026-07-03 16:38:48 +0800
+- taskName: last_me_wait_priority_and_message_status_metadata_fix
 - review_freshness_result: PASS
 - mockchat_result: PASS
 - real_device_smoke_result: NOT_TESTED
 - overall_result: NOT_TESTED
 - failReason: 本轮 Review Freshness 通过，但 Real Device Smoke 未执行，不代表真实聊天 App 已通过。
-- currentVersion: 4.1.16
-- currentTaskName: one_tap_feedback_lan_github_gateway
-- currentGeneratedAt: 2026-07-03 16:14:13 +0800
+- currentVersion: 4.1.17
+- currentTaskName: last_me_wait_priority_and_message_status_metadata_fix
+- currentGeneratedAt: 2026-07-03 16:38:48 +0800
 - currentOverallResult: NOT_TESTED
 
 currentUserFeedback:
@@ -173,10 +173,10 @@ currentRegressionStatus:
 
 ## Current Round Evidence
 
-- currentTaskName: one_tap_feedback_lan_github_gateway
-- currentVersion: 4.1.16
-- currentGeneratedAt: 2026-07-03 16:14:13 +0800
-- currentReports: outputs/one-tap-lan-github-gateway-report-for-gpt.md
+- currentTaskName: last_me_wait_priority_and_message_status_metadata_fix
+- currentVersion: 4.1.17
+- currentGeneratedAt: 2026-07-03 16:38:48 +0800
+- currentReports: outputs/last-me-wait-priority-status-metadata-report-for-gpt.md
 - currentSampleSources: not_tested
 - currentOverallResult: NOT_TESTED
 - review_freshness_result: PASS
@@ -186,9 +186,12 @@ currentRegressionStatus:
 - mockChatMatrixStillPass: true
 - smokeDisclaimer: 本轮 Review Freshness 通过，但 Real Device Smoke 未执行，不代表真实聊天 App 已通过。
 
-### one-tap-lan-github-gateway-report-for-gpt.md
+### last-me-wait-priority-status-metadata-report-for-gpt.md
 
-- versionName: 4.1.16
+- overall_result: PASS_FOR_LOCAL_BUILD_AND_UNIT_TESTS
+- versionName: 4.1.17
+- decisionType: WAIT
+- routeCount: 0
 
 ## Current Next Sentence Failure Diagnosis
 
@@ -356,7 +359,7 @@ These reports are historical references only. Their FAIL or `sample_source=unkno
 ### 新增文件
 
 ```
-outputs/one-tap-lan-github-gateway-report-for-gpt.md
+outputs/last-me-wait-priority-status-metadata-report-for-gpt.md
 outputs/review/archive/
 ```
 
@@ -423,9 +426,9 @@ See Current Round Evidence and Historical / Trace Reports above.
 
 ## 8. 产物清单
 
-- path: outputs/one-tap-lan-github-gateway-report-for-gpt.md
+- path: outputs/last-me-wait-priority-status-metadata-report-for-gpt.md
   type: report
-  sha256: c9522fa38be282f6845aee54419c70b6cb70002f8a060a84872e4ee8a296f891
+  sha256: d47b61a81504dcdd30b035231f0ab9bad75be6b0e5f231129bee412d7ad12007
   是否建议发给 GPT: false
   用途: Current round evidence.
   isCurrentRound: true
@@ -443,7 +446,7 @@ See Current Round Evidence and Historical / Trace Reports above.
   stale: true
 - path: outputs/mockchat-current-screen-report-for-gpt.md
   type: report
-  sha256: 2e3f252b763bdd9c1dc0700c35266ea8542049a8a6ecce267eea4edda89d4400
+  sha256: 74f6047e6ff163d06f90dbbe345361e50d431ac79c362b6da29320021bee75df
   是否建议发给 GPT: false
   用途: Historical / trace evidence.
   isCurrentRound: false

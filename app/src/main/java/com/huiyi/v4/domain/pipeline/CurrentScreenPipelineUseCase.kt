@@ -82,6 +82,7 @@ class CurrentScreenPipelineUseCase(
                 it is MessageContent.Image || it is MessageContent.Sticker
             }
             val decision = when {
+                lastSpeaker.lastSpeaker == Speaker.ME -> decisionEngine.decide(context)
                 unknownTooHigh -> unknownSpeakerDecision("UNKNOWN 说话人超过 30%，不允许高置信度生成。")
                 hasVisualConflict -> unknownSpeakerDecision("当前屏幕存在 Accessibility 与视觉投影冲突，需要先看 visual debug 图。")
                 hasUnknownChatNode -> unknownSpeakerDecision("当前屏幕存在边界不清的聊天气泡，不允许高置信度生成。")
