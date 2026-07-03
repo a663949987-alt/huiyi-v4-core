@@ -1,65 +1,24 @@
 {
-  "project": "Huiyi v4 Core",
-  "taskName": "private_gpt55_relay_apk_delivery",
-  "versionName": "4.1.26",
-  "versionCode": 445,
-  "branch": "main",
-  "commitHash": "GENERATED_BEFORE_COMMIT_PUSH_SEE_GITHUB_HEAD",
-  "generatedAt": "2026-07-03 21:42:50 +08:00",
-  "overallResult": "PRIVATE_RELAY_APK_DELIVERED_RELAY_SMOKE_PASS",
-  "currentOverallResult": "PRIVATE_RELAY_APK_DELIVERED_RELAY_SMOKE_PASS",
-  "privateApkDelivered": true,
-  "apkDeliveredOutOfBand": true,
-  "apkArtifactName": "huiyi-v4.1.26-gpt55-relay-internal.apk",
-  "deliveryMethod": "CODEX_LOCAL_ARTIFACT",
-  "userInstallApkAbsolutePath": "C:\\Users\\fbjdf\\Downloads\\Huiyi\\huiyi-v4.1.26-gpt55-relay-internal.apk",
-  "workspacePrivateApkAbsolutePath": "C:\\Users\\fbjdf\\Documents\\Codex\\2026-07-02\\new-chat-3\\outputs\\private\\huiyi-v4.1.26-gpt55-relay-internal.apk",
-  "apkSha256": "dd78887595361830d87c73bbea83d3e21b7df85aa32c6c89ea2235bd8eb5e306",
-  "apkCommittedToPublicGithub": false,
-  "privateApkContainsRelayConfig": true,
-  "userReceivedApk": true,
-  "githubReleaseUploaded": false,
-  "publicUpdateServerUsed": false,
-  "githubContainsOnlyRedactedReport": true,
-  "relayConfiguredForBuild": true,
-  "relayModelConfigured": true,
-  "relayApiKeyConfigured": true,
-  "relayApiKeyLeaked": false,
-  "relaySmokeResult": "PASS",
-  "relayRequestAttempted": true,
-  "relayResponseReceived": true,
-  "cloudResponseParsed": true,
-  "validatorPass": true,
-  "routeCount": 5,
-  "lastMeSafetyGate": "PASS",
-  "lastOtherCloudPath": "PASS",
-  "realDeviceSmokeResult": "NOT_TESTED_USER_NEEDED",
-  "userNeedsPhoneThisRound": true,
-  "containsSecrets": false,
-  "files": [
-    {
-      "path": "outputs/gpt_review_inbox/README_FOR_GPT.md",
-      "type": "report",
-      "sendToGpt": true,
-      "description": "Current private APK delivery entry point"
-    },
-    {
-      "path": "outputs/gpt_review_inbox/private-gpt55-relay-apk-report-for-gpt.md",
-      "type": "report",
-      "sendToGpt": true,
-      "description": "Redacted private GPT 5.5 relay APK report"
-    },
-    {
-      "path": "outputs/gpt_review_inbox/private-gpt55-relay-apk-report.json",
-      "type": "json",
-      "sendToGpt": true,
-      "description": "Machine-readable redacted private APK report"
-    },
-    {
-      "path": "outputs/codex_to_gpt/result-manifest.json",
-      "type": "json",
-      "sendToGpt": true,
-      "description": "Current Codex to GPT result manifest"
-    }
-  ]
+  "project": "huiyi-v4",
+  "phoneBundleIncluded": true,
+  "oneTapFeedbackIncluded": true,
+  "uploadedFromPhone": true,
+  "latestPhoneUploadAt": "2026-07-03T13:51:21.501375+00:00",
+  "latestPhoneSessionId": "83650ed8-0837-455f-89c6-836178104d1d",
+  "githubCommitHash": "PENDING",
+  "githubReviewPath": "outputs/gpt_review_inbox/phone/latest/",
+  "realDeviceTested": true,
+  "latestPhoneConclusion": {
+    "sessionId": "83650ed8-0837-455f-89c6-836178104d1d",
+    "terminalState": "ROUTE_PANEL",
+    "appPackage": "com.bajiao.im.liaoqi",
+    "actualLastSpeaker": "OTHER",
+    "decisionType": "NORMAL_REPLY",
+    "routeCount": 5,
+    "waitPanelShown": false,
+    "routePanelShown": true,
+    "errorCode": "",
+    "userMarkedWrong": true,
+    "userCorrectionLastSpeaker": "NONE"
+  }
 }

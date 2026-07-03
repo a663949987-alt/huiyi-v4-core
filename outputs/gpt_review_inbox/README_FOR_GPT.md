@@ -1,52 +1,28 @@
 # Huiyi v4 GPT Review Inbox
 
-- taskName: private_gpt55_relay_apk_delivery
-- versionName: 4.1.26
-- versionCode: 445
-- currentOverallResult: PRIVATE_RELAY_APK_DELIVERED_RELAY_SMOKE_PASS
-- privateApkDelivered: true
-- apkDeliveredOutOfBand: true
-- apkArtifactName: huiyi-v4.1.26-gpt55-relay-internal.apk
-- apkCommittedToPublicGithub: false
-- privateApkContainsRelayConfig: true
-- userReceivedApk: true
-- githubReleaseUploaded: false
-- publicUpdateServerUsed: false
-- userNeedsPhoneThisRound: true
+## Source
+- phoneBundleIncluded: true
+- oneTapFeedbackIncluded: true
+- uploadedFromPhone: true
+- latestPhoneUploadAt: 2026-07-03T13:51:21.501375+00:00
+- latestPhoneSessionId: 83650ed8-0837-455f-89c6-836178104d1d
+- githubCommitHash: PENDING
+- githubReviewPath: outputs/gpt_review_inbox/phone/latest/
+- realDeviceTested: true
 
-## Private APK Delivery
-- deliveryMethod: CODEX_LOCAL_ARTIFACT
-- userInstallApkAbsolutePath: C:\Users\fbjdf\Downloads\Huiyi\huiyi-v4.1.26-gpt55-relay-internal.apk
-- workspacePrivateApkAbsolutePath: C:\Users\fbjdf\Documents\Codex\2026-07-02\new-chat-3\outputs\private\huiyi-v4.1.26-gpt55-relay-internal.apk
-- apkSha256: dd78887595361830d87c73bbea83d3e21b7df85aa32c6c89ea2235bd8eb5e306
-- apkSizeBytes: 30695523
-
-## Relay
-- relayConfiguredForBuild: true
-- relayModelConfigured: true
-- relayApiKeyConfigured: true
-- relayApiKeyLeaked: false
-- apiKeyWrittenToGithub: false
-- apiKeyWrittenToReports: false
-- cloudResponseParsed: true
-
-## Local Safety Gates
-- lastMeSafetyGate: PASS
-- lastOtherCloudPath: PASS
-- cloudFailureFallback: PASS
-- noInfiniteLoadingLocalCoverage: PASS
-
-## Relay Smoke
-- relaySmokeResult: PASS
-- relayRequestAttempted: true
-- relayResponseReceived: true
-- cloudResponseParsed: true
-- validatorPass: true
+## Latest Phone Conclusion
+- terminalState: ROUTE_PANEL
+- appPackage: com.bajiao.im.liaoqi
+- actualLastSpeaker: OTHER
+- decisionType: NORMAL_REPLY
 - routeCount: 5
-- apiKeyLeaked: false
+- waitPanelShown: False
+- routePanelShown: True
+- errorCode: 
+- userMarkedWrong: True
+- userCorrectionLastSpeaker: NONE
 
-## GPT Verification Rule
-This is a private internal APK delivery. Do not fail this round because the APK is absent from public GitHub, public Releases, or outputs/update_server. The APK contains private relay configuration and is deliberately delivered out of band through a local Codex artifact / user Downloads path. GitHub only contains redacted reports.
-
-## User Test
-Install C:\Users\fbjdf\Downloads\Huiyi\huiyi-v4.1.26-gpt55-relay-internal.apk, open Huiyi, confirm cloud is ready, then open Liaoqi and tap Next Sentence.
+## GPT Should Inspect
+1. outputs/gpt_review_inbox/phone/latest/README_FOR_GPT.md
+2. outputs/gpt_review_inbox/phone/latest/one-tap-feedback-manifest.json
+3. outputs/gpt_review_inbox/phone/latest/latest-session/next-sentence-flight-record.json
