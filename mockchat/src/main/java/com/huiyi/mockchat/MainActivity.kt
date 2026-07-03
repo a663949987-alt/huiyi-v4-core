@@ -51,6 +51,7 @@ import java.io.OutputStream
 class MainActivity : ComponentActivity() {
     private var currentProfile by mutableStateOf(MockChatLayoutProfile.WECHAT_LIKE)
     private var currentScenario by mutableStateOf(MockScenario.LAST_OTHER)
+    private var currentFontScale by mutableStateOf(MockFontScaleProfile.NORMAL)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -60,8 +61,10 @@ class MainActivity : ComponentActivity() {
                 MockChatScreen(
                     profile = currentProfile,
                     scenario = currentScenario,
+                    fontScaleProfile = currentFontScale,
                     onProfileChange = { currentProfile = it },
                     onScenarioChange = { currentScenario = it },
+                    onFontScaleChange = { currentFontScale = it },
                     onExportScreenshot = { view -> exportScreenshot(view, currentProfile, currentScenario) }
                 )
             }
@@ -80,8 +83,12 @@ class MainActivity : ComponentActivity() {
         val scenarioRaw = intent.getStringExtra("scenario")
             ?: intent.data?.getQueryParameter("scenario")
             ?: currentScenario.id
+        val fontScaleRaw = intent.getStringExtra("fontScale")
+            ?: intent.data?.getQueryParameter("fontScale")
+            ?: currentFontScale.id
         currentProfile = MockChatLayoutProfile.entries.firstOrNull { it.id == profileRaw } ?: currentProfile
         currentScenario = MockScenario.entries.firstOrNull { it.id == scenarioRaw } ?: currentScenario
+        currentFontScale = MockFontScaleProfile.entries.firstOrNull { it.id == fontScaleRaw } ?: currentFontScale
     }
 
     private fun exportScreenshot(view: View, profile: MockChatLayoutProfile, scenario: MockScenario) {
@@ -115,7 +122,16 @@ enum class MockChatLayoutProfile(
     QQ_LIKE("qq_like", "QQ_LIKE", "蓝桥", "手机在线", Color(0xFFEFF6FF), Color(0xFFFFFFFF), Color(0xFFB8E5FF), 18, true, true),
     REDBOOK_DM_LIKE("redbook_like", "REDBOOK_DM_LIKE", "小鹿同学", "刚刚在线", Color(0xFFFFF7F7), Color.White, Color(0xFFFFE1E7), 14, true, true),
     DATING_APP_LIKE("dating_like", "DATING_APP_LIKE", "林夏", "资料完整度 82%", Color(0xFFFFFAF2), Color.White, Color(0xFFE8D8FF), 16, true, true),
-    MINIMAL_CHAT_LIKE("minimal_like", "MINIMAL_CHAT_LIKE", "对话", "在线", Color(0xFFF7F7F5), Color(0xFFFDFDFB), Color(0xFFEDEDE8), 6, false, false)
+    MINIMAL_CHAT_LIKE("minimal_like", "MINIMAL_CHAT_LIKE", "对话", "在线", Color(0xFFF7F7F5), Color(0xFFFDFDFB), Color(0xFFEDEDE8), 6, false, false),
+    LIAOQI_HUAWEI_LARGE_TEXT("liaoqi_huawei_large_text", "LIAOQI_HUAWEI_LARGE_TEXT", "白云蓝天", "上次在线时间07-02 18:06", Color(0xFFF4F1EC), Color.White, Color(0xFFBEE6A8), 12, true, true)
+}
+
+enum class MockFontScaleProfile(val id: String, val label: String, val scale: Float) {
+    SMALL("font_small", "font_small 0.85", 0.85f),
+    NORMAL("font_normal", "font_normal 1.0", 1.0f),
+    LARGE("font_large", "font_large 1.15", 1.15f),
+    EXTRA_LARGE("font_extra_large", "font_extra_large 1.3", 1.3f),
+    HUGE("font_huge", "font_huge 1.5", 1.5f)
 }
 
 enum class MockScenario(val id: String, val label: String) {
@@ -156,8 +172,10 @@ private data class ChatItem(
 private fun MockChatScreen(
     profile: MockChatLayoutProfile,
     scenario: MockScenario,
+    fontScaleProfile: MockFontScaleProfile,
     onProfileChange: (MockChatLayoutProfile) -> Unit,
     onScenarioChange: (MockScenario) -> Unit,
+    onFontScaleChange: (MockFontScaleProfile) -> Unit,
     onExportScreenshot: (View) -> Unit
 ) {
     val view = LocalView.current
@@ -169,18 +187,21 @@ private fun MockChatScreen(
             TopBar(
                 profile = profile,
                 scenario = scenario,
+                fontScaleProfile = fontScaleProfile,
                 onProfileChange = onProfileChange,
                 onScenarioChange = onScenarioChange,
+                onFontScaleChange = onFontScaleChange,
                 onExportScreenshot = { onExportScreenshot(view) }
             )
             ChatList(
                 profile = profile,
+                fontScale = fontScaleProfile.scale,
                 items = scenario.items(profile),
                 modifier = Modifier
                     .weight(1f)
                     .fillMaxWidth()
             )
-            InputBar(profile)
+            InputBar(profile, fontScaleProfile.scale)
         }
     }
 }
@@ -189,12 +210,15 @@ private fun MockChatScreen(
 private fun TopBar(
     profile: MockChatLayoutProfile,
     scenario: MockScenario,
+    fontScaleProfile: MockFontScaleProfile,
     onProfileChange: (MockChatLayoutProfile) -> Unit,
     onScenarioChange: (MockScenario) -> Unit,
+    onFontScaleChange: (MockFontScaleProfile) -> Unit,
     onExportScreenshot: () -> Unit
 ) {
     var profileExpanded by remember { mutableStateOf(false) }
     var scenarioExpanded by remember { mutableStateOf(false) }
+    var fontExpanded by remember { mutableStateOf(false) }
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -205,15 +229,15 @@ private fun TopBar(
             modifier = Modifier.fillMaxWidth(),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Text("返回", fontSize = 14.sp, color = Color(0xFF6E6A63))
+            Text("返回", fontSize = (14 * fontScaleProfile.scale).sp, color = Color(0xFF6E6A63))
             Column(
                 modifier = Modifier
                     .weight(1f)
                     .padding(horizontal = 12.dp),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                Text(profile.title, fontSize = 18.sp, fontWeight = FontWeight.SemiBold, maxLines = 1)
-                Text(profile.status, fontSize = 12.sp, color = Color(0xFF7D776D), maxLines = 1)
+                Text(profile.title, fontSize = (18 * fontScaleProfile.scale).sp, fontWeight = FontWeight.SemiBold, maxLines = 1)
+                Text(profile.status, fontSize = (12 * fontScaleProfile.scale).sp, color = Color(0xFF7D776D), maxLines = 1)
             }
             Box {
                 Text(
@@ -222,7 +246,7 @@ private fun TopBar(
                         .clip(RoundedCornerShape(6.dp))
                         .clickable { profileExpanded = true }
                         .padding(horizontal = 8.dp, vertical = 6.dp),
-                    fontSize = 13.sp,
+                    fontSize = (13 * fontScaleProfile.scale).sp,
                     color = Color(0xFF4C463F)
                 )
                 DropdownMenu(expanded = profileExpanded, onDismissRequest = { profileExpanded = false }) {
@@ -244,8 +268,8 @@ private fun TopBar(
             verticalAlignment = Alignment.CenterVertically
         ) {
             Text(
-                text = "${profile.label} / ${scenario.label}",
-                fontSize = 11.sp,
+                text = "${profile.label} / ${scenario.label} / ${fontScaleProfile.label}",
+                fontSize = (11 * fontScaleProfile.scale).sp,
                 color = Color(0xFF918A7E),
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis
@@ -258,7 +282,7 @@ private fun TopBar(
                             .clip(RoundedCornerShape(6.dp))
                             .clickable { scenarioExpanded = true }
                             .padding(horizontal = 8.dp, vertical = 6.dp),
-                        fontSize = 12.sp,
+                        fontSize = (12 * fontScaleProfile.scale).sp,
                         color = Color(0xFF4C463F)
                     )
                     DropdownMenu(expanded = scenarioExpanded, onDismissRequest = { scenarioExpanded = false }) {
@@ -274,7 +298,29 @@ private fun TopBar(
                     }
                 }
                 OutlinedButton(onClick = onExportScreenshot) {
-                    Text("导出截图", fontSize = 12.sp)
+                    Text("导出截图", fontSize = (12 * fontScaleProfile.scale).sp)
+                }
+                Box {
+                    Text(
+                        text = "字体",
+                        modifier = Modifier
+                            .clip(RoundedCornerShape(6.dp))
+                            .clickable { fontExpanded = true }
+                            .padding(horizontal = 8.dp, vertical = 6.dp),
+                        fontSize = (12 * fontScaleProfile.scale).sp,
+                        color = Color(0xFF4C463F)
+                    )
+                    DropdownMenu(expanded = fontExpanded, onDismissRequest = { fontExpanded = false }) {
+                        MockFontScaleProfile.entries.forEach { item ->
+                            DropdownMenuItem(
+                                text = { Text(item.label) },
+                                onClick = {
+                                    fontExpanded = false
+                                    onFontScaleChange(item)
+                                }
+                            )
+                        }
+                    }
                 }
             }
         }
@@ -282,20 +328,20 @@ private fun TopBar(
 }
 
 @Composable
-private fun ChatList(profile: MockChatLayoutProfile, items: List<ChatItem>, modifier: Modifier = Modifier) {
+private fun ChatList(profile: MockChatLayoutProfile, fontScale: Float, items: List<ChatItem>, modifier: Modifier = Modifier) {
     Column(
         modifier = modifier
             .padding(horizontal = 12.dp, vertical = 12.dp),
         verticalArrangement = Arrangement.spacedBy(6.dp)
     ) {
         items.forEach { item ->
-            SimpleChatNode(profile, item)
+            SimpleChatNode(profile, item, fontScale)
         }
     }
 }
 
 @Composable
-private fun SimpleChatNode(profile: MockChatLayoutProfile, item: ChatItem) {
+private fun SimpleChatNode(profile: MockChatLayoutProfile, item: ChatItem, fontScale: Float) {
     val alignment = when (item.kind) {
         BubbleKind.TIME, BubbleKind.DATE, BubbleKind.SYSTEM, BubbleKind.CENTER_UNKNOWN -> Alignment.Center
         BubbleKind.ME -> Alignment.CenterEnd
@@ -317,15 +363,15 @@ private fun SimpleChatNode(profile: MockChatLayoutProfile, item: ChatItem) {
         BubbleKind.IMAGE_OTHER, BubbleKind.STICKER_OTHER -> 164.dp
         BubbleKind.SHARE_OTHER, BubbleKind.PROFILE_CARD -> 220.dp
         BubbleKind.CENTER_UNKNOWN -> 250.dp
-        else -> 268.dp
+        else -> if (profile == MockChatLayoutProfile.LIAOQI_HUAWEI_LARGE_TEXT) 318.dp else 268.dp
     }
     val height = when (item.kind) {
-        BubbleKind.TIME, BubbleKind.DATE -> 26.dp
-        BubbleKind.SYSTEM -> 32.dp
+        BubbleKind.TIME, BubbleKind.DATE -> (26 * fontScale).dp
+        BubbleKind.SYSTEM -> (32 * fontScale).dp
         BubbleKind.IMAGE_OTHER, BubbleKind.STICKER_OTHER -> 58.dp
         BubbleKind.SHARE_OTHER, BubbleKind.PROFILE_CARD -> 62.dp
-        BubbleKind.LONG_OTHER -> 72.dp
-        else -> 50.dp
+        BubbleKind.LONG_OTHER -> (72 * fontScale).dp
+        else -> (50 * fontScale).dp
     }
     Box(
         modifier = Modifier
@@ -349,8 +395,8 @@ private fun SimpleChatNode(profile: MockChatLayoutProfile, item: ChatItem) {
                     .background(background)
                     .then(if (item.kind == BubbleKind.CENTER_UNKNOWN) Modifier.border(1.dp, Color(0xFFD0C6B8), RoundedCornerShape(profile.round.dp)) else Modifier)
                     .padding(horizontal = 8.dp, vertical = 5.dp),
-                fontSize = if (item.kind == BubbleKind.TIME || item.kind == BubbleKind.DATE) 12.sp else 14.sp,
-                lineHeight = 16.sp,
+                fontSize = ((if (item.kind == BubbleKind.TIME || item.kind == BubbleKind.DATE) 12 else 14) * fontScale).sp,
+                lineHeight = (16 * fontScale).sp,
                 color = Color(0xFF23211E),
                 maxLines = when (item.kind) {
                     BubbleKind.TIME, BubbleKind.DATE, BubbleKind.VOICE_OTHER -> 1
@@ -389,7 +435,7 @@ private fun Avatar(color: Color) {
 }
 
 @Composable
-private fun InputBar(profile: MockChatLayoutProfile) {
+private fun InputBar(profile: MockChatLayoutProfile, fontScale: Float) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -398,7 +444,7 @@ private fun InputBar(profile: MockChatLayoutProfile) {
             .padding(horizontal = 10.dp, vertical = 8.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        Text("语音", fontSize = 14.sp, color = Color(0xFF514C45))
+        Text("语音", fontSize = (14 * fontScale).sp, color = Color(0xFF514C45))
         Spacer(Modifier.width(8.dp))
         Box(
             modifier = Modifier
@@ -409,14 +455,14 @@ private fun InputBar(profile: MockChatLayoutProfile) {
                 .padding(horizontal = 12.dp),
             contentAlignment = Alignment.CenterStart
         ) {
-            Text("输入框", color = Color(0xFF8A8378), fontSize = 15.sp)
+            Text("输入框", color = Color(0xFF8A8378), fontSize = (15 * fontScale).sp)
         }
         Spacer(Modifier.width(8.dp))
         if (profile.inputRich) {
-            Text("图片", fontSize = 14.sp, color = Color(0xFF514C45))
+            Text("图片", fontSize = (14 * fontScale).sp, color = Color(0xFF514C45))
             Spacer(Modifier.width(8.dp))
         }
-        Text("表情", fontSize = 14.sp, color = Color(0xFF514C45))
+        Text("表情", fontSize = (14 * fontScale).sp, color = Color(0xFF514C45))
         Spacer(Modifier.width(8.dp))
         Button(onClick = {}) { Text("发送") }
     }
@@ -485,6 +531,20 @@ private fun metadataTrapThread(profile: MockChatLayoutProfile): List<ChatItem> =
 )
 
 private fun baseOtherThread(profile: MockChatLayoutProfile): List<ChatItem> {
+    if (profile == MockChatLayoutProfile.LIAOQI_HUAWEI_LARGE_TEXT) {
+        return listOf(
+            ChatItem(BubbleKind.TIME, "10:56"),
+            ChatItem(BubbleKind.OTHER, "你爱吃什么"),
+            ChatItem(BubbleKind.ME, "好啊，乖乖，我不跟你聊了，拜拜。"),
+            ChatItem(BubbleKind.OTHER, "😊好"),
+            ChatItem(BubbleKind.ME, "😆吃饭前唱军歌，不如你唱的好听"),
+            ChatItem(BubbleKind.TIME, "10:58"),
+            ChatItem(BubbleKind.OTHER, "为什么给我发这个😂五分钟的视频才看完"),
+            ChatItem(BubbleKind.OTHER, "今天我们要开个会，月底最后一天……"),
+            ChatItem(BubbleKind.TIME, "10:59"),
+            ChatItem(BubbleKind.OTHER, "看你挺忙的，忙完注意休息哈")
+        )
+    }
     val middle = when (profile) {
         MockChatLayoutProfile.QQ_LIKE -> ChatItem(BubbleKind.STICKER_OTHER, "[sticker] 表情包 未描述")
         MockChatLayoutProfile.REDBOOK_DM_LIKE -> ChatItem(BubbleKind.SHARE_OTHER, "分享卡片：周末散步路线")

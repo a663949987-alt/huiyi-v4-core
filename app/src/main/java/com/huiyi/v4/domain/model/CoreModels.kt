@@ -82,7 +82,11 @@ data class MessageNode(
     val metadataType: MetadataType? = MetadataType.NONE,
     val rowBounds: VisualBounds? = null,
     val textBounds: VisualBounds? = null,
-    val inferredSide: String? = null
+    val inferredSide: String? = null,
+    val parentBounds: VisualBounds? = null,
+    val bubbleBounds: VisualBounds? = null,
+    val ancestorBoundsChain: List<VisualBounds> = emptyList(),
+    val unknownReason: String? = null
 )
 
 enum class Speaker {

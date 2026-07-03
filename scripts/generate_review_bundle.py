@@ -11,7 +11,8 @@ from zipfile import ZIP_DEFLATED, ZipFile
 
 
 DEFAULT_CURRENT_REPORTS = [
-    "outputs/v4.1.4-local-validation-report.md",
+    "outputs/v4.1.5-local-validation-report.md",
+    "outputs/mockchat-fontscale-matrix-report-for-gpt.md",
     "outputs/real-device-smoke-report-for-gpt.md",
     "outputs/real-device-current-screen-report-for-gpt.md",
     "outputs/real-device-current-screen-report.json",
@@ -22,6 +23,7 @@ HISTORICAL_REPORT_NAMES = [
     "mockchat-current-screen-report-for-gpt.md",
     "mockchat-validation-report-for-gpt.md",
     "mockchat-layout-matrix-report-for-gpt.md",
+    "mockchat-fontscale-matrix-report-for-gpt.md",
     "real-device-current-screen-report-for-gpt.md",
     "v4-core-implementation-report-for-gpt.md",
     "v4.1-current-screen-pipeline-report-for-gpt.md",
@@ -308,7 +310,7 @@ def main() -> None:
             return True
         if path in current_rel_paths:
             return True
-        if path == "outputs/huiyi-v4.1.4-debug.apk":
+        if re.match(r"outputs/huiyi-v4\.\d+\.\d+-debug\.apk$", path):
             return True
         return False
 

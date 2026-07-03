@@ -3,12 +3,12 @@
 ## 1. 基本信息
 
 - project: Huiyi v4 Core
-- versionName: 4.1.4
-- versionCode: 414
+- versionName: 4.1.5
+- versionCode: 415
 - branch: main
-- commitHash: 3a783a9
-- generatedAt: 2026-07-03 09:32:39 +0800
-- taskName: Review Freshness + Real Device Smoke Test
+- commitHash: d1e5c6a
+- generatedAt: 2026-07-03 10:12:54 +0800
+- taskName: Font Scale / Real Device Visual Calibration
 - review_freshness_result: PASS
 - mockchat_result: PASS
 - real_device_smoke_result: NOT_TESTED
@@ -17,10 +17,20 @@
 
 ## Current Round Evidence
 
-- currentTaskName: Review Freshness + Real Device Smoke Test
-- currentVersion: 4.1.4
-- currentGeneratedAt: 2026-07-03 09:32:39 +0800
-- currentReports: outputs/real-device-current-screen-report-for-gpt.md, outputs/real-device-current-screen-report.json, outputs/real-device-smoke-report-for-gpt.md, outputs/v4.1.4-local-validation-report.md
+- v4.1.5_acceptance_summary: Font Scale / Real Device Visual Calibration
+- mockchat_fontscale_matrix: PASS, 120/120
+- mockchat_layout_matrix: PASS, 50/50
+- parser_threshold_mode: dynamic_screen_width_ratio
+- device_visual_config_reporting: added density, scaledDensity, fontScale, fontScaleEstimate, smallestScreenWidthDp, displaySizeCategory
+- candidate_vs_metadata_reporting: added candidateChatMessageCount and unknownSpeakerCount
+- unknown_diagnostics: added textBounds, parentBounds, rowBounds, bubbleBounds, ancestorBoundsChain, unknownReason
+- real_device_scenario_A: NOT_TESTED
+- real_device_disclaimer: 本轮 MockChat 大字体回归通过，但 Real Device Smoke 未执行，不代表真实聊天 App 已通过。
+
+- currentTaskName: Font Scale / Real Device Visual Calibration
+- currentVersion: 4.1.5
+- currentGeneratedAt: 2026-07-03 10:12:54 +0800
+- currentReports: outputs/mockchat-fontscale-matrix-report-for-gpt.md, outputs/real-device-current-screen-report-for-gpt.md, outputs/real-device-current-screen-report.json, outputs/real-device-smoke-report-for-gpt.md, outputs/v4.1.5-local-validation-report.md
 - currentSampleSources: emulator_mock_chat_accessibility
 - currentOverallResult: PARTIAL
 - review_freshness_result: PASS
@@ -30,16 +40,22 @@
 - mockChatMatrixStillPass: true
 - smokeDisclaimer: 本轮 Review Freshness 通过，但 Real Device Smoke 未执行，不代表真实聊天 App 已通过。
 
+### mockchat-fontscale-matrix-report-for-gpt.md
+
+- sample_source: emulator_mock_chat_accessibility
+- totalProfiles: 6
+- totalScenarios: 120
+- passed: 120
+- failed: 0
 ### real-device-current-screen-report-for-gpt.md
 
 - overall_result: NOT_TESTED
 - sample_source: NOT_TESTED
 - appPackage: NOT_TESTED
-- versionName: 4.1.4
-- metadataFilteredCount: 0
-- lastEffectiveSpeaker: NOT_TESTED
+- versionName: 4.1.5
+- metadataFilteredCount: NOT_TESTED
 - decisionType: NOT_TESTED
-- resultShownAsOverlay: NOT_TESTED
+- routeCount: NOT_TESTED
 - overlayShownInTargetApp: NOT_TESTED
 - mainActivityOpened: NOT_TESTED
 ### real-device-current-screen-report.json
@@ -47,23 +63,27 @@
 - overall_result: NOT_TESTED
 - sample_source: NOT_TESTED
 - appPackage: NOT_TESTED
-- versionName: 4.1.4
+- versionName: 4.1.5
+- metadataFilteredCount: NOT_TESTED
+- overlayShownInTargetApp: NOT_TESTED
+- mainActivityOpened: NOT_TESTED
 ### real-device-smoke-report-for-gpt.md
 
 - overall_result: NOT_TESTED
 - sample_source: NOT_TESTED
 - appPackage: NOT_TESTED
-- versionName: 4.1.4
-- metadataFilteredCount: NOT_TESTED
-- lastEffectiveSpeaker: NOT_TESTED
+- versionName: 4.1.5
 - decisionType: NOT_TESTED
 - routeCount: NOT_TESTED
-- resultShownAsOverlay: NOT_TESTED
+- overlayShownInTargetApp: NOT_TESTED
 - mainActivityOpened: NOT_TESTED
-### v4.1.4-local-validation-report.md
+### v4.1.5-local-validation-report.md
 
-- overall_result: PASS
-- versionName: 4.1.4
+- overall_result: PARTIAL
+- versionName: 4.1.5
+- totalScenarios: 120
+- passed: 120
+- failed: 0
 
 ## Historical / Trace Reports
 
@@ -148,12 +168,16 @@ These reports are historical references only. Their FAIL or `sample_source=unkno
 ### 新增文件
 
 ```
+outputs/mockchat-fontscale-matrix-report-for-gpt.md
 outputs/review/archive/
+outputs/v4.1.5-local-validation-report.md
 ```
 
 ### 修改文件
 
 ```
+outputs/real-device-current-screen-report-for-gpt.md
+outputs/real-device-current-screen-report.json
 outputs/real-device-smoke-report-for-gpt.md
 outputs/review/huiyi-v4-review-bundle-for-gpt.zip
 outputs/review/huiyi-v4-review-for-gpt.md
@@ -217,9 +241,18 @@ See Current Round Evidence and Historical / Trace Reports above.
 
 ## 8. 产物清单
 
+- path: outputs/mockchat-fontscale-matrix-report-for-gpt.md
+  type: report
+  sha256: 06eb777ac0ca95c33407210c8ed8ef5bbe8082bb694513077b32ef45c0c7d78d
+  是否建议发给 GPT: false
+  用途: Current round evidence.
+  isCurrentRound: true
+  evidenceRole: current
+  sample_source: emulator_mock_chat_accessibility
+  stale: false
 - path: outputs/real-device-current-screen-report-for-gpt.md
   type: report
-  sha256: 7d92e7555da1e4967d0bb411ceaaee230f1596255fc1d0f60cb46c9b04c254dd
+  sha256: a3400b3ca114528324b77d6727500dc7df23a3b5c413f2ca83a175f604e03bbe
   是否建议发给 GPT: false
   用途: Current round evidence.
   isCurrentRound: true
@@ -228,7 +261,7 @@ See Current Round Evidence and Historical / Trace Reports above.
   stale: false
 - path: outputs/real-device-current-screen-report.json
   type: json
-  sha256: f2f6bb6c3b01f609e6e7b7ace5fa719948b7ed2ad4de4869d34ec3af92774750
+  sha256: cfb0ef04aa86c79605b7f48aafba8e99e940858e7ad0f9290c9f2d7aea9955a6
   是否建议发给 GPT: false
   用途: Current round evidence.
   isCurrentRound: true
@@ -237,16 +270,16 @@ See Current Round Evidence and Historical / Trace Reports above.
   stale: false
 - path: outputs/real-device-smoke-report-for-gpt.md
   type: report
-  sha256: ae24d0cd6a3c6bbc0277143721e2cbb470b39fa3544d5d03d13ab014b422ae83
+  sha256: b7921c63e46cf5a51a6f9fe3a86717d0a46b8182d208c00a8621483d7d7a1a75
   是否建议发给 GPT: false
   用途: Current round evidence.
   isCurrentRound: true
   evidenceRole: current
   sample_source: NOT_TESTED
   stale: false
-- path: outputs/v4.1.4-local-validation-report.md
+- path: outputs/v4.1.5-local-validation-report.md
   type: report
-  sha256: a3f9e67afb39b3c317340da13d041f093721b1cc99e3a668625bca39a1fb51b4
+  sha256: fac896c9a4094c637e544606e396ef0df40b2d1c15335da34a00ca9096272281
   是否建议发给 GPT: false
   用途: Current round evidence.
   isCurrentRound: true
@@ -264,7 +297,7 @@ See Current Round Evidence and Historical / Trace Reports above.
   stale: true
 - path: outputs/mockchat-current-screen-report-for-gpt.md
   type: report
-  sha256: 56999d6a16d8f2f4f67c3150ce9039fc82240f1258aa631d8198cb2cc4617a30
+  sha256: b4beb47f3e835c924f413c9112cebd6188faeb88f013b7c295a0da7137e0a015
   是否建议发给 GPT: false
   用途: Historical / trace evidence.
   isCurrentRound: false
@@ -282,7 +315,7 @@ See Current Round Evidence and Historical / Trace Reports above.
   stale: false
 - path: outputs/mockchat-validation-report-for-gpt.md
   type: report
-  sha256: 3a422188e4c512656482e10eafbdefc4558bb0c0e29f7173687b788e2a8a6c51
+  sha256: 3a92b969e5c3e2e629424047ac38d258d1e3e93831596a19a3b4542a7c80e685
   是否建议发给 GPT: false
   用途: Historical / trace evidence.
   isCurrentRound: false

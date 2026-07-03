@@ -53,6 +53,8 @@ open class CurrentScreenCaptureUseCase(
                     rowBounds = node.bounds,
                     bubbleBounds = node.bounds,
                     textBounds = node.bounds,
+                    parentBounds = node.parentBounds,
+                    ancestorBoundsChain = node.ancestorBoundsChain,
                     confidence = if (node.className?.contains("TextView") == true) 88 else 72
                 )
             }

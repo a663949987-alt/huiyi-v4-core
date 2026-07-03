@@ -41,8 +41,9 @@ class HuiyiAccessibilityService : AccessibilityService() {
     fun captureCurrentScreen(): Result<CurrentScreenSnapshot> = runCatching {
         val root = rootInActiveWindow ?: error("rootInActiveWindow 为空")
         val metrics = resources.displayMetrics
+        val configuration = resources.configuration
         val nodes = mutableListOf<ScreenNodeSnapshot>()
-        collect(root, 0, nodes)
+        collect(root, 0, emptyList(), nodes)
         val now = System.currentTimeMillis()
         updateState { it.copy(rootAvailable = true, lastCaptureAt = now, lastError = null) }
         CurrentScreenSnapshot(
@@ -51,29 +52,43 @@ class HuiyiAccessibilityService : AccessibilityService() {
             screenWidth = metrics.widthPixels,
             screenHeight = metrics.heightPixels,
             nodes = nodes,
-            capturedAt = now
+            capturedAt = now,
+            density = metrics.density,
+            scaledDensity = metrics.scaledDensity,
+            fontScale = configuration.fontScale,
+            smallestScreenWidthDp = configuration.smallestScreenWidthDp,
+            displaySizeCategory = configuration.screenLayout.toString()
         )
     }.onFailure { error ->
         updateState { it.copy(rootAvailable = false, lastError = error.message) }
     }
 
-    private fun collect(node: AccessibilityNodeInfo, depth: Int, out: MutableList<ScreenNodeSnapshot>) {
+    private fun collect(
+        node: AccessibilityNodeInfo,
+        depth: Int,
+        ancestorBounds: List<VisualBounds>,
+        out: MutableList<ScreenNodeSnapshot>
+    ) {
         val rect = Rect()
         node.getBoundsInScreen(rect)
+        val bounds = VisualBounds(rect.left, rect.top, rect.right, rect.bottom)
         out += ScreenNodeSnapshot(
             id = "n${nodeCounter.incrementAndGet()}",
             text = node.text?.toString(),
             contentDescription = node.contentDescription?.toString(),
             className = node.className?.toString(),
             viewIdResourceName = node.viewIdResourceName,
-            bounds = VisualBounds(rect.left, rect.top, rect.right, rect.bottom),
+            bounds = bounds,
             visibleToUser = node.isVisibleToUser,
             depth = depth,
-            childCount = node.childCount
+            childCount = node.childCount,
+            parentBounds = ancestorBounds.lastOrNull(),
+            ancestorBoundsChain = ancestorBounds
         )
+        val nextAncestors = (ancestorBounds + bounds).takeLast(8)
         for (index in 0 until node.childCount) {
             val child = node.getChild(index) ?: continue
-            collect(child, depth + 1, out)
+            collect(child, depth + 1, nextAncestors, out)
             child.recycle()
         }
     }

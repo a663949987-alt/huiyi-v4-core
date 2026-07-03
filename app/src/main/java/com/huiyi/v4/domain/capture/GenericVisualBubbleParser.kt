@@ -17,6 +17,8 @@ data class VisualBubble(
     val rowBounds: VisualBounds? = null,
     val contentBounds: VisualBounds? = null,
     val textBounds: VisualBounds? = null,
+    val parentBounds: VisualBounds? = null,
+    val ancestorBoundsChain: List<VisualBounds> = emptyList(),
     val confidence: Int = 85
 )
 
@@ -28,34 +30,31 @@ class GenericVisualBubbleParser(
 
     fun parse(bubbles: List<VisualBubble>, source: MessageSource = MessageSource.ACCESSIBILITY_CURRENT_SCREEN): List<MessageNode> {
         return bubbles.mapIndexed { index, bubble ->
-            val selectedBounds = bubble.avatarBounds
-                ?: bubble.bubbleBounds
-                ?: bubble.rowBounds
+            val selectedBounds = bubble.bubbleBounds
+                ?: bubble.rowBounds?.takeUnless { it.isFullWidthRow() }
                 ?: bubble.contentBounds
                 ?: bubble.textBounds
+                ?: bubble.parentBounds?.takeUnless { it.isFullWidthRow() }
+                ?: bubble.avatarBounds
             val rawText = bubble.text.orEmpty()
             val actualText = rawText.actualReplyText()
             val metadataType = metadataFilter.classify(actualText)
             val isMetadata = metadataType != MetadataType.NONE
-            val inferredSide = selectedBounds?.let {
-                when {
-                    it.isAmbiguousHorizontalPosition() -> "unknown"
-                    it.centerX >= screenWidth / 2 -> "right"
-                    else -> "left"
-                }
-            } ?: "unknown"
+            val sideDecision = inferSide(bubble)
+            val inferredSide = sideDecision.side
             val speaker = if (isMetadata) {
                 Speaker.SYSTEM
-            } else selectedBounds?.let { bounds ->
-                if (bounds.isAmbiguousHorizontalPosition()) return@let Speaker.UNKNOWN
-                val rightSide = bounds.centerX >= screenWidth / 2
+            } else if (sideDecision.side == "unknown") {
+                Speaker.UNKNOWN
+            } else {
+                val rightSide = sideDecision.side == "right"
                 when {
                     rightSide && meOnRight -> Speaker.ME
                     rightSide && !meOnRight -> Speaker.OTHER
                     !rightSide && meOnRight -> Speaker.OTHER
                     else -> Speaker.ME
                 }
-            } ?: Speaker.UNKNOWN
+            }
             val isVoice = !isMetadata && (
                 rawText.contains("璇煶") ||
                     rawText.contains("语音") ||
@@ -119,8 +118,9 @@ class GenericVisualBubbleParser(
                         MetadataType.SYSTEM_NOTICE -> "system_notice_metadata"
                         else -> "header_metadata"
                     }
-                    selectedBounds?.isAmbiguousHorizontalPosition() == true -> "ambiguous_center_bounds"
-                    selectedBounds != null -> if (selectedBounds.centerX >= screenWidth / 2) "bubble_edge_right" else "bubble_edge_left"
+                    sideDecision.side == "unknown" -> "ambiguous_center_bounds"
+                    sideDecision.side == "right" -> sideDecision.reason
+                    sideDecision.side == "left" -> sideDecision.reason
                     else -> "unknown_visual_bounds"
                 },
                 parserName = "GenericVisualBubbleParser",
@@ -128,16 +128,57 @@ class GenericVisualBubbleParser(
                 metadataType = metadataType,
                 rowBounds = bubble.rowBounds,
                 textBounds = bubble.textBounds,
-                inferredSide = inferredSide
+                inferredSide = inferredSide,
+                parentBounds = bubble.parentBounds,
+                bubbleBounds = bubble.bubbleBounds,
+                ancestorBoundsChain = bubble.ancestorBoundsChain,
+                unknownReason = if (!isMetadata && sideDecision.side == "unknown") sideDecision.reason else null
             )
         }
     }
 
-    private fun VisualBounds.isAmbiguousHorizontalPosition(): Boolean {
-        val centerBand = screenWidth * 0.10f
-        val distanceFromCenter = kotlin.math.abs(centerX - screenWidth / 2)
+    private fun inferSide(bubble: VisualBubble): SideDecision {
+        val candidateBounds = listOfNotNull(
+            bubble.bubbleBounds,
+            bubble.rowBounds?.takeUnless { it.isFullWidthRow() },
+            bubble.contentBounds,
+            bubble.parentBounds?.takeUnless { it.isFullWidthRow() },
+            bubble.textBounds,
+            bubble.avatarBounds
+        ).distinct()
+        for (bounds in candidateBounds) {
+            val side = bounds.edgeSide()
+            if (side != "unknown") return SideDecision(side, "bubble_edge_$side")
+        }
+        val best = candidateBounds.firstOrNull() ?: return SideDecision("unknown", "missing_visual_bounds")
+        return SideDecision("unknown", best.unknownReason())
+    }
+
+    private fun VisualBounds.edgeSide(): String {
+        val edgeDeltaStrong = screenWidth * 0.10f
+        val edgeDeltaWeak = screenWidth * 0.06f
+        val sideMarginWeak = screenWidth * 0.08f
+        val leftMargin = left.toFloat()
+        val rightMargin = (screenWidth - right).toFloat()
+        return when {
+            rightMargin + edgeDeltaStrong < leftMargin -> "right"
+            leftMargin + edgeDeltaStrong < rightMargin -> "left"
+            rightMargin + edgeDeltaWeak < leftMargin && rightMargin <= sideMarginWeak -> "right"
+            leftMargin + edgeDeltaWeak < rightMargin && leftMargin <= sideMarginWeak -> "left"
+            else -> "unknown"
+        }
+    }
+
+    private fun VisualBounds.isFullWidthRow(): Boolean {
         val widthRatio = (right - left).toFloat() / screenWidth.coerceAtLeast(1)
-        return distanceFromCenter <= centerBand && widthRatio < 0.55f
+        return widthRatio >= 0.86f
+    }
+
+    private fun VisualBounds.unknownReason(): String {
+        val leftMargin = left
+        val rightMargin = screenWidth - right
+        val widthRatio = (right - left).toFloat() / screenWidth.coerceAtLeast(1)
+        return "ambiguous_center_or_balanced_bounds leftMargin=$leftMargin rightMargin=$rightMargin widthRatio=${"%.2f".format(widthRatio)}"
     }
 
     private fun String.actualReplyText(): String {
@@ -145,4 +186,9 @@ class GenericVisualBubbleParser(
         val index = indexOf(marker)
         return if (index >= 0) substring(index + marker.length).trim() else this
     }
+
+    private data class SideDecision(
+        val side: String,
+        val reason: String
+    )
 }
