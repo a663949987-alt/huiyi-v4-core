@@ -3,7 +3,7 @@
 - sessionId: not-tested-current-version
 - terminalState: NOT_TESTED
 - appVersionName: 4.1.23
-- appVersionCode: 441
+- appVersionCode: 442
 - phoneLatestStatus: WAITING_FOR_CURRENT_VERSION_PHONE_SMOKE
 - replacedOldPollutedBundle: true
 - previousPollutedVersionRemovedFromLatest: 4.1.20

@@ -793,6 +793,7 @@ class HuiyiRuntime private constructor(
             }
             val targetRecord = target.first
             val exportSource = target.second
+            val feedbackTargetSessionId = panelSessionId?.takeIf { it.isNotBlank() } ?: targetRecord.sessionId
             val targetResult = state.latestPipelineResult?.takeIf {
                 it.sessionId == targetRecord.sessionId || it.panelSessionId == targetRecord.sessionId
             }
@@ -807,7 +808,7 @@ class HuiyiRuntime private constructor(
                     userCorrectionLastSpeaker = correctionLastSpeaker
                 ),
                 feedbackClickedAt = System.currentTimeMillis(),
-                feedbackTargetSessionId = targetRecord.sessionId,
+                feedbackTargetSessionId = feedbackTargetSessionId,
                 feedbackExportSource = exportSource
             ).fold(
                 onSuccess = { output ->

@@ -1,8 +1,8 @@
 {
-  "project": "huiyi-v4",
-  "taskName": "emulator_mockchat_ui_smoke_layer_fix",
+  "project": "Huiyi v4 Core",
+  "taskName": "phone_latest_current_session_binding_fix",
   "versionName": "4.1.23",
-  "versionCode": 441,
+  "versionCode": 442,
   "generatedAt": "2026-07-03 18:33:47 +0800",
   "currentOverallResult": "NOT_TESTED",
   "lastMeRealDeviceResult": "NOT_TESTED",
@@ -208,7 +208,7 @@
       "required": true,
       "exists": true,
       "description": "Inbox overview for GPT",
-      "sha256": "f7c71506fa9aa966653d87ed192b9d8c9383079d66516cce9ba15e582a89ef8e",
+      "sha256": "27f703a987b49df69c62c5fe5dcdca60e838b998896af1d2827b3274ef83d6fe",
       "source": "outputs/gpt_review_inbox/README_FOR_GPT.md"
     },
     {
@@ -216,7 +216,7 @@
       "required": true,
       "exists": true,
       "description": "Changed files summary",
-      "sha256": "1a445a119ea68e8ba4796c3f2d8b5a0186ada3ff37f1f2e84b3f5aa892a12f8c",
+      "sha256": "bf483db57b885e1f63fbb28b905c3b9938d280ad71fecce3b6faeee8db1bf355",
       "source": "outputs/gpt_review_inbox/changed-files-for-gpt.md"
     },
     {
@@ -242,6 +242,30 @@
       "exists": true,
       "description": "Layered simulation-first report",
       "sha256": "ccc34ce59acfe87644864dd8516582ad356f12c1e1748ad735fcd228d4b36238"
+    },
+    {
+      "path": "phone-latest-current-session-binding-report-for-gpt.md",
+      "source": "outputs/gpt_review_inbox/phone-latest-current-session-binding-report-for-gpt.md",
+      "required": true,
+      "exists": true,
+      "description": "Current phone latest session binding report",
+      "sha256": "5428bd33995c075dbad8ff77322f21c347b01f67e43867c9ea0e08b8ed789b62"
+    },
+    {
+      "path": "phone/latest/README_FOR_GPT.md",
+      "source": "outputs/gpt_review_inbox/phone/latest/README_FOR_GPT.md",
+      "required": true,
+      "exists": true,
+      "description": "Phone latest overview",
+      "sha256": "b11df61f8558949cbdbf0f6b8b687118ffcfce6d7c103e9a82d4cd1d8928d0e8"
+    },
+    {
+      "path": "phone/latest/one-tap-feedback-manifest.json",
+      "source": "outputs/gpt_review_inbox/phone/latest/one-tap-feedback-manifest.json",
+      "required": true,
+      "exists": true,
+      "description": "Phone latest one-tap manifest",
+      "sha256": "fd03c8c9cd51ed86542e9da13738f00a841ababe15009cd956129a5ee8745a5a"
     }
   ],
   "legacyCurrentStatus": {
@@ -282,6 +306,16 @@
   "readReceiptResult": "NOT_RUN",
   "overlayContaminationResult": "NOT_RUN",
   "oneTapFeedbackTargetSessionResult": "NOT_RUN",
-  "failReason": "Emulator UI smoke was not run because no emulator was available. Fixture replay PASS is not emulator UI evidence.",
-  "overallResult": "NOT_TESTED"
+  "failReason": "No physical phone smoke was run in this Codex environment.",
+  "overallResult": "NOT_TESTED",
+  "phoneLatestUpdatedToCurrentVersion": "PASS",
+  "phoneLatestVersionName": "4.1.23",
+  "phoneLatestVersionCode": 442,
+  "previousPollutedVersionRemovedFromLatest": "4.1.20",
+  "oneTapOriginalSessionBinding": "PASS",
+  "preAnalysisContaminationGuard": "PASS",
+  "lastMeHardGate": "PASS",
+  "lanUpdatePublished": "PASS",
+  "cloudStatus": "TODO_DISABLED",
+  "cloudAttempted": false
 }

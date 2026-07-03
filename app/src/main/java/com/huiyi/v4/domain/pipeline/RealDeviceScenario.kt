@@ -197,7 +197,7 @@ object RealDeviceScenarioValidator {
 
     fun isPostPanelWindowTitle(title: String?): Boolean {
         if (title.isNullOrBlank()) return false
-        val markers = listOf("会意雷达", "路线", "打法", "判断：", "复制路线", "VoiceSummaryCard")
+        val markers = listOf("会意雷达", "路线", "打法", "判断：", "复制路线", "VoiceSummaryCard", "这次不对", "先等对方", "正在上传 GitHub")
         return markers.any { title.contains(it, ignoreCase = true) }
     }
 
@@ -208,6 +208,7 @@ object RealDeviceScenarioValidator {
             "下一句没有跑完",
             "正在上传 GitHub",
             "这次不对",
+            "先等对方",
             "发给 GPT",
             "导出诊断",
             "打开无障碍设置",
@@ -232,6 +233,7 @@ object RealDeviceScenarioValidator {
         "下一句没有跑完",
         "正在上传 GitHub",
         "这次不对",
+        "先等对方",
         "发给 GPT",
         "导出诊断",
         "打开无障碍设置",

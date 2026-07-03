@@ -144,6 +144,7 @@ private fun looksLikeHuiyiPanel(title: String): Boolean {
         "会意雷达",
         "最后一句是我",
         "你已经回过了",
+        "先等对方",
         "这次不对",
         "发给 GPT",
         "正在上传 GitHub",
@@ -216,10 +217,12 @@ object OneTapFeedbackZipContract {
         val candidates = (records + listOfNotNull(latest))
             .asReversed()
             .distinctBy { it.sessionId }
-        val panelTarget = panelSessionId?.takeIf { it.isNotBlank() }?.let { id ->
+        val requestedPanelSessionId = panelSessionId?.takeIf { it.isNotBlank() }
+        val panelTarget = requestedPanelSessionId?.let { id ->
             candidates.firstOrNull { it.sessionId == id }?.let { it to "BOUND_PANEL_SESSION" }
         }
         if (panelTarget != null) return panelTarget
+        if (requestedPanelSessionId != null) return null
         return lastCompletedSessionId?.takeIf { it.isNotBlank() }?.let { id ->
             candidates.firstOrNull { it.sessionId == id }?.let { it to "LAST_COMPLETED_NEXT_SENTENCE_SESSION" }
         } ?: latest?.let { it to "LAST_COMPLETED_NEXT_SENTENCE_SESSION" }

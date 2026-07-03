@@ -92,6 +92,23 @@ class LastMeWaitPriorityAndStatusMetadataFixTest {
     }
 
     @Test
+    fun PreAnalysisTitleWithWaitPhraseIsContaminatedTest() {
+        val result = evidenceResult(
+            appPackage = "com.bajiao.im.liaoqi",
+            source = SampleSource.REAL_DEVICE_ACCESSIBILITY,
+            messages = listOf(textNode("me", Speaker.ME, "ok", 1)),
+            includeRoutes = false,
+            windowTitle = "先等对方"
+        )
+
+        val validation = RealDeviceScenarioValidator.validate(result, RealDeviceScenario.LAST_ME)
+
+        assertTrue(validation.reportWindowTitleContaminatedByPanel)
+        assertEquals("UNKNOWN_CONTAMINATED_BY_POST_PANEL", validation.preAnalysisWindowTitle)
+        assertEquals("HUIYI_OVERLAY_CONTAMINATED", validation.preAnalysisWindowTitleSource)
+    }
+
+    @Test
     fun ReadReceiptNodeIsMetadataNotMessageTest() {
         val nodes = statusParser().parse(
             listOf(

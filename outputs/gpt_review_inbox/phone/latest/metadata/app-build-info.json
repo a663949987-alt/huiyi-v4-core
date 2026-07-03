@@ -1,6 +1,7 @@
 {
   "versionName": "4.1.23",
-  "versionCode": 441,
+  "versionCode": 442,
   "source": "LOCAL_CURRENT_VERSION_PLACEHOLDER",
-  "phoneLatestStatus": "WAITING_FOR_CURRENT_VERSION_PHONE_SMOKE"
+  "phoneLatestStatus": "WAITING_FOR_CURRENT_VERSION_PHONE_SMOKE",
+  "phoneLatestUpdatedToCurrentVersion": true
 }

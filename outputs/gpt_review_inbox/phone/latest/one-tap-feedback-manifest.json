@@ -2,7 +2,7 @@
   "project": "huiyi-v4",
   "bundleType": "PHONE_LATEST_PLACEHOLDER",
   "appVersionName": "4.1.23",
-  "appVersionCode": 441,
+  "appVersionCode": 442,
   "phoneLatestStatus": "WAITING_FOR_CURRENT_VERSION_PHONE_SMOKE",
   "replacedOldPollutedBundle": true,
   "previousPollutedVersionRemovedFromLatest": "4.1.20",

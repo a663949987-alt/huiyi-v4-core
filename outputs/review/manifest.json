@@ -1,7 +1,7 @@
 {
   "project": "Huiyi v4 Core",
   "versionName": "4.1.23",
-  "versionCode": 441,
+  "versionCode": 442,
   "branch": "main",
   "commitHash": "3a765cd",
   "generatedAt": "2026-07-03 18:32:54 +0800",
@@ -18,7 +18,7 @@
   "scenarioAssertionResult": "NOT_TESTED",
   "scenarioDefinitionTrusted": false,
   "scenarioFailureCategory": "not_tested",
-  "taskName": "emulator_mockchat_ui_smoke_layer_fix",
+  "taskName": "phone_latest_current_session_binding_fix",
   "sampleSources": [
     "not_tested"
   ],
@@ -28,7 +28,7 @@
     {
       "path": "outputs/review/huiyi-v4-review-for-gpt.md",
       "type": "review_markdown",
-      "sha256": "0aa9c82cef1c162bab925d6dd5d4a4327c1bfc82c4181541ab38b6840adf9dc8",
+      "sha256": "55f3a9a82411bc1120fffb63996d185edc840a194dff647ea583930c5d5322c0",
       "sendToGpt": true,
       "description": "Default file for GPT review.",
       "generatedAt": null,
@@ -314,6 +314,34 @@
       "evidenceRole": "screenshot",
       "sample_source": [],
       "stale": false
+    },
+    {
+      "path": "outputs/phone-latest-current-session-binding-report-for-gpt.md",
+      "type": "report",
+      "sha256": "5428bd33995c075dbad8ff77322f21c347b01f67e43867c9ea0e08b8ed789b62",
+      "sendToGpt": true,
+      "description": "Current phone latest session binding report."
+    },
+    {
+      "path": "outputs/gpt_review_inbox/phone/latest/README_FOR_GPT.md",
+      "type": "report",
+      "sha256": "b11df61f8558949cbdbf0f6b8b687118ffcfce6d7c103e9a82d4cd1d8928d0e8",
+      "sendToGpt": true,
+      "description": "Phone latest current version overview."
+    },
+    {
+      "path": "outputs/gpt_review_inbox/phone/latest/one-tap-feedback-manifest.json",
+      "type": "json",
+      "sha256": "fd03c8c9cd51ed86542e9da13738f00a841ababe15009cd956129a5ee8745a5a",
+      "sendToGpt": true,
+      "description": "Phone latest one-tap contract manifest."
+    },
+    {
+      "path": "outputs/update_server/latest.json",
+      "type": "json",
+      "sha256": "2b0a20d141130bce1feb5122bdf803eae186e151cfaa720a35e0282b54b049bf",
+      "sendToGpt": true,
+      "description": "LAN update latest descriptor."
     }
   ],
   "fixtureReplayResult": "PASS",
@@ -331,5 +359,15 @@
   "readReceiptResult": "NOT_RUN",
   "overlayContaminationResult": "NOT_RUN",
   "oneTapFeedbackTargetSessionResult": "NOT_RUN",
-  "failReason": "Emulator UI smoke was not run because no emulator was available. Fixture replay PASS is not emulator UI evidence."
+  "failReason": "No physical phone smoke was run in this Codex environment.",
+  "phoneLatestUpdatedToCurrentVersion": "PASS",
+  "phoneLatestVersionName": "4.1.23",
+  "phoneLatestVersionCode": 442,
+  "previousPollutedVersionRemovedFromLatest": "4.1.20",
+  "oneTapOriginalSessionBinding": "PASS",
+  "preAnalysisContaminationGuard": "PASS",
+  "lastMeHardGate": "PASS",
+  "lanUpdatePublished": "PASS",
+  "cloudStatus": "TODO_DISABLED",
+  "cloudAttempted": false
 }

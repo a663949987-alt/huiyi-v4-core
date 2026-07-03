@@ -162,6 +162,20 @@ class OneTapFeedbackExportTest {
     }
 
     @Test
+    fun OneTapFeedbackDoesNotFallbackWhenPanelSessionIdIsMissingFromRecordsTest() {
+        val last = routeRecord("last-completed")
+
+        val selected = OneTapFeedbackZipContract.selectTargetRecord(
+            panelSessionId = "panel-session-missing",
+            lastCompletedSessionId = "last-completed",
+            latest = last,
+            records = listOf(last)
+        )
+
+        assertEquals(null, selected)
+    }
+
+    @Test
     fun OneTapFeedbackFailsWhenNoTargetSessionTest() {
         val selected = OneTapFeedbackZipContract.selectTargetRecord(
             panelSessionId = null,
@@ -212,6 +226,17 @@ class OneTapFeedbackExportTest {
         assertTrue(record.preAnalysisLooksLikeHuiyiPanel)
         assertFalse(record.preAnalysisSnapshotTrusted)
         assertEquals("PRE_ANALYSIS_SNAPSHOT_CONTAMINATED_BY_PANEL", record.preAnalysisSnapshotErrorCode)
+    }
+
+    @Test
+    fun PreAnalysisWaitPhraseDetectedAsOverlayContaminationTest() {
+        val record = routeRecord("wait-phrase")
+            .copy(windowTitlePreAnalysisRedacted = "先等对方")
+            .withComputedConsistency()
+
+        assertTrue(record.preAnalysisLooksLikeHuiyiPanel)
+        assertFalse(record.preAnalysisSnapshotTrusted)
+        assertEquals("FAIL_CONTAMINATED_EXPORT", record.reportConsistencyResult)
     }
 
     @Test

@@ -4,7 +4,7 @@
 
 - phoneLatestStatus: WAITING_FOR_CURRENT_VERSION_PHONE_SMOKE
 - appVersionName: 4.1.23
-- appVersionCode: 441
+- appVersionCode: 442
 - replacedOldPollutedBundle: true
 - previousPollutedVersionRemovedFromLatest: 4.1.20
 - source: LOCAL_CURRENT_VERSION_PLACEHOLDER

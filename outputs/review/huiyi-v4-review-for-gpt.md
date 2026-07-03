@@ -4,103 +4,76 @@
 
 - project: Huiyi v4 Core
 - versionName: 4.1.23
-- versionCode: 441
-- branch: main
-- commitHash: 3a765cd
-- taskName: emulator_mockchat_ui_smoke_layer_fix
+- versionCode: 442
+- taskName: phone_latest_current_session_binding_fix
 - overall_result: NOT_TESTED
-- currentOverallResult: NOT_TESTED
-- failReason: Emulator UI smoke was not run because no emulator was available. Fixture replay PASS is not emulator UI evidence.
+- failReason: No physical phone smoke was run in this Codex environment.
 
 ## 2. Goal
 
-This round fixes review wording and evidence boundaries. It does not expand the simulation system and does not claim an emulator UI PASS without emulator evidence.
-
-Do not treat these as the same result:
-
-- fixtureReplayResult
-- mockChatBuildResult
-- emulatorUiSmokeResult
-- realDeviceSmokeResult
+This round does not expand simulation. It connects the current v4.1.23 build back to the phone loop and fixes current-session feedback binding.
 
 ## 3. Result Layers
 
-- fixtureReplayResult: PASS
-- mockChatBuildResult: PASS
-- emulatorUiSmokeResult: NOT_RUN
-- emulatorUiSmokeReason: NO_EMULATOR_AVAILABLE
+- phoneLatestUpdatedToCurrentVersion: PASS
+- phoneLatestVersionName: 4.1.23
+- phoneLatestVersionCode: 442
+- previousPollutedVersionRemovedFromLatest: 4.1.20
+- oneTapOriginalSessionBinding: PASS
+- preAnalysisContaminationGuard: PASS
+- lastMeHardGate: PASS
+- lanUpdatePublished: PASS
 - realDeviceSmokeResult: NOT_TESTED
-- simulationFirstResult: PASS, limited to fixture/JVM/corpus/contract evidence
+- cloudStatus: TODO_DISABLED
 
-## 4. Emulator UI Smoke Evidence
+## 4. One Tap Feedback Contract
 
-- emulatorDetected: false
-- emulatorSerial: none
-- huiyiInstalled: false
-- mockchatInstalled: false
-- accessibilityEnabled: false
-- overlayPermissionGranted: false
-- lastMeResult: NOT_RUN
-- lastOtherResult: NOT_RUN
-- readReceiptResult: NOT_RUN
-- overlayContaminationResult: NOT_RUN
-- oneTapFeedbackTargetSessionResult: NOT_RUN
-- screenshotsPath: outputs/emulator_mockchat_smoke
-- logcatPath: none
+- feedbackTargetSessionId: panelSessionId
+- feedbackTriggeredNewAnalysis: false
+- feedbackReCapturedCurrentRoot: false
+- feedbackUsedOverlayStateAsPreAnalysis: false
+- panelSessionRequiredIfPresent: true
+- missingPanelSessionFallbackToLastCompleted: false
 
-Required checks are still NOT_RUN:
+If the panel session id exists but the original NextSentenceSession record is missing, the export fails instead of falling back to a stale session.
 
-1. MockChat LAST_ME -> WAIT_PANEL
-2. MockChat LAST_OTHER -> ROUTE_PANEL / routes=5
-3. read receipt / checkmark does not become effective message
-4. Huiyi overlay contamination does not pollute preAnalysis
-5. one tap feedback binds original session
+## 5. Pre-analysis Contamination Guard
 
-## 5. What Changed
+These title markers are treated as Huiyi overlay contamination and cannot be accepted as a chat page:
 
-- Added scripts/run-emulator-mockchat-smoke.ps1.
-- Updated SimulationFirstValidationTest report fields.
-- Updated docs/SimulationFirstAcceptance.md with strict result boundaries.
-- Generated outputs/emulator-mockchat-smoke-report-for-gpt.md.
-- Generated outputs/emulator-mockchat-smoke-report.json.
-- Regenerated outputs/simulation-first-validation-report-for-gpt.md.
+- 会意雷达
+- 这次不对
+- 先等对方
+- 正在上传 GitHub
 
-## 6. Test Results
+## 6. LAST ME Hard Gate
 
-- unit tests: PASS
-- command: :app:testDebugUnitTest --tests com.huiyi.v4.SimulationFirstValidationTest
-- mockchat build: PASS
-- command: :mockchat:assembleDebug
-- emulator smoke script: NOT_RUN
-- reason: NO_EMULATOR_AVAILABLE
-- adb devices: no emulator-xxxx device
+- actualLastSpeaker=ME: WAIT_PANEL
+- routeCount: 0
+- cloudAttempted: false
+- cloudAnalysisAttempted: false
+- decisionSource: LOCAL_WAIT
+
+LAST ME is handled before context-required or cloud analysis.
+
+## 7. Test Results
+
+- OneTapFeedbackExportTest: PASS
+- LastMeWaitPriorityAndStatusMetadataFixTest: PASS
+- CloudAnalysisMvpSafetyGateTest: PASS
+- assembleDebug: PASS
+- LAN latest.json: PASS, 4.1.23 / 442
 - real device tests: NOT_TESTED
-
-## 7. Safety / Data Source
-
-- sample_source: not_tested
-- local_validation_sample: fixture only
-- emulator_mock_chat_accessibility: NOT_RUN
-- real_device_accessibility: NOT_TESTED
-- real_device_screenshot_ocr: NOT_USED
-- real API called: false
-- cloud analysis enabled: false
-- containsRawPrivateChat: false
-- containsApiKey: false
-- containsKeystore: false
-- containsLocalProperties: false
 
 ## 8. Files For GPT
 
-- outputs/emulator-mockchat-smoke-report-for-gpt.md
-- outputs/emulator-mockchat-smoke-report.json
-- outputs/simulation-first-validation-report-for-gpt.md
-- outputs/gpt_review_inbox/README_FOR_GPT.md
-- outputs/gpt_review_inbox/gpt-review-manifest.json
+- outputs/phone-latest-current-session-binding-report-for-gpt.md
+- outputs/gpt_review_inbox/phone/latest/README_FOR_GPT.md
+- outputs/gpt_review_inbox/phone/latest/one-tap-feedback-manifest.json
+- outputs/update_server/latest.json
 
 ## 9. Codex Self Review
 
-- The original issue is fixed: fixture PASS is no longer presented as emulator UI PASS.
-- Current maximum risk: emulator UI smoke still has not run in this environment.
-- GPT should verify that emulatorUiSmokeResult remains NOT_RUN and not PASS.
-- Next step when emulator is available: run scripts/run-emulator-mockchat-smoke.ps1 and require adb/install/accessibility/overlay evidence before changing emulatorUiSmokeResult to PASS.
+- Send this report to GPT: yes.
+- Need user real-device validation: yes, but only after installing 4.1.23 / 442, and only the 3 phone smoke checks.
+- Current largest risk: LAST ME has not been physically verified on the new APK in this Codex run.
