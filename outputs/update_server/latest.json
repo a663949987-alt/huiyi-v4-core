@@ -1,9 +1,9 @@
-﻿{
+{
     "versionName":  "4.1.10",
     "versionCode":  426,
     "apkUrl":  "huiyi-v4.1.10-debug.apk",
     "releaseNotes":  "v4.1.10: 修正真机场景验收口径，拆分产品功能与场景断言；保留局域网更新。",
     "forceUpdate":  false,
     "sha256":  "9138156E95772BF743E53BDB91CE58DC7B59FF7DA362934E732BE02C63A01FBF",
-    "createdAt":  1783058501393
+    "createdAt":  1783058750740
 }
