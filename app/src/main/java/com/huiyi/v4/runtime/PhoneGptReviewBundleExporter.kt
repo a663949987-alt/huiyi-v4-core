@@ -214,10 +214,14 @@ class PhoneGptReviewBundleBuilder {
         val functionalSmoke = parseField(input.currentReviewMarkdown.orEmpty(), "realDeviceFunctionalSmoke")
             ?: parseField(input.currentScreenMarkdown.orEmpty(), "realDeviceFunctionalSmoke")
             ?: "NOT_TESTED"
-        val lastMeResult = parseField(input.lastMeMarkdown.orEmpty(), "lastMeResult")
-            ?: parseField(input.lastMeMarkdown.orEmpty(), "scenarioResult")
-            ?: parseField(input.lastMeMarkdown.orEmpty(), "overall_result")
-            ?: "NOT_TESTED"
+        val lastMeResult = if (input.lastMeMarkdown == null) {
+            "NOT_TESTED_USER_DID_NOT_HAVE_SAFE_SCENARIO"
+        } else {
+            parseField(input.lastMeMarkdown, "lastMeResult")
+                ?: parseField(input.lastMeMarkdown, "scenarioResult")
+                ?: parseField(input.lastMeMarkdown, "overall_result")
+                ?: "NOT_TESTED"
+        }
         val lastOtherResult = parseField(input.lastOtherMarkdown.orEmpty(), "lastOtherRealDeviceResult")
             ?: parseField(input.lastOtherMarkdown.orEmpty(), "scenarioResult")
             ?: parseField(input.lastOtherMarkdown.orEmpty(), "overall_result")
@@ -259,8 +263,8 @@ class PhoneGptReviewBundleBuilder {
             addText(zip, "current/huiyi-v4-review-for-gpt.md", input.currentReviewMarkdown, entries, true, "CURRENT", "Main current review report")
             addText(zip, "current/real-device-current-screen-report-for-gpt.md", input.currentScreenMarkdown, entries, true, "CURRENT", "Current screen markdown")
             addText(zip, "current/real-device-current-screen-report.json", input.currentScreenJson, entries, true, "CURRENT", "Current screen JSON")
-            addText(zip, "last-me/last-me-real-device-report-for-gpt.md", input.lastMeMarkdown ?: placeholder("last_me"), entries, true, freshness(input.lastMeMarkdown), "Last ME report")
-            addText(zip, "last-me/last-me-real-device-report.json", input.lastMeJson ?: placeholderJson("last_me"), entries, true, freshness(input.lastMeJson), "Last ME JSON")
+            addText(zip, "last-me/last-me-real-device-report-for-gpt.md", input.lastMeMarkdown ?: lastMeNoSafeScenarioMarkdown(), entries, true, freshness(input.lastMeMarkdown), "Last ME report")
+            addText(zip, "last-me/last-me-real-device-report.json", input.lastMeJson ?: lastMeNoSafeScenarioJson(), entries, true, freshness(input.lastMeJson), "Last ME JSON")
             addText(zip, "last-other/last-other-real-device-report-for-gpt.md", input.lastOtherMarkdown ?: placeholder("last_other"), entries, true, freshness(input.lastOtherMarkdown), "Last OTHER report")
             addText(zip, "last-other/last-other-real-device-report.json", input.lastOtherJson ?: placeholderJson("last_other"), entries, true, freshness(input.lastOtherJson), "Last OTHER JSON")
             addText(zip, "failure/latest-next-sentence-failure.md", currentFailureMarkdown ?: placeholder("latest_failure"), entries, false, freshness(currentFailureMarkdown), "Latest failure markdown")
@@ -519,6 +523,20 @@ class PhoneGptReviewBundleBuilder {
     """.trimIndent()
 
     private fun placeholderJson(name: String): String = """{"reportName":"$name","result":"NOT_TESTED","reason":"NOT_GENERATED_ON_PHONE"}"""
+
+    private fun lastMeNoSafeScenarioMarkdown(): String = """
+        # Last ME Real Device Smoke
+
+        - reportName: last_me
+        - lastMeRealDeviceResult: NOT_TESTED_USER_DID_NOT_HAVE_SAFE_SCENARIO
+        - scenarioResult: NOT_TESTED_USER_DID_NOT_HAVE_SAFE_SCENARIO
+        - actualLastSpeaker: NOT_TESTED
+        - decisionType: NOT_TESTED
+        - routeCount: 0
+        - failureReason: USER_DID_NOT_HAVE_SAFE_LAST_ME_SCENARIO
+    """.trimIndent()
+
+    private fun lastMeNoSafeScenarioJson(): String = """{"reportName":"last_me","lastMeRealDeviceResult":"NOT_TESTED_USER_DID_NOT_HAVE_SAFE_SCENARIO","scenarioResult":"NOT_TESTED_USER_DID_NOT_HAVE_SAFE_SCENARIO","failureReason":"USER_DID_NOT_HAVE_SAFE_LAST_ME_SCENARIO"}"""
 
     private fun freshness(text: String?): String = if (text == null) "NOT_AVAILABLE" else "CURRENT"
 

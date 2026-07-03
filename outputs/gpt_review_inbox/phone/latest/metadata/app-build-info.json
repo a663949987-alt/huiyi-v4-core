@@ -1,1 +1,6 @@
-{"versionName":"4.1.20","versionCode":438,"generatedAt":1783071450449}
+{
+  "versionName": "4.1.23",
+  "versionCode": 441,
+  "source": "LOCAL_CURRENT_VERSION_PLACEHOLDER",
+  "phoneLatestStatus": "WAITING_FOR_CURRENT_VERSION_PHONE_SMOKE"
+}

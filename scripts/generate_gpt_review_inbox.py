@@ -123,6 +123,8 @@ def main() -> None:
     inbox.mkdir(parents=True, exist_ok=True)
 
     for child in inbox.iterdir():
+        if child.name == "phone":
+            continue
         if child.is_file():
             child.unlink()
         elif child.is_dir():
@@ -175,6 +177,8 @@ def main() -> None:
     phone_bundle_dest = ""
     if phone_bundle_included:
         phone_dir = inbox / "phone"
+        if phone_dir.exists():
+            shutil.rmtree(phone_dir)
         phone_dir.mkdir(parents=True, exist_ok=True)
         phone_bundle_dest = "phone/" + phone_bundle.name
         shutil.copy2(phone_bundle, phone_dir / phone_bundle.name)
@@ -237,10 +241,11 @@ def main() -> None:
 - postPanelContaminationDetected: {post_panel_contamination}
 
 ## What changed this round
-1. Split product functional smoke from scenario assertion.
-2. Mark last_me expected speaker conflicts as scenario_definition_mismatch instead of parser/product failure.
-3. Separate pre-analysis snapshot fields from post-panel overlay state.
-4. Keep screenshot failure as optional diagnostic.
+1. Preserve `phone/latest` unless a new phone bundle is explicitly provided.
+2. Keep one-tap feedback bound to the original NextSentenceSession.
+3. Treat missing safe natural LAST_ME as NOT_TESTED_USER_DID_NOT_HAVE_SAFE_SCENARIO.
+4. Keep real-device validation reduced to 3 smoke checks.
+5. Keep cloud tactical analysis TODO / disabled.
 
 ## Current real-device status
 - realDeviceTested: {str(real_device_tested).lower()}
@@ -274,7 +279,7 @@ def main() -> None:
 
 ## Known remaining problems
 - This local Codex run cannot execute a physical-phone smoke test by itself.
-- User should install the v4.1.10 APK through LAN update, run one phone scenario, then export the review bundle from the app.
+- User should install the current APK through LAN update, then run only the 3 phone smoke checks when safe.
 - Historical MockChat output files may be dirty in the workspace; they are not included as current-round evidence.
 
 ## Privacy / secret scan

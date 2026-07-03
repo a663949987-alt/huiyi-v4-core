@@ -33,9 +33,22 @@ class PhoneGptReviewBundleExporterTest {
             val lastMe = opened.read("last-me/last-me-real-device-report-for-gpt.md")
             val lastOther = opened.read("last-other/last-other-real-device-report-for-gpt.md")
 
-            assertTrue(lastMe.contains("NOT_TESTED"))
+            assertTrue(lastMe.contains("NOT_TESTED_USER_DID_NOT_HAVE_SAFE_SCENARIO"))
+            assertTrue(lastMe.contains("USER_DID_NOT_HAVE_SAFE_LAST_ME_SCENARIO"))
             assertTrue(lastOther.contains("NOT_TESTED"))
             assertTrue(opened.read("phone-gpt-review-manifest.json").contains("\"exists\": false"))
+        }
+    }
+
+    @Test
+    fun missingSafeLastMeScenarioHasExplicitSummaryResult() {
+        val zip = tempZip()
+        val summary = PhoneGptReviewBundleBuilder().build(input(lastMeMarkdown = null), zip)
+
+        assertEquals("NOT_TESTED_USER_DID_NOT_HAVE_SAFE_SCENARIO", summary.lastMeRealDeviceResult)
+        ZipFile(zip).use { opened ->
+            val manifest = opened.read("phone-gpt-review-manifest.json")
+            assertTrue(manifest.contains("\"result\": \"NOT_TESTED_USER_DID_NOT_HAVE_SAFE_SCENARIO\""))
         }
     }
 

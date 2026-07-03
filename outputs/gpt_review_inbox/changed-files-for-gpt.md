@@ -1,45 +1,44 @@
 # Changed Files For GPT
 
 ## Files changed this round
-
-- path: app/src/main/java/com/huiyi/v4/domain/simulation/AccessibilityNodeFixture.kt
-  - reason: Adds fixture replay from node dump / real-device report JSON into the real parser path.
-  - risk: Low; new validation layer.
-- path: app/src/main/java/com/huiyi/v4/domain/simulation/SimulationFixtures.kt
-  - reason: Adds required fixture categories for Liaoqi, metadata trap, read receipts, overlay contamination, and unsupported app.
-  - risk: Low; deterministic test fixtures.
-- path: app/src/main/java/com/huiyi/v4/domain/simulation/SyntheticRelationshipCorpus.kt
-  - reason: Adds 200-sample synthetic relationship corpus generator with expected tactical labels.
-  - risk: Low; local validation data only.
-- path: app/src/main/java/com/huiyi/v4/domain/cloud/CloudAnalysis.kt
-  - reason: Enforces HuiyiTacticalContract v1 fields and rejects invalid cloud output to local fallback.
-  - risk: Medium; cloud schema is stricter.
-- path: app/src/main/java/com/huiyi/v4/domain/capture/MetadataMessageFilter.kt
-  - reason: Filters Huiyi overlay text as metadata so it cannot pollute LastSpeakerDecision.
-  - risk: Low.
-- path: mockchat/src/main/java/com/huiyi/mockchat/MainActivity.kt
-  - reason: Adds MockChat scenarios for read/unread/checkmark, send failed, and Huiyi overlay contamination.
-  - risk: Low; test app only.
-- path: app/src/test/java/com/huiyi/v4/SimulationFirstValidationTest.kt
-  - reason: Verifies fixture replay, report JSON fixture generation, synthetic corpus, and cloud contract replay.
-  - risk: Low.
-- path: docs/SimulationFirstAcceptance.md
-  - reason: Documents simulation-first acceptance policy and reduced real-device smoke scope.
-  - risk: Low.
 - path: app/build.gradle.kts
-  - reason: Bumps app version to 4.1.22 / 440 for LAN update detection.
+  - reason: Bump app version to 4.1.23 / 441 so LAN update and phone/latest cannot keep serving v4.1.20.
   - risk: Low.
+- path: app/src/main/java/com/huiyi/v4/runtime/PhoneGptReviewBundleExporter.kt
+  - reason: Missing safe natural LAST_ME is now reported as NOT_TESTED_USER_DID_NOT_HAVE_SAFE_SCENARIO instead of a fake PASS/FAIL.
+  - risk: Low; phone review export wording and summary only.
+- path: app/src/test/java/com/huiyi/v4/PhoneGptReviewBundleExporterTest.kt
+  - reason: Added coverage for the explicit no-safe-LAST_ME result.
+  - risk: Low.
+- path: scripts/review_upload_gateway.py
+  - reason: Reject stale phone bundles, reject one-tap feedback that reruns/recaptures instead of binding the original NextSentenceSession, and keep cloud TODO disabled.
+  - risk: Medium; upload gate behavior changed intentionally.
+- path: scripts/generate_gpt_review_inbox.py
+  - reason: Preserve phone/latest unless a new phone bundle is explicitly provided.
+  - risk: Low; packaging only.
+- path: outputs/gpt_review_inbox/phone/latest/*
+  - reason: Replaced old v4.1.20 polluted latest evidence with current v4.1.23 placeholder state.
+  - risk: Low; review evidence only.
+- path: outputs/phone-real-device-closure-report-for-gpt.md
+  - reason: Current round acceptance report for phone latest closure, 3-smoke scope, and cloud TODO status.
+  - risk: Low; report output only.
 
-## Test results
+## Important logic changes
+1. `phone/latest` is current-version only: 4.1.23 / 441.
+2. One-tap feedback must reference the original NextSentenceSession and must not rerun parser or recapture the Huiyi panel.
+3. If the user does not have a safe natural LAST_ME scene, report `NOT_TESTED_USER_DID_NOT_HAVE_SAFE_SCENARIO`.
+4. Real-device validation is reduced to exactly 3 smoke checks: Liaoqi LAST_ME, Liaoqi LAST_OTHER, Unsupported App.
+5. Cloud tactical analysis remains TODO / disabled; any phone bundle claiming cloud execution is rejected.
 
-- `:app:testDebugUnitTest`: PASS
-- `:app:assembleDebug :mockchat:assembleDebug`: PASS
-- LAN update publish: PASS, latest.json is 4.1.22 / 440
+## Tests added / updated
+- `PhoneGptReviewBundleExporterTest`: PASS
+- `OneTapFeedbackExportTest`: PASS
+- upload gateway stale/session/cloud guard: PASS
+- `testDebugUnitTest`: PASS
+- `assembleDebug`: PASS
+- LAN latest.json published as 4.1.23 / 441: PASS
 
-## Current acceptance posture
-
-- simulationFirstValidation: PASS
-- fixtureReplay: PASS
-- syntheticCorpus: PASS
-- cloudContractReplay: PASS
-- realDeviceSmoke: NOT_TESTED, intentionally reduced to 3 smoke checks
+## Known risk areas
+- This local run cannot execute a physical-phone smoke test by itself.
+- User should install the current APK through LAN update and run only the 3 phone smoke checks when safe.
+- If there is no safe natural LAST_ME scene, keep `lastMeRealDeviceResult=NOT_TESTED_USER_DID_NOT_HAVE_SAFE_SCENARIO`.

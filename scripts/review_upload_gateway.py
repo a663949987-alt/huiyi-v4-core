@@ -19,6 +19,8 @@ ALLOWED_PREFIXES = (
     "latest-session/",
     "current-screen/",
     "metadata/",
+    "unsupported-app-adaptation-report.json",
+    "unsupported-app-adaptation-report-for-gpt.md",
 )
 
 
@@ -57,7 +59,11 @@ def manifest_summary(zip_path):
     raw = read_zip_text(zip_path, "one-tap-feedback-manifest.json")
     data = json.loads(raw)
     latest = data.get("latestSession", {})
+    feedback = data.get("feedback", {})
     return {
+        "appVersionName": data.get("appVersionName") or "",
+        "appVersionCode": int(data.get("appVersionCode") or 0),
+        "bundleType": data.get("bundleType") or "",
         "sessionId": latest.get("sessionId") or "no-session",
         "terminalState": latest.get("terminalState") or "UNKNOWN",
         "appPackage": latest.get("appPackage") or "unknown",
@@ -69,7 +75,38 @@ def manifest_summary(zip_path):
         "errorCode": latest.get("errorCode") or "",
         "userMarkedWrong": latest.get("userMarkedWrong") or False,
         "userCorrectionLastSpeaker": latest.get("userCorrectionLastSpeaker") or "NONE",
+        "feedbackTargetSessionId": feedback.get("feedbackTargetSessionId") or "",
+        "feedbackTargetSessionFound": feedback.get("feedbackTargetSessionFound") is True,
+        "feedbackTriggeredNewAnalysis": feedback.get("feedbackTriggeredNewAnalysis") is True,
+        "feedbackReCapturedCurrentRoot": feedback.get("feedbackReCapturedCurrentRoot") is True,
+        "feedbackUsedOverlayStateAsPreAnalysis": feedback.get("feedbackUsedOverlayStateAsPreAnalysis") is True,
+        "cloudEnabled": latest.get("cloudEnabled") is True,
+        "cloudAttempted": latest.get("cloudAttempted") is True,
+        "cloudContractImplemented": latest.get("cloudContractImplemented") is True,
     }
+
+
+def current_required_version(repo):
+    latest_json = repo / "outputs" / "update_server" / "latest.json"
+    if not latest_json.exists():
+        return 0, ""
+    data = json.loads(latest_json.read_text(encoding="utf-8"))
+    return int(data.get("versionCode") or 0), data.get("versionName") or ""
+
+
+def validate_upload(summary, repo):
+    required_code, required_name = current_required_version(repo)
+    if required_code and summary["appVersionCode"] < required_code:
+        raise PermissionError(
+            f"STALE_PHONE_BUNDLE_VERSION: uploaded={summary['appVersionName']}({summary['appVersionCode']}) "
+            f"required={required_name}({required_code})"
+        )
+    if summary["feedbackTriggeredNewAnalysis"] or summary["feedbackReCapturedCurrentRoot"]:
+        raise PermissionError("FEEDBACK_EXPORT_RECAPTURED_OR_RERAN_ANALYSIS")
+    if not summary["feedbackTargetSessionFound"] or not summary["feedbackTargetSessionId"]:
+        raise PermissionError("FEEDBACK_TARGET_SESSION_NOT_BOUND")
+    if summary["cloudEnabled"] or summary["cloudAttempted"] or summary["cloudContractImplemented"]:
+        raise PermissionError("CLOUD_ANALYSIS_MUST_REMAIN_TODO")
 
 
 def clear_dir(path):
@@ -106,10 +143,15 @@ def write_inbox_readme(repo, summary, uploaded_at, commit_hash="PENDING"):
 - oneTapFeedbackIncluded: true
 - uploadedFromPhone: true
 - latestPhoneUploadAt: {uploaded_at}
+- latestPhoneAppVersionName: {summary['appVersionName']}
+- latestPhoneAppVersionCode: {summary['appVersionCode']}
 - latestPhoneSessionId: {summary['sessionId']}
 - githubCommitHash: {commit_hash}
 - githubReviewPath: outputs/gpt_review_inbox/phone/latest/
 - realDeviceTested: true
+- acceptedSmokeSet: Liaoqi LAST_ME / Liaoqi LAST_OTHER / Unsupported App
+- phoneLatestIsCurrentVersion: true
+- cloudStillTodo: true
 
 ## Latest Phone Conclusion
 - terminalState: {summary['terminalState']}
@@ -122,6 +164,11 @@ def write_inbox_readme(repo, summary, uploaded_at, commit_hash="PENDING"):
 - errorCode: {summary['errorCode']}
 - userMarkedWrong: {summary['userMarkedWrong']}
 - userCorrectionLastSpeaker: {summary['userCorrectionLastSpeaker']}
+- feedbackTargetSessionId: {summary['feedbackTargetSessionId']}
+- feedbackTargetSessionFound: {summary['feedbackTargetSessionFound']}
+- feedbackTriggeredNewAnalysis: {summary['feedbackTriggeredNewAnalysis']}
+- feedbackReCapturedCurrentRoot: {summary['feedbackReCapturedCurrentRoot']}
+- feedbackUsedOverlayStateAsPreAnalysis: {summary['feedbackUsedOverlayStateAsPreAnalysis']}
 
 ## GPT Should Inspect
 1. outputs/gpt_review_inbox/phone/latest/README_FOR_GPT.md
@@ -141,10 +188,19 @@ def write_inbox_manifest(repo, summary, uploaded_at, commit_hash="PENDING"):
         "oneTapFeedbackIncluded": True,
         "uploadedFromPhone": True,
         "latestPhoneUploadAt": uploaded_at,
+        "latestPhoneAppVersionName": summary["appVersionName"],
+        "latestPhoneAppVersionCode": summary["appVersionCode"],
         "latestPhoneSessionId": summary["sessionId"],
         "githubCommitHash": commit_hash,
         "githubReviewPath": "outputs/gpt_review_inbox/phone/latest/",
         "realDeviceTested": True,
+        "acceptedSmokeSet": [
+            "Liaoqi LAST_ME: ME -> WAIT",
+            "Liaoqi LAST_OTHER: OTHER -> routes",
+            "Unsupported App: show unsupported prompt and export adapter bundle",
+        ],
+        "phoneLatestIsCurrentVersion": True,
+        "cloudStillTodo": True,
         "latestPhoneConclusion": summary,
     }
     manifest.write_text(json.dumps(data, ensure_ascii=False, indent=2), encoding="utf-8")
@@ -154,6 +210,7 @@ def handle_upload(repo, zip_path):
     if not privacy_is_safe(zip_path):
         raise PermissionError("GITHUB_UPLOAD_PRIVACY_BLOCKED")
     summary = manifest_summary(zip_path)
+    validate_upload(summary, repo)
     session = safe_session_id(summary["sessionId"])
     stamp = datetime.now(timezone.utc).strftime("%Y%m%d-%H%M%S")
     uploaded_at = datetime.now(timezone.utc).isoformat()

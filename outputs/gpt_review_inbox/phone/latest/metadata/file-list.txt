@@ -1,17 +1,9 @@
-        README_FOR_GPT.md
+README_FOR_GPT.md
 one-tap-feedback-manifest.json
-latest-session/next-sentence-flight-record.json
-latest-session/next-sentence-flight-record-for-gpt.md
 current-screen/real-device-current-screen-report-for-gpt.md
 current-screen/real-device-current-screen-report.json
-recent-sessions/session-index.md
-diagnostics/accessibility-click-diagnostic-report-for-gpt.md
-diagnostics/overlay-accessibility-report-for-gpt.md
-diagnostics/parser-empty-diagnostics-for-gpt.md
-visual/current_screen_overlay.png
-visual/visual-debug-index.md
-stale/README_STALE_REPORTS.md
+latest-session/next-sentence-flight-record.json
+latest-session/next-sentence-flight-record-for-gpt.md
+metadata/app-build-info.json
 metadata/file-list.txt
 metadata/privacy-scan.json
-metadata/app-build-info.json
-        recent-sessions/session-*.json

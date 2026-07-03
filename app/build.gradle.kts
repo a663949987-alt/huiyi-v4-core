@@ -20,8 +20,8 @@ android {
         applicationId = "com.huiyi.v4"
         minSdk = 29
         targetSdk = 35
-        versionCode = 440
-        versionName = "4.1.22"
+        versionCode = 441
+        versionName = "4.1.23"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
 

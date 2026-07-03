@@ -1,43 +1,294 @@
 {
   "project": "huiyi-v4",
-  "taskName": "simulation_first_acceptance_system",
-  "versionName": "4.1.22",
-  "versionCode": 440,
+  "taskName": "phone_latest_real_device_smoke_closure",
+  "versionName": "4.1.23",
+  "versionCode": 441,
+  "generatedAt": "2026-07-03 18:22:32 +0800",
   "currentOverallResult": "PASS",
-  "simulationFirstResult": "PASS",
-  "fixtureReplayResult": "PASS",
-  "syntheticCorpusResult": "PASS",
-  "cloudContractReplayResult": "PASS",
-  "mockchatResult": "PASS",
-  "realDeviceSmokeResult": "NOT_TESTED",
-  "realDeviceSmokePolicy": [
-    "liaoqi LAST_ME: ME -> WAIT",
-    "liaoqi LAST_OTHER: OTHER -> routes",
-    "unsupported app: show unsupported prompt and export adapter bundle"
-  ],
-  "userNeedsRepeatedPrivateChatValidation": false,
+  "lastMeRealDeviceResult": "NOT_TESTED_USER_DID_NOT_HAVE_SAFE_SCENARIO",
+  "lastOtherRealDeviceResult": "NOT_TESTED",
+  "staleSnapshotGuard": "PASS",
+  "staleRoutesGuard": "PASS",
+  "realDeviceFunctionalSmoke": "NOT_TESTED",
+  "scenarioAssertionResult": "NOT_TESTED",
+  "realDeviceTested": false,
+  "phoneBundleIncluded": false,
+  "phoneBundlePath": "",
   "phoneBundleRequiredFromUser": false,
-  "apiCalled": false,
+  "currentStatus": {
+    "overlayShownInTargetApp": "NOT_TESTED",
+    "resultShownAsOverlay": "NOT_TESTED",
+    "mainActivityOpened": "NOT_TESTED",
+    "actualLastSpeaker": "NOT_TESTED",
+    "decisionType": "NOT_TESTED",
+    "routeCount": "NOT_TESTED",
+    "scenarioName": "NOT_TESTED",
+    "expectedLastSpeaker": "NOT_TESTED",
+    "scenarioDefinitionTrusted": false,
+    "scenarioDefinitionMismatch": false,
+    "postPanelContaminationDetected": false,
+    "screenshotFailureBlocksMainPath": false,
+    "lastMeRealDeviceResult": "NOT_TESTED_USER_DID_NOT_HAVE_SAFE_SCENARIO"
+  },
+  "lastMe": {
+    "testIntent": "USER_ASSERTED_LAST_ME",
+    "userAssertedLastSpeaker": "ME",
+    "actualLastSpeaker": "NOT_TESTED",
+    "chosenCaptureSource": "",
+    "postSendSettleAttempted": false,
+    "decisionType": "NOT_TESTED",
+    "routeCount": "0",
+    "waitPanelShown": false,
+    "routePanelShown": false,
+    "staleRoutesReused": false,
+    "failureCategory": "not_tested",
+    "failureReason": "USER_DID_NOT_HAVE_SAFE_LAST_ME_SCENARIO",
+    "result": "NOT_TESTED_USER_DID_NOT_HAVE_SAFE_SCENARIO"
+  },
+  "lastOther": {
+    "result": "NOT_TESTED",
+    "actualLastSpeaker": "NOT_TESTED",
+    "decisionType": "NOT_TESTED",
+    "routeCount": "0",
+    "failureCategory": "not_tested"
+  },
   "reviewFiles": [
     {
       "path": "huiyi-v4-review-for-gpt.md",
-      "sendToGpt": true,
-      "description": "Main GPT review report"
-    },
-    {
-      "path": "simulation-first-validation-report-for-gpt.md",
-      "sendToGpt": true,
-      "description": "Simulation-first fixture, corpus, contract, and smoke policy report"
-    },
-    {
-      "path": "changed-files-for-gpt.md",
-      "sendToGpt": true,
-      "description": "Current round change summary"
+      "source": "outputs/review/huiyi-v4-review-for-gpt.md",
+      "required": true,
+      "exists": true,
+      "description": "Main GPT review report",
+      "sha256": "c91fb9ae42a7e2e78fe6d89b9d4568825f6a63d553949d1a3d52d3ec8abe87ce"
     },
     {
       "path": "manifest.json",
-      "sendToGpt": true,
-      "description": "Review bundle manifest"
+      "source": "outputs/review/manifest.json",
+      "required": true,
+      "exists": true,
+      "description": "Review bundle manifest",
+      "sha256": "c6fa8135e1b278ca71bf97b13a6a256f3972598ae84fec5ff2bfe0f269663994"
+    },
+    {
+      "path": "real-device-current-screen-report-for-gpt.md",
+      "source": "outputs/real-device-current-screen-report-for-gpt.md",
+      "required": true,
+      "exists": true,
+      "description": "Current real-device screen report",
+      "sha256": "a69a41a5447f4e54409244fe77b8a2b51caa45ae68c97058a505c49c6711cbf7"
+    },
+    {
+      "path": "real-device-current-screen-report.json",
+      "source": "outputs/real-device-current-screen-report.json",
+      "required": true,
+      "exists": true,
+      "description": "Current real-device screen JSON",
+      "sha256": "3aa6e3206d498034fa5d87fc9aa1c2445eacfeb4e8968f31bd2d77ebfddb8ab5"
+    },
+    {
+      "path": "real-device-smoke-report-for-gpt.md",
+      "source": "outputs/real-device-smoke-report-for-gpt.md",
+      "required": true,
+      "exists": true,
+      "description": "Current real-device smoke report",
+      "sha256": "6269270af503f6acac379e43831328063826fb0ee8715d1ddf5a88abd7076d3e"
+    },
+    {
+      "path": "last-me-real-device-report-for-gpt.md",
+      "source": "outputs/last-me-real-device-report-for-gpt.md",
+      "required": true,
+      "exists": true,
+      "description": "Last ME asserted real-device report",
+      "sha256": "65079d238a94153ace439a1172f79540f6210845685c19c387ce2efa807c23ce"
+    },
+    {
+      "path": "last-me-real-device-report.json",
+      "source": "outputs/last-me-real-device-report.json",
+      "required": true,
+      "exists": true,
+      "description": "Last ME asserted real-device JSON",
+      "sha256": "cc6c5593e85278bc678cad255a16b766080a346db8236130ce7b1f5b326b7c38"
+    },
+    {
+      "path": "last-other-real-device-report-for-gpt.md",
+      "source": "outputs/last-other-real-device-report-for-gpt.md",
+      "required": true,
+      "exists": true,
+      "description": "Last OTHER regression real-device report",
+      "sha256": "a418bba705951c91893f12032b9296dc5c39459f302e4b2078491fa7c070f895"
+    },
+    {
+      "path": "last-other-real-device-report.json",
+      "source": "outputs/last-other-real-device-report.json",
+      "required": true,
+      "exists": true,
+      "description": "Last OTHER regression real-device JSON",
+      "sha256": "d676ce71d04036d0c227232cdab31e1f1c50327b4f74ef76f10d7882dbf6d0a6"
+    },
+    {
+      "path": "latest-next-sentence-failure.md",
+      "source": "outputs/latest-next-sentence-failure.md",
+      "required": true,
+      "exists": true,
+      "description": "Latest next sentence failure markdown",
+      "sha256": "5c1245190e8db8e65faa9efb23aebc6b010983954ac3f7f9fe9f293e5b3fcd4e"
+    },
+    {
+      "path": "latest-next-sentence-failure.json",
+      "source": "outputs/latest-next-sentence-failure.json",
+      "required": true,
+      "exists": true,
+      "description": "Latest next sentence failure JSON",
+      "sha256": "bbcf227998eb3ddb2c64a7faf63cd8e05e414ddd0282a599d6a93705b6c728e6"
+    },
+    {
+      "path": "accessibility-click-diagnostic-report-for-gpt.md",
+      "source": "outputs/accessibility-click-diagnostic-report-for-gpt.md",
+      "required": false,
+      "exists": true,
+      "description": "Accessibility click diagnostic report",
+      "sha256": "95fe5e2ada1b1852e69f02db66d33f86327bbe5061f5bd1b06d57f789bba46d4"
+    },
+    {
+      "path": "real-device-overlay-accessibility-report-for-gpt.md",
+      "source": "outputs/real-device-overlay-accessibility-report-for-gpt.md",
+      "required": false,
+      "exists": false,
+      "description": "Real device overlay/accessibility markdown",
+      "sha256": null
+    },
+    {
+      "path": "real-device-overlay-accessibility-report.json",
+      "source": "outputs/real-device-overlay-accessibility-report.json",
+      "required": false,
+      "exists": false,
+      "description": "Real device overlay/accessibility JSON",
+      "sha256": null
+    },
+    {
+      "path": "next-sentence-screenshot-capability-audit-for-gpt.md",
+      "source": "outputs/next-sentence-screenshot-capability-audit-for-gpt.md",
+      "required": false,
+      "exists": true,
+      "description": "Screenshot capability audit",
+      "sha256": "9cd988bf45ff518395f9381ece2bd874d64cecc37686a7e2d5e5b3f47d6874a3"
+    },
+    {
+      "path": "next-sentence-analysis-failure-audit-for-gpt.md",
+      "source": "outputs/next-sentence-analysis-failure-audit-for-gpt.md",
+      "required": false,
+      "exists": true,
+      "description": "Next sentence analysis failure audit",
+      "sha256": "876de57d64202aa4bd54d9399472ee0ca18fbaf753886d036f7148ecffac8f34"
+    },
+    {
+      "path": "overlay-window-flags-audit-for-gpt.md",
+      "source": "outputs/overlay-window-flags-audit-for-gpt.md",
+      "required": false,
+      "exists": true,
+      "description": "Overlay window flags audit",
+      "sha256": "f2a8cd0f69a7ba4c6e258ef8ccbe62fd44e0890cc0553ddc68b632adc61e48eb"
+    },
+    {
+      "path": "parser-empty-diagnostics-for-gpt.md",
+      "source": "outputs/parser-empty-diagnostics-for-gpt.md",
+      "required": false,
+      "exists": false,
+      "description": "Parser empty diagnostic markdown",
+      "sha256": null
+    },
+    {
+      "path": "parser-empty-diagnostics.json",
+      "source": "outputs/parser-empty-diagnostics.json",
+      "required": false,
+      "exists": false,
+      "description": "Parser empty diagnostic JSON",
+      "sha256": null
+    },
+    {
+      "path": "README_FOR_GPT.md",
+      "required": true,
+      "exists": true,
+      "description": "Inbox overview for GPT",
+      "sha256": "5ad8e89f78bcc329741fac7a321b69fa88a995ba8e5f6ee773238bdeb8b07b53"
+    },
+    {
+      "path": "changed-files-for-gpt.md",
+      "required": true,
+      "exists": true,
+      "description": "Current delivery change summary",
+      "sha256": "254fa6983820f3ef2b61d3a9564ece7c84942759fc1e8a630f20c85a1bda56bf"
+    },
+    {
+      "path": "phone-real-device-closure-report-for-gpt.md",
+      "required": true,
+      "exists": true,
+      "description": "Current phone latest closure report",
+      "sha256": "207473157dad119aef9826d47bee1f9e72d2b371e0a87826eed382b7134530f0"
+    },
+    {
+      "path": "phone/latest/README_FOR_GPT.md",
+      "required": true,
+      "exists": true,
+      "description": "Current phone/latest overview",
+      "sha256": "13de19e462d7d05f8269aec822afbd1a9cc2e9421ff7783dad2e5390e300a1bd"
+    },
+    {
+      "path": "phone/latest/one-tap-feedback-manifest.json",
+      "required": true,
+      "exists": true,
+      "description": "Current phone/latest feedback manifest placeholder",
+      "sha256": "61d47ec0c87e9300aa3ad23d8e63e20e6d2a1f2c53af57433d384098ea489c11"
+    },
+    {
+      "path": "phone/latest/latest-session/next-sentence-flight-record.json",
+      "required": true,
+      "exists": true,
+      "description": "Current phone/latest original session placeholder",
+      "sha256": "f709fd90764873f5860d0575e7cfc14e080c1c66f2b273ac094b3569db9395f3"
+    },
+    {
+      "path": "phone/latest/current-screen/real-device-current-screen-report.json",
+      "required": true,
+      "exists": true,
+      "description": "Current phone/latest screen placeholder",
+      "sha256": "b0863597d833117ab9fbf225a50a2da2e10dd59c8b72e7df9b470eb2e50d1e65"
     }
+  ],
+  "legacyCurrentStatus": {
+    "overlayBubbleSurvivesAfterNextSentence": "unknown",
+    "permissionFalseAlarmObserved": "unknown",
+    "nextSentenceAnalysisResult": "NOT_TESTED",
+    "primaryErrorCode": "NOT_TESTED",
+    "secondaryErrorCode": "none",
+    "failedStage": "NOT_TESTED",
+    "pipelineExceptionClass": "none",
+    "pipelineExceptionMessageRedacted": "none"
+  },
+  "commands": {
+    "testDebugUnitTest": "PASS",
+    "assembleDebug": "PASS",
+    "assembleRelease": "PASS",
+    "realDeviceSmoke": "NOT_TESTED"
+  },
+  "privacy": {
+    "containsRawPrivateChat": false,
+    "containsApiKey": false,
+    "containsKeystore": false,
+    "containsLocalProperties": false
+  },
+  "phoneLatestClosureResult": "PASS",
+  "phoneLatestUpdatedToCurrentVersion": "PASS",
+  "phoneLatestOldPollutedBundleRemoved": "PASS",
+  "oneTapOriginalSessionBinding": "PASS",
+  "realDeviceSmokeResult": "NOT_TESTED",
+  "cloudStatus": "TODO_DISABLED",
+  "cloudEnabled": false,
+  "cloudAttempted": false,
+  "cloudContractImplemented": false,
+  "acceptedSmokeSet": [
+    "Liaoqi LAST_ME: ME -> WAIT",
+    "Liaoqi LAST_OTHER: OTHER -> routes",
+    "Unsupported App: show unsupported prompt and export adapter bundle"
   ]
 }

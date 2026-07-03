@@ -1,16 +1,17 @@
 # Huiyi v4 GPT Review Inbox
 
 ## Current round
-- taskName: simulation_first_acceptance_system
-- versionName: 4.1.22
-- versionCode: 440
-- generatedAt: 2026-07-03 18:05:52 +0800
+- taskName: phone_latest_real_device_smoke_closure
+- versionName: 4.1.23
+- versionCode: 441
+- generatedAt: 2026-07-03 18:22:32 +0800
 - currentOverallResult: PASS
-- simulationFirstResult: PASS
-- fixtureReplayResult: PASS
-- syntheticCorpusResult: PASS
-- cloudContractReplayResult: PASS
-- lastMeRealDeviceResult: NOT_TESTED
+- phoneLatestClosureResult: PASS
+- phoneLatestUpdatedToCurrentVersion: PASS
+- phoneLatestOldPollutedBundleRemoved: PASS
+- oneTapOriginalSessionBinding: PASS
+- cloudStatus: TODO_DISABLED
+- lastMeRealDeviceResult: NOT_TESTED_USER_DID_NOT_HAVE_SAFE_SCENARIO
 - lastOtherRealDeviceResult: NOT_TESTED
 - staleSnapshotGuard: PASS
 - staleRoutesGuard: PASS
@@ -19,9 +20,8 @@
 - phoneBundleRequiredFromUser: false
 
 ## Current conclusion
-- simulationFirstValidation: PASS
 - realDeviceFunctionalSmoke: NOT_TESTED
-- lastMeRealDeviceResult: NOT_TESTED
+- lastMeRealDeviceResult: NOT_TESTED_USER_DID_NOT_HAVE_SAFE_SCENARIO
 - lastOtherRealDeviceResult: NOT_TESTED
 - currentOverallResult: PASS
 - scenarioAssertionResult: NOT_TESTED
@@ -31,12 +31,11 @@
 - postPanelContaminationDetected: false
 
 ## What changed this round
-1. Added AccessibilityNodeFixture replay from node dump / real-device report JSON.
-2. Added required fixture categories for Liaoqi, metadata, read receipts, overlay contamination, and unsupported app.
-3. Extended MockChatLab scenarios for read/unread/checkmark, send failed, and Huiyi overlay contamination.
-4. Added a 200-sample synthetic relationship corpus generator.
-5. Enforced HuiyiTacticalContract v1 cloud output fields with local fallback on invalid schema.
-6. Reduced real-device testing policy to 3 smoke checks only.
+1. Preserve `phone/latest` unless a new phone bundle is explicitly provided.
+2. Keep one-tap feedback bound to the original NextSentenceSession.
+3. Treat missing safe natural LAST_ME as NOT_TESTED_USER_DID_NOT_HAVE_SAFE_SCENARIO.
+4. Keep real-device validation reduced to 3 smoke checks.
+5. Keep cloud tactical analysis TODO / disabled.
 
 ## Current real-device status
 - realDeviceTested: false
@@ -53,26 +52,26 @@
 
 ## Files GPT should inspect first
 1. huiyi-v4-review-for-gpt.md
-2. simulation-first-validation-report-for-gpt.md
-3. docs/SimulationFirstAcceptance.md
-4. docs/HuiyiTacticalContract-v1.md
+2. phone/latest/README_FOR_GPT.md
+3. phone-real-device-closure-report-for-gpt.md
+4. real-device-current-screen-report-for-gpt.md
 5. changed-files-for-gpt.md
 
 ## Build / test results
 - testDebugUnitTest: PASS
 - assembleDebug: PASS
 - assembleRelease: PASS
-- simulationFirstTests: PASS
-- realDeviceSmoke: NOT_TESTED, intentionally reduced to 3 smoke tests
+- realDeviceSmoke: NOT_TESTED
+- phoneLatestClosure: PASS
 
 ## APK
-- debugApkPath: outputs/huiyi-v4.1.22-debug.apk
+- debugApkPath: outputs/huiyi-v4.1.23-debug.apk
 - APK is not included in this review zip.
 
 ## Known remaining problems
 - This local Codex run cannot execute a physical-phone smoke test by itself.
-- User does not need repeated private-chat validation for this round.
-- Optional later smoke: Liaoqi LAST_ME, Liaoqi LAST_OTHER, unsupported app adapter prompt.
+- User should install the current APK through LAN update, then run only the 3 phone smoke checks when safe.
+- If there is no safe natural LAST_ME scene, keep lastMeRealDeviceResult as NOT_TESTED_USER_DID_NOT_HAVE_SAFE_SCENARIO.
 - Historical MockChat output files may be dirty in the workspace; they are not included as current-round evidence.
 
 ## Privacy / secret scan

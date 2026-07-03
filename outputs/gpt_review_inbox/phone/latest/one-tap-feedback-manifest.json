@@ -1,39 +1,46 @@
 {
   "project": "huiyi-v4",
-  "bundleType": "ONE_TAP_FEEDBACK",
-  "generatedAt": "1783071450449",
-  "appVersionName": "4.1.20",
-  "appVersionCode": 438,
+  "bundleType": "PHONE_LATEST_PLACEHOLDER",
+  "appVersionName": "4.1.23",
+  "appVersionCode": 441,
+  "phoneLatestStatus": "WAITING_FOR_CURRENT_VERSION_PHONE_SMOKE",
+  "replacedOldPollutedBundle": true,
+  "previousPollutedVersionRemovedFromLatest": "4.1.20",
+  "feedback": {
+    "feedbackTargetSessionFound": false,
+    "feedbackTriggeredNewAnalysis": false,
+    "feedbackReCapturedCurrentRoot": false,
+    "feedbackUsedOverlayStateAsPreAnalysis": false
+  },
   "latestSession": {
-    "sessionId": "c55e6d7f-023b-4765-b3df-9b10f7b45f3a",
-    "terminalState": "ROUTE_PANEL",
-    "appPackage": "com.bajiao.im.liaoqi",
-    "targetAppSupported": true,
-    "adapterName": "LiaoqiRealParser",
-    "actualLastSpeaker": "OTHER",
-    "decisionType": "HUIYI_MOMENT",
-    "decisionTypeFamily": "REPLY_ROUTES",
-    "routeCount": 5,
+    "sessionId": "not-tested-current-version",
+    "terminalState": "NOT_TESTED",
+    "appPackage": "NOT_TESTED",
+    "actualLastSpeaker": "NOT_TESTED",
+    "decisionType": "NOT_TESTED",
+    "routeCount": 0,
     "waitPanelShown": false,
-    "routePanelShown": true,
+    "routePanelShown": false,
     "cloudEnabled": false,
+    "cloudConfigured": false,
+    "cloudContractImplemented": false,
     "cloudAttempted": false,
+    "cloudAnalysisAttempted": false,
     "cloudSuccess": false,
-    "cloudSkippedReason": "CLOUD_NOT_CONFIGURED",
-    "decisionSource": "LOCAL_FALLBACK",
-    "cloudFallbackUsed": false,
-    "cloudLatencyMs": null,
-    "cloudErrorCode": "",
-    "loadingStillVisible": false,
-    "errorCode": "",
-    "failedStage": "",
-    "userMarkedWrong": true,
-    "userCorrectionLastSpeaker": "NONE"
+    "cloudSkippedReason": "CLOUD_TODO_DISABLED"
   },
-  "quickConclusion": {
-    "status": "USER_MARKED_WRONG",
-    "humanReadable": "reply routes were shown, routeCount=5."
+  "realDeviceSmokePolicy": {
+    "lastMe": "Liaoqi LAST_ME: ME -> WAIT",
+    "lastOther": "Liaoqi LAST_OTHER: OTHER -> routes",
+    "unsupportedApp": "Unsupported App: show unsupported prompt and export adapter bundle"
   },
-  "privacy": {"containsRawPrivateChat":false,"containsRawScreenshot":false,"containsApiKey":false,"containsToken":false,"containsKeystore":false,"safeForPublicGitHub":true},
-  "staleReports": []
+  "lastMeRealDeviceResult": "NOT_TESTED_USER_DID_NOT_HAVE_SAFE_SCENARIO",
+  "privacy": {
+    "containsRawPrivateChat": false,
+    "containsRawScreenshot": false,
+    "containsApiKey": false,
+    "containsToken": false,
+    "containsKeystore": false,
+    "safeForPublicGitHub": true
+  }
 }

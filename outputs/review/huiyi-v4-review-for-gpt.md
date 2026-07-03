@@ -1,42 +1,43 @@
-﻿# Huiyi v4 Review For GPT
+# Huiyi v4 Review For GPT
 
 ## v4.1.10 Current Round Summary
 
 - project: Huiyi v4 Core
-- versionName: 4.1.22
-- versionCode: 440
+- versionName: 4.1.23
+- versionCode: 441
 - branch: main
-- commitHash: 647cdef
-- generatedAt: 2026-07-03 18:05:51 +0800
-- taskName: simulation_first_acceptance_system
-- currentVersion: 4.1.22
-- currentTaskName: simulation_first_acceptance_system
-- currentGeneratedAt: 2026-07-03 18:05:51 +0800
+- commitHash: f54ccee
+- generatedAt: 2026-07-03 18:22:31 +0800
+- taskName: phone_latest_real_device_smoke_closure
+- currentVersion: 4.1.23
+- currentTaskName: phone_latest_real_device_smoke_closure
+- currentGeneratedAt: 2026-07-03 18:22:31 +0800
 - review_freshness_result: PASS
-- simulation_first_result: PASS
-- fixture_replay_result: PASS
-- synthetic_corpus_result: PASS
-- cloud_contract_replay_result: PASS
+- phone_latest_closure_result: PASS
+- phone_latest_updated_to_current_version: PASS
+- phone_latest_old_polluted_bundle_removed: PASS
+- one_tap_original_session_binding: PASS
 - mockchat_result: PASS
 - real_device_smoke_result: NOT_TESTED
 - realDeviceFunctionalSmoke: NOT_TESTED
 - scenarioAssertionResult: NOT_TESTED
 - currentOverallResult: PASS
-- lastMeRealDeviceResult: NOT_TESTED
+- lastMeRealDeviceResult: NOT_TESTED_USER_DID_NOT_HAVE_SAFE_SCENARIO
 - lastOtherRealDeviceResult: NOT_TESTED
 - staleSnapshotGuard: PASS
 - staleRoutesGuard: PASS
 - overall_result: PASS
 - failReason: none
-- realDeviceSmokeNote: Simulation-first validation passed. Real app validation is reduced to 3 smoke tests; those smoke tests were not executed in this local run.
+- realDeviceSmokeNote: Phone latest closure passed. Real device smoke remains limited to 3 checks and was not executed in this local run.
+- cloudStatus: TODO_DISABLED
 
 currentUserFeedback:
-  - 鐢ㄦ埛鍙嶉 last ME 濂藉儚娌¤繃
-  - 涓婁紶鐨勬柊鏂囦欢瀹為檯鏄?real_device_last_other PASS
-  - 鏈疆闇€瑕佷笓闂ㄩ獙璇?last ME WAIT 鎬?
-  - v4.1.9a 鐪熸満宸茶兘鍦ㄧ洰鏍?App 鍐呮樉绀轰細鎰忚矾绾块潰鏉?
-  - 褰撳墠 FAIL 鏉ヨ嚜 scenarioName=last_me 涓庣湡瀹炴渶鍚庢湁鏁堟秷鎭?OTHER 鍐茬獊
-  - screenshot unavailable 浠嶅瓨鍦紝浣嗕笉鍐嶉樆鏂富閾捐矾
+  - 用户反馈 last ME 好像没过
+  - 上传的新文件实际是 real_device_last_other PASS
+  - 本轮需要专门验证 last ME WAIT 态
+  - v4.1.9a 真机已能在目标 App 内显示会意路线面板
+  - 当前 FAIL 来自 scenarioName=last_me 与真实最后有效消息 OTHER 冲突
+  - screenshot unavailable 仍存在，但不再阻断主链路
 
 currentRegressionStatus:
   overlayBubbleSurvivesAfterNextSentence: unknown_without_new_phone_export
@@ -141,34 +142,35 @@ currentRegressionStatus:
 
 # Huiyi v4 Review For GPT
 
-## 1. 鍩烘湰淇℃伅
+## 1. 基本信息
 
 - project: Huiyi v4 Core
-- versionName: 4.1.22
-- versionCode: 440
+- versionName: 4.1.23
+- versionCode: 441
 - branch: main
-- commitHash: 647cdef
-- generatedAt: 2026-07-03 18:05:51 +0800
-- taskName: simulation_first_acceptance_system
+- commitHash: f54ccee
+- generatedAt: 2026-07-03 18:22:31 +0800
+- taskName: phone_latest_real_device_smoke_closure
 - review_freshness_result: PASS
-- simulation_first_result: PASS
-- fixture_replay_result: PASS
-- synthetic_corpus_result: PASS
-- cloud_contract_replay_result: PASS
+- phone_latest_closure_result: PASS
+- phone_latest_updated_to_current_version: PASS
+- phone_latest_old_polluted_bundle_removed: PASS
+- one_tap_original_session_binding: PASS
 - mockchat_result: PASS
 - real_device_smoke_result: NOT_TESTED
 - overall_result: PASS
 - failReason: none
-- realDeviceSmokeNote: Simulation-first validation passed. Real app validation is reduced to 3 smoke tests; those smoke tests were not executed in this local run.
-- currentVersion: 4.1.22
-- currentTaskName: simulation_first_acceptance_system
-- currentGeneratedAt: 2026-07-03 18:05:51 +0800
-- currentOverallResult: PASS
+- realDeviceSmokeNote: Phone latest closure passed. Real device smoke remains limited to 3 checks and was not executed in this local run.
+- cloudStatus: TODO_DISABLED
+- currentVersion: 4.1.23
+- currentTaskName: phone_latest_real_device_smoke_closure
+- currentGeneratedAt: 2026-07-03 18:22:31 +0800
+- currentOverallResult: NOT_TESTED
 
 currentUserFeedback:
-  - 鐐瑰嚮鈥滀笅涓€鍙モ€濆悗鎻愮ず鈥滆繖娆″垎鏋愬け璐ワ紝宸蹭繚瀛樿瘖鏂€傗€?
-  - 鎮诞鐞冧粛鍦?
-  - 鏂拌瘖鏂樉绀?pipelineException = java.lang.SecurityException: Services don't have the capability of taking the screenshot.
+  - 点击“下一句”后提示“这次分析失败，已保存诊断。”
+  - 悬浮球仍在
+  - 新诊断显示 pipelineException = java.lang.SecurityException: Services don't have the capability of taking the screenshot.
 
 currentRegressionStatus:
   overlayBubbleSurvivesAfterNextSentence: unknown_without_physical_device
@@ -183,10 +185,10 @@ currentRegressionStatus:
 
 ## Current Round Evidence
 
-- currentTaskName: simulation_first_acceptance_system
-- currentVersion: 4.1.22
-- currentGeneratedAt: 2026-07-03 18:05:51 +0800
-- currentReports: outputs/simulation-first-validation-report-for-gpt.md
+- currentTaskName: phone_latest_real_device_smoke_closure
+- currentVersion: 4.1.23
+- currentGeneratedAt: 2026-07-03 18:22:31 +0800
+- currentReports: outputs/phone-real-device-closure-report-for-gpt.md
 - currentSampleSources: not_tested
 - currentOverallResult: NOT_TESTED
 - review_freshness_result: PASS
@@ -194,12 +196,12 @@ currentRegressionStatus:
 - real_device_smoke_result: NOT_TESTED
 - realDeviceSmoke: NOT_TESTED
 - mockChatMatrixStillPass: true
-- smokeDisclaimer: 鏈疆 Review Freshness 閫氳繃锛屼絾 Real Device Smoke 鏈墽琛岋紝涓嶄唬琛ㄧ湡瀹炶亰澶?App 宸查€氳繃銆?
+- smokeDisclaimer: 本轮 Review Freshness 通过，但 Real Device Smoke 未执行，不代表真实聊天 App 已通过。
 
-### simulation-first-validation-report-for-gpt.md
+### phone-real-device-closure-report-for-gpt.md
 
 - overall_result: PASS
-- versionName: 4.1.22
+- versionName: 4.1.23
 
 ## Current Next Sentence Failure Diagnosis
 
@@ -314,24 +316,24 @@ These reports are historical references only. Their FAIL or `sample_source=unkno
 - mainActivityOpened: NOT_TESTED
 ### v4-core-implementation-report-for-gpt.md
 
-# 浼氭剰 v4 Core 瀹炵幇鎶ュ憡
+# 会意 v4 Core 实现报告
 
-1. 椤圭洰鏄惁鏂板缓鎴愬姛锛氭槸锛屽凡浠庨浂鍒涘缓 Android Kotlin + Compose 椤圭洰锛屽寘鍚?`com.huiyi.v4`銆?
-2. Git 鏄惁鍒濆鍖栵細鏄紝褰撳墠鍒嗘敮 `main`銆?
-3. GitHub 鏄惁鍒涘缓/鎺ㄩ€侊細鏄紝宸插垱寤哄苟鎺ㄩ€佺鏈変粨搴?`https://github.com/a663949987-alt/huiyi-v4-core`銆?
-4. 鏄惁瀹炵幇鍚庡彴鏇存柊 latest.json锛氭槸锛岃 `outputs/update_server/latest.json`銆?
-5. 鏄惁瀹炵幇 UserPersonaCorpus 鍐涗汉鏍锋澘锛氭槸锛屽唴缃啗浜?/ 鍗冲皢杞笟妯℃澘鍜?6 寮犵粡鍘嗙墝銆?
-6. 鏄惁瀹炵幇 VoiceSummaryCard锛氭槸锛孎loatingTacticalPanel 椤堕儴鍙ˉ璇煶鎽樿銆?
+1. 项目是否新建成功：是，已从零创建 Android Kotlin + Compose 项目，包名 `com.huiyi.v4`。
+2. Git 是否初始化：是，当前分支 `main`。
+3. GitHub 是否创建/推送：是，已创建并推送私有仓库 `https://github.com/a663949987-alt/huiyi-v4-core`。
+4. 是否实现后台更新 latest.json：是，见 `outputs/update_server/latest.json`。
+5. 是否实现 UserPersonaCorpus 军人样板：是，内置军人 / 即将转业模板和 6 张经历牌。
+6. 是否实现 VoiceSummaryCard：是，FloatingTacticalPanel 顶部可补语音摘要。
 ### v4.1-current-screen-pipeline-report-for-gpt.md
 
-# 浼氭剰 v4.1 Current Screen Pipeline 瀹炵幇鎶ュ憡
+# 会意 v4.1 Current Screen Pipeline 实现报告
 
-1. 鏃犻殰纰嶆湇鍔℃槸鍚﹀疄鐜帮細鏄紝鏂板 `HuiyiAccessibilityService`锛岃褰?serviceConnected銆乧urrentPackage銆乧urrentWindowTitle銆乺ootAvailable銆乴astCaptureAt銆乴astError銆?
-2. 鎮诞绐楁槸鍚﹀疄鐜帮細鏄紝鏂板 `FloatingBubbleService` / `FloatingBubbleController`锛岃彍鍗曞寘鍚€滀笅涓€鍙ャ€佹晳鍦恒€佸崌娓┿€佹垜鐨勫簳鑹层€佹殏鍋?闅愯棌鈥濓紝鏈疆鎺ラ€氣€滀笅涓€鍙モ€濄€?
-3. 褰撳墠灞忓箷鎹曡幏鏄惁鎺ラ€氾細鏄紝`CurrentScreenCaptureUseCase` 浠庢棤闅滅 root 鐢熸垚鑺傜偣蹇収骞惰緭鍑?MessageNode銆?
-4. GenericVisualBubbleParser 鏄惁鐢ㄤ簬鐪熷疄 root锛氭槸锛岀湡瀹?AccessibilityNode 蹇収浼氳浆鎹负 VisualBubble 鍚庤繘鍏?GenericVisualBubbleParser銆?
-5. 鏈€鍚庝竴鍙ュ垽鏂槸鍚︽湰鍦板畬鎴愶細鏄紝鏂板 `LastSpeakerDecisionUseCase`銆?
-6. 鏈€鍚庝竴鏉℃槸 ME 鏄惁涓嶈皟鐢?API锛氭槸锛屾湰鍦?WAIT锛宺outes 涓虹┖锛宎piCalled=false銆?
+1. 无障碍服务是否实现：是，新增 `HuiyiAccessibilityService`，记录 serviceConnected、currentPackage、currentWindowTitle、rootAvailable、lastCaptureAt、lastError。
+2. 悬浮窗是否实现：是，新增 `FloatingBubbleService` / `FloatingBubbleController`，菜单包含“下一句、救场、升温、我的底色、暂停/隐藏”，本轮接通“下一句”。
+3. 当前屏幕捕获是否接通：是，`CurrentScreenCaptureUseCase` 从无障碍 root 生成节点快照并输出 MessageNode。
+4. GenericVisualBubbleParser 是否用于真实 root：是，真实 AccessibilityNode 快照会转换为 VisualBubble 后进入 GenericVisualBubbleParser。
+5. 最后一句判断是否本地完成：是，新增 `LastSpeakerDecisionUseCase`。
+6. 最后一条是 ME 是否不调用 API：是，本地 WAIT，routes 为空，apiCalled=false。
 ### v4.1.1-real-device-validation-report-for-gpt.md
 
 - overall_result: FAIL
@@ -349,52 +351,52 @@ These reports are historical references only. Their FAIL or `sample_source=unkno
 
 # v4.1.2 In-Chat Overlay + Effective Message Filtering Report
 
-## 缁撹
+## 结论
 
-- 鏄惁浠嶉渶瑕佸洖浼氭剰 App 鐪嬬粨鏋滐細鍚︺€傛偓娴悆鈥滀笅涓€鍙モ€濅笉鍐嶅惎鍔?MainActivity銆?
-- FloatingTacticalPanel 鏄惁鍦ㄨ亰澶╃獥鍙ｅ唴鏄剧ず锛氭槸锛屾柊澧?WindowManager 鍘熺敓娴眰 `FloatingResultPanelController`銆?
-- MainActivity 鏄惁琚墦寮€锛氬惁锛宍FloatingBubbleService` 宸茬Щ闄ょ偣鍑烩€滀笅涓€鍙モ€濆悗鐨?`startActivity`銆?
-- LastSpeakerDecision 鏄惁鍙湅鏈夋晥娑堟伅锛氭槸锛屽彧浣跨敤 `isEffectiveChatMessage=true` 涓旈潪 SYSTEM 鐨勬秷鎭€?
+- 是否仍需要回会意 App 看结果：否。悬浮球“下一句”不再启动 MainActivity。
+- FloatingTacticalPanel 是否在聊天窗口内显示：是，新增 WindowManager 原生浮层 `FloatingResultPanelController`。
+- MainActivity 是否被打开：否，`FloatingBubbleService` 已移除点击“下一句”后的 `startActivity`。
+- LastSpeakerDecision 是否只看有效消息：是，只使用 `isEffectiveChatMessage=true` 且非 SYSTEM 的消息。
 
-## 2. 鏈疆鐩爣
+## 2. 本轮目标
 
-- 鏈疆鍋氫粈涔? 淇鐪熸満鐐瑰嚮鈥滀笅涓€鍙モ€濇椂鎴浘 capability 缂哄け璇激涓婚摼璺殑闂锛屽皢鎴浘闄嶇骇涓?optional diagnostic锛屽苟琛ラ綈鎴浘閿欒鐮佷笌鎶ュ憡瀛楁銆?
-- 鏈疆涓嶅仛浠€涔? 涓嶆柊澧炰骇鍝佸姛鑳斤紱涓嶅仛杞荤洃鍚紱涓嶅仛 OCR锛涗笉鍋?ASR锛涗笉鍋氬畬鏁村巻鍙查噰闆嗭紱涓嶆帴鐪熷疄 API锛涗笉鏀?UI 澶х粨鏋勩€?
-- 楠屾敹鏍囧噯: 鎴浘 SecurityException 鏄犲皠涓?SCREENSHOT_CAPABILITY_MISSING锛涙埅鍥惧け璐ヤ笉闃绘柇 node tree 涓昏矾寰勶紱failure report 鍖哄垎 nodeTree 涓?screenshot锛涙棤鐪熸満鏃舵槑纭?NOT_TESTED銆?
+- 本轮做什么: 修复真机点击“下一句”时截图 capability 缺失误伤主链路的问题，将截图降级为 optional diagnostic，并补齐截图错误码与报告字段。
+- 本轮不做什么: 不新增产品功能；不做轻监听；不做 OCR；不做 ASR；不做完整历史采集；不接真实 API；不改 UI 大结构。
+- 验收标准: 截图 SecurityException 映射为 SCREENSHOT_CAPABILITY_MISSING；截图失败不阻断 node tree 主路径；failure report 区分 nodeTree 与 screenshot；无真机时明确 NOT_TESTED。
 
-## 3. 鏀瑰姩鎽樿
+## 3. 改动摘要
 
-### 鏂板鏂囦欢
+### 新增文件
 
 ```
+outputs/phone-real-device-closure-report-for-gpt.md
 outputs/review/archive/
-outputs/simulation-first-validation-report-for-gpt.md
 ```
 
-### 淇敼鏂囦欢
-
-```
-
-```
-
-### 鍒犻櫎鏂囦欢
+### 修改文件
 
 ```
 
 ```
 
-### 鍏抽敭妯″潡鍙樺寲
+### 删除文件
 
-- 鏂板鎴浘閿欒鐮佷笌鎴浘璇婃柇瀛楁锛歱rimaryCapturePath銆乶odeTreeAttempted銆乻creenshotAttempted銆乻econdaryErrorCode銆乸ipelineExceptionClass 绛夈€?
-- `VisualDebugCapture` 鎹曡幏鍚屾 SecurityException 鍜?takeScreenshot callback failure锛屽け璐ュ彧杩涘叆 visual debug 缁撴灉銆?
-- `HuiyiRuntime` 鍦?node tree pipeline 鎴愬姛鍚庢墠鎵ц optional screenshot diagnostics锛屾埅鍥惧け璐ュ彧浣滀负 secondaryErrorCode銆?
-- 鐪熸満 screenshot failure smoke 鍦ㄦ棤鐗╃悊璁惧鏃惰緭鍑?NOT_TESTED锛屼笉浣跨敤妯℃嫙鍣ㄦ垨 MockChat 鍐掑厖鐪熸満銆?
+```
 
-### 鏈畬鎴愪簨椤?
+```
 
-- 鐪熷疄璁惧 smoke 鏈墽琛岋細褰撳墠鍙娴嬪埌 emulator-5556锛屾病鏈夌墿鐞?Android 璁惧銆?
+### 关键模块变化
 
-## 4. 鏁版嵁鏉ユ簮璇存槑
+- 新增截图错误码与截图诊断字段：primaryCapturePath、nodeTreeAttempted、screenshotAttempted、secondaryErrorCode、pipelineExceptionClass 等。
+- `VisualDebugCapture` 捕获同步 SecurityException 和 takeScreenshot callback failure，失败只进入 visual debug 结果。
+- `HuiyiRuntime` 在 node tree pipeline 成功后才执行 optional screenshot diagnostics，截图失败只作为 secondaryErrorCode。
+- 真机 screenshot failure smoke 在无物理设备时输出 NOT_TESTED，不使用模拟器或 MockChat 冒充真机。
+
+### 未完成事项
+
+- 真实设备 smoke 未执行：当前只检测到 emulator-5556，没有物理 Android 设备。
+
+## 4. 数据来源说明
 
 - currentSampleSources: not_tested
 - historicalSampleSourcesMayIncludeUnknown: true
@@ -402,43 +404,43 @@ outputs/simulation-first-validation-report-for-gpt.md
 - emulator_mock_chat_accessibility: historical/current validation reference
 - real_device_accessibility: not available this round
 - real_device_screenshot_ocr: not used
-- 鏄惁 mock: MockChat matrix 鏄巻鍙?楠岃瘉鍙傝€冿紱鏈疆鏈柊澧?MockChat 鍔熻兘
-- 鏄惁妯℃嫙鍣? 褰撳墠妫€娴嬪埌 emulator锛屼絾涓嶈鍏?real-device smoke
-- 鏄惁鐪熸満: 鍚︼紝鏈娴嬪埌鐗╃悊璁惧
-- 鏄惁璋冪敤鐪熷疄 API: 鍚?
+- 是否 mock: MockChat matrix 是历史/验证参考；本轮未新增 MockChat 功能
+- 是否模拟器: 当前检测到 emulator，但不计入 real-device smoke
+- 是否真机: 否，未检测到物理设备
+- 是否调用真实 API: 否
 
-## 5. 鏍稿績鎶ュ憡姹囨€?
+## 5. 核心报告汇总
 
 See Current Round Evidence and Historical / Trace Reports above.
 
-## 6. 鍏抽敭楠屾敹椤?
+## 6. 关键验收项
 
-- 缁撴灉鏄惁鍦ㄨ亰澶╃獥鍙ｆ诞灞傛樉绀? NOT_TESTED_REAL_DEVICE
-- MainActivity 鏄惁琚墦寮€: NOT_TESTED_REAL_DEVICE
-- 鏃堕棿鎴虫槸鍚﹁繃婊? PASS
-- 鏄电О/鍦ㄧ嚎鐘舵€佹槸鍚﹁繃婊? PASS
-- LastSpeakerDecision 鏄惁鍙湅鏈夋晥娑堟伅: PASS
-- 鏈€鍚庝竴鏉?ME 鏄惁 WAIT: PASS
-- 鏈€鍚庝竴鏉?OTHER 鏄惁 5 routes: PASS
-- 璇煶鏈浆鍐欐槸鍚﹁姹傝ˉ鎽樿: PASS
-- UNKNOWN 楂樻椂鏄惁闃绘柇: PASS
-- 鏅€?UI 鏄惁娉勯湶 debug 瀛楁: PASS
+- 结果是否在聊天窗口浮层显示: NOT_TESTED_REAL_DEVICE
+- MainActivity 是否被打开: NOT_TESTED_REAL_DEVICE
+- 时间戳是否过滤: PASS
+- 昵称/在线状态是否过滤: PASS
+- LastSpeakerDecision 是否只看有效消息: PASS
+- 最后一条 ME 是否 WAIT: PASS
+- 最后一条 OTHER 是否 5 routes: PASS
+- 语音未转写是否要求补摘要: PASS
+- UNKNOWN 高时是否阻断: PASS
+- 普通 UI 是否泄露 debug 字段: PASS
 
-## 7. 娴嬭瘯缁撴灉
+## 7. 测试结果
 
 - unit tests: PASS (`:app:testDebugUnitTest`)
-- mockchat tests: PASS锛屽巻鍙茬煩闃垫姤鍛婁粛涓?50/50 PASS
-- emulator tests: PASS锛屼粎鐢ㄤ簬 MockChat 鍘嗗彶楠岃瘉锛屼笉璁″叆鐪熸満 smoke
-- real device tests: NOT_TESTED锛屾病鏈夌墿鐞?Android 璁惧
+- mockchat tests: PASS，历史矩阵报告仍为 50/50 PASS
+- emulator tests: PASS，仅用于 MockChat 历史验证，不计入真机 smoke
+- real device tests: NOT_TESTED，没有物理 Android 设备
 - failed tests: none
 
-## 8. 浜х墿娓呭崟
+## 8. 产物清单
 
-- path: outputs/simulation-first-validation-report-for-gpt.md
+- path: outputs/phone-real-device-closure-report-for-gpt.md
   type: report
-  sha256: 83b429497a88e8bf6c3d79e414e2a0892f8bc9418b9552c7dd8cb76403fd4c8a
-  鏄惁寤鸿鍙戠粰 GPT: false
-  鐢ㄩ€? Current round evidence.
+  sha256: 207473157dad119aef9826d47bee1f9e72d2b371e0a87826eed382b7134530f0
+  是否建议发给 GPT: false
+  用途: Current round evidence.
   isCurrentRound: true
   evidenceRole: current
   sample_source: none
@@ -446,8 +448,8 @@ See Current Round Evidence and Historical / Trace Reports above.
 - path: outputs/current-screen-parser-report-for-gpt.md
   type: report
   sha256: 85ef2422f3dfce6858f036e18c6ad2a2f3527a3c748d6c79a057af793e668a50
-  鏄惁寤鸿鍙戠粰 GPT: false
-  鐢ㄩ€? Historical / trace evidence.
+  是否建议发给 GPT: false
+  用途: Historical / trace evidence.
   isCurrentRound: false
   evidenceRole: historical
   sample_source: none
@@ -455,8 +457,8 @@ See Current Round Evidence and Historical / Trace Reports above.
 - path: outputs/mockchat-current-screen-report-for-gpt.md
   type: report
   sha256: 50aab13d32255461c405e0ec0f54cebc093b63ba5b7be9d5da829cbb159d7f11
-  鏄惁寤鸿鍙戠粰 GPT: false
-  鐢ㄩ€? Historical / trace evidence.
+  是否建议发给 GPT: false
+  用途: Historical / trace evidence.
   isCurrentRound: false
   evidenceRole: historical
   sample_source: emulator_mock_chat_accessibility
@@ -464,8 +466,8 @@ See Current Round Evidence and Historical / Trace Reports above.
 - path: outputs/mockchat-fontscale-matrix-report-for-gpt.md
   type: report
   sha256: 06eb777ac0ca95c33407210c8ed8ef5bbe8082bb694513077b32ef45c0c7d78d
-  鏄惁寤鸿鍙戠粰 GPT: false
-  鐢ㄩ€? Historical / trace evidence.
+  是否建议发给 GPT: false
+  用途: Historical / trace evidence.
   isCurrentRound: false
   evidenceRole: historical
   sample_source: emulator_mock_chat_accessibility
@@ -473,8 +475,8 @@ See Current Round Evidence and Historical / Trace Reports above.
 - path: outputs/mockchat-layout-matrix-report-for-gpt.md
   type: report
   sha256: 37dd0508ca0e2bdab0f916906a855f07bf297f7159a0a3d6f60a7d404baa7e52
-  鏄惁寤鸿鍙戠粰 GPT: false
-  鐢ㄩ€? Historical / trace evidence.
+  是否建议发给 GPT: false
+  用途: Historical / trace evidence.
   isCurrentRound: false
   evidenceRole: historical
   sample_source: emulator_mock_chat_accessibility
@@ -482,8 +484,8 @@ See Current Round Evidence and Historical / Trace Reports above.
 - path: outputs/mockchat-validation-report-for-gpt.md
   type: report
   sha256: 3a92b969e5c3e2e629424047ac38d258d1e3e93831596a19a3b4542a7c80e685
-  鏄惁寤鸿鍙戠粰 GPT: false
-  鐢ㄩ€? Historical / trace evidence.
+  是否建议发给 GPT: false
+  用途: Historical / trace evidence.
   isCurrentRound: false
   evidenceRole: historical
   sample_source: emulator_mock_chat_accessibility
@@ -491,8 +493,8 @@ See Current Round Evidence and Historical / Trace Reports above.
 - path: outputs/real-device-current-screen-report-for-gpt.md
   type: report
   sha256: a69a41a5447f4e54409244fe77b8a2b51caa45ae68c97058a505c49c6711cbf7
-  鏄惁寤鸿鍙戠粰 GPT: false
-  鐢ㄩ€? Historical / trace evidence.
+  是否建议发给 GPT: false
+  用途: Historical / trace evidence.
   isCurrentRound: false
   evidenceRole: historical
   sample_source: NOT_TESTED
@@ -500,8 +502,8 @@ See Current Round Evidence and Historical / Trace Reports above.
 - path: outputs/v4-core-implementation-report-for-gpt.md
   type: report
   sha256: cecaa9ac0248320560e1169b56a5bc6c420c964eaf0471e80dacddc69c16912d
-  鏄惁寤鸿鍙戠粰 GPT: false
-  鐢ㄩ€? Historical / trace evidence.
+  是否建议发给 GPT: false
+  用途: Historical / trace evidence.
   isCurrentRound: false
   evidenceRole: historical
   sample_source: none
@@ -509,8 +511,8 @@ See Current Round Evidence and Historical / Trace Reports above.
 - path: outputs/v4.1-current-screen-pipeline-report-for-gpt.md
   type: report
   sha256: 1cd4fac20ecc9ea0c10f25c1d5212709a2ae93e58a1978a15715cd07a80830fb
-  鏄惁寤鸿鍙戠粰 GPT: false
-  鐢ㄩ€? Historical / trace evidence.
+  是否建议发给 GPT: false
+  用途: Historical / trace evidence.
   isCurrentRound: false
   evidenceRole: historical
   sample_source: none
@@ -518,8 +520,8 @@ See Current Round Evidence and Historical / Trace Reports above.
 - path: outputs/v4.1.1-real-device-validation-report-for-gpt.md
   type: report
   sha256: eeb473e3ae29cbdd963022965ad959d34053d53dc026f57cbd15b4a50a37872b
-  鏄惁寤鸿鍙戠粰 GPT: false
-  鐢ㄩ€? Historical / trace evidence.
+  是否建议发给 GPT: false
+  用途: Historical / trace evidence.
   isCurrentRound: false
   evidenceRole: historical
   sample_source: none
@@ -527,8 +529,8 @@ See Current Round Evidence and Historical / Trace Reports above.
 - path: outputs/v4.1.2-local-validation-report.md
   type: report
   sha256: 0c740630bb9684c5c5d5e7a9598097b0e23394a338832e7b35ef2fe7619d1bbd
-  鏄惁寤鸿鍙戠粰 GPT: false
-  鐢ㄩ€? Historical / trace evidence.
+  是否建议发给 GPT: false
+  用途: Historical / trace evidence.
   isCurrentRound: false
   evidenceRole: historical
   sample_source: none
@@ -536,8 +538,8 @@ See Current Round Evidence and Historical / Trace Reports above.
 - path: outputs/v4.1.2-overlay-effective-message-report-for-gpt.md
   type: report
   sha256: 0eb15e6238280f9d00e68f908ea3dda2ce43d3dd365588c276677e1921125199
-  鏄惁寤鸿鍙戠粰 GPT: false
-  鐢ㄩ€? Historical / trace evidence.
+  是否建议发给 GPT: false
+  用途: Historical / trace evidence.
   isCurrentRound: false
   evidenceRole: historical
   sample_source: none
@@ -545,8 +547,8 @@ See Current Round Evidence and Historical / Trace Reports above.
 - path: outputs/mockchat_screenshots/wechat_like_metadata_trap.png
   type: mockchat_screenshot
   sha256: 6ab1afcc7b95b70597317d7fe980c3f5d9bfe4f31178796b068e1c49c6410c9e
-  鏄惁寤鸿鍙戠粰 GPT: false
-  鐢ㄩ€? MockChat screenshot sample for later OCR validation.
+  是否建议发给 GPT: false
+  用途: MockChat screenshot sample for later OCR validation.
   isCurrentRound: false
   evidenceRole: screenshot
   sample_source: none
@@ -554,8 +556,8 @@ See Current Round Evidence and Historical / Trace Reports above.
 - path: outputs/mockchat_screenshots/qq_like_voice_last_other.png
   type: mockchat_screenshot
   sha256: aebc1456a51e43034c784a3d77c4ed09abb36cca14c6117311f55d51b96baa50
-  鏄惁寤鸿鍙戠粰 GPT: false
-  鐢ㄩ€? MockChat screenshot sample for later OCR validation.
+  是否建议发给 GPT: false
+  用途: MockChat screenshot sample for later OCR validation.
   isCurrentRound: false
   evidenceRole: screenshot
   sample_source: none
@@ -563,8 +565,8 @@ See Current Round Evidence and Historical / Trace Reports above.
 - path: outputs/mockchat_screenshots/redbook_like_last_other.png
   type: mockchat_screenshot
   sha256: cecac70b2138b92dae6e1228cd504cda5dc4617e2fe591278696317f4d2170c8
-  鏄惁寤鸿鍙戠粰 GPT: false
-  鐢ㄩ€? MockChat screenshot sample for later OCR validation.
+  是否建议发给 GPT: false
+  用途: MockChat screenshot sample for later OCR validation.
   isCurrentRound: false
   evidenceRole: screenshot
   sample_source: none
@@ -572,8 +574,8 @@ See Current Round Evidence and Historical / Trace Reports above.
 - path: outputs/mockchat_screenshots/dating_like_profile_card.png
   type: mockchat_screenshot
   sha256: eed6adbeca735837e3a7c289560f4ea38224dbc2e21f45229cdf4868c0a19c74
-  鏄惁寤鸿鍙戠粰 GPT: false
-  鐢ㄩ€? MockChat screenshot sample for later OCR validation.
+  是否建议发给 GPT: false
+  用途: MockChat screenshot sample for later OCR validation.
   isCurrentRound: false
   evidenceRole: screenshot
   sample_source: none
@@ -581,14 +583,14 @@ See Current Round Evidence and Historical / Trace Reports above.
 - path: outputs/mockchat_screenshots/minimal_like_unknown_bounds.png
   type: mockchat_screenshot
   sha256: bc53a6f93a5470692e7a8b15cd93580ede870a995b4131c729c0a7555eb2d1d5
-  鏄惁寤鸿鍙戠粰 GPT: false
-  鐢ㄩ€? MockChat screenshot sample for later OCR validation.
+  是否建议发给 GPT: false
+  用途: MockChat screenshot sample for later OCR validation.
   isCurrentRound: false
   evidenceRole: screenshot
   sample_source: none
   stale: false
 
-## 9. 瀹夊叏鎵弿
+## 9. 安全扫描
 
 - secret_scan_result: PASS
 - api_key_exposed: false
@@ -598,9 +600,9 @@ See Current Round Evidence and Historical / Trace Reports above.
 - screenshots_included: true, only MockChat screenshots in bundle
 - findings: none
 
-## 10. Codex 鑷瘎
+## 10. Codex 自评
 
-- 褰撳墠鏄惁寤鸿涓婄湡鏈? 鏄€傞渶瑕佽繛鎺ョ墿鐞?Android 鎵嬫満骞舵墦寮€鐪熷疄鑱婂ぉ App 缁х画 smoke銆?
-- 褰撳墠鏈€澶ч闄? 鐪熸満 smoke 灏氭湭鎵ц锛岀湡瀹炶亰澶?App 鐨?accessibility 鑺傜偣浠嶉渶楠岃瘉銆?
-- 闇€瑕?GPT 閲嶇偣鐪嬬殑鐐? Current Round Evidence 鏄惁涓嶅啀琚棫鎶ュ憡姹℃煋锛況eal-device smoke 鏄惁濡傚疄 NOT_TESTED锛沵anifest freshness 瀛楁鏄惁瓒冲娓呮銆?
-- 涓嬩竴姝ュ缓璁? 杩炴帴鐪熸満鍚庤窇 `com.bajiao.im.liaoqi` 鎴栧叾浠栫湡瀹炶亰澶╃獥鍙ｇ殑 A/B/C smoke銆?
+- 当前是否建议上真机: 是。需要连接物理 Android 手机并打开真实聊天 App 继续 smoke。
+- 当前最大风险: 真机 smoke 尚未执行，真实聊天 App 的 accessibility 节点仍需验证。
+- 需要 GPT 重点看的点: Current Round Evidence 是否不再被旧报告污染；real-device smoke 是否如实 NOT_TESTED；manifest freshness 字段是否足够清楚。
+- 下一步建议: 连接真机后跑 `com.bajiao.im.liaoqi` 或其他真实聊天窗口的 A/B/C smoke。
