@@ -1,33 +1,31 @@
 # Changed Files For GPT
 
 ## Files changed this round
-
-- path: app/build.gradle.kts
-  - reason: Keep versionName 4.1.23 but raise versionCode to 442 so LAN update can detect the new package.
-- path: app/src/main/java/com/huiyi/v4/runtime/OneTapFeedbackExporter.kt
-  - reason: If panelSessionId exists, feedback must bind that original session or fail.
-- path: app/src/main/java/com/huiyi/v4/runtime/HuiyiRuntime.kt
-  - reason: Pass the panel-bound session id into one-tap feedback export.
-- path: app/src/main/java/com/huiyi/v4/domain/pipeline/RealDeviceScenario.kt
-  - reason: Treat Huiyi overlay title markers, including 先等对方, as contaminated preAnalysis.
-- path: app/src/test/java/com/huiyi/v4/OneTapFeedbackExportTest.kt
-  - reason: Adds tests for no stale fallback and wait-phrase contamination.
-- path: app/src/test/java/com/huiyi/v4/LastMeWaitPriorityAndStatusMetadataFixTest.kt
-  - reason: Adds real-device scenario validation for 先等对方 contamination.
-- path: outputs/gpt_review_inbox/phone/latest/*
-  - reason: Current phone latest placeholder now points to 4.1.23 / 442 and no longer exposes v4.1.20 as latest.
-- path: outputs/update_server/latest.json
-  - reason: LAN update now serves 4.1.23 / 442.
+- app/src/main/java/com/huiyi/v4/runtime/OneTapFeedbackExporter.kt
+  - Adds sessionImmutableAfterTerminalState to exported records and reports session freeze/binding fields.
+- app/src/main/java/com/huiyi/v4/runtime/HuiyiRuntime.kt
+  - Keeps one-tap feedback bound to the current panel session id.
+- app/src/main/java/com/huiyi/v4/domain/pipeline/RealDeviceScenario.kt
+  - Treats Huiyi overlay title markers as contaminated preAnalysis.
+- app/src/test/java/com/huiyi/v4/LocalStateChainClosureTest.kt
+  - Adds local state chain closure tests.
+- app/build.gradle.kts
+  - Publishes current local closure APK as versionName 4.1.23 / versionCode 443.
+- outputs/gpt_review_inbox/session-binding-report-for-gpt.md
+  - Current round GPT evidence.
+- outputs/gpt_review_inbox/session-binding-report.json
+  - Machine-readable current round evidence.
 
 ## Verification
-
+- LocalStateChainClosureTest: PASS
 - OneTapFeedbackExportTest: PASS
 - LastMeWaitPriorityAndStatusMetadataFixTest: PASS
 - CloudAnalysisMvpSafetyGateTest: PASS
-- assembleDebug: PASS
-- LAN latest.json: PASS
+- SimulationFirstValidationTest: PASS
+- :mockchat:assembleDebug: PASS
+- :app:assembleDebug: PASS
 
-## Honest Status
-
+## Honest status
+- emulatorUiSmokeResult: NOT_RUN
 - realDeviceSmokeResult: NOT_TESTED
-- No physical phone LAST ME smoke was run in this Codex environment.
+- userNeedsPhoneThisRound: false

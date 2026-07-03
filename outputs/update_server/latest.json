@@ -1,9 +1,9 @@
 {
     "versionName":  "4.1.23",
-    "versionCode":  442,
+    "versionCode":  443,
     "apkUrl":  "huiyi-v4.1.23-debug.apk",
-    "releaseNotes":  "v4.1.23 phone latest current session binding fix",
+    "releaseNotes":  "v4.1.23 local state chain closure before cloud",
     "forceUpdate":  false,
-    "sha256":  "AB9EAD206E8EBDBEAE29FE0C5C603BF909650D9B3EA140B746A8FA253A92BF15",
-    "createdAt":  1783075734044
+    "sha256":  "474183C2862EA0263354279878CC9C94DF4FF8139E2FB8228961A18DFF164D35",
+    "createdAt":  1783076211394
 }

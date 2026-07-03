@@ -88,6 +88,7 @@ data class NextSentenceFlightRecord(
     val preAnalysisSnapshotMutableAfterPanel: Boolean = false,
     val postPanelSnapshotCapturedAt: Long = 0L,
     val postPanelSnapshotUsedForDecision: Boolean = false,
+    val sessionImmutableAfterTerminalState: Boolean = true,
     val preAnalysisSnapshotTrusted: Boolean = true,
     val preAnalysisSnapshotErrorCode: String? = null,
     val preAnalysisLooksLikeHuiyiPanel: Boolean = false,
@@ -479,7 +480,13 @@ class OneTapFeedbackExporter(
         appendLine("- feedbackTargetSessionId: ${record.feedbackTargetSessionId}")
         appendLine("- feedbackExportSource: ${record.feedbackExportSource}")
         appendLine("- feedbackTriggeredNewAnalysis: ${record.feedbackTriggeredNewAnalysis}")
+        appendLine("- feedbackReCapturedCurrentRoot: ${record.feedbackReCapturedCurrentRoot}")
         appendLine("- feedbackUsedOverlayStateAsPreAnalysis: ${record.feedbackUsedOverlayStateAsPreAnalysis}")
+        appendLine("- preAnalysisSnapshotFrozenAt: ${record.preAnalysisSnapshotFrozenAt}")
+        appendLine("- preAnalysisSnapshotSource: ${record.preAnalysisSnapshotSource}")
+        appendLine("- preAnalysisSnapshotMutableAfterPanel: ${record.preAnalysisSnapshotMutableAfterPanel}")
+        appendLine("- postPanelSnapshotUsedForDecision: ${record.postPanelSnapshotUsedForDecision}")
+        appendLine("- sessionImmutableAfterTerminalState: ${record.sessionImmutableAfterTerminalState}")
         appendLine("- actualLastSpeaker: ${record.actualLastSpeaker}")
         appendLine("- decisionType: ${record.decisionType}")
         appendLine("- decisionTypeFamily: ${record.decisionTypeFamily}")
@@ -526,6 +533,13 @@ class OneTapFeedbackExporter(
               "feedbackTriggeredNewAnalysis": ${record.feedbackTriggeredNewAnalysis},
               "feedbackReCapturedCurrentRoot": ${record.feedbackReCapturedCurrentRoot},
               "feedbackUsedOverlayStateAsPreAnalysis": ${record.feedbackUsedOverlayStateAsPreAnalysis}
+            },
+            "sessionBinding": {
+              "preAnalysisSnapshotFrozenAt": ${record.preAnalysisSnapshotFrozenAt},
+              "preAnalysisSnapshotSource": "${record.preAnalysisSnapshotSource}",
+              "preAnalysisSnapshotMutableAfterPanel": ${record.preAnalysisSnapshotMutableAfterPanel},
+              "postPanelSnapshotUsedForDecision": ${record.postPanelSnapshotUsedForDecision},
+              "sessionImmutableAfterTerminalState": ${record.sessionImmutableAfterTerminalState}
             },
             "reportConsistencyChecks": {
               "preAnalysisLooksLikeHuiyiPanel": ${record.preAnalysisLooksLikeHuiyiPanel},
@@ -610,6 +624,7 @@ class OneTapFeedbackExporter(
         appendLine("- preAnalysisSnapshotMutableAfterPanel: ${record.preAnalysisSnapshotMutableAfterPanel}")
         appendLine("- postPanelSnapshotCapturedAt: ${record.postPanelSnapshotCapturedAt}")
         appendLine("- postPanelSnapshotUsedForDecision: ${record.postPanelSnapshotUsedForDecision}")
+        appendLine("- sessionImmutableAfterTerminalState: ${record.sessionImmutableAfterTerminalState}")
         appendLine("- preAnalysisSnapshotTrusted: ${record.preAnalysisSnapshotTrusted}")
         appendLine("- preAnalysisSnapshotErrorCode: ${record.preAnalysisSnapshotErrorCode ?: "none"}")
         appendLine("- preAnalysisLooksLikeHuiyiPanel: ${record.preAnalysisLooksLikeHuiyiPanel}")
@@ -652,6 +667,7 @@ class OneTapFeedbackExporter(
           "preAnalysisSnapshotErrorCode": ${record.preAnalysisSnapshotErrorCode?.let { "\"${escape(it)}\"" } ?: "null"},
           "postPanelSnapshotCapturedAt": ${record.postPanelSnapshotCapturedAt},
           "postPanelSnapshotUsedForDecision": ${record.postPanelSnapshotUsedForDecision},
+          "sessionImmutableAfterTerminalState": ${record.sessionImmutableAfterTerminalState},
           "postPanelSnapshotCaptured": ${record.postPanelSnapshotCaptured},
           "postPanelContaminationDetected": ${record.postPanelContaminationDetected},
           "preAnalysisLooksLikeHuiyiPanel": ${record.preAnalysisLooksLikeHuiyiPanel},

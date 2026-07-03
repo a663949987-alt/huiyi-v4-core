@@ -4,7 +4,7 @@
 
 - phoneLatestStatus: WAITING_FOR_CURRENT_VERSION_PHONE_SMOKE
 - appVersionName: 4.1.23
-- appVersionCode: 442
+- appVersionCode: 443
 - replacedOldPollutedBundle: true
 - previousPollutedVersionRemovedFromLatest: 4.1.20
 - source: LOCAL_CURRENT_VERSION_PLACEHOLDER
@@ -37,3 +37,9 @@
 1. outputs/gpt_review_inbox/phone/latest/one-tap-feedback-manifest.json
 2. outputs/gpt_review_inbox/phone/latest/latest-session/next-sentence-flight-record.json
 3. outputs/gpt_review_inbox/phone/latest/current-screen/real-device-current-screen-report.json
+
+## Freshness For Current Round
+
+- phoneLatestFreshness: NOT_AVAILABLE
+- phoneLatestUsedForCurrentResult: false
+- phoneLatestIgnoredReason: NO_NEW_PHONE_BUNDLE_THIS_ROUND_USER_NOT_REQUIRED_TO_TEST

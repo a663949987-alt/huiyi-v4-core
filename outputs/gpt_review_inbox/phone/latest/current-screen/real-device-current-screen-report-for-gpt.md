@@ -1,7 +1,7 @@
 # Real Device Current Screen Report
 
 - appVersionName: 4.1.23
-- appVersionCode: 442
+- appVersionCode: 443
 - currentOverallResult: NOT_TESTED
 - realDeviceSmoke: NOT_TESTED
 - phoneLatestStatus: WAITING_FOR_CURRENT_VERSION_PHONE_SMOKE
