@@ -7,16 +7,14 @@
 - currentOverallResult: CLOUD_CONTRACT_LOCAL_PASS
 
 ## Summary
-- Added HuiyiTacticalContract v1 documentation.
-- Implemented CloudTacticalResponseValidator.
-- Hardened CloudAnalysisClient / Repository skeleton with default cloud disabled.
-- Preserved LAST_ME -> LOCAL_WAIT safety gate.
-- Added cloud contract trace fields to evidence and one-tap flight records.
-- Updated tests for cloud contract, fallback, and safety gates.
-- Published LAN update package v4.1.24 / 443.
+- Synced GPT review inbox and Codex-to-GPT manifest to v4.1.24.
+- Added OPENAI_COMPATIBLE_RELAY runtime configuration skeleton.
+- Added runtime-only relay API key handling with report redaction.
+- Added relay fallback reasons for missing endpoint/key.
+- Added cloud report fields for providerType and relay key safety.
+- Added tests for relay key redaction, missing-key fallback, LAST_ME safety, LAST_OTHER relay success, and invalid relay fallback.
 
-## Not Done
-- No real API key.
-- No real endpoint required.
-- No phone testing.
-- No automatic sending.
+## Safety
+- No real key committed.
+- BuildConfig cloud client token remains empty.
+- Reports only expose hasRelayApiKey / relayApiKeyConfigured booleans.

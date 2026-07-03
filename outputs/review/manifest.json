@@ -1,5 +1,4 @@
 {
-  "project": "Huiyi v4 Core",
   "taskName": "cloud_contract_mvp_with_local_safety_gate",
   "versionName": "4.1.24",
   "versionCode": 443,
@@ -7,116 +6,93 @@
   "cloudContractImplemented": true,
   "cloudValidatorImplemented": true,
   "cloudClientSkeletonImplemented": true,
-  "cloudEnabledDefault": false,
-  "cloudEndpointConfigured": false,
-  "cloudAttemptedInTests": true,
-  "localFallbackResult": "PASS",
-  "lastMeLocalSafetyGate": "PASS",
-  "apiKeyNotInRepoOrApk": true,
-  "realDevice": "NOT_TESTED",
-  "realDeviceSmokeResult": "NOT_TESTED",
-  "userNeedsPhoneThisRound": false,
-  "cloudEnabled": false,
+  "providerType": "OPENAI_COMPATIBLE_RELAY",
+  "relayBaseUrlConfigured": false,
+  "relayApiKeyConfigured": false,
+  "relayApiKeyStoredSecurely": false,
+  "relayApiKeyExposedInRepo": false,
+  "relayApiKeyExposedInApk": false,
   "cloudConfigured": false,
   "cloudAttempted": false,
-  "cloudSkippedReason": "CLOUD_NOT_CONFIGURED",
+  "cloudSkippedReason": "CLOUD_NOT_CONFIGURED_OR_RELAY_API_KEY_MISSING",
   "decisionSource": "LOCAL_FALLBACK_OR_LOCAL_WAIT_BY_LAST_SPEAKER",
   "cloudFallbackUsed": false,
-  "cloudContractValidationResult": "PASS_FOR_VALID_FIXTURE_FAIL_FOR_INVALID_FIXTURE_NOT_RUN_WHEN_SKIPPED",
+  "userNeedsPhoneThisRound": false,
+  "realDeviceSmokeResult": "NOT_TESTED",
+  "cloudRealEndpointRequiredThisRound": false,
   "containsSecrets": false,
-  "generatedAt": "2026-07-03T12:14:04Z",
+  "generatedAt": "2026-07-03T12:30:58Z",
   "overallResult": "CLOUD_CONTRACT_LOCAL_PASS",
   "files": [
     {
       "path": "outputs/gpt_review_inbox/README_FOR_GPT.md",
       "type": "report",
-      "sha256": "e671132657ead1d1e408789fc9c7f43f3458e8fc6ac3dba743289f99f51318a4",
+      "sha256": "bbde3fb6e49e3a8a65ae756ec30525dc553a2127b9f0d66937bb282817a9c142",
       "sendToGpt": true,
-      "description": "Current round review evidence"
+      "description": "Current round relay runtime review evidence"
     },
     {
       "path": "outputs/gpt_review_inbox/cloud-contract-mvp-report-for-gpt.md",
       "type": "report",
-      "sha256": "7c4ca36dc0e348623ec4d955da536e2885ca7e2c6253e2506ae4e91e8a4a7e7b",
+      "sha256": "8a4828f5748a3c982e17db3dd773c0aef345014ca98dfe9792c7a1963c03ad89",
       "sendToGpt": true,
-      "description": "Current round review evidence"
+      "description": "Current round relay runtime review evidence"
     },
     {
       "path": "outputs/gpt_review_inbox/cloud-contract-mvp-report.json",
       "type": "json",
-      "sha256": "7031ca7c18eb01209861aefc591d9d95175ba667e1bbdd9747569e92bdedcc8e",
+      "sha256": "63c367f2de469a752e82c79dd315b883a3fd127541ca611cec06f47a36839b75",
       "sendToGpt": true,
-      "description": "Current round review evidence"
+      "description": "Current round relay runtime review evidence"
     },
     {
       "path": "outputs/gpt_review_inbox/changed-files-for-gpt.md",
       "type": "report",
-      "sha256": "6dfa03cb8223ac8b92db85d637b1cb7002d26d8edb15150bbd03cfb32099c00a",
+      "sha256": "1486fb4e503e396a974b6bd97cca500ed797a45d2b58d9fa5ea7061f0ce8b438",
       "sendToGpt": true,
-      "description": "Current round review evidence"
-    },
-    {
-      "path": "outputs/gpt_review_inbox/gpt-review-manifest.json",
-      "type": "json",
-      "sha256": "b7c526d0d2996a1c5e0e3e383010b10d628aa59d789ac075ea7a916e7ddb3145",
-      "sendToGpt": true,
-      "description": "Current round review evidence"
-    },
-    {
-      "path": "outputs/gpt_review_inbox/git-diff-for-gpt.patch",
-      "type": "report",
-      "sha256": "07e536f6643c0966f8052aff331c41aa5c6f0edb5361dd1194c1740378875481",
-      "sendToGpt": true,
-      "description": "Current round review evidence"
+      "description": "Current round relay runtime review evidence"
     },
     {
       "path": "outputs/codex_to_gpt/README_FOR_GPT.md",
       "type": "report",
-      "sha256": "e671132657ead1d1e408789fc9c7f43f3458e8fc6ac3dba743289f99f51318a4",
+      "sha256": "bbde3fb6e49e3a8a65ae756ec30525dc553a2127b9f0d66937bb282817a9c142",
       "sendToGpt": true,
-      "description": "Current round review evidence"
+      "description": "Current round relay runtime review evidence"
     },
     {
       "path": "outputs/codex_to_gpt/result-manifest.json",
       "type": "json",
-      "sha256": "cf09cbb7e5daf8670da663a560e4d8cdba684d04515e8d4fc6455b7c9b62c2a3",
+      "sha256": "b0ec8826fe044f778cf671398f302df00141fc4c19d6c2b93d724dd21a12a4fd",
       "sendToGpt": true,
-      "description": "Current round review evidence"
+      "description": "Current round relay runtime review evidence"
     },
     {
       "path": "outputs/codex_to_gpt/changed-files-for-gpt.md",
       "type": "report",
-      "sha256": "6dfa03cb8223ac8b92db85d637b1cb7002d26d8edb15150bbd03cfb32099c00a",
+      "sha256": "1486fb4e503e396a974b6bd97cca500ed797a45d2b58d9fa5ea7061f0ce8b438",
       "sendToGpt": true,
-      "description": "Current round review evidence"
+      "description": "Current round relay runtime review evidence"
     },
     {
       "path": "outputs/gpt_to_codex/current-task.md",
       "type": "report",
-      "sha256": "b83b684af18532528b7ef55d2b9657135ea352704b1b5d9cc833cbb1b94e098b",
+      "sha256": "deb21e545f3f0338158a155ee6b07459a885940e8a31ac006ddeab90a3a388b2",
       "sendToGpt": true,
-      "description": "Current round review evidence"
+      "description": "Current round relay runtime review evidence"
     },
     {
       "path": "outputs/gpt_to_codex/current-task.json",
       "type": "json",
-      "sha256": "d911a5c8aaa444a3904a49fa0975030c9e998bc5b4cfec9c7c8f243a7e5d7d6f",
+      "sha256": "72cc7561baf76559753765438d985ebc46da3e39edb51074ce7464400ff32f1e",
       "sendToGpt": true,
-      "description": "Current round review evidence"
-    },
-    {
-      "path": "docs/HuiyiTacticalContract-v1.md",
-      "type": "report",
-      "sha256": "6507029b5ee16ebf620cb16653bb96e260771952808dfa63370c635ba4acad7c",
-      "sendToGpt": true,
-      "description": "Current round review evidence"
+      "description": "Current round relay runtime review evidence"
     },
     {
       "path": "outputs/update_server/latest.json",
       "type": "json",
-      "sha256": "f97667a8518c72c7ae1aa9599ee0fa7933e807abe8a253b24ab00b32599cbeb7",
+      "sha256": "1b945b5079904ff70714cbdfeb69b161f1481bd45eabd777dddb3fef2ca881a4",
       "sendToGpt": true,
-      "description": "Current round review evidence"
+      "description": "Current round relay runtime review evidence"
     }
   ],
   "reviewFiles": [
@@ -125,104 +101,80 @@
       "source": "outputs/gpt_review_inbox/README_FOR_GPT.md",
       "required": true,
       "exists": true,
-      "sha256": "e671132657ead1d1e408789fc9c7f43f3458e8fc6ac3dba743289f99f51318a4",
-      "description": "Current round review evidence"
+      "sha256": "bbde3fb6e49e3a8a65ae756ec30525dc553a2127b9f0d66937bb282817a9c142",
+      "description": "Current round relay runtime review evidence"
     },
     {
       "path": "cloud-contract-mvp-report-for-gpt.md",
       "source": "outputs/gpt_review_inbox/cloud-contract-mvp-report-for-gpt.md",
       "required": true,
       "exists": true,
-      "sha256": "7c4ca36dc0e348623ec4d955da536e2885ca7e2c6253e2506ae4e91e8a4a7e7b",
-      "description": "Current round review evidence"
+      "sha256": "8a4828f5748a3c982e17db3dd773c0aef345014ca98dfe9792c7a1963c03ad89",
+      "description": "Current round relay runtime review evidence"
     },
     {
       "path": "cloud-contract-mvp-report.json",
       "source": "outputs/gpt_review_inbox/cloud-contract-mvp-report.json",
       "required": true,
       "exists": true,
-      "sha256": "7031ca7c18eb01209861aefc591d9d95175ba667e1bbdd9747569e92bdedcc8e",
-      "description": "Current round review evidence"
+      "sha256": "63c367f2de469a752e82c79dd315b883a3fd127541ca611cec06f47a36839b75",
+      "description": "Current round relay runtime review evidence"
     },
     {
       "path": "changed-files-for-gpt.md",
       "source": "outputs/gpt_review_inbox/changed-files-for-gpt.md",
       "required": true,
       "exists": true,
-      "sha256": "6dfa03cb8223ac8b92db85d637b1cb7002d26d8edb15150bbd03cfb32099c00a",
-      "description": "Current round review evidence"
-    },
-    {
-      "path": "gpt-review-manifest.json",
-      "source": "outputs/gpt_review_inbox/gpt-review-manifest.json",
-      "required": true,
-      "exists": true,
-      "sha256": "b7c526d0d2996a1c5e0e3e383010b10d628aa59d789ac075ea7a916e7ddb3145",
-      "description": "Current round review evidence"
-    },
-    {
-      "path": "git-diff-for-gpt.patch",
-      "source": "outputs/gpt_review_inbox/git-diff-for-gpt.patch",
-      "required": true,
-      "exists": true,
-      "sha256": "07e536f6643c0966f8052aff331c41aa5c6f0edb5361dd1194c1740378875481",
-      "description": "Current round review evidence"
+      "sha256": "1486fb4e503e396a974b6bd97cca500ed797a45d2b58d9fa5ea7061f0ce8b438",
+      "description": "Current round relay runtime review evidence"
     },
     {
       "path": "outputs/codex_to_gpt/README_FOR_GPT.md",
       "source": "outputs/codex_to_gpt/README_FOR_GPT.md",
       "required": true,
       "exists": true,
-      "sha256": "e671132657ead1d1e408789fc9c7f43f3458e8fc6ac3dba743289f99f51318a4",
-      "description": "Current round review evidence"
+      "sha256": "bbde3fb6e49e3a8a65ae756ec30525dc553a2127b9f0d66937bb282817a9c142",
+      "description": "Current round relay runtime review evidence"
     },
     {
       "path": "outputs/codex_to_gpt/result-manifest.json",
       "source": "outputs/codex_to_gpt/result-manifest.json",
       "required": true,
       "exists": true,
-      "sha256": "cf09cbb7e5daf8670da663a560e4d8cdba684d04515e8d4fc6455b7c9b62c2a3",
-      "description": "Current round review evidence"
+      "sha256": "b0ec8826fe044f778cf671398f302df00141fc4c19d6c2b93d724dd21a12a4fd",
+      "description": "Current round relay runtime review evidence"
     },
     {
       "path": "outputs/codex_to_gpt/changed-files-for-gpt.md",
       "source": "outputs/codex_to_gpt/changed-files-for-gpt.md",
       "required": true,
       "exists": true,
-      "sha256": "6dfa03cb8223ac8b92db85d637b1cb7002d26d8edb15150bbd03cfb32099c00a",
-      "description": "Current round review evidence"
+      "sha256": "1486fb4e503e396a974b6bd97cca500ed797a45d2b58d9fa5ea7061f0ce8b438",
+      "description": "Current round relay runtime review evidence"
     },
     {
       "path": "outputs/gpt_to_codex/current-task.md",
       "source": "outputs/gpt_to_codex/current-task.md",
       "required": true,
       "exists": true,
-      "sha256": "b83b684af18532528b7ef55d2b9657135ea352704b1b5d9cc833cbb1b94e098b",
-      "description": "Current round review evidence"
+      "sha256": "deb21e545f3f0338158a155ee6b07459a885940e8a31ac006ddeab90a3a388b2",
+      "description": "Current round relay runtime review evidence"
     },
     {
       "path": "outputs/gpt_to_codex/current-task.json",
       "source": "outputs/gpt_to_codex/current-task.json",
       "required": true,
       "exists": true,
-      "sha256": "d911a5c8aaa444a3904a49fa0975030c9e998bc5b4cfec9c7c8f243a7e5d7d6f",
-      "description": "Current round review evidence"
-    },
-    {
-      "path": "docs/HuiyiTacticalContract-v1.md",
-      "source": "docs/HuiyiTacticalContract-v1.md",
-      "required": true,
-      "exists": true,
-      "sha256": "6507029b5ee16ebf620cb16653bb96e260771952808dfa63370c635ba4acad7c",
-      "description": "Current round review evidence"
+      "sha256": "72cc7561baf76559753765438d985ebc46da3e39edb51074ce7464400ff32f1e",
+      "description": "Current round relay runtime review evidence"
     },
     {
       "path": "outputs/update_server/latest.json",
       "source": "outputs/update_server/latest.json",
       "required": true,
       "exists": true,
-      "sha256": "f97667a8518c72c7ae1aa9599ee0fa7933e807abe8a253b24ab00b32599cbeb7",
-      "description": "Current round review evidence"
+      "sha256": "1b945b5079904ff70714cbdfeb69b161f1481bd45eabd777dddb3fef2ca881a4",
+      "description": "Current round relay runtime review evidence"
     }
   ]
 }

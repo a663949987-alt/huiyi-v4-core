@@ -4,8 +4,8 @@ import android.content.Context
 import android.content.Intent
 import com.huiyi.v4.data.DatabaseProvider
 import com.huiyi.v4.data.HuiyiPersistenceRepository
-import com.huiyi.v4.domain.cloud.CloudAnalysisConfig
-import com.huiyi.v4.domain.cloud.CloudAnalysisRepository
+import com.huiyi.v4.domain.cloud.CloudProviderType
+import com.huiyi.v4.domain.cloud.CloudRuntimeSettings
 import com.huiyi.v4.domain.capture.ManualContextCaptureSession
 import com.huiyi.v4.domain.capture.VisualDebugResult
 import com.huiyi.v4.domain.context.ContextAssembler
@@ -86,7 +86,9 @@ data class HuiyiRuntimeState(
     val oneTapGithubUploadState: OneTapGithubUploadState = OneTapGithubUploadState(),
     val latestFlightRecord: NextSentenceFlightRecord? = null,
     val recentFlightRecords: List<NextSentenceFlightRecord> = emptyList(),
-    val lanUpdateState: LanUpdateState = LanUpdateState()
+    val lanUpdateState: LanUpdateState = LanUpdateState(),
+    val cloudSettings: CloudRuntimeSettings = CloudRuntimeSettings(),
+    val cloudSettingsTestStatus: String = "NOT_TESTED"
 )
 
 data class AccessibilityClickSample(
@@ -103,17 +105,11 @@ class HuiyiRuntime private constructor(
     private val persistence = HuiyiPersistenceRepository(DatabaseProvider.get(appContext).huiyiDao())
     private val updateManager = LanUpdateManager(appContext)
     private val prefs = appContext.getSharedPreferences("huiyi-runtime", Context.MODE_PRIVATE)
+    private val cloudSettingsRepository = RuntimeCloudSettingsRepository(prefs)
     private val pipeline = CurrentScreenPipelineUseCase(
         captureUseCase = CurrentScreenCaptureUseCase(),
         persistenceRepository = persistence,
-        cloudAnalysisService = CloudAnalysisRepository(
-            CloudAnalysisConfig(
-                cloudEnabled = false,
-                endpoint = "",
-                clientId = BuildConfig.HUIYI_CLOUD_ANALYSIS_CLIENT_ID,
-                clientToken = ""
-            )
-        ),
+        cloudAnalysisService = RuntimeCloudAnalysisService(cloudSettingsRepository),
         appVersionName = BuildConfig.VERSION_NAME,
         appVersionCode = BuildConfig.VERSION_CODE
     )
@@ -125,7 +121,47 @@ class HuiyiRuntime private constructor(
     init {
         val savedUrl = prefs.getString("lan_update_url", "").orEmpty()
         val initialUrl = savedUrl.ifBlank { BuildConfig.HUIYI_UPDATE_BASE_URL }
-        mutableState.update { it.copy(lanUpdateState = it.lanUpdateState.copy(updateUrl = initialUrl)) }
+        mutableState.update {
+            it.copy(
+                lanUpdateState = it.lanUpdateState.copy(updateUrl = initialUrl),
+                cloudSettings = cloudSettingsRepository.load()
+            )
+        }
+    }
+
+    fun saveCloudSettings(
+        cloudEnabled: Boolean,
+        providerType: String,
+        baseUrl: String,
+        model: String,
+        timeoutMs: Long,
+        apiKeyInput: String?
+    ) {
+        val saved = cloudSettingsRepository.save(
+            cloudEnabled = cloudEnabled,
+            providerType = providerType.ifBlank { CloudProviderType.OPENAI_COMPATIBLE_RELAY },
+            baseUrl = baseUrl,
+            model = model,
+            timeoutMs = timeoutMs,
+            apiKeyInput = apiKeyInput
+        )
+        mutableState.update {
+            it.copy(
+                cloudSettings = saved,
+                cloudSettingsTestStatus = "SAVED_${saved.relayApiKeyStorageMode}"
+            )
+        }
+    }
+
+    fun testCloudSettings() {
+        val settings = cloudSettingsRepository.load()
+        val status = when {
+            !settings.cloudEnabled -> "CLOUD_DISABLED"
+            !settings.relayBaseUrlConfigured -> "CLOUD_NOT_CONFIGURED"
+            !settings.relayApiKeyConfigured -> "RELAY_API_KEY_MISSING"
+            else -> "READY_FOR_RELAY_RUNTIME_CALL"
+        }
+        mutableState.update { it.copy(cloudSettings = settings, cloudSettingsTestStatus = status) }
     }
 
     fun setPanelVisible(visible: Boolean) {

@@ -143,6 +143,12 @@ class EvidencePackReportGenerator {
             appendLine("- apiCalled: ${result.apiCalled}")
             appendLine("- cloudEnabled: ${result.cloudTrace.cloudEnabled}")
             appendLine("- cloudEndpointConfigured: ${result.cloudTrace.endpointConfigured}")
+            appendLine("- providerType: ${result.cloudTrace.providerType}")
+            appendLine("- relayBaseUrlConfigured: ${result.cloudTrace.relayBaseUrlConfigured}")
+            appendLine("- relayApiKeyConfigured: ${result.cloudTrace.relayApiKeyConfigured}")
+            appendLine("- relayApiKeyStoredSecurely: ${result.cloudTrace.relayApiKeyStoredSecurely}")
+            appendLine("- relayApiKeyExposedInRepo: ${result.cloudTrace.relayApiKeyExposedInRepo}")
+            appendLine("- relayApiKeyExposedInApk: ${result.cloudTrace.relayApiKeyExposedInApk}")
             appendLine("- cloudAttempted: ${result.cloudTrace.cloudAttempted}")
             appendLine("- cloudSuccess: ${result.cloudTrace.cloudSuccess}")
             appendLine("- cloudSkippedReason: ${result.cloudTrace.cloudSkippedReason ?: "none"}")
@@ -555,6 +561,12 @@ class EvidencePackReportGenerator {
               "modelCalled": ${result.cloudTrace.modelCalled},
               "cloudEnabled": ${result.cloudTrace.cloudEnabled},
               "cloudEndpointConfigured": ${result.cloudTrace.endpointConfigured},
+              "providerType": "${result.cloudTrace.providerType}",
+              "relayBaseUrlConfigured": ${result.cloudTrace.relayBaseUrlConfigured},
+              "relayApiKeyConfigured": ${result.cloudTrace.relayApiKeyConfigured},
+              "relayApiKeyStoredSecurely": ${result.cloudTrace.relayApiKeyStoredSecurely},
+              "relayApiKeyExposedInRepo": ${result.cloudTrace.relayApiKeyExposedInRepo},
+              "relayApiKeyExposedInApk": ${result.cloudTrace.relayApiKeyExposedInApk},
               "cloudAttempted": ${result.cloudTrace.cloudAttempted},
               "cloudSkippedReason": "${escape(result.cloudTrace.cloudSkippedReason ?: "none")}",
               "cloudRequestId": "${escape(result.cloudTrace.cloudRequestId ?: "")}",

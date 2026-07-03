@@ -38,17 +38,38 @@ object HuiyiTacticalContract {
     const val SCHEMA_VERSION = 1
 }
 
+object CloudProviderType {
+    const val OPENAI_COMPATIBLE_RELAY = "OPENAI_COMPATIBLE_RELAY"
+}
+
+data class CloudRuntimeSettings(
+    val cloudEnabled: Boolean = false,
+    val providerType: String = CloudProviderType.OPENAI_COMPATIBLE_RELAY,
+    val baseUrl: String = "",
+    val model: String = "gpt-5.5",
+    val timeoutMs: Long = 6000,
+    val relayApiKeyConfigured: Boolean = false,
+    val relayApiKeyStoredSecurely: Boolean = false,
+    val relayApiKeyStorageMode: String = "DEBUG_ONLY_INSECURE_STORAGE"
+) {
+    val relayBaseUrlConfigured: Boolean get() = baseUrl.isNotBlank()
+}
+
 data class CloudAnalysisConfig(
     val cloudEnabled: Boolean = false,
+    val providerType: String = CloudProviderType.OPENAI_COMPATIBLE_RELAY,
     val endpoint: String = "",
+    val model: String = "gpt-5.5",
     val timeoutMs: Long = 6000,
     val privateMode: Boolean = false,
     val fallbackToLocal: Boolean = true,
     val clientId: String = "",
-    val clientToken: String = ""
+    val apiKey: String = "",
+    val relayApiKeyStoredSecurely: Boolean = false
 ) {
     val endpointConfigured: Boolean get() = endpoint.isNotBlank()
-    val configuredAndEnabled: Boolean get() = cloudEnabled && endpointConfigured
+    val relayApiKeyConfigured: Boolean get() = apiKey.isNotBlank()
+    val configuredAndEnabled: Boolean get() = cloudEnabled && endpointConfigured && relayApiKeyConfigured
 }
 
 data class CloudAnalysisTrace(
@@ -65,7 +86,13 @@ data class CloudAnalysisTrace(
     val modelCalled: Boolean = false,
     val apiCalled: Boolean = false,
     val cloudContractVersion: String = HuiyiTacticalContract.VERSION,
-    val cloudContractValidationResult: String = "NOT_RUN"
+    val cloudContractValidationResult: String = "NOT_RUN",
+    val providerType: String = CloudProviderType.OPENAI_COMPATIBLE_RELAY,
+    val relayBaseUrlConfigured: Boolean = false,
+    val relayApiKeyConfigured: Boolean = false,
+    val relayApiKeyStoredSecurely: Boolean = false,
+    val relayApiKeyExposedInRepo: Boolean = false,
+    val relayApiKeyExposedInApk: Boolean = false
 ) {
     companion object {
         fun skipped(config: CloudAnalysisConfig, reason: String, decisionSource: String): CloudAnalysisTrace = CloudAnalysisTrace(
@@ -73,7 +100,11 @@ data class CloudAnalysisTrace(
             endpointConfigured = config.endpointConfigured,
             cloudSkippedReason = reason,
             decisionSource = decisionSource,
-            cloudContractValidationResult = "NOT_RUN"
+            cloudContractValidationResult = "NOT_RUN",
+            providerType = config.providerType,
+            relayBaseUrlConfigured = config.endpointConfigured,
+            relayApiKeyConfigured = config.relayApiKeyConfigured,
+            relayApiKeyStoredSecurely = config.relayApiKeyStoredSecurely
         )
 
         fun success(config: CloudAnalysisConfig, requestId: String?, latencyMs: Long): CloudAnalysisTrace = CloudAnalysisTrace(
@@ -89,7 +120,11 @@ data class CloudAnalysisTrace(
             decisionSource = "CLOUD",
             modelCalled = true,
             apiCalled = true,
-            cloudContractValidationResult = "PASS"
+            cloudContractValidationResult = "PASS",
+            providerType = config.providerType,
+            relayBaseUrlConfigured = config.endpointConfigured,
+            relayApiKeyConfigured = config.relayApiKeyConfigured,
+            relayApiKeyStoredSecurely = config.relayApiKeyStoredSecurely
         )
 
         fun fallback(
@@ -109,7 +144,11 @@ data class CloudAnalysisTrace(
             decisionSource = "LOCAL_FALLBACK",
             modelCalled = false,
             apiCalled = false,
-            cloudContractValidationResult = validationResult
+            cloudContractValidationResult = validationResult,
+            providerType = config.providerType,
+            relayBaseUrlConfigured = config.endpointConfigured,
+            relayApiKeyConfigured = config.relayApiKeyConfigured,
+            relayApiKeyStoredSecurely = config.relayApiKeyStoredSecurely
         )
     }
 }
@@ -150,9 +189,9 @@ class OkHttpCloudAnalysisClient : CloudAnalysisClient {
             .build()
         val requestBuilder = Request.Builder()
             .url(endpoint.trimEnd('/'))
-            .header("X-Huiyi-Client-Id", clientId)
             .post(body.toRequestBody("application/json".toMediaType()))
-        if (clientToken.isNotBlank()) requestBuilder.header("X-Huiyi-Client-Token", clientToken)
+        if (clientId.isNotBlank()) requestBuilder.header("X-Huiyi-Client-Id", clientId)
+        if (clientToken.isNotBlank()) requestBuilder.header("Authorization", "Bearer $clientToken")
         client.newCall(requestBuilder.build()).execute().use { response ->
             if (!response.isSuccessful) error("SERVER_ERROR:${response.code}")
             return response.body?.string() ?: error("CLOUD_SCHEMA_INVALID:empty_body")
@@ -174,7 +213,7 @@ class CloudAnalysisRepository(
                 body = requestJson,
                 timeoutMs = config.timeoutMs,
                 clientId = config.clientId,
-                clientToken = config.clientToken
+                clientToken = config.apiKey
             )
         } catch (error: java.net.SocketTimeoutException) {
             throw CloudAnalysisException("TIMEOUT", error)
@@ -205,6 +244,8 @@ class CloudTacticalDecisionMapper(
             put("appVersionName", input.appVersionName)
             put("appVersionCode", input.appVersionCode)
             put("targetAppPackage", input.capture.snapshot.appPackage.orEmpty())
+            put("providerType", config.providerType)
+            put("model", config.model)
             put("localDecision", buildJsonObject {
                 put("actualLastSpeaker", input.lastSpeakerDecision.lastSpeaker?.name ?: "UNKNOWN")
                 put("decisionTypeBeforeCloud", input.localDecision.decisionType.name)

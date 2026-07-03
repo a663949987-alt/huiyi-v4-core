@@ -11,18 +11,16 @@ realDeviceRequiredThisRound: false
 cloudRealEndpointRequiredThisRound: false
 
 ## Goals
-- implement HuiyiTacticalContract v1
-- implement CloudTacticalResponseValidator
-- implement CloudAnalysisClient skeleton
-- preserve local LAST_ME -> WAIT safety gate
-- fallback to local routes when cloud is not configured
-- report cloud fields clearly
+- Sync GPT review inbox to v4.1.24 cloud contract MVP.
+- Support OPENAI_COMPATIBLE_RELAY runtime configuration skeleton.
+- Keep relay API key runtime-only and redacted from reports.
+- Preserve LAST_ME / UNKNOWN / unsupported-app local safety gates.
+- Fallback locally when endpoint or runtime relay key is missing.
 
 ## Non Goals
 - no real API key
 - no real cloud endpoint required
 - no phone testing
-- no new app adapter
 - no automatic sending
 
 ## Required Reports

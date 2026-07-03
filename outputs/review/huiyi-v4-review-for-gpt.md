@@ -4,61 +4,60 @@
 - taskName: cloud_contract_mvp_with_local_safety_gate
 - versionName: 4.1.24
 - versionCode: 443
-- generatedAt: 2026-07-03T12:14:04Z
+- generatedAt: 2026-07-03T12:30:58Z
 - currentOverallResult: CLOUD_CONTRACT_LOCAL_PASS
+- userNeedsPhoneThisRound: false
+- cloudRealEndpointRequiredThisRound: false
 
-## Implementation
+## Cloud Contract
 - cloudContractImplemented: true
 - cloudValidatorImplemented: true
 - cloudClientSkeletonImplemented: true
 - cloudContractVersion: HuiyiTacticalContract-v1
-- docs: docs/HuiyiTacticalContract-v1.md
 
-## Local Safety Gate
-- lastMeLocalSafetyGate: PASS
-- ME -> WAIT: enforced locally
-- ME -> cloudAttempted: false
-- ME -> decisionSource: LOCAL_WAIT
-- UNKNOWN -> cloudAttempted: false
-- unsupported app -> cloudAttempted: false
-
-## Cloud Defaults
+## Relay Runtime Config Skeleton
+- providerType: OPENAI_COMPATIBLE_RELAY
 - cloudEnabledDefault: false
-- cloudEndpointConfigured: false
-- cloudRealEndpointRequiredThisRound: false
-- cloudAttemptedInRuntimeDefault: false
-- cloudSkippedReason: CLOUD_NOT_CONFIGURED
-- decisionSource: LOCAL_FALLBACK or LOCAL_WAIT
-- cloudFallbackUsed: false when cloud is not attempted
+- relayBaseUrlConfigured: false
+- hasRelayApiKey: false
+- relayApiKeyConfigured: false
+- relayApiKeyStoredSecurely: false
+- relayApiKeyStorageMode: DEBUG_ONLY_INSECURE_STORAGE
+- relayApiKeyExposedInRepo: false
+- relayApiKeyExposedInApk: false
+- relayApiKeyExposedInOutputs: false
+- relayApiKeyExposedInReviewBundle: false
 
-## Contract Validation
-- valid five-route output: PASS
-- missing coCreationPoint: FAIL as expected
-- non-five route output: FAIL as expected
-- manipulative output: FAIL as expected
-- invalid cloud content shown: false
-- local fallback on invalid cloud: PASS
+## Safety Gate
+- LAST_ME skips relay cloud: PASS
+- UNKNOWN skips relay cloud: PASS
+- unsupported app skips relay cloud: PASS
+- LAST_OTHER may use relay only when cloudEnabled + baseUrl + runtime apiKey are configured.
 
-## GitHub Upload Boundary
-- oneTapGithubUploaded equals cloudAttempted: false
-- GitHub feedback upload is review transport only, not model analysis.
+## Fallback
+- endpoint missing: LOCAL_FALLBACK / cloudAttempted=false
+- runtime key missing: RELAY_API_KEY_MISSING / cloudAttempted=false
+- relay invalid response: LOCAL_FALLBACK / invalid cloud content not shown
+- UI should not show generic analysis failure when local fallback exists.
+
+## Required Report Fields
+- cloudConfigured: false
+- cloudAttempted: false
+- cloudSkippedReason: CLOUD_NOT_CONFIGURED_OR_RELAY_API_KEY_MISSING
+- decisionSource: LOCAL_FALLBACK_OR_LOCAL_WAIT_BY_LAST_SPEAKER
+- cloudFallbackUsed: false
 
 ## Tests
 - :app:testDebugUnitTest: PASS
 - :app:assembleDebug: PASS
-- :mockchat:assembleDebug: PASS
-- realDevice: NOT_TESTED
-- userNeedsPhoneThisRound: false
-
-## Security Scan
-- apiKeyNotInRepoOrApk: true
-- containsSecrets: false
-- localPropertiesIncluded: false
-- keystoreIncluded: false
-- cloudClientTokenInBuildConfig: false
-- secretHits: []
+- RelayApiKeyNotWrittenToRepoOrOutputsTest: PASS
+- RelayApiKeyMissingFallsBackToLocalTest: PASS
+- LastMeSkipsRelayCloudTest: PASS
+- LastOtherUsesRelayWhenConfiguredTest: PASS
+- RelayInvalidResponseFallsBackToLocalTest: PASS
+- CloudSettingsRedactsApiKeyInReportsTest: PASS
 
 ## User Testing
+- realDeviceSmokeResult: NOT_TESTED
 - userNeedsPhoneThisRound: false
-- realDeviceRequiredThisRound: false
-- cloudRealEndpointRequiredThisRound: false
+- real cloud endpoint required: false

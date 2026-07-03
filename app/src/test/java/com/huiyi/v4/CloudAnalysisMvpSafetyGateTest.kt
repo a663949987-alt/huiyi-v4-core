@@ -30,7 +30,7 @@ import org.junit.Test
 class CloudAnalysisMvpSafetyGateTest {
     @Test
     fun LastMeSkipsCloudAndReturnsWaitTest() = runTest {
-        val cloud = FakeCloudService(CloudAnalysisConfig(cloudEnabled = true, endpoint = "https://gateway.example/v1/huiyi/next-sentence/analyze"))
+        val cloud = FakeCloudService(CloudAnalysisConfig(cloudEnabled = true, endpoint = "https://gateway.example/v1/huiyi/next-sentence/analyze", apiKey = "dummy-runtime-input"))
         val result = pipeline(lastMeMessages(), cloud).run(emptyPersona()).getOrThrow()
 
         assertEquals(TacticalDecisionType.WAIT, result.tacticalDecision.decisionType)
@@ -138,6 +138,59 @@ class CloudAnalysisMvpSafetyGateTest {
     }
 
     @Test
+    fun RelayApiKeyMissingFallsBackToLocalTest() = runTest {
+        val result = pipeline(
+            lastOtherMessages(),
+            FakeCloudService(CloudAnalysisConfig(cloudEnabled = true, endpoint = "https://relay.example/v1", apiKey = ""))
+        ).run(emptyPersona()).getOrThrow()
+
+        assertEquals("RELAY_API_KEY_MISSING", result.cloudTrace.cloudSkippedReason)
+        assertEquals("LOCAL_FALLBACK", result.cloudTrace.decisionSource)
+        assertFalse(result.cloudTrace.cloudAttempted)
+        assertFalse(result.cloudTrace.relayApiKeyConfigured)
+        assertEquals(5, result.routes.size)
+    }
+
+    @Test
+    fun LastMeSkipsRelayCloudTest() = runTest {
+        val cloud = FakeCloudService(CloudAnalysisConfig(cloudEnabled = true, endpoint = "https://relay.example/v1", apiKey = "dummy-runtime-input"))
+        val result = pipeline(lastMeMessages(), cloud).run(emptyPersona()).getOrThrow()
+
+        assertEquals(TacticalDecisionType.WAIT, result.tacticalDecision.decisionType)
+        assertEquals("LAST_SPEAKER_ME_WAIT", result.cloudTrace.cloudSkippedReason)
+        assertFalse(result.cloudTrace.cloudAttempted)
+        assertEquals(0, cloud.callCount)
+    }
+
+    @Test
+    fun LastOtherUsesRelayWhenConfiguredTest() = runTest {
+        val cloud = FakeCloudService(CloudAnalysisConfig(cloudEnabled = true, endpoint = "https://relay.example/v1", apiKey = "dummy-runtime-input"))
+        val result = pipeline(lastOtherMessages(), cloud).run(emptyPersona()).getOrThrow()
+
+        assertTrue(result.cloudTrace.cloudAttempted)
+        assertTrue(result.cloudTrace.relayBaseUrlConfigured)
+        assertTrue(result.cloudTrace.relayApiKeyConfigured)
+        assertEquals("OPENAI_COMPATIBLE_RELAY", result.cloudTrace.providerType)
+        assertEquals("CLOUD", result.cloudTrace.decisionSource)
+    }
+
+    @Test
+    fun RelayInvalidResponseFallsBackToLocalTest() = runTest {
+        val result = pipeline(
+            lastOtherMessages(),
+            FakeCloudService(
+                CloudAnalysisConfig(cloudEnabled = true, endpoint = "https://relay.example/v1", apiKey = "dummy-runtime-input"),
+                error = CloudAnalysisException("CLOUD_SCHEMA_INVALID")
+            )
+        ).run(emptyPersona()).getOrThrow()
+
+        assertEquals("LOCAL_FALLBACK", result.cloudTrace.decisionSource)
+        assertTrue(result.cloudTrace.cloudFallbackUsed)
+        assertEquals("CLOUD_SCHEMA_INVALID", result.cloudTrace.cloudErrorCode)
+        assertEquals(5, result.routes.size)
+    }
+
+    @Test
     fun UnknownSpeakerSkipsCloudTest() = runTest {
         val cloud = FakeCloudService()
         val result = pipeline(listOf(textNode("unknown", Speaker.UNKNOWN, "not sure", 1)), cloud).run(emptyPersona()).getOrThrow()
@@ -166,6 +219,20 @@ class CloudAnalysisMvpSafetyGateTest {
     }
 
     @Test
+    fun RelayApiKeyNotWrittenToRepoOrOutputsTest() {
+        val trace = com.huiyi.v4.domain.cloud.CloudAnalysisTrace.skipped(
+            CloudAnalysisConfig(cloudEnabled = true, endpoint = "https://relay.example/v1", apiKey = "dummy-runtime-input"),
+            reason = "LAST_SPEAKER_ME_WAIT",
+            decisionSource = "LOCAL_WAIT"
+        )
+
+        assertTrue(trace.relayApiKeyConfigured)
+        assertFalse(trace.relayApiKeyExposedInRepo)
+        assertFalse(trace.relayApiKeyExposedInApk)
+        assertEquals("", BuildConfig.HUIYI_CLOUD_ANALYSIS_CLIENT_TOKEN)
+    }
+
+    @Test
     fun CloudTraceWrittenToFlightRecordTest() {
         val result = evidenceResult(
             appPackage = "com.bajiao.im.liaoqi",
@@ -187,6 +254,29 @@ class CloudAnalysisMvpSafetyGateTest {
         assertEquals(123L, record.cloudLatencyMs)
         assertEquals("HuiyiTacticalContract-v1", record.cloudContractVersion)
         assertEquals("PASS", record.cloudContractValidationResult)
+    }
+
+    @Test
+    fun CloudSettingsRedactsApiKeyInReportsTest() {
+        val record = NextSentenceFlightRecordFactory.fromSuccess(
+            evidenceResult(
+                appPackage = "com.bajiao.im.liaoqi",
+                source = SampleSource.REAL_DEVICE_ACCESSIBILITY,
+                messages = lastOtherMessages()
+            ).copy(
+                cloudTrace = com.huiyi.v4.domain.cloud.CloudAnalysisTrace.skipped(
+                    CloudAnalysisConfig(cloudEnabled = true, endpoint = "https://relay.example/v1", apiKey = "dummy-runtime-input"),
+                    reason = "RELAY_API_KEY_MISSING",
+                    decisionSource = "LOCAL_FALLBACK"
+                )
+            ),
+            NextSentenceSessionTrace("redacted-relay-key", 1L, endedAt = 2L)
+        )
+
+        assertTrue(record.relayApiKeyConfigured)
+        assertFalse(record.relayApiKeyExposedInRepo)
+        assertFalse(record.relayApiKeyExposedInApk)
+        assertEquals("OPENAI_COMPATIBLE_RELAY", record.providerType)
     }
 
     @Test(expected = CloudAnalysisException::class)
@@ -300,7 +390,8 @@ class CloudAnalysisMvpSafetyGateTest {
     private class FakeCloudService(
         override val config: CloudAnalysisConfig = CloudAnalysisConfig(
             cloudEnabled = true,
-            endpoint = "https://gateway.example/v1/huiyi/next-sentence/analyze"
+            endpoint = "https://gateway.example/v1/huiyi/next-sentence/analyze",
+            apiKey = "dummy-runtime-input"
         ),
         private val error: Throwable? = null
     ) : CloudAnalysisService {

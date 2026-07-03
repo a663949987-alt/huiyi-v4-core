@@ -154,8 +154,11 @@ class CurrentScreenPipelineUseCase(
         if (!targetSupported) {
             return CloudPipelineResult(localDecision, localRoutes, CloudAnalysisTrace.skipped(config, "UNSUPPORTED_APP", "LOCAL_FALLBACK"))
         }
-        if (service == null || !config.configuredAndEnabled) {
+        if (service == null || !config.cloudEnabled || !config.endpointConfigured) {
             return CloudPipelineResult(localDecision, localRoutes, CloudAnalysisTrace.skipped(config, "CLOUD_NOT_CONFIGURED", "LOCAL_FALLBACK"))
+        }
+        if (!config.relayApiKeyConfigured) {
+            return CloudPipelineResult(localDecision, localRoutes, CloudAnalysisTrace.skipped(config, "RELAY_API_KEY_MISSING", "LOCAL_FALLBACK"))
         }
         if (lastSpeaker.lastSpeaker != Speaker.OTHER || localRoutes.size != 5) {
             return CloudPipelineResult(localDecision, localRoutes, CloudAnalysisTrace.skipped(config, "LOCAL_CONTEXT_REQUIRED", "LOCAL_FALLBACK"))

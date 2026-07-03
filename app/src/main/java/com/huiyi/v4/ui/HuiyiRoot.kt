@@ -48,6 +48,7 @@ import com.huiyi.v4.BuildConfig
 import com.huiyi.v4.accessibility.HuiyiAccessibilityService
 import com.huiyi.v4.accessibility.AccessibilityRuntimeReader
 import com.huiyi.v4.accessibility.accessibilityRuntimeMessage
+import com.huiyi.v4.domain.cloud.CloudProviderType
 import com.huiyi.v4.domain.model.MessageContent
 import com.huiyi.v4.domain.model.ReplyRoute
 import com.huiyi.v4.domain.model.RiskLevel
@@ -559,6 +560,11 @@ private fun DeveloperSettingsPage(
     state: HuiyiRuntimeState,
     accessibilityStatus: String
 ) {
+    var cloudEnabled by remember(state.cloudSettings) { mutableStateOf(state.cloudSettings.cloudEnabled) }
+    var relayBaseUrl by remember(state.cloudSettings) { mutableStateOf(state.cloudSettings.baseUrl) }
+    var relayModel by remember(state.cloudSettings) { mutableStateOf(state.cloudSettings.model) }
+    var relayTimeoutMs by remember(state.cloudSettings) { mutableStateOf(state.cloudSettings.timeoutMs.toString()) }
+    var relayApiKeyInput by remember(state.cloudSettings) { mutableStateOf("") }
     LazyColumn(
         modifier = Modifier
             .fillMaxSize()
@@ -568,6 +574,64 @@ private fun DeveloperSettingsPage(
         item {
             Text("开发者设置")
             StatusCard("API 配置", "${BuildConfig.HUIYI_API_BASE_URL} / ${BuildConfig.HUIYI_API_MODEL}")
+            Card(modifier = Modifier.fillMaxWidth()) {
+                Column(Modifier.padding(14.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                    Text("高级设置 / 云端设置")
+                    StatusCard("providerType", CloudProviderType.OPENAI_COMPATIBLE_RELAY)
+                    StatusCard("hasRelayApiKey", state.cloudSettings.relayApiKeyConfigured.toString())
+                    StatusCard("keyStorage", state.cloudSettings.relayApiKeyStorageMode)
+                    StatusCard("testStatus", state.cloudSettingsTestStatus)
+                    OutlinedButton(
+                        onClick = { cloudEnabled = !cloudEnabled },
+                        modifier = Modifier.fillMaxWidth()
+                    ) { Text(if (cloudEnabled) "cloudEnabled: true" else "cloudEnabled: false") }
+                    OutlinedTextField(
+                        value = relayBaseUrl,
+                        onValueChange = { relayBaseUrl = it },
+                        modifier = Modifier.fillMaxWidth(),
+                        label = { Text("baseUrl") },
+                        placeholder = { Text("https://relay.example/v1/huiyi") }
+                    )
+                    OutlinedTextField(
+                        value = relayModel,
+                        onValueChange = { relayModel = it },
+                        modifier = Modifier.fillMaxWidth(),
+                        label = { Text("model") }
+                    )
+                    OutlinedTextField(
+                        value = relayTimeoutMs,
+                        onValueChange = { relayTimeoutMs = it.filter(Char::isDigit) },
+                        modifier = Modifier.fillMaxWidth(),
+                        label = { Text("timeoutMs") }
+                    )
+                    OutlinedTextField(
+                        value = relayApiKeyInput,
+                        onValueChange = { relayApiKeyInput = it },
+                        modifier = Modifier.fillMaxWidth(),
+                        label = { Text("apiKey") },
+                        visualTransformation = PasswordVisualTransformation()
+                    )
+                    Row(horizontalArrangement = Arrangement.spacedBy(8.dp), modifier = Modifier.fillMaxWidth()) {
+                        OutlinedButton(
+                            onClick = {
+                                runtime.saveCloudSettings(
+                                    cloudEnabled,
+                                    CloudProviderType.OPENAI_COMPATIBLE_RELAY,
+                                    relayBaseUrl,
+                                    relayModel,
+                                    relayTimeoutMs.toLongOrNull() ?: 6000L,
+                                    relayApiKeyInput.ifBlank { null }
+                                )
+                            },
+                            modifier = Modifier.weight(1f)
+                        ) { Text("保存") }
+                        OutlinedButton(
+                            onClick = runtime::testCloudSettings,
+                            modifier = Modifier.weight(1f)
+                        ) { Text("测试连接") }
+                    }
+                }
+            }
             Card(modifier = Modifier.fillMaxWidth()) {
                 Column(Modifier.padding(14.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
                     Text("真机验收场景")

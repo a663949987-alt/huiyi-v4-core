@@ -100,7 +100,13 @@ data class NextSentenceFlightRecord(
     val cloudConfigured: Boolean = false,
     val cloudAnalysisAttempted: Boolean = false,
     val cloudContractVersion: String = "HuiyiTacticalContract-v1",
-    val cloudContractValidationResult: String = "NOT_RUN"
+    val cloudContractValidationResult: String = "NOT_RUN",
+    val providerType: String = "OPENAI_COMPATIBLE_RELAY",
+    val relayBaseUrlConfigured: Boolean = false,
+    val relayApiKeyConfigured: Boolean = false,
+    val relayApiKeyStoredSecurely: Boolean = false,
+    val relayApiKeyExposedInRepo: Boolean = false,
+    val relayApiKeyExposedInApk: Boolean = false
 ) {
     fun withFeedback(feedback: UserFeedbackMark): NextSentenceFlightRecord = copy(userFeedback = feedback)
 
@@ -302,7 +308,13 @@ object NextSentenceFlightRecordFactory {
             cloudConfigured = result.cloudTrace.endpointConfigured,
             cloudAnalysisAttempted = result.cloudTrace.cloudAttempted,
             cloudContractVersion = result.cloudTrace.cloudContractVersion,
-            cloudContractValidationResult = result.cloudTrace.cloudContractValidationResult
+            cloudContractValidationResult = result.cloudTrace.cloudContractValidationResult,
+            providerType = result.cloudTrace.providerType,
+            relayBaseUrlConfigured = result.cloudTrace.relayBaseUrlConfigured,
+            relayApiKeyConfigured = result.cloudTrace.relayApiKeyConfigured,
+            relayApiKeyStoredSecurely = result.cloudTrace.relayApiKeyStoredSecurely,
+            relayApiKeyExposedInRepo = result.cloudTrace.relayApiKeyExposedInRepo,
+            relayApiKeyExposedInApk = result.cloudTrace.relayApiKeyExposedInApk
         ).withComputedConsistency()
     }
 
@@ -376,7 +388,13 @@ object NextSentenceFlightRecordFactory {
             cloudConfigured = false,
             cloudAnalysisAttempted = false,
             cloudContractVersion = "HuiyiTacticalContract-v1",
-            cloudContractValidationResult = "NOT_RUN"
+            cloudContractValidationResult = "NOT_RUN",
+            providerType = "OPENAI_COMPATIBLE_RELAY",
+            relayBaseUrlConfigured = false,
+            relayApiKeyConfigured = false,
+            relayApiKeyStoredSecurely = false,
+            relayApiKeyExposedInRepo = false,
+            relayApiKeyExposedInApk = false
         ).withComputedConsistency()
     }
 
@@ -501,6 +519,12 @@ class OneTapFeedbackExporter(
         appendLine("- cloudEnabled: ${record.cloudEnabled}")
         appendLine("- cloudConfigured: ${record.cloudConfigured}")
         appendLine("- cloudContractImplemented: ${record.cloudContractImplemented}")
+        appendLine("- providerType: ${record.providerType}")
+        appendLine("- relayBaseUrlConfigured: ${record.relayBaseUrlConfigured}")
+        appendLine("- relayApiKeyConfigured: ${record.relayApiKeyConfigured}")
+        appendLine("- relayApiKeyStoredSecurely: ${record.relayApiKeyStoredSecurely}")
+        appendLine("- relayApiKeyExposedInRepo: ${record.relayApiKeyExposedInRepo}")
+        appendLine("- relayApiKeyExposedInApk: ${record.relayApiKeyExposedInApk}")
         appendLine("- cloudAttempted: ${record.cloudAttempted}")
         appendLine("- cloudAnalysisAttempted: ${record.cloudAnalysisAttempted}")
         appendLine("- cloudSuccess: ${record.cloudSuccess}")
@@ -571,6 +595,12 @@ class OneTapFeedbackExporter(
             "cloudEnabled": ${record.cloudEnabled},
             "cloudConfigured": ${record.cloudConfigured},
             "cloudContractImplemented": ${record.cloudContractImplemented},
+            "providerType": "${record.providerType}",
+            "relayBaseUrlConfigured": ${record.relayBaseUrlConfigured},
+            "relayApiKeyConfigured": ${record.relayApiKeyConfigured},
+            "relayApiKeyStoredSecurely": ${record.relayApiKeyStoredSecurely},
+            "relayApiKeyExposedInRepo": ${record.relayApiKeyExposedInRepo},
+            "relayApiKeyExposedInApk": ${record.relayApiKeyExposedInApk},
             "cloudAttempted": ${record.cloudAttempted},
             "cloudAnalysisAttempted": ${record.cloudAnalysisAttempted},
             "cloudContractVersion": "${record.cloudContractVersion}",
@@ -619,6 +649,12 @@ class OneTapFeedbackExporter(
         appendLine("- cloudEnabled: ${record.cloudEnabled}")
         appendLine("- cloudConfigured: ${record.cloudConfigured}")
         appendLine("- cloudContractImplemented: ${record.cloudContractImplemented}")
+        appendLine("- providerType: ${record.providerType}")
+        appendLine("- relayBaseUrlConfigured: ${record.relayBaseUrlConfigured}")
+        appendLine("- relayApiKeyConfigured: ${record.relayApiKeyConfigured}")
+        appendLine("- relayApiKeyStoredSecurely: ${record.relayApiKeyStoredSecurely}")
+        appendLine("- relayApiKeyExposedInRepo: ${record.relayApiKeyExposedInRepo}")
+        appendLine("- relayApiKeyExposedInApk: ${record.relayApiKeyExposedInApk}")
         appendLine("- cloudAttempted: ${record.cloudAttempted}")
         appendLine("- cloudAnalysisAttempted: ${record.cloudAnalysisAttempted}")
         appendLine("- cloudSuccess: ${record.cloudSuccess}")
@@ -697,6 +733,12 @@ class OneTapFeedbackExporter(
           "cloudEnabled": ${record.cloudEnabled},
           "cloudConfigured": ${record.cloudConfigured},
           "cloudContractImplemented": ${record.cloudContractImplemented},
+          "providerType": "${record.providerType}",
+          "relayBaseUrlConfigured": ${record.relayBaseUrlConfigured},
+          "relayApiKeyConfigured": ${record.relayApiKeyConfigured},
+          "relayApiKeyStoredSecurely": ${record.relayApiKeyStoredSecurely},
+          "relayApiKeyExposedInRepo": ${record.relayApiKeyExposedInRepo},
+          "relayApiKeyExposedInApk": ${record.relayApiKeyExposedInApk},
           "cloudAttempted": ${record.cloudAttempted},
           "cloudAnalysisAttempted": ${record.cloudAnalysisAttempted},
           "cloudContractVersion": "${record.cloudContractVersion}",

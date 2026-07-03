@@ -2,8 +2,8 @@
     "versionName":  "4.1.24",
     "versionCode":  443,
     "apkUrl":  "huiyi-v4.1.24-debug.apk",
-    "releaseNotes":  "v4.1.24 cloud contract MVP with local safety gate",
+    "releaseNotes":  "v4.1.24 relay runtime settings skeleton",
     "forceUpdate":  false,
-    "sha256":  "D04DE0589FD8D1E28653CEAB5EA2D84B89E1CCACE8DD05A2E3594541C1E14810",
-    "createdAt":  1783080789647
+    "sha256":  "8512B160CB355E30349860B5789A13802962F2F46C80FFA5E7DB41BBEE0E9188",
+    "createdAt":  1783081797353
 }
