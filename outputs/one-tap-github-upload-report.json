@@ -1,0 +1,18 @@
+{
+  "versionName": "4.1.14",
+  "versionCode": 432,
+  "taskName": "one_tap_feedback_auto_push_to_github",
+  "sessionId": "PHONE_RUNTIME_SESSION",
+  "zipGenerated": true,
+  "privacySafeForPublicGitHub": true,
+  "uploadAttempted": false,
+  "uploadSuccess": false,
+  "githubBranch": null,
+  "githubCommitHash": null,
+  "githubReviewPath": null,
+  "githubReviewUrl": null,
+  "errorCode": "GITHUB_UPLOAD_DISABLED",
+  "fallbackLocalZipPath": "PHONE_GENERATED_ZIP_PATH",
+  "githubAutoUpload": "NOT_AVAILABLE_GATEWAY_NOT_CONFIGURED",
+  "localZipFallback": "PASS"
+}

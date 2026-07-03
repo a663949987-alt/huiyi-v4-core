@@ -1,31 +1,31 @@
 diff --git a/outputs/review/huiyi-v4-review-bundle-for-gpt.zip b/outputs/review/huiyi-v4-review-bundle-for-gpt.zip
-index 4410afd..7bc3e03 100644
+index 7bc3e03..c3251a9 100644
 Binary files a/outputs/review/huiyi-v4-review-bundle-for-gpt.zip and b/outputs/review/huiyi-v4-review-bundle-for-gpt.zip differ
 diff --git a/outputs/review/huiyi-v4-review-for-gpt.md b/outputs/review/huiyi-v4-review-for-gpt.md
-index b5d9bb0..0ccc9f8 100644
+index 0ccc9f8..cdcf033 100644
 --- a/outputs/review/huiyi-v4-review-for-gpt.md
 +++ b/outputs/review/huiyi-v4-review-for-gpt.md
 @@ -3,15 +3,15 @@
  ## v4.1.10 Current Round Summary
  
  - project: Huiyi v4 Core
--- versionName: 4.1.12
--- versionCode: 430
-+- versionName: 4.1.13
-+- versionCode: 431
+-- versionName: 4.1.13
+-- versionCode: 431
++- versionName: 4.1.14
++- versionCode: 432
  - branch: main
--- commitHash: 80a2a13
--- generatedAt: 2026-07-03 15:09:24 +0800
--- taskName: last_me_stuck_analyzing_and_phone_bundle_real_reports_fix
--- currentVersion: 4.1.12
--- currentTaskName: last_me_stuck_analyzing_and_phone_bundle_real_reports_fix
--- currentGeneratedAt: 2026-07-03 15:09:24 +0800
-+- commitHash: 186b3a8
-+- generatedAt: 2026-07-03 15:36:59 +0800
-+- taskName: one_tap_review_and_feedback_export_ux_fix
-+- currentVersion: 4.1.13
-+- currentTaskName: one_tap_review_and_feedback_export_ux_fix
-+- currentGeneratedAt: 2026-07-03 15:36:59 +0800
+-- commitHash: 186b3a8
+-- generatedAt: 2026-07-03 15:36:59 +0800
+-- taskName: one_tap_review_and_feedback_export_ux_fix
+-- currentVersion: 4.1.13
+-- currentTaskName: one_tap_review_and_feedback_export_ux_fix
+-- currentGeneratedAt: 2026-07-03 15:36:59 +0800
++- commitHash: 73564bf
++- generatedAt: 2026-07-03 15:59:29 +0800
++- taskName: one_tap_feedback_auto_push_to_github
++- currentVersion: 4.1.14
++- currentTaskName: one_tap_feedback_auto_push_to_github
++- currentGeneratedAt: 2026-07-03 15:59:29 +0800
  - review_freshness_result: PASS
  - mockchat_result: PASS
  - real_device_smoke_result: NOT_TESTED
@@ -33,28 +33,28 @@ index b5d9bb0..0ccc9f8 100644
  ## 1. 基本信息
  
  - project: Huiyi v4 Core
--- versionName: 4.1.12
--- versionCode: 430
-+- versionName: 4.1.13
-+- versionCode: 431
+-- versionName: 4.1.13
+-- versionCode: 431
++- versionName: 4.1.14
++- versionCode: 432
  - branch: main
--- commitHash: 80a2a13
--- generatedAt: 2026-07-03 15:09:24 +0800
--- taskName: last_me_stuck_analyzing_and_phone_bundle_real_reports_fix
-+- commitHash: 186b3a8
-+- generatedAt: 2026-07-03 15:36:59 +0800
-+- taskName: one_tap_review_and_feedback_export_ux_fix
+-- commitHash: 186b3a8
+-- generatedAt: 2026-07-03 15:36:59 +0800
+-- taskName: one_tap_review_and_feedback_export_ux_fix
++- commitHash: 73564bf
++- generatedAt: 2026-07-03 15:59:29 +0800
++- taskName: one_tap_feedback_auto_push_to_github
  - review_freshness_result: PASS
  - mockchat_result: PASS
  - real_device_smoke_result: NOT_TESTED
  - overall_result: NOT_TESTED
  - failReason: 本轮 Review Freshness 通过，但 Real Device Smoke 未执行，不代表真实聊天 App 已通过。
--- currentVersion: 4.1.12
--- currentTaskName: last_me_stuck_analyzing_and_phone_bundle_real_reports_fix
--- currentGeneratedAt: 2026-07-03 15:09:24 +0800
-+- currentVersion: 4.1.13
-+- currentTaskName: one_tap_review_and_feedback_export_ux_fix
-+- currentGeneratedAt: 2026-07-03 15:36:59 +0800
+-- currentVersion: 4.1.13
+-- currentTaskName: one_tap_review_and_feedback_export_ux_fix
+-- currentGeneratedAt: 2026-07-03 15:36:59 +0800
++- currentVersion: 4.1.14
++- currentTaskName: one_tap_feedback_auto_push_to_github
++- currentGeneratedAt: 2026-07-03 15:59:29 +0800
  - currentOverallResult: NOT_TESTED
  
  currentUserFeedback:
@@ -62,75 +62,76 @@ index b5d9bb0..0ccc9f8 100644
  
  ## Current Round Evidence
  
--- currentTaskName: last_me_stuck_analyzing_and_phone_bundle_real_reports_fix
--- currentVersion: 4.1.12
--- currentGeneratedAt: 2026-07-03 15:09:24 +0800
--- currentReports: outputs/v4.1.12-last-me-stuck-analyzing-report-for-gpt.md
-+- currentTaskName: one_tap_review_and_feedback_export_ux_fix
-+- currentVersion: 4.1.13
-+- currentGeneratedAt: 2026-07-03 15:36:59 +0800
-+- currentReports: outputs/one-tap-feedback-ux-report-for-gpt.md
+-- currentTaskName: one_tap_review_and_feedback_export_ux_fix
+-- currentVersion: 4.1.13
+-- currentGeneratedAt: 2026-07-03 15:36:59 +0800
+-- currentReports: outputs/one-tap-feedback-ux-report-for-gpt.md
++- currentTaskName: one_tap_feedback_auto_push_to_github
++- currentVersion: 4.1.14
++- currentGeneratedAt: 2026-07-03 15:59:29 +0800
++- currentReports: outputs/one-tap-github-upload-report-for-gpt.md
  - currentSampleSources: not_tested
  - currentOverallResult: NOT_TESTED
  - review_freshness_result: PASS
-@@ -186,10 +186,9 @@ currentRegressionStatus:
+@@ -186,9 +186,9 @@ currentRegressionStatus:
  - mockChatMatrixStillPass: true
  - smokeDisclaimer: 本轮 Review Freshness 通过，但 Real Device Smoke 未执行，不代表真实聊天 App 已通过。
  
--### v4.1.12-last-me-stuck-analyzing-report-for-gpt.md
-+### one-tap-feedback-ux-report-for-gpt.md
+-### one-tap-feedback-ux-report-for-gpt.md
++### one-tap-github-upload-report-for-gpt.md
  
--- overall_result: NOT_TESTED
--- versionName: 4.1.12
-+- versionName: 4.1.13
+-- versionName: 4.1.13
++- versionName: 4.1.14
  
  ## Current Next Sentence Failure Diagnosis
  
-@@ -357,14 +356,14 @@ These reports are historical references only. Their FAIL or `sample_source=unkno
+@@ -356,14 +356,16 @@ These reports are historical references only. Their FAIL or `sample_source=unkno
  ### 新增文件
  
  ```
-+outputs/one-tap-feedback-ux-report-for-gpt.md
+-outputs/one-tap-feedback-ux-report-for-gpt.md
++outputs/one-tap-github-upload-report-for-gpt.md
  outputs/review/archive/
--outputs/v4.1.12-last-me-stuck-analyzing-report-for-gpt.md
  ```
  
  ### 修改文件
  
  ```
--scripts/generate_review_bundle.py
-+
+-
++outputs/review/huiyi-v4-review-bundle-for-gpt.zip
++outputs/review/huiyi-v4-review-for-gpt.md
++outputs/review/manifest.json
  ```
  
  ### 删除文件
-@@ -424,9 +423,9 @@ See Current Round Evidence and Historical / Trace Reports above.
+@@ -423,9 +425,9 @@ See Current Round Evidence and Historical / Trace Reports above.
  
  ## 8. 产物清单
  
--- path: outputs/v4.1.12-last-me-stuck-analyzing-report-for-gpt.md
-+- path: outputs/one-tap-feedback-ux-report-for-gpt.md
+-- path: outputs/one-tap-feedback-ux-report-for-gpt.md
++- path: outputs/one-tap-github-upload-report-for-gpt.md
    type: report
--  sha256: c9c3f2f0ff5c57fa2be4a75487827a9ecbafefdaf0b638fb7a29f75696815857
-+  sha256: 1d53eef1cf3ef28075659a477b6782b42e9fc02626146b050f7bafde58be2d54
+-  sha256: 1d53eef1cf3ef28075659a477b6782b42e9fc02626146b050f7bafde58be2d54
++  sha256: a6040791c75339325bcd5272e257b0c1aa759c130078a39c159437f75832af4d
    是否建议发给 GPT: false
    用途: Current round evidence.
    isCurrentRound: true
 diff --git a/outputs/review/manifest.json b/outputs/review/manifest.json
-index ce7cd85..dfc5aef 100644
+index dfc5aef..7f61c3f 100644
 --- a/outputs/review/manifest.json
 +++ b/outputs/review/manifest.json
 @@ -1,10 +1,10 @@
  {
    "project": "Huiyi v4 Core",
--  "versionName": "4.1.12",
--  "versionCode": 430,
-+  "versionName": "4.1.13",
-+  "versionCode": 431,
+-  "versionName": "4.1.13",
+-  "versionCode": 431,
++  "versionName": "4.1.14",
++  "versionCode": 432,
    "branch": "main",
--  "commitHash": "80a2a13",
--  "generatedAt": "2026-07-03 15:09:24 +0800",
-+  "commitHash": "186b3a8",
-+  "generatedAt": "2026-07-03 15:36:59 +0800",
+-  "commitHash": "186b3a8",
+-  "generatedAt": "2026-07-03 15:36:59 +0800",
++  "commitHash": "73564bf",
++  "generatedAt": "2026-07-03 15:59:29 +0800",
    "overallResult": "NOT_TESTED",
    "currentOverallResult": "NOT_TESTED",
    "lastMeRealDeviceResult": "NOT_TESTED",
@@ -138,8 +139,8 @@ index ce7cd85..dfc5aef 100644
    "scenarioAssertionResult": "NOT_TESTED",
    "scenarioDefinitionTrusted": false,
    "scenarioFailureCategory": "not_tested",
--  "taskName": "last_me_stuck_analyzing_and_phone_bundle_real_reports_fix",
-+  "taskName": "one_tap_review_and_feedback_export_ux_fix",
+-  "taskName": "one_tap_review_and_feedback_export_ux_fix",
++  "taskName": "one_tap_feedback_auto_push_to_github",
    "sampleSources": [
      "not_tested"
    ],
@@ -147,8 +148,8 @@ index ce7cd85..dfc5aef 100644
      {
        "path": "outputs/review/huiyi-v4-review-for-gpt.md",
        "type": "review_markdown",
--      "sha256": "700656e797c6516bb91f1fe59855b7f7ffe6cdd2d0b3bdc32084da062832d919",
-+      "sha256": "5bb12967c58040ed38dfa3ba80537fc1c4db098eaff7815310af96080b928068",
+-      "sha256": "5bb12967c58040ed38dfa3ba80537fc1c4db098eaff7815310af96080b928068",
++      "sha256": "d029130973a5a65ec0ed6efae9f1979fc6f3cb6efcae147c0b49135350efc759",
        "sendToGpt": true,
        "description": "Default file for GPT review.",
        "generatedAt": null,
@@ -156,19 +157,19 @@ index ce7cd85..dfc5aef 100644
        "stale": false
      },
      {
--      "path": "outputs/v4.1.12-last-me-stuck-analyzing-report-for-gpt.md",
-+      "path": "outputs/one-tap-feedback-ux-report-for-gpt.md",
+-      "path": "outputs/one-tap-feedback-ux-report-for-gpt.md",
++      "path": "outputs/one-tap-github-upload-report-for-gpt.md",
        "type": "report",
--      "sha256": "c9c3f2f0ff5c57fa2be4a75487827a9ecbafefdaf0b638fb7a29f75696815857",
-+      "sha256": "1d53eef1cf3ef28075659a477b6782b42e9fc02626146b050f7bafde58be2d54",
+-      "sha256": "1d53eef1cf3ef28075659a477b6782b42e9fc02626146b050f7bafde58be2d54",
++      "sha256": "a6040791c75339325bcd5272e257b0c1aa759c130078a39c159437f75832af4d",
        "sendToGpt": false,
        "description": "Current round evidence.",
--      "generatedAt": "2026-07-03 15:09:16 +08:00",
--      "taskName": "last_me_stuck_analyzing_and_phone_bundle_real_reports_fix",
--      "versionName": "4.1.12",
-+      "generatedAt": "2026-07-03",
-+      "taskName": "one_tap_review_and_feedback_export_ux_fix",
-+      "versionName": "4.1.13",
+-      "generatedAt": "2026-07-03",
+-      "taskName": "one_tap_review_and_feedback_export_ux_fix",
+-      "versionName": "4.1.13",
++      "generatedAt": null,
++      "taskName": "one_tap_feedback_auto_push_to_github",
++      "versionName": "4.1.14",
        "isCurrentRound": true,
        "evidenceRole": "current",
        "sample_source": [],

@@ -1,9 +1,9 @@
 {
   "project": "huiyi-v4",
-  "taskName": "one_tap_review_and_feedback_export_ux_fix",
-  "versionName": "4.1.13",
-  "versionCode": 431,
-  "generatedAt": "2026-07-03 15:36:59 +0800",
+  "taskName": "one_tap_feedback_auto_push_to_github",
+  "versionName": "4.1.14",
+  "versionCode": 432,
+  "generatedAt": "2026-07-03 15:59:30 +0800",
   "currentOverallResult": "NOT_TESTED",
   "lastMeRealDeviceResult": "NOT_TESTED",
   "lastOtherRealDeviceResult": "NOT_TESTED",
@@ -57,7 +57,7 @@
       "required": true,
       "exists": true,
       "description": "Main GPT review report",
-      "sha256": "5bb12967c58040ed38dfa3ba80537fc1c4db098eaff7815310af96080b928068"
+      "sha256": "d029130973a5a65ec0ed6efae9f1979fc6f3cb6efcae147c0b49135350efc759"
     },
     {
       "path": "manifest.json",
@@ -65,7 +65,7 @@
       "required": true,
       "exists": true,
       "description": "Review bundle manifest",
-      "sha256": "1a89ed3197b7388306b6e8e2c28b8bc72c36875360d0b5bd7e276e9b5ecc9b04"
+      "sha256": "3bdf8990973eea3fe05aba1ab88dcb4529c93b01ae8d4697c459bacca1a48430"
     },
     {
       "path": "real-device-current-screen-report-for-gpt.md",
@@ -208,7 +208,7 @@
       "required": true,
       "exists": true,
       "description": "Inbox overview for GPT",
-      "sha256": "632c53900eee6ffb22fc3ef8c2ff900faf41dd337eba5043edb741cf1e63368c"
+      "sha256": "210363fb56d493e15cf9743c76dda54f42352e95cfe6b5fbe163badf6b3909bc"
     },
     {
       "path": "changed-files-for-gpt.md",

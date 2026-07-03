@@ -605,6 +605,8 @@ private fun DeveloperSettingsPage(
             StatusCard("最近导出", state.lastDebugExportPath ?: "暂无")
             StatusCard("GPT 验收总包", state.latestPhoneGptReviewBundlePath ?: "暂无")
             StatusCard("一键反馈包", state.latestOneTapFeedbackBundlePath ?: "暂无")
+            StatusCard("一键 GitHub 上传", state.oneTapGithubUploadState.userVisibleMessage.ifBlank { state.oneTapGithubUploadState.stage.name })
+            StatusCard("一键 GitHub 链接", state.oneTapGithubUploadState.githubReviewUrl ?: state.oneTapGithubUploadState.errorCode ?: "暂无")
             StatusCard("下载目录", state.lastPublicExportPath ?: "导出后显示")
             StatusCard("证据包 JSON", state.lastEvidenceJsonPath ?: "暂无")
             Card(modifier = Modifier.fillMaxWidth()) {

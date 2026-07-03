@@ -1,9 +1,9 @@
 {
-    "versionName":  "4.1.13",
-    "versionCode":  431,
-    "apkUrl":  "huiyi-v4.1.13-debug.apk",
-    "releaseNotes":  "v4.1.13 one tap feedback zip UX",
+    "versionName":  "4.1.14",
+    "versionCode":  432,
+    "apkUrl":  "huiyi-v4.1.14-debug.apk",
+    "releaseNotes":  "v4.1.14 one tap feedback github upload fallback",
     "forceUpdate":  false,
-    "sha256":  "95B2261325763F7837345662051FCB65222750555D45F6B8550919DA11B711C9",
-    "createdAt":  1783064189376
+    "sha256":  "6499BB8A493404B536B9F4EE7C8C692F4978B08EE75F82316862A0274994CFCF",
+    "createdAt":  1783065499841
 }

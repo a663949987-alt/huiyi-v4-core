@@ -3,15 +3,15 @@
 ## v4.1.10 Current Round Summary
 
 - project: Huiyi v4 Core
-- versionName: 4.1.13
-- versionCode: 431
+- versionName: 4.1.14
+- versionCode: 432
 - branch: main
-- commitHash: 186b3a8
-- generatedAt: 2026-07-03 15:36:59 +0800
-- taskName: one_tap_review_and_feedback_export_ux_fix
-- currentVersion: 4.1.13
-- currentTaskName: one_tap_review_and_feedback_export_ux_fix
-- currentGeneratedAt: 2026-07-03 15:36:59 +0800
+- commitHash: 73564bf
+- generatedAt: 2026-07-03 15:59:29 +0800
+- taskName: one_tap_feedback_auto_push_to_github
+- currentVersion: 4.1.14
+- currentTaskName: one_tap_feedback_auto_push_to_github
+- currentGeneratedAt: 2026-07-03 15:59:29 +0800
 - review_freshness_result: PASS
 - mockchat_result: PASS
 - real_device_smoke_result: NOT_TESTED
@@ -139,20 +139,20 @@ currentRegressionStatus:
 ## 1. 基本信息
 
 - project: Huiyi v4 Core
-- versionName: 4.1.13
-- versionCode: 431
+- versionName: 4.1.14
+- versionCode: 432
 - branch: main
-- commitHash: 186b3a8
-- generatedAt: 2026-07-03 15:36:59 +0800
-- taskName: one_tap_review_and_feedback_export_ux_fix
+- commitHash: 73564bf
+- generatedAt: 2026-07-03 15:59:29 +0800
+- taskName: one_tap_feedback_auto_push_to_github
 - review_freshness_result: PASS
 - mockchat_result: PASS
 - real_device_smoke_result: NOT_TESTED
 - overall_result: NOT_TESTED
 - failReason: 本轮 Review Freshness 通过，但 Real Device Smoke 未执行，不代表真实聊天 App 已通过。
-- currentVersion: 4.1.13
-- currentTaskName: one_tap_review_and_feedback_export_ux_fix
-- currentGeneratedAt: 2026-07-03 15:36:59 +0800
+- currentVersion: 4.1.14
+- currentTaskName: one_tap_feedback_auto_push_to_github
+- currentGeneratedAt: 2026-07-03 15:59:29 +0800
 - currentOverallResult: NOT_TESTED
 
 currentUserFeedback:
@@ -173,10 +173,10 @@ currentRegressionStatus:
 
 ## Current Round Evidence
 
-- currentTaskName: one_tap_review_and_feedback_export_ux_fix
-- currentVersion: 4.1.13
-- currentGeneratedAt: 2026-07-03 15:36:59 +0800
-- currentReports: outputs/one-tap-feedback-ux-report-for-gpt.md
+- currentTaskName: one_tap_feedback_auto_push_to_github
+- currentVersion: 4.1.14
+- currentGeneratedAt: 2026-07-03 15:59:29 +0800
+- currentReports: outputs/one-tap-github-upload-report-for-gpt.md
 - currentSampleSources: not_tested
 - currentOverallResult: NOT_TESTED
 - review_freshness_result: PASS
@@ -186,9 +186,9 @@ currentRegressionStatus:
 - mockChatMatrixStillPass: true
 - smokeDisclaimer: 本轮 Review Freshness 通过，但 Real Device Smoke 未执行，不代表真实聊天 App 已通过。
 
-### one-tap-feedback-ux-report-for-gpt.md
+### one-tap-github-upload-report-for-gpt.md
 
-- versionName: 4.1.13
+- versionName: 4.1.14
 
 ## Current Next Sentence Failure Diagnosis
 
@@ -356,14 +356,16 @@ These reports are historical references only. Their FAIL or `sample_source=unkno
 ### 新增文件
 
 ```
-outputs/one-tap-feedback-ux-report-for-gpt.md
+outputs/one-tap-github-upload-report-for-gpt.md
 outputs/review/archive/
 ```
 
 ### 修改文件
 
 ```
-
+outputs/review/huiyi-v4-review-bundle-for-gpt.zip
+outputs/review/huiyi-v4-review-for-gpt.md
+outputs/review/manifest.json
 ```
 
 ### 删除文件
@@ -423,9 +425,9 @@ See Current Round Evidence and Historical / Trace Reports above.
 
 ## 8. 产物清单
 
-- path: outputs/one-tap-feedback-ux-report-for-gpt.md
+- path: outputs/one-tap-github-upload-report-for-gpt.md
   type: report
-  sha256: 1d53eef1cf3ef28075659a477b6782b42e9fc02626146b050f7bafde58be2d54
+  sha256: a6040791c75339325bcd5272e257b0c1aa759c130078a39c159437f75832af4d
   是否建议发给 GPT: false
   用途: Current round evidence.
   isCurrentRound: true

@@ -57,6 +57,7 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.withContext
 import java.io.File
 import java.util.UUID
 
@@ -79,6 +80,8 @@ data class HuiyiRuntimeState(
     val latestNextSentenceFailureJsonPath: String? = null,
     val latestPhoneGptReviewBundlePath: String? = null,
     val latestOneTapFeedbackBundlePath: String? = null,
+    val latestOneTapGithubUploadReportPath: String? = null,
+    val oneTapGithubUploadState: OneTapGithubUploadState = OneTapGithubUploadState(),
     val latestFlightRecord: NextSentenceFlightRecord? = null,
     val recentFlightRecords: List<NextSentenceFlightRecord> = emptyList(),
     val lanUpdateState: LanUpdateState = LanUpdateState()
@@ -739,6 +742,17 @@ class HuiyiRuntime private constructor(
 
     fun exportOneTapFeedback(correctionLastSpeaker: String = "NONE") {
         scope.launch {
+            mutableState.update {
+                it.copy(
+                    oneTapGithubUploadState = OneTapGithubUploadState(
+                        stage = OneTapGithubUploadStage.ZIP_GENERATING,
+                        sessionId = it.latestFlightRecord?.sessionId,
+                        userVisibleMessage = "正在生成反馈包..."
+                    ),
+                    lastError = "正在生成反馈包...",
+                    panelVisible = true
+                )
+            }
             val state = mutableState.value
             val exporter = OneTapFeedbackExporter(appContext)
             exporter.export(
@@ -752,28 +766,112 @@ class HuiyiRuntime private constructor(
                 )
             ).fold(
                 onSuccess = { output ->
-                    runCatching {
-                        appContext.startActivity(
-                            Intent.createChooser(output.shareIntent, "分享给 GPT")
-                                .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-                        )
-                    }
                     mutableState.update {
                         it.copy(
                             latestOneTapFeedbackBundlePath = output.zipFile.absolutePath,
                             lastDebugExportPath = output.zipFile.absolutePath,
                             lastPublicExportPath = output.publicCopyPath ?: output.displayPath,
-                            lastError = "一键反馈包已生成，只需要把这个 zip 发给 GPT。"
+                            oneTapGithubUploadState = OneTapGithubUploadState(
+                                stage = OneTapGithubUploadStage.PRIVACY_SCAN_RUNNING,
+                                sessionId = output.record.sessionId,
+                                zipPath = output.zipFile.absolutePath,
+                                userVisibleMessage = "正在检查隐私安全..."
+                            ),
+                            lastError = "正在检查隐私安全...",
+                            panelVisible = true
+                        )
+                    }
+                    val uploadConfig = OneTapGithubUploadConfig()
+                    mutableState.update {
+                        it.copy(
+                            oneTapGithubUploadState = OneTapGithubUploadState(
+                                stage = if (uploadConfig.enabled) OneTapGithubUploadStage.UPLOAD_STARTED else OneTapGithubUploadStage.FALLBACK_LOCAL_ONLY,
+                                sessionId = output.record.sessionId,
+                                zipPath = output.zipFile.absolutePath,
+                                userVisibleMessage = if (uploadConfig.enabled) "正在上传 GitHub..." else "GitHub 自动上传暂未配置，准备本地保底..."
+                            ),
+                            lastError = if (uploadConfig.enabled) "正在上传 GitHub..." else "GitHub 自动上传暂未配置，准备本地保底...",
+                            panelVisible = true
+                        )
+                    }
+                    val report = withContext(Dispatchers.IO) {
+                        OneTapGithubUploader(uploadConfig).upload(output.zipFile, output.record)
+                    }
+                    val reportPaths = writeOneTapGithubUploadReport(report)
+                    val shouldShareFallback = !report.uploadSuccess
+                    if (shouldShareFallback) {
+                        runCatching {
+                            appContext.startActivity(
+                                Intent.createChooser(output.shareIntent, "分享一键反馈包")
+                                    .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                            )
+                        }
+                    }
+                    val finalMessage = buildOneTapGithubUserMessage(report, output.publicCopyPath ?: output.displayPath)
+                    mutableState.update {
+                        it.copy(
+                            latestOneTapFeedbackBundlePath = output.zipFile.absolutePath,
+                            lastDebugExportPath = output.zipFile.absolutePath,
+                            lastPublicExportPath = output.publicCopyPath ?: output.displayPath,
+                            latestOneTapGithubUploadReportPath = reportPaths.first.absolutePath,
+                            oneTapGithubUploadState = report.state,
+                            lastError = finalMessage,
+                            panelVisible = true
                         )
                     }
                 },
                 onFailure = { error ->
                     mutableState.update {
-                        it.copy(lastError = "一键反馈包导出失败：${error.message}")
+                        it.copy(
+                            oneTapGithubUploadState = OneTapGithubUploadState(
+                                stage = OneTapGithubUploadStage.UPLOAD_FAILED,
+                                errorCode = OneTapGithubUploadErrorCode.GITHUB_UPLOAD_UNKNOWN_ERROR,
+                                errorMessageRedacted = error.message?.redactPrivateText(),
+                                userVisibleMessage = "反馈包生成失败。"
+                            ),
+                            lastError = "反馈包生成失败：${error.message?.redactPrivateText()}",
+                            panelVisible = true
+                        )
                     }
                 }
             )
         }
+    }
+
+    private fun buildOneTapGithubUserMessage(
+        report: OneTapGithubUploadReport,
+        fallbackDisplayPath: String
+    ): String = if (report.uploadSuccess) {
+        """
+            已上传 GitHub，GPT 可以验收。
+            branch: ${report.githubBranch}
+            commit: ${report.githubCommitHash}
+            path: ${report.githubReviewPath}
+            url: ${report.githubReviewUrl}
+        """.trimIndent()
+    } else {
+        """
+            上传 GitHub 失败，但反馈包已保存。
+            errorCode: ${report.errorCode}
+            本地 zip: $fallbackDisplayPath
+            你可以使用刚弹出的系统分享面板发送 zip。
+        """.trimIndent()
+    }
+
+    private fun writeOneTapGithubUploadReport(report: OneTapGithubUploadReport): Pair<File, File> {
+        val markdown = OneTapGithubUploadReportGenerator.markdown(report)
+        val json = OneTapGithubUploadReportGenerator.json(report)
+        val dir = File(appContext.filesDir, "debug/review").apply { mkdirs() }
+        val mdFile = File(dir, "one-tap-github-upload-report-for-gpt.md")
+        val jsonFile = File(dir, "one-tap-github-upload-report.json")
+        mdFile.writeText(markdown, Charsets.UTF_8)
+        jsonFile.writeText(json, Charsets.UTF_8)
+        val exporter = PublicDownloadExporter(appContext)
+        exporter.exportText("one-tap-github-upload-report-for-gpt.md", markdown, relativePath = "Huiyi/review")
+            .getOrElse { exporter.fallbackToPrivate("one-tap-github-upload-report-for-gpt.md", markdown, subDirectory = "debug/review") }
+        exporter.exportText("one-tap-github-upload-report.json", json, "application/json", relativePath = "Huiyi/review")
+            .getOrElse { exporter.fallbackToPrivate("one-tap-github-upload-report.json", json, subDirectory = "debug/review") }
+        return mdFile to jsonFile
     }
 
     fun exportClickDiagnosticReports(): List<String> {

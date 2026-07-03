@@ -74,7 +74,9 @@ data class OneTapFeedbackExport(
     val zipFile: File,
     val displayPath: String,
     val publicCopyPath: String?,
-    val shareIntent: Intent
+    val shareIntent: Intent,
+    val record: NextSentenceFlightRecord,
+    val generatedAt: Long
 )
 
 object OneTapFeedbackZipContract {
@@ -266,7 +268,9 @@ class OneTapFeedbackExporter(
             zipFile = zip,
             displayPath = zip.absolutePath,
             publicCopyPath = publicCopy?.displayPath,
-            shareIntent = buildShareIntent(zip)
+            shareIntent = buildShareIntent(zip),
+            record = record,
+            generatedAt = now
         )
     }
 
