@@ -1,96 +1,254 @@
 {
   "project": "Huiyi v4 Core",
-  "versionName": "4.1.23",
-  "versionCode": 443,
   "taskName": "local_state_chain_closure_before_cloud",
-  "overallResult": "CONTROLLED_LOCAL_PASS",
+  "versionName": "4.1.23",
+  "versionCode": 442,
   "currentOverallResult": "CONTROLLED_LOCAL_PASS",
+  "sessionBindingReportGenerated": true,
+  "phoneLatestVersionName": "4.1.23",
+  "phoneLatestVersionCode": 442,
+  "phoneLatestFreshness": "NOT_AVAILABLE_CURRENT_NO_PHONE",
+  "phoneLatestUsedForCurrentResult": false,
+  "realDeviceSmokeResult": "NOT_TESTED",
+  "userNeedsPhoneThisRound": false,
+  "cloudEnabled": false,
+  "generatedAt": "2026-07-03T11:13:08Z",
+  "overallResult": "CONTROLLED_LOCAL_PASS",
   "sessionBinding": "PASS",
-  "feedbackExportsBoundSession": "PASS",
   "feedbackTriggeredNewAnalysis": false,
   "feedbackReCapturedCurrentRoot": false,
   "feedbackUsedOverlayStateAsPreAnalysis": false,
   "preAnalysisSnapshotFrozen": "PASS",
-  "preAnalysisSnapshotFrozenAt": "RECORDED_BEFORE_PANEL",
-  "preAnalysisSnapshotMutableAfterPanel": false,
-  "preAnalysisSnapshotSource": "CURRENT_ROOT_BEFORE_PANEL_OR_LAST_STABLE_CHAT_SNAPSHOT_BEFORE_PANEL",
-  "postPanelSnapshotUsedForDecision": false,
   "sessionImmutableAfterTerminalState": true,
   "lastMeHardWaitRule": "PASS",
-  "contextRequiredCanOverrideLastMe": false,
-  "routePanelCanShowForLastMe": false,
-  "cloudCanRunForLastMe": false,
-  "lastMeDecisionType": "WAIT",
-  "lastMeTerminalState": "WAIT_PANEL",
-  "lastMeRouteCount": 0,
-  "lastMeCloudAttempted": false,
-  "phoneLatestVersionName": "4.1.23",
-  "phoneLatestVersionCode": 443,
-  "phoneLatestFreshness": "NOT_AVAILABLE",
-  "phoneLatestUsedForCurrentResult": false,
-  "phoneLatestIgnoredReason": "NO_NEW_PHONE_BUNDLE_THIS_ROUND_USER_NOT_REQUIRED_TO_TEST",
-  "phoneBundleIncluded": false,
-  "phoneBundleRequiredFromUser": false,
-  "fixtureReplayResult": "PASS",
-  "mockChatBuildResult": "PASS",
-  "emulatorUiSmokeResult": "NOT_RUN",
-  "realDeviceSmokeResult": "NOT_TESTED",
-  "cloudEnabled": false,
-  "cloudConfigured": false,
-  "cloudAttempted": false,
-  "cloudSkippedReason": "CLOUD_NOT_CONFIGURED_OR_LAST_SPEAKER_ME_WAIT",
-  "userNeedsPhoneThisRound": false,
-  "userInstruction": "本轮用户不需要手机测试。",
   "containsSecrets": false,
   "files": [
     {
       "path": "outputs/gpt_review_inbox/README_FOR_GPT.md",
       "type": "report",
-      "sha256": "576a39dad4d711e041f88361551435959b51ef40ce7a0254be4166eaaecdb767",
+      "sha256": "f4da0dea895273b0a9583a64b5ca4e44596a0e3557cbff12a70e58f8164fed9c",
       "sendToGpt": true,
-      "description": "Current round evidence"
+      "description": "Current round review evidence"
     },
     {
       "path": "outputs/gpt_review_inbox/session-binding-report-for-gpt.md",
       "type": "report",
-      "sha256": "bbf366b99a1cdda5db0dff6d17a2c099fa305df31744f04adca940552c243fd3",
+      "sha256": "53c6ab370a08f506b46c9d4ce9b8242086929c3de26187d0b993d88835c4411c",
       "sendToGpt": true,
-      "description": "Current round evidence"
+      "description": "Current round review evidence"
     },
     {
       "path": "outputs/gpt_review_inbox/session-binding-report.json",
       "type": "json",
-      "sha256": "e6d12c9297ff56e5c08eb8d8fbcc87ba3d02bdcf466be6b6f0ab03b7deaefc64",
+      "sha256": "19c9374b78f9057caca20ffff9991633db0dec86f0fa5332e3fb7f703915dde6",
       "sendToGpt": true,
-      "description": "Current round evidence"
+      "description": "Current round review evidence"
     },
     {
       "path": "outputs/gpt_review_inbox/changed-files-for-gpt.md",
       "type": "report",
-      "sha256": "16caa8156113f78f5cc5592215995a20e8caf3139b76f038cedeb39fd381c53d",
+      "sha256": "0d96aa51147d5bff8d42d9c2f1cb35ac2b36acef9a35360078a0e9386408c2a2",
       "sendToGpt": true,
-      "description": "Current round evidence"
+      "description": "Current round review evidence"
     },
     {
       "path": "outputs/gpt_review_inbox/huiyi-v4-review-for-gpt.md",
       "type": "report",
-      "sha256": "d6092817ac9982ed1a92b2e3de9e1e627d34816d71c4beb769e8adc8a077de07",
+      "sha256": "c525042f600b4ff18ae6d46a059c976281834d8f49daf6fb79103e2e2c0009ba",
       "sendToGpt": true,
-      "description": "Current round evidence"
+      "description": "Current round review evidence"
     },
     {
       "path": "outputs/gpt_review_inbox/phone/latest/one-tap-feedback-manifest.json",
       "type": "json",
-      "sha256": "e54b4a3096ee8c452f25c369d4a9d83a52fdfce1af49c8cbacbf0dd718e1d5f9",
+      "sha256": "c79edd6c9574b2cf756a155b587eb9a885144b34a054ec4cef9fce00e5fa3be4",
       "sendToGpt": true,
-      "description": "Current round evidence"
+      "description": "Current round review evidence"
+    },
+    {
+      "path": "outputs/gpt_review_inbox/phone/latest/latest-session/next-sentence-flight-record.json",
+      "type": "json",
+      "sha256": "f12654ec23a33a7850ee1fcf46efa08e139550cb3f5f6159ebf270ad691b1d9b",
+      "sendToGpt": true,
+      "description": "Current round review evidence"
+    },
+    {
+      "path": "outputs/gpt_review_inbox/phone/latest/current-screen/real-device-current-screen-report.json",
+      "type": "json",
+      "sha256": "16f77ac4c2a7329ea73963c31f09db56534a7f159e89cc3da7d89e510f43f9e4",
+      "sendToGpt": true,
+      "description": "Current round review evidence"
+    },
+    {
+      "path": "outputs/gpt_review_inbox/git-diff-for-gpt.patch",
+      "type": "report",
+      "sha256": "61305c7dc44321611b13f36db07c928dda39a81b497126cdcada2bf244243c04",
+      "sendToGpt": true,
+      "description": "Current round review evidence"
     },
     {
       "path": "outputs/update_server/latest.json",
       "type": "json",
-      "sha256": "989dddb1bf963e4008ebe0f57b101241a1177c441f6a5e7f4179d60493daeb6e",
+      "sha256": "8726d3a3882e0ffdd4e4253c83a72af04c7f85b9d113ee4225364b9f0e6657b6",
       "sendToGpt": true,
-      "description": "Current round evidence"
+      "description": "Current round review evidence"
+    },
+    {
+      "path": "outputs/gpt_to_codex/current-task.md",
+      "type": "report",
+      "sha256": "697c9519c1b01107a98d80121ba00a94860839b8a6d7b4a4da1d68b33aa0cc20",
+      "sendToGpt": true,
+      "description": "Current round review evidence"
+    },
+    {
+      "path": "outputs/gpt_to_codex/current-task.json",
+      "type": "json",
+      "sha256": "65f1bbe4a3b0911739a095c78832469475e8cdd647164d652dfa7bbf281709a8",
+      "sendToGpt": true,
+      "description": "Current round review evidence"
+    },
+    {
+      "path": "outputs/codex_to_gpt/README_FOR_GPT.md",
+      "type": "report",
+      "sha256": "f4da0dea895273b0a9583a64b5ca4e44596a0e3557cbff12a70e58f8164fed9c",
+      "sendToGpt": true,
+      "description": "Current round review evidence"
+    },
+    {
+      "path": "outputs/codex_to_gpt/result-manifest.json",
+      "type": "json",
+      "sha256": "a8b2f1be6ebbf3ae92802f04cf79f2363134a477a59399509947484ee442a645",
+      "sendToGpt": true,
+      "description": "Current round review evidence"
+    },
+    {
+      "path": "outputs/codex_to_gpt/changed-files-for-gpt.md",
+      "type": "report",
+      "sha256": "0d96aa51147d5bff8d42d9c2f1cb35ac2b36acef9a35360078a0e9386408c2a2",
+      "sendToGpt": true,
+      "description": "Current round review evidence"
+    }
+  ],
+  "reviewFiles": [
+    {
+      "path": "README_FOR_GPT.md",
+      "source": "outputs/gpt_review_inbox/README_FOR_GPT.md",
+      "required": true,
+      "exists": true,
+      "sha256": "f4da0dea895273b0a9583a64b5ca4e44596a0e3557cbff12a70e58f8164fed9c",
+      "description": "Current round review evidence"
+    },
+    {
+      "path": "session-binding-report-for-gpt.md",
+      "source": "outputs/gpt_review_inbox/session-binding-report-for-gpt.md",
+      "required": true,
+      "exists": true,
+      "sha256": "53c6ab370a08f506b46c9d4ce9b8242086929c3de26187d0b993d88835c4411c",
+      "description": "Current round review evidence"
+    },
+    {
+      "path": "session-binding-report.json",
+      "source": "outputs/gpt_review_inbox/session-binding-report.json",
+      "required": true,
+      "exists": true,
+      "sha256": "19c9374b78f9057caca20ffff9991633db0dec86f0fa5332e3fb7f703915dde6",
+      "description": "Current round review evidence"
+    },
+    {
+      "path": "changed-files-for-gpt.md",
+      "source": "outputs/gpt_review_inbox/changed-files-for-gpt.md",
+      "required": true,
+      "exists": true,
+      "sha256": "0d96aa51147d5bff8d42d9c2f1cb35ac2b36acef9a35360078a0e9386408c2a2",
+      "description": "Current round review evidence"
+    },
+    {
+      "path": "huiyi-v4-review-for-gpt.md",
+      "source": "outputs/gpt_review_inbox/huiyi-v4-review-for-gpt.md",
+      "required": true,
+      "exists": true,
+      "sha256": "c525042f600b4ff18ae6d46a059c976281834d8f49daf6fb79103e2e2c0009ba",
+      "description": "Current round review evidence"
+    },
+    {
+      "path": "phone/latest/one-tap-feedback-manifest.json",
+      "source": "outputs/gpt_review_inbox/phone/latest/one-tap-feedback-manifest.json",
+      "required": true,
+      "exists": true,
+      "sha256": "c79edd6c9574b2cf756a155b587eb9a885144b34a054ec4cef9fce00e5fa3be4",
+      "description": "Current round review evidence"
+    },
+    {
+      "path": "phone/latest/latest-session/next-sentence-flight-record.json",
+      "source": "outputs/gpt_review_inbox/phone/latest/latest-session/next-sentence-flight-record.json",
+      "required": true,
+      "exists": true,
+      "sha256": "f12654ec23a33a7850ee1fcf46efa08e139550cb3f5f6159ebf270ad691b1d9b",
+      "description": "Current round review evidence"
+    },
+    {
+      "path": "phone/latest/current-screen/real-device-current-screen-report.json",
+      "source": "outputs/gpt_review_inbox/phone/latest/current-screen/real-device-current-screen-report.json",
+      "required": true,
+      "exists": true,
+      "sha256": "16f77ac4c2a7329ea73963c31f09db56534a7f159e89cc3da7d89e510f43f9e4",
+      "description": "Current round review evidence"
+    },
+    {
+      "path": "git-diff-for-gpt.patch",
+      "source": "outputs/gpt_review_inbox/git-diff-for-gpt.patch",
+      "required": true,
+      "exists": true,
+      "sha256": "61305c7dc44321611b13f36db07c928dda39a81b497126cdcada2bf244243c04",
+      "description": "Current round review evidence"
+    },
+    {
+      "path": "outputs/update_server/latest.json",
+      "source": "outputs/update_server/latest.json",
+      "required": true,
+      "exists": true,
+      "sha256": "8726d3a3882e0ffdd4e4253c83a72af04c7f85b9d113ee4225364b9f0e6657b6",
+      "description": "Current round review evidence"
+    },
+    {
+      "path": "outputs/gpt_to_codex/current-task.md",
+      "source": "outputs/gpt_to_codex/current-task.md",
+      "required": true,
+      "exists": true,
+      "sha256": "697c9519c1b01107a98d80121ba00a94860839b8a6d7b4a4da1d68b33aa0cc20",
+      "description": "Current round review evidence"
+    },
+    {
+      "path": "outputs/gpt_to_codex/current-task.json",
+      "source": "outputs/gpt_to_codex/current-task.json",
+      "required": true,
+      "exists": true,
+      "sha256": "65f1bbe4a3b0911739a095c78832469475e8cdd647164d652dfa7bbf281709a8",
+      "description": "Current round review evidence"
+    },
+    {
+      "path": "outputs/codex_to_gpt/README_FOR_GPT.md",
+      "source": "outputs/codex_to_gpt/README_FOR_GPT.md",
+      "required": true,
+      "exists": true,
+      "sha256": "f4da0dea895273b0a9583a64b5ca4e44596a0e3557cbff12a70e58f8164fed9c",
+      "description": "Current round review evidence"
+    },
+    {
+      "path": "outputs/codex_to_gpt/result-manifest.json",
+      "source": "outputs/codex_to_gpt/result-manifest.json",
+      "required": true,
+      "exists": true,
+      "sha256": "a8b2f1be6ebbf3ae92802f04cf79f2363134a477a59399509947484ee442a645",
+      "description": "Current round review evidence"
+    },
+    {
+      "path": "outputs/codex_to_gpt/changed-files-for-gpt.md",
+      "source": "outputs/codex_to_gpt/changed-files-for-gpt.md",
+      "required": true,
+      "exists": true,
+      "sha256": "0d96aa51147d5bff8d42d9c2f1cb35ac2b36acef9a35360078a0e9386408c2a2",
+      "description": "Current round review evidence"
     }
   ]
 }

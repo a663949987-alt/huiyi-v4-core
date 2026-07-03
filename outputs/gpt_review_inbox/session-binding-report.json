@@ -1,8 +1,9 @@
 {
   "taskName": "local_state_chain_closure_before_cloud",
   "versionName": "4.1.23",
-  "versionCode": 443,
+  "versionCode": 442,
   "currentOverallResult": "CONTROLLED_LOCAL_PASS",
+  "sessionBindingReportGenerated": true,
   "sessionBinding": "PASS",
   "feedbackExportsBoundSession": "PASS",
   "feedbackTriggeredNewAnalysis": false,
@@ -23,8 +24,8 @@
   "lastMeRouteCount": 0,
   "lastMeCloudAttempted": false,
   "phoneLatestVersionName": "4.1.23",
-  "phoneLatestVersionCode": 443,
-  "phoneLatestFreshness": "NOT_AVAILABLE",
+  "phoneLatestVersionCode": 442,
+  "phoneLatestFreshness": "NOT_AVAILABLE_CURRENT_NO_PHONE",
   "phoneLatestUsedForCurrentResult": false,
   "phoneLatestIgnoredReason": "NO_NEW_PHONE_BUNDLE_THIS_ROUND_USER_NOT_REQUIRED_TO_TEST",
   "phoneBundleIncluded": false,
@@ -38,5 +39,6 @@
   "cloudAttempted": false,
   "cloudSkippedReason": "CLOUD_NOT_CONFIGURED_OR_LAST_SPEAKER_ME_WAIT",
   "userNeedsPhoneThisRound": false,
-  "userInstruction": "本轮用户不需要手机测试。"
+  "userInstruction": "NO_PHONE_TEST_REQUIRED_THIS_ROUND",
+  "generatedAt": "2026-07-03T11:13:08Z"
 }

@@ -1,0 +1,16 @@
+{
+  "project": "Huiyi v4 Core",
+  "taskName": "local_state_chain_closure_before_cloud",
+  "versionName": "4.1.23",
+  "versionCode": 442,
+  "currentOverallResult": "CONTROLLED_LOCAL_PASS",
+  "sessionBindingReportGenerated": true,
+  "phoneLatestVersionName": "4.1.23",
+  "phoneLatestVersionCode": 442,
+  "phoneLatestFreshness": "NOT_AVAILABLE_CURRENT_NO_PHONE",
+  "phoneLatestUsedForCurrentResult": false,
+  "realDeviceSmokeResult": "NOT_TESTED",
+  "userNeedsPhoneThisRound": false,
+  "cloudEnabled": false,
+  "generatedAt": "2026-07-03T11:13:08Z"
+}

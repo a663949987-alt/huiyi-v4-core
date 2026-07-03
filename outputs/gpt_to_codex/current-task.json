@@ -1,0 +1,8 @@
+{
+  "taskName": "phone_latest_current_session_binding_fix",
+  "requestedAction": "unify_v4_1_23_review_package_entry_and_version_fields",
+  "versionName": "4.1.23",
+  "versionCode": 442,
+  "noProductFeatureChanges": true,
+  "userNeedsPhoneThisRound": false
+}

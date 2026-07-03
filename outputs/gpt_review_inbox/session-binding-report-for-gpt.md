@@ -1,20 +1,17 @@
-# Session Binding Report For GPT
+# Session Binding Report for GPT
 
-## Current round
+## Summary
 - taskName: local_state_chain_closure_before_cloud
 - versionName: 4.1.23
-- versionCode: 443
+- versionCode: 442
 - currentOverallResult: CONTROLLED_LOCAL_PASS
-
-## Current result split
-- fixtureReplayResult: PASS
-- mockChatBuildResult: PASS
-- emulatorUiSmokeResult: NOT_RUN
-- realDeviceSmokeResult: NOT_TESTED
-- phoneLatestFreshness: NOT_AVAILABLE
+- sessionBindingReportGenerated: true
+- phoneLatestFreshness: NOT_AVAILABLE_CURRENT_NO_PHONE
 - phoneLatestUsedForCurrentResult: false
+- realDeviceSmokeResult: NOT_TESTED
+- userNeedsPhoneThisRound: false
 
-## Session binding
+## Session Binding Assertions
 - feedbackExportsBoundSession: PASS
 - feedbackTriggeredNewAnalysis: false
 - feedbackReCapturedCurrentRoot: false
@@ -24,37 +21,29 @@
 - postPanelSnapshotUsedForDecision: false
 - sessionImmutableAfterTerminalState: true
 
-## LAST ME hard gate
+## LAST ME Hard WAIT Rule
 - lastMeHardWaitRule: PASS
+- lastMeDecisionType: WAIT
+- lastMeTerminalState: WAIT_PANEL
+- lastMeRouteCount: 0
+- lastMeCloudAttempted: false
 - contextRequiredCanOverrideLastMe: false
-- routePanelCanShowForLastMe: false
-- cloudCanRunForLastMe: false
-- actualLastSpeaker=ME -> decisionType=WAIT -> terminalState=WAIT_PANEL -> routeCount=0 -> cloudAttempted=false
 
-## phone/latest
+## Validation Layer Split
+- fixtureReplayResult: PASS
+- mockChatBuildResult: PASS
+- emulatorUiSmokeResult: NOT_RUN
+- realDeviceSmokeResult: NOT_TESTED
+- cloudEnabled: false
+- cloudAttempted: false
+
+## Phone Latest
 - phoneLatestVersionName: 4.1.23
-- phoneLatestVersionCode: 443
-- phoneLatestFreshness: NOT_AVAILABLE
+- phoneLatestVersionCode: 442
+- phoneLatestFreshness: NOT_AVAILABLE_CURRENT_NO_PHONE
 - phoneLatestUsedForCurrentResult: false
 - phoneLatestIgnoredReason: NO_NEW_PHONE_BUNDLE_THIS_ROUND_USER_NOT_REQUIRED_TO_TEST
-- phoneBundleIncluded: false
-- phoneBundleRequiredFromUser: false
 
-## Cloud
-- cloudEnabled: false
-- cloudConfigured: false
-- cloudAttempted: false
-- decisionSource: LOCAL_WAIT / LOCAL_FALLBACK
-
-## User testing
+## User Testing
 - userNeedsPhoneThisRound: false
-- userInstruction: 本轮用户不需要手机测试。
-
-## Tests
-- LocalStateChainClosureTest: PASS
-- OneTapFeedbackExportTest: PASS
-- LastMeWaitPriorityAndStatusMetadataFixTest: PASS
-- CloudAnalysisMvpSafetyGateTest: PASS
-- SimulationFirstValidationTest: PASS
-- mockChatBuildResult: PASS
-- assembleDebug: PASS
+- userInstruction: NO_PHONE_TEST_REQUIRED_THIS_ROUND

@@ -1,28 +1,12 @@
 # Next Sentence Flight Record
 
 - sessionId: not-tested-current-version
-- terminalState: NOT_TESTED
 - appVersionName: 4.1.23
-- appVersionCode: 443
-- phoneLatestStatus: WAITING_FOR_CURRENT_VERSION_PHONE_SMOKE
-- replacedOldPollutedBundle: true
-- previousPollutedVersionRemovedFromLatest: 4.1.20
-- appPackage: NOT_TESTED
-- actualLastSpeaker: NOT_TESTED
-- decisionType: NOT_TESTED
-- decisionTypeFamily: NOT_TESTED
-- routeCount: 0
-- waitPanelShown: false
-- routePanelShown: false
-- feedbackTargetSessionFound: false
+- appVersionCode: 442
+- terminalState: NOT_TESTED
 - feedbackTriggeredNewAnalysis: false
 - feedbackReCapturedCurrentRoot: false
 - feedbackUsedOverlayStateAsPreAnalysis: false
 - cloudEnabled: false
-- cloudConfigured: false
-- cloudContractImplemented: false
 - cloudAttempted: false
-- cloudAnalysisAttempted: false
-- cloudSuccess: false
-- cloudSkippedReason: CLOUD_TODO_DISABLED
 - lastMeRealDeviceResult: NOT_TESTED_USER_DID_NOT_HAVE_SAFE_SCENARIO

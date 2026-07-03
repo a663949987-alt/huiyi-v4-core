@@ -4,7 +4,7 @@
 
 - phoneLatestStatus: WAITING_FOR_CURRENT_VERSION_PHONE_SMOKE
 - appVersionName: 4.1.23
-- appVersionCode: 443
+- appVersionCode: 442
 - replacedOldPollutedBundle: true
 - previousPollutedVersionRemovedFromLatest: 4.1.20
 - source: LOCAL_CURRENT_VERSION_PLACEHOLDER
@@ -40,6 +40,6 @@
 
 ## Freshness For Current Round
 
-- phoneLatestFreshness: NOT_AVAILABLE
+- phoneLatestFreshness: NOT_AVAILABLE_CURRENT_NO_PHONE
 - phoneLatestUsedForCurrentResult: false
 - phoneLatestIgnoredReason: NO_NEW_PHONE_BUNDLE_THIS_ROUND_USER_NOT_REQUIRED_TO_TEST
