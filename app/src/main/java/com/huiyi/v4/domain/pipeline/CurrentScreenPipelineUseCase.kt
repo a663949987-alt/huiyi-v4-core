@@ -1,6 +1,11 @@
 package com.huiyi.v4.domain.pipeline
 
 import com.huiyi.v4.data.HuiyiPersistenceRepository
+import com.huiyi.v4.domain.cloud.CloudAnalysisConfig
+import com.huiyi.v4.domain.cloud.CloudAnalysisException
+import com.huiyi.v4.domain.cloud.CloudAnalysisInput
+import com.huiyi.v4.domain.cloud.CloudAnalysisService
+import com.huiyi.v4.domain.cloud.CloudAnalysisTrace
 import com.huiyi.v4.domain.context.ContextAssembler
 import com.huiyi.v4.domain.model.ChatSceneContext
 import com.huiyi.v4.domain.model.InfluenceIntensity
@@ -53,7 +58,8 @@ data class CurrentScreenPipelineResult(
     val waitDecisionReached: Boolean = false,
     val waitPanelRenderAttempted: Boolean = false,
     val waitPanelRenderSuccess: Boolean = false,
-    val decisionTypeFamily: String = "UNKNOWN"
+    val decisionTypeFamily: String = "UNKNOWN",
+    val cloudTrace: CloudAnalysisTrace = CloudAnalysisTrace()
 )
 
 class CurrentScreenPipelineUseCase(
@@ -62,7 +68,10 @@ class CurrentScreenPipelineUseCase(
     private val lastSpeakerDecisionUseCase: LastSpeakerDecisionUseCase = LastSpeakerDecisionUseCase(),
     private val decisionEngine: TacticalDecisionEngine = TacticalDecisionEngine(),
     private val routeGenerator: ReplyRouteGenerator = ReplyRouteGenerator(),
-    private val persistenceRepository: HuiyiPersistenceRepository? = null
+    private val persistenceRepository: HuiyiPersistenceRepository? = null,
+    private val cloudAnalysisService: CloudAnalysisService? = null,
+    private val appVersionName: String = "",
+    private val appVersionCode: Int = 0
 ) {
     suspend fun run(userPersonaCorpus: UserPersonaCorpus): Result<CurrentScreenPipelineResult> {
         return captureUseCase.capture().mapCatching { capture ->
@@ -90,7 +99,7 @@ class CurrentScreenPipelineUseCase(
                 lastSpeaker.unknownSpeaker -> unknownSpeakerDecision(lastSpeaker.reason)
                 else -> decisionEngine.decide(context)
             }
-            val routes = if (
+            val localRoutes = if (
                 decision.decisionType == TacticalDecisionType.WAIT ||
                 decision.decisionType == TacticalDecisionType.CONTEXT_REQUIRED ||
                 lastSpeaker.unknownSpeaker ||
@@ -103,18 +112,81 @@ class CurrentScreenPipelineUseCase(
             } else {
                 routeGenerator.generate(context, decision)
             }
+            val targetSupported = capture.snapshot.appPackage in setOf("com.bajiao.im.liaoqi", "com.huiyi.mockchat")
+            val cloudResult = maybeAnalyzeWithCloud(
+                capture = capture,
+                context = context,
+                lastSpeaker = lastSpeaker,
+                localDecision = decision,
+                localRoutes = localRoutes,
+                targetSupported = targetSupported
+            )
             val persistenceError = persistenceRepository?.saveScene(context)?.exceptionOrNull()?.message
             CurrentScreenPipelineResult(
                 captureResult = capture,
                 context = context,
                 lastSpeakerDecision = lastSpeaker,
-                tacticalDecision = decision,
-                routes = routes,
-                apiCalled = false,
-                persistenceError = persistenceError
+                tacticalDecision = cloudResult.decision,
+                routes = cloudResult.routes,
+                apiCalled = cloudResult.trace.apiCalled,
+                persistenceError = persistenceError,
+                cloudTrace = cloudResult.trace
             )
         }
     }
+
+    private suspend fun maybeAnalyzeWithCloud(
+        capture: CurrentScreenCaptureResult,
+        context: ChatSceneContext,
+        lastSpeaker: LastSpeakerDecision,
+        localDecision: TacticalDecision,
+        localRoutes: List<ReplyRoute>,
+        targetSupported: Boolean
+    ): CloudPipelineResult {
+        val service = cloudAnalysisService
+        val config = service?.config ?: CloudAnalysisConfig(cloudEnabled = false)
+        if (lastSpeaker.lastSpeaker == Speaker.ME) {
+            return CloudPipelineResult(localDecision, emptyList(), CloudAnalysisTrace.skipped(config, "LAST_SPEAKER_ME_WAIT", "LOCAL_WAIT"))
+        }
+        if (lastSpeaker.lastSpeaker == Speaker.UNKNOWN || lastSpeaker.unknownSpeaker) {
+            return CloudPipelineResult(localDecision, localRoutes, CloudAnalysisTrace.skipped(config, "LAST_SPEAKER_UNKNOWN", "LOCAL_FALLBACK"))
+        }
+        if (!targetSupported) {
+            return CloudPipelineResult(localDecision, localRoutes, CloudAnalysisTrace.skipped(config, "UNSUPPORTED_APP", "LOCAL_FALLBACK"))
+        }
+        if (service == null || !config.configuredAndEnabled) {
+            return CloudPipelineResult(localDecision, localRoutes, CloudAnalysisTrace.skipped(config, "CLOUD_NOT_CONFIGURED", "LOCAL_FALLBACK"))
+        }
+        if (lastSpeaker.lastSpeaker != Speaker.OTHER || localRoutes.size != 5) {
+            return CloudPipelineResult(localDecision, localRoutes, CloudAnalysisTrace.skipped(config, "LOCAL_CONTEXT_REQUIRED", "LOCAL_FALLBACK"))
+        }
+        val startedAt = System.currentTimeMillis()
+        return service.analyze(
+            CloudAnalysisInput(
+                sessionId = java.util.UUID.randomUUID().toString(),
+                appVersionName = appVersionName,
+                appVersionCode = appVersionCode,
+                capture = capture,
+                context = context,
+                lastSpeakerDecision = lastSpeaker,
+                localDecision = localDecision
+            )
+        ).fold(
+            onSuccess = { output ->
+                CloudPipelineResult(output.decision, output.routes, CloudAnalysisTrace.success(config, output.cloudRequestId, output.latencyMs))
+            },
+            onFailure = { error ->
+                val code = (error as? CloudAnalysisException)?.code ?: "NETWORK"
+                CloudPipelineResult(localDecision, localRoutes, CloudAnalysisTrace.fallback(config, code, System.currentTimeMillis() - startedAt))
+            }
+        )
+    }
+
+    private data class CloudPipelineResult(
+        val decision: TacticalDecision,
+        val routes: List<ReplyRoute>,
+        val trace: CloudAnalysisTrace
+    )
 
     private fun unknownSpeakerDecision(reason: String): TacticalDecision = TacticalDecision(
         decisionType = TacticalDecisionType.CONTEXT_REQUIRED,

@@ -4,6 +4,8 @@ import android.content.Context
 import android.content.Intent
 import com.huiyi.v4.data.DatabaseProvider
 import com.huiyi.v4.data.HuiyiPersistenceRepository
+import com.huiyi.v4.domain.cloud.CloudAnalysisConfig
+import com.huiyi.v4.domain.cloud.CloudAnalysisRepository
 import com.huiyi.v4.domain.capture.ManualContextCaptureSession
 import com.huiyi.v4.domain.capture.VisualDebugResult
 import com.huiyi.v4.domain.context.ContextAssembler
@@ -103,7 +105,17 @@ class HuiyiRuntime private constructor(
     private val prefs = appContext.getSharedPreferences("huiyi-runtime", Context.MODE_PRIVATE)
     private val pipeline = CurrentScreenPipelineUseCase(
         captureUseCase = CurrentScreenCaptureUseCase(),
-        persistenceRepository = persistence
+        persistenceRepository = persistence,
+        cloudAnalysisService = CloudAnalysisRepository(
+            CloudAnalysisConfig(
+                cloudEnabled = BuildConfig.HUIYI_CLOUD_ANALYSIS_ENDPOINT.isNotBlank(),
+                endpoint = BuildConfig.HUIYI_CLOUD_ANALYSIS_ENDPOINT,
+                clientId = BuildConfig.HUIYI_CLOUD_ANALYSIS_CLIENT_ID,
+                clientToken = BuildConfig.HUIYI_CLOUD_ANALYSIS_CLIENT_TOKEN
+            )
+        ),
+        appVersionName = BuildConfig.VERSION_NAME,
+        appVersionCode = BuildConfig.VERSION_CODE
     )
     private var sessionWatchdogJob: Job? = null
 

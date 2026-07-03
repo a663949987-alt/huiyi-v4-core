@@ -1,9 +1,9 @@
 {
-    "versionName":  "4.1.18",
-    "versionCode":  436,
-    "apkUrl":  "huiyi-v4.1.18-debug.apk",
-    "releaseNotes":  "v4.1.18 fixed LAN update default URL and fallback check",
+    "versionName":  "4.1.19",
+    "versionCode":  437,
+    "apkUrl":  "huiyi-v4.1.19-debug.apk",
+    "releaseNotes":  "v4.1.19 cloud analysis MVP with local LAST ME safety gate",
     "forceUpdate":  false,
-    "sha256":  "CDFA64211896E0A2709AE322252A72583D1B82E3E352D62CB0AEE4937197AF98",
-    "createdAt":  1783068355404
+    "sha256":  "ED2006BD89A5B82F59DF71D75B2EAA0AC6217B0BF2B2977E055FAFB84C9452EA",
+    "createdAt":  1783069558011
 }

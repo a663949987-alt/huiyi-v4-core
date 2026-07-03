@@ -337,6 +337,17 @@ fun FloatingTacticalPanel(
                 }
             }
         }
+        state.latestPipelineResult?.cloudTrace?.let { cloud ->
+            if (decision.decisionType != TacticalDecisionType.WAIT) {
+                val label = when {
+                    cloud.decisionSource == "CLOUD" -> "会意云端分析"
+                    cloud.cloudFallbackUsed -> "本地建议：云端暂不可用，已自动降级。"
+                    cloud.cloudSkippedReason == "CLOUD_NOT_CONFIGURED" -> "本地建议：云端暂未配置。"
+                    else -> null
+                }
+                if (label != null) item { Text(label) }
+            }
+        }
         if (decision.decisionType == TacticalDecisionType.WAIT) {
             item {
                 Card(modifier = Modifier.fillMaxWidth()) {

@@ -46,6 +46,8 @@ class FloatingResultPanelController(
         decision.influenceProfile.riskWarning?.let { container.addView(text("风险：$it")) }
         decision.fallbackMove?.let { container.addView(text("撤退：$it")) }
 
+        cloudStatusLabel(result, decision.decisionType)?.let { container.addView(text(it)) }
+
         if (decision.decisionType == TacticalDecisionType.WAIT) {
             container.addView(text("最后一句是你发的，先等她回，不要继续补话。"))
         } else if (routes.isEmpty()) {
@@ -191,6 +193,17 @@ class FloatingResultPanelController(
         textSize = 15f
         setTextColor(0xFF111827.toInt())
         setPadding(0, 6, 0, 6)
+    }
+
+    private fun cloudStatusLabel(result: com.huiyi.v4.domain.pipeline.CurrentScreenPipelineResult?, decisionType: TacticalDecisionType): String? {
+        val cloud = result?.cloudTrace ?: return null
+        if (decisionType == TacticalDecisionType.WAIT) return null
+        return when {
+            cloud.decisionSource == "CLOUD" -> "会意云端分析"
+            cloud.cloudFallbackUsed -> "本地建议：云端暂不可用，已自动降级。"
+            cloud.cloudSkippedReason == "CLOUD_NOT_CONFIGURED" -> "本地建议：云端暂未配置。"
+            else -> null
+        }
     }
 
     private fun copy(value: String) {

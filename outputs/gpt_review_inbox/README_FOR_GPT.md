@@ -1,10 +1,10 @@
 # Huiyi v4 GPT Review Inbox
 
 ## Current round
-- taskName: lan_update_check_failure_default_url_fallback
-- versionName: 4.1.18
-- versionCode: 436
-- generatedAt: 2026-07-03 16:46:27 +0800
+- taskName: cloud_analysis_mvp_with_local_safety_gate
+- versionName: 4.1.19
+- versionCode: 437
+- generatedAt: 2026-07-03 17:07:02 +0800
 - currentOverallResult: NOT_TESTED
 - lastMeRealDeviceResult: NOT_TESTED
 - lastOtherRealDeviceResult: NOT_TESTED
@@ -58,7 +58,7 @@
 - realDeviceSmoke: NOT_TESTED
 
 ## APK
-- debugApkPath: outputs/huiyi-v4.1.18-debug.apk
+- debugApkPath: outputs/huiyi-v4.1.19-debug.apk
 - APK is not included in this review zip.
 
 ## Known remaining problems

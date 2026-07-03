@@ -139,6 +139,16 @@ class EvidencePackReportGenerator {
             appendLine("  displaySizeCategory: ${capture?.snapshot?.displaySizeLabel() ?: "unknown"}")
             appendLine("- modelCalled: false")
             appendLine("- apiCalled: ${result.apiCalled}")
+            appendLine("- cloudEnabled: ${result.cloudTrace.cloudEnabled}")
+            appendLine("- cloudEndpointConfigured: ${result.cloudTrace.endpointConfigured}")
+            appendLine("- cloudAttempted: ${result.cloudTrace.cloudAttempted}")
+            appendLine("- cloudSuccess: ${result.cloudTrace.cloudSuccess}")
+            appendLine("- cloudSkippedReason: ${result.cloudTrace.cloudSkippedReason ?: "none"}")
+            appendLine("- decisionSource: ${result.cloudTrace.decisionSource}")
+            appendLine("- cloudFallbackUsed: ${result.cloudTrace.cloudFallbackUsed}")
+            appendLine("- cloudLatencyMs: ${result.cloudTrace.cloudLatencyMs ?: "null"}")
+            appendLine("- cloudErrorCode: ${result.cloudTrace.cloudErrorCode ?: "none"}")
+            appendLine("- cloudRequestId: ${result.cloudTrace.cloudRequestId ?: "none"}")
             appendLine("- overlayShownInTargetApp: ${result.overlayShownInTargetApp}")
             appendLine("- foregroundPackageWhenPanelShown: ${result.foregroundPackageWhenPanelShown ?: "unknown"}")
             appendLine("- huiyiActivityOpened: ${result.huiyiActivityOpened}")
@@ -532,6 +542,17 @@ class EvidencePackReportGenerator {
               "shouldReply": ${result.lastSpeakerDecision.shouldReply},
               "decisionType": "${result.tacticalDecision.decisionType}",
               "apiCalled": ${result.apiCalled},
+              "modelCalled": ${result.cloudTrace.modelCalled},
+              "cloudEnabled": ${result.cloudTrace.cloudEnabled},
+              "cloudEndpointConfigured": ${result.cloudTrace.endpointConfigured},
+              "cloudAttempted": ${result.cloudTrace.cloudAttempted},
+              "cloudSkippedReason": "${escape(result.cloudTrace.cloudSkippedReason ?: "none")}",
+              "cloudRequestId": "${escape(result.cloudTrace.cloudRequestId ?: "")}",
+              "cloudSuccess": ${result.cloudTrace.cloudSuccess},
+              "cloudLatencyMs": ${result.cloudTrace.cloudLatencyMs ?: "null"},
+              "cloudErrorCode": "${escape(result.cloudTrace.cloudErrorCode ?: "")}",
+              "cloudFallbackUsed": ${result.cloudTrace.cloudFallbackUsed},
+              "decisionSource": "${result.cloudTrace.decisionSource}",
               "overlayShownInTargetApp": ${result.overlayShownInTargetApp},
               "foregroundPackageWhenPanelShown": "${escape(result.foregroundPackageWhenPanelShown ?: "unknown")}",
               "huiyiActivityOpened": ${result.huiyiActivityOpened},

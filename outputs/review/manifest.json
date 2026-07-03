@@ -1,10 +1,10 @@
 {
   "project": "Huiyi v4 Core",
-  "versionName": "4.1.18",
-  "versionCode": 436,
+  "versionName": "4.1.19",
+  "versionCode": 437,
   "branch": "main",
-  "commitHash": "52276b6",
-  "generatedAt": "2026-07-03 16:46:26 +0800",
+  "commitHash": "b628f5a",
+  "generatedAt": "2026-07-03 17:07:02 +0800",
   "overallResult": "NOT_TESTED",
   "currentOverallResult": "NOT_TESTED",
   "lastMeRealDeviceResult": "NOT_TESTED",
@@ -18,7 +18,7 @@
   "scenarioAssertionResult": "NOT_TESTED",
   "scenarioDefinitionTrusted": false,
   "scenarioFailureCategory": "not_tested",
-  "taskName": "lan_update_check_failure_default_url_fallback",
+  "taskName": "cloud_analysis_mvp_with_local_safety_gate",
   "sampleSources": [
     "not_tested"
   ],
@@ -28,7 +28,7 @@
     {
       "path": "outputs/review/huiyi-v4-review-for-gpt.md",
       "type": "review_markdown",
-      "sha256": "65d7f604b682c1555c2e34790ba305d0c7b28c38842b8addf4bedae767401fd4",
+      "sha256": "90e2ba8765e3ca8c4a6f55196b53baf333f0d87c61edd8dce95b7b519102d44d",
       "sendToGpt": true,
       "description": "Default file for GPT review.",
       "generatedAt": null,
@@ -40,14 +40,14 @@
       "stale": false
     },
     {
-      "path": "outputs/lan-update-check-failure-hotfix-report-for-gpt.md",
+      "path": "outputs/cloud-analysis-mvp-local-safety-gate-report-for-gpt.md",
       "type": "report",
-      "sha256": "d81f832ac020dc07d48bec7ff9e93c1298b5e32ae231f8980df2afb2d61cdd34",
+      "sha256": "5b2b23cd34b193997616e532ebfeb8d1bc70decfabf5a256ca81f2e8409bf426",
       "sendToGpt": false,
       "description": "Current round evidence.",
-      "generatedAt": "2026-07-03 16:46:00 +08:00",
-      "taskName": "lan_update_check_failure_default_url_fallback",
-      "versionName": "4.1.18",
+      "generatedAt": "2026-07-03 17:06:00 +08:00",
+      "taskName": "cloud_analysis_mvp_with_local_safety_gate",
+      "versionName": "4.1.19",
       "isCurrentRound": true,
       "evidenceRole": "current",
       "sample_source": [],
@@ -70,7 +70,7 @@
     {
       "path": "outputs/mockchat-current-screen-report-for-gpt.md",
       "type": "report",
-      "sha256": "74f6047e6ff163d06f90dbbe345361e50d431ac79c362b6da29320021bee75df",
+      "sha256": "681d5f6dbac3e1c2e7d0046cd7f9f59ca35c7c3e8d4500cdba922c84903953d2",
       "sendToGpt": false,
       "description": "Historical / trace evidence.",
       "generatedAt": "1783008000000",

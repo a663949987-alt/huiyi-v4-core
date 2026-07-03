@@ -50,6 +50,15 @@ data class NextSentenceFlightRecord(
     val loadingStillVisible: Boolean,
     val apiCalled: Boolean,
     val modelCalled: Boolean,
+    val cloudEnabled: Boolean,
+    val cloudAttempted: Boolean,
+    val cloudSkippedReason: String?,
+    val cloudRequestId: String?,
+    val cloudSuccess: Boolean,
+    val cloudLatencyMs: Long?,
+    val cloudErrorCode: String?,
+    val cloudFallbackUsed: Boolean,
+    val decisionSource: String,
     val captureSource: String,
     val usedFallbackSnapshot: Boolean,
     val fallbackSnapshotAgeMs: Long?,
@@ -141,7 +150,16 @@ object NextSentenceFlightRecordFactory {
             contextRequiredPanelShown = decisionType in setOf(TacticalDecisionType.CONTEXT_REQUIRED, TacticalDecisionType.VOICE_SUMMARY_REQUIRED),
             loadingStillVisible = false,
             apiCalled = result.apiCalled,
-            modelCalled = false,
+            modelCalled = result.cloudTrace.modelCalled,
+            cloudEnabled = result.cloudTrace.cloudEnabled,
+            cloudAttempted = result.cloudTrace.cloudAttempted,
+            cloudSkippedReason = result.cloudTrace.cloudSkippedReason,
+            cloudRequestId = result.cloudTrace.cloudRequestId,
+            cloudSuccess = result.cloudTrace.cloudSuccess,
+            cloudLatencyMs = result.cloudTrace.cloudLatencyMs,
+            cloudErrorCode = result.cloudTrace.cloudErrorCode,
+            cloudFallbackUsed = result.cloudTrace.cloudFallbackUsed,
+            decisionSource = result.cloudTrace.decisionSource,
             captureSource = capture?.captureSource?.name ?: NextSentenceCaptureSource.NONE.name,
             usedFallbackSnapshot = capture?.usedFallbackSnapshot == true,
             fallbackSnapshotAgeMs = capture?.lastStableSnapshotAgeMs,
@@ -192,6 +210,15 @@ object NextSentenceFlightRecordFactory {
             loadingStillVisible = terminal == "TIMEOUT",
             apiCalled = trace.apiCalled,
             modelCalled = false,
+            cloudEnabled = false,
+            cloudAttempted = false,
+            cloudSkippedReason = "FAILURE_BEFORE_CLOUD",
+            cloudRequestId = null,
+            cloudSuccess = false,
+            cloudLatencyMs = null,
+            cloudErrorCode = trace.errorCode?.name,
+            cloudFallbackUsed = false,
+            decisionSource = "LOCAL_FALLBACK",
             captureSource = trace.captureSource.name,
             usedFallbackSnapshot = trace.usedFallbackSnapshot,
             fallbackSnapshotAgeMs = trace.lastStableSnapshotAgeMs,
@@ -307,6 +334,14 @@ class OneTapFeedbackExporter(
         appendLine("- decisionTypeFamily: ${record.decisionTypeFamily}")
         appendLine("- waitPanelShown: ${record.waitPanelShown}")
         appendLine("- contextRequiredPanelShown: ${record.contextRequiredPanelShown}")
+        appendLine("- cloudEnabled: ${record.cloudEnabled}")
+        appendLine("- cloudAttempted: ${record.cloudAttempted}")
+        appendLine("- cloudSuccess: ${record.cloudSuccess}")
+        appendLine("- cloudSkippedReason: ${record.cloudSkippedReason ?: "none"}")
+        appendLine("- decisionSource: ${record.decisionSource}")
+        appendLine("- cloudFallbackUsed: ${record.cloudFallbackUsed}")
+        appendLine("- cloudLatencyMs: ${record.cloudLatencyMs ?: "null"}")
+        appendLine("- cloudErrorCode: ${record.cloudErrorCode ?: "none"}")
         appendLine("- messageStatusArtifactCount: ${markdownField(currentScreenMarkdown, "messageStatusArtifactCount") ?: "0"}")
         appendLine("- lastMeDeliveryStatus: ${markdownField(currentScreenMarkdown, "lastMeDeliveryStatus") ?: "NONE"}")
         appendLine("- lastMeReadStatus: ${markdownField(currentScreenMarkdown, "lastMeReadStatus") ?: "NONE"}")
@@ -335,6 +370,14 @@ class OneTapFeedbackExporter(
             "routeCount": ${record.routeCount},
             "waitPanelShown": ${record.waitPanelShown},
             "routePanelShown": ${record.routePanelShown},
+            "cloudEnabled": ${record.cloudEnabled},
+            "cloudAttempted": ${record.cloudAttempted},
+            "cloudSuccess": ${record.cloudSuccess},
+            "cloudSkippedReason": "${record.cloudSkippedReason ?: ""}",
+            "decisionSource": "${record.decisionSource}",
+            "cloudFallbackUsed": ${record.cloudFallbackUsed},
+            "cloudLatencyMs": ${record.cloudLatencyMs ?: "null"},
+            "cloudErrorCode": "${record.cloudErrorCode ?: ""}",
             "loadingStillVisible": ${record.loadingStillVisible},
             "errorCode": "${record.errorCode ?: ""}",
             "failedStage": "${record.failedStage ?: ""}",
@@ -362,6 +405,14 @@ class OneTapFeedbackExporter(
         appendLine("- routeCount: ${record.routeCount}")
         appendLine("- waitPanelShown: ${record.waitPanelShown}")
         appendLine("- routePanelShown: ${record.routePanelShown}")
+        appendLine("- cloudEnabled: ${record.cloudEnabled}")
+        appendLine("- cloudAttempted: ${record.cloudAttempted}")
+        appendLine("- cloudSuccess: ${record.cloudSuccess}")
+        appendLine("- cloudSkippedReason: ${record.cloudSkippedReason ?: "none"}")
+        appendLine("- decisionSource: ${record.decisionSource}")
+        appendLine("- cloudFallbackUsed: ${record.cloudFallbackUsed}")
+        appendLine("- cloudLatencyMs: ${record.cloudLatencyMs ?: "null"}")
+        appendLine("- cloudErrorCode: ${record.cloudErrorCode ?: "none"}")
         appendLine("- loadingStillVisible: ${record.loadingStillVisible}")
         appendLine("- captureSource: ${record.captureSource}")
         appendLine("- usedFallbackSnapshot: ${record.usedFallbackSnapshot}")
@@ -393,6 +444,15 @@ class OneTapFeedbackExporter(
           "waitPanelShown": ${record.waitPanelShown},
           "routePanelShown": ${record.routePanelShown},
           "contextRequiredPanelShown": ${record.contextRequiredPanelShown},
+          "cloudEnabled": ${record.cloudEnabled},
+          "cloudAttempted": ${record.cloudAttempted},
+          "cloudSkippedReason": ${record.cloudSkippedReason?.let { "\"${escape(it)}\"" } ?: "null"},
+          "cloudRequestId": ${record.cloudRequestId?.let { "\"${escape(it)}\"" } ?: "null"},
+          "cloudSuccess": ${record.cloudSuccess},
+          "cloudLatencyMs": ${record.cloudLatencyMs ?: "null"},
+          "cloudErrorCode": ${record.cloudErrorCode?.let { "\"${escape(it)}\"" } ?: "null"},
+          "cloudFallbackUsed": ${record.cloudFallbackUsed},
+          "decisionSource": "${record.decisionSource}",
           "loadingStillVisible": ${record.loadingStillVisible},
           "apiCalled": ${record.apiCalled},
           "modelCalled": ${record.modelCalled},
@@ -469,6 +529,15 @@ class OneTapFeedbackExporter(
         loadingStillVisible = false,
         apiCalled = false,
         modelCalled = false,
+        cloudEnabled = false,
+        cloudAttempted = false,
+        cloudSkippedReason = "NO_SESSION",
+        cloudRequestId = null,
+        cloudSuccess = false,
+        cloudLatencyMs = null,
+        cloudErrorCode = null,
+        cloudFallbackUsed = false,
+        decisionSource = "LOCAL_FALLBACK",
         captureSource = "NONE",
         usedFallbackSnapshot = false,
         fallbackSnapshotAgeMs = null,
