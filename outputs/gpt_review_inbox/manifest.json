@@ -1,9 +1,9 @@
-{
+﻿{
   "project": "Huiyi v4 Core",
   "versionName": "4.1.22",
   "versionCode": 440,
   "branch": "main",
-  "commitHash": "f01d53a",
+  "commitHash": "647cdef",
   "generatedAt": "2026-07-03 18:05:51 +0800",
   "overallResult": "PASS",
   "currentOverallResult": "PASS",
