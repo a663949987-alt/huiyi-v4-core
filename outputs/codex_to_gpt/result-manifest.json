@@ -4,7 +4,7 @@
   "versionName": "4.1.25",
   "versionCode": 444,
   "branch": "main",
-  "commitHash": "b3c3318",
+  "commitHash": "GENERATED_BEFORE_COMMIT_PUSH_SEE_GITHUB_HEAD",
   "generatedAt": "2026-07-03 20:47:56 +0800",
   "overallResult": "CLOUD_RUNTIME_CONFIG_LOCAL_PASS",
   "currentOverallResult": "CLOUD_RUNTIME_CONFIG_LOCAL_PASS",
