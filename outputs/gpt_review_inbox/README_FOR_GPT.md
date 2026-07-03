@@ -1,39 +1,52 @@
 # Huiyi v4 GPT Review Inbox
 
-- taskName: preconfigured_cloud_real_use_mvp_delivery_closure
-- versionName: 4.1.25
-- versionCode: 444
-- currentOverallResult: DELIVERY_READY_NEEDS_USER_PHONE_SMOKE
-- deliveryMethod: CODEX_LOCAL_ARTIFACT
-- deliveryOptionSatisfied: C
-- apkActuallyDownloadableForUser: true
+- taskName: private_gpt55_relay_apk_delivery
+- versionName: 4.1.26
+- versionCode: 445
+- currentOverallResult: PRIVATE_RELAY_APK_DELIVERED_RELAY_SMOKE_PASS
+- privateApkDelivered: true
+- apkDeliveredOutOfBand: true
+- apkArtifactName: huiyi-v4.1.26-gpt55-relay-internal.apk
+- apkCommittedToPublicGithub: false
+- privateApkContainsRelayConfig: true
+- userReceivedApk: true
+- githubReleaseUploaded: false
+- publicUpdateServerUsed: false
 - userNeedsPhoneThisRound: true
 
-## APK Delivery
-- githubApkCommitted: false
-- githubReleaseUploaded: false
-- reasonApkNotCommittedToGithub: preconfigured cloud APK contains a local relay credential, so it must not be committed to public GitHub.
-- localInstallApkPath: outputs/huiyi-v4.1.25-cloud-preconfigured.apk
-- workspaceInstallApkAbsolutePath: C:\Users\fbjdf\Documents\Codex\2026-07-02\new-chat-3\outputs\huiyi-v4.1.25-cloud-preconfigured.apk
-- userInstallApkAbsolutePath: C:\Users\fbjdf\Downloads\Huiyi\huiyi-v4.1.25-cloud-preconfigured.apk
-- localInstallApkSha256: ad92676e76589353beee632d30b0302b25cfe402dfd1bc71f33e93b9f6ecc945
-- lanUpdateLatestJson: outputs/update_server/latest.json
-- lanUpdateLatestJsonAbsolutePath: C:\Users\fbjdf\Documents\Codex\2026-07-02\new-chat-3\outputs\update_server\latest.json
-- lanUpdateApkPath: outputs/update_server/huiyi-v4.1.25-debug.apk
-- lanUpdateApkAbsolutePath: C:\Users\fbjdf\Documents\Codex\2026-07-02\new-chat-3\outputs\update_server\huiyi-v4.1.25-debug.apk
-- lanUpdateApkSha256: ad92676e76589353beee632d30b0302b25cfe402dfd1bc71f33e93b9f6ecc945
-- localAndLanApkHashesMatch: true
-- latestJsonVersionName: 4.1.25
-- latestJsonVersionCode: 444
-- latestJsonApkUrl: huiyi-v4.1.25-debug.apk
-- latestJsonPointsToExistingLocalApk: true
+## Private APK Delivery
+- deliveryMethod: CODEX_LOCAL_ARTIFACT
+- userInstallApkAbsolutePath: C:\Users\fbjdf\Downloads\Huiyi\huiyi-v4.1.26-gpt55-relay-internal.apk
+- workspacePrivateApkAbsolutePath: C:\Users\fbjdf\Documents\Codex\2026-07-02\new-chat-3\outputs\private\huiyi-v4.1.26-gpt55-relay-internal.apk
+- apkSha256: dd78887595361830d87c73bbea83d3e21b7df85aa32c6c89ea2235bd8eb5e306
+- apkSizeBytes: 30695523
 
-## Current GitHub-Visible Evidence
-1. APK_DELIVERY_FOR_GPT.md
-2. preconfigured-cloud-mvp-report-for-gpt.md
-3. preconfigured-cloud-mvp-report.json
-4. outputs/update_server/latest.json
-5. outputs/codex_to_gpt/result-manifest.json
+## Relay
+- relayConfiguredForBuild: true
+- relayModelConfigured: true
+- relayApiKeyConfigured: true
+- relayApiKeyLeaked: false
+- apiKeyWrittenToGithub: false
+- apiKeyWrittenToReports: false
+- cloudResponseParsed: true
 
-## Important
-This round uses delivery option C: Codex local artifact delivery. Do not fail this round because APK files are absent from the GitHub file tree. They are deliberately excluded from GitHub by .gitignore to avoid publishing the preconfigured relay credential embedded in the installable APK. The APK is available to the user at the absolute Downloads path above, with a matching workspace copy and matching LAN update server APK.
+## Local Safety Gates
+- lastMeSafetyGate: PASS
+- lastOtherCloudPath: PASS
+- cloudFailureFallback: PASS
+- noInfiniteLoadingLocalCoverage: PASS
+
+## Relay Smoke
+- relaySmokeResult: PASS
+- relayRequestAttempted: true
+- relayResponseReceived: true
+- cloudResponseParsed: true
+- validatorPass: true
+- routeCount: 5
+- apiKeyLeaked: false
+
+## GPT Verification Rule
+This is a private internal APK delivery. Do not fail this round because the APK is absent from public GitHub, public Releases, or outputs/update_server. The APK contains private relay configuration and is deliberately delivered out of band through a local Codex artifact / user Downloads path. GitHub only contains redacted reports.
+
+## User Test
+Install C:\Users\fbjdf\Downloads\Huiyi\huiyi-v4.1.26-gpt55-relay-internal.apk, open Huiyi, confirm cloud is ready, then open Liaoqi and tap Next Sentence.

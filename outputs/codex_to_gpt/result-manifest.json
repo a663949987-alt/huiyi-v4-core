@@ -1,29 +1,34 @@
 {
-  "taskName": "preconfigured_cloud_real_use_mvp_delivery_closure",
-  "versionName": "4.1.25",
-  "versionCode": 444,
-  "currentOverallResult": "DELIVERY_READY_NEEDS_USER_PHONE_SMOKE",
+  "taskName": "private_gpt55_relay_apk_delivery",
+  "versionName": "4.1.26",
+  "versionCode": 445,
+  "currentOverallResult": "PRIVATE_RELAY_APK_DELIVERED_RELAY_SMOKE_PASS",
+  "privateApkDelivered": true,
+  "apkDeliveredOutOfBand": true,
+  "apkArtifactName": "huiyi-v4.1.26-gpt55-relay-internal.apk",
   "deliveryMethod": "CODEX_LOCAL_ARTIFACT",
-  "deliveryOptionSatisfied": "C",
-  "apkActuallyDownloadableForUser": true,
-  "githubApkCommitted": false,
+  "userInstallApkAbsolutePath": "C:\\Users\\fbjdf\\Downloads\\Huiyi\\huiyi-v4.1.26-gpt55-relay-internal.apk",
+  "workspacePrivateApkAbsolutePath": "C:\\Users\\fbjdf\\Documents\\Codex\\2026-07-02\\new-chat-3\\outputs\\private\\huiyi-v4.1.26-gpt55-relay-internal.apk",
+  "apkSha256": "dd78887595361830d87c73bbea83d3e21b7df85aa32c6c89ea2235bd8eb5e306",
+  "apkCommittedToPublicGithub": false,
+  "privateApkContainsRelayConfig": true,
+  "userReceivedApk": true,
   "githubReleaseUploaded": false,
-  "apkNotCommittedReason": "preconfigured cloud APK contains local relay credential",
-  "userInstallApkAbsolutePath": "C:\\Users\\fbjdf\\Downloads\\Huiyi\\huiyi-v4.1.25-cloud-preconfigured.apk",
-  "workspaceInstallApkAbsolutePath": "C:\\Users\\fbjdf\\Documents\\Codex\\2026-07-02\\new-chat-3\\outputs\\huiyi-v4.1.25-cloud-preconfigured.apk",
-  "localInstallApkPath": "outputs/huiyi-v4.1.25-cloud-preconfigured.apk",
-  "localInstallApkSha256": "ad92676e76589353beee632d30b0302b25cfe402dfd1bc71f33e93b9f6ecc945",
-  "lanUpdateLatestJson": "outputs/update_server/latest.json",
-  "lanUpdateLatestJsonAbsolutePath": "C:\\Users\\fbjdf\\Documents\\Codex\\2026-07-02\\new-chat-3\\outputs\\update_server\\latest.json",
-  "lanUpdateApkPath": "outputs/update_server/huiyi-v4.1.25-debug.apk",
-  "lanUpdateApkAbsolutePath": "C:\\Users\\fbjdf\\Documents\\Codex\\2026-07-02\\new-chat-3\\outputs\\update_server\\huiyi-v4.1.25-debug.apk",
-  "lanUpdateApkSha256": "ad92676e76589353beee632d30b0302b25cfe402dfd1bc71f33e93b9f6ecc945",
-  "localAndLanApkHashesMatch": true,
-  "latestJsonVersionName": "4.1.25",
-  "latestJsonVersionCode": 444,
-  "latestJsonApkUrl": "huiyi-v4.1.25-debug.apk",
-  "latestJsonPointsToExistingLocalApk": true,
-  "realDeviceSmokeResult": "NOT_TESTED",
+  "publicUpdateServerUsed": false,
+  "githubContainsOnlyRedactedReport": true,
+  "relayConfiguredForBuild": true,
+  "relayModelConfigured": true,
+  "relayApiKeyConfigured": true,
+  "relayApiKeyLeaked": false,
+  "relaySmokeResult": "PASS",
+  "relayRequestAttempted": true,
+  "relayResponseReceived": true,
+  "cloudResponseParsed": true,
+  "validatorPass": true,
+  "routeCount": 5,
+  "lastMeSafetyGate": "PASS",
+  "lastOtherCloudPath": "PASS",
+  "realDeviceSmoke": "NOT_TESTED_USER_NEEDED",
   "userNeedsPhoneThisRound": true,
   "files": [
     {
@@ -31,19 +36,15 @@
       "sendToGpt": true
     },
     {
-      "path": "outputs/gpt_review_inbox/APK_DELIVERY_FOR_GPT.md",
+      "path": "outputs/gpt_review_inbox/private-gpt55-relay-apk-report-for-gpt.md",
       "sendToGpt": true
     },
     {
-      "path": "outputs/gpt_review_inbox/preconfigured-cloud-mvp-report-for-gpt.md",
+      "path": "outputs/gpt_review_inbox/private-gpt55-relay-apk-report.json",
       "sendToGpt": true
     },
     {
-      "path": "outputs/gpt_review_inbox/preconfigured-cloud-mvp-report.json",
-      "sendToGpt": true
-    },
-    {
-      "path": "outputs/update_server/latest.json",
+      "path": "outputs/codex_to_gpt/result-manifest.json",
       "sendToGpt": true
     }
   ]

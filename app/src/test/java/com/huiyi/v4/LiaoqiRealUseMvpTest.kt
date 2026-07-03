@@ -114,8 +114,8 @@ class LiaoqiRealUseMvpTest {
     ) = CurrentScreenPipelineUseCase(
         captureUseCase = FakeCaptureUseCase(messages),
         cloudAnalysisService = cloud,
-        appVersionName = "4.1.25",
-        appVersionCode = 444
+        appVersionName = "4.1.26",
+        appVersionCode = 445
     )
 
     private class FakeCaptureUseCase(
