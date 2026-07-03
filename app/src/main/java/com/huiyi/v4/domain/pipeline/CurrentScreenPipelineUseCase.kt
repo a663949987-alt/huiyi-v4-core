@@ -13,6 +13,7 @@ import com.huiyi.v4.domain.model.Speaker
 import com.huiyi.v4.domain.model.TacticalDecision
 import com.huiyi.v4.domain.model.TacticalDecisionType
 import com.huiyi.v4.domain.model.UserPersonaCorpus
+import com.huiyi.v4.domain.capture.VisualDebugResult
 import com.huiyi.v4.domain.tactical.ReplyRouteGenerator
 import com.huiyi.v4.domain.tactical.TacticalDecisionEngine
 
@@ -29,7 +30,11 @@ data class CurrentScreenPipelineResult(
     val huiyiActivityOpened: Boolean = false,
     val userStayedInChatApp: Boolean = false,
     val resultShownAsOverlay: Boolean = false,
-    val mainActivityOpened: Boolean = false
+    val mainActivityOpened: Boolean = false,
+    val visualDebugResult: VisualDebugResult? = null,
+    val userCorrectionProvided: Boolean = false,
+    val correctedLastSpeaker: Speaker? = null,
+    val correctedMessageId: String? = null
 )
 
 class CurrentScreenPipelineUseCase(
@@ -53,11 +58,13 @@ class CurrentScreenPipelineUseCase(
             val hasUnknownChatNode = capture.messages.any {
                 it.speaker == Speaker.UNKNOWN && it.metadataType == MetadataType.NONE
             }
+            val hasVisualConflict = capture.messages.any { it.visualConflict }
             val hasMissingVisualLastMessage = lastSpeaker.lastEffectiveMessage?.content.let {
                 it is MessageContent.Image || it is MessageContent.Sticker
             }
             val decision = when {
                 unknownTooHigh -> unknownSpeakerDecision("UNKNOWN 说话人超过 30%，不允许高置信度生成。")
+                hasVisualConflict -> unknownSpeakerDecision("当前屏幕存在 Accessibility 与视觉投影冲突，需要先看 visual debug 图。")
                 hasUnknownChatNode -> unknownSpeakerDecision("当前屏幕存在边界不清的聊天气泡，不允许高置信度生成。")
                 hasMissingVisualLastMessage -> unknownSpeakerDecision("最后一条是未描述的图片/表情，需要先补充画面含义。")
                 lastSpeaker.unknownSpeaker -> unknownSpeakerDecision(lastSpeaker.reason)
@@ -68,6 +75,7 @@ class CurrentScreenPipelineUseCase(
                 decision.decisionType == TacticalDecisionType.CONTEXT_REQUIRED ||
                 lastSpeaker.unknownSpeaker ||
                 unknownTooHigh ||
+                hasVisualConflict ||
                 hasUnknownChatNode ||
                 hasMissingVisualLastMessage
             ) {

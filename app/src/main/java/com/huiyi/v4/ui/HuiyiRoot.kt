@@ -478,6 +478,8 @@ private fun DeveloperSettingsPage(
             if (state.showParserDiagnostics) {
                 ParserDiagnosticsCard(runtime, state)
             }
+            StatusCard("视觉调试图", state.lastVisualDebugOverlayPath ?: "点击下一句后生成")
+            Text("导出真机验收包会包含当前聊天截图叠框图，仅用于开发者验收。")
             Button(onClick = { runtime.exportParserReport() }, modifier = Modifier.fillMaxWidth()) { Text("导出当前屏幕解析报告") }
             Button(onClick = { runtime.exportRealDeviceEvidencePack() }, modifier = Modifier.fillMaxWidth()) { Text("导出真机当前屏幕证据包") }
             Button(onClick = { runtime.exportRealDeviceReviewBundle() }, modifier = Modifier.fillMaxWidth()) { Text("\u5bfc\u51fa\u771f\u673a\u9a8c\u6536\u5305") }
@@ -530,6 +532,9 @@ private fun ParserDiagnosticsCard(runtime: HuiyiRuntime, state: HuiyiRuntimeStat
             Text("来自：${last?.speaker ?: "未识别"}")
             Text("解析器：${result?.captureResult?.parserName ?: "暂无"}")
             Text("fallback：${result?.captureResult?.parserFallbackUsed ?: false}")
+            Text("visualTruth：${result?.captureResult?.visualTruthAvailable ?: false}")
+            Text("conflictCount：${result?.captureResult?.visualConflictCount ?: 0}")
+            Text("overlay：${result?.visualDebugResult?.overlayImagePath ?: "暂无"}")
             state.lastDebugCorrection?.let { Text("最近调试纠正：$it") }
             Row(horizontalArrangement = Arrangement.spacedBy(8.dp), modifier = Modifier.fillMaxWidth()) {
                 OutlinedButton(onClick = { runtime.applyLastMessageCorrection(Speaker.ME) }, modifier = Modifier.weight(1f)) { Text("实际是我") }

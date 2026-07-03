@@ -52,6 +52,7 @@ data class HuiyiRuntimeState(
     val selectedRealDeviceScenario: RealDeviceScenario = RealDeviceScenario.LAST_ME,
     val showParserDiagnostics: Boolean = false,
     val lastDebugCorrection: String? = null,
+    val lastVisualDebugOverlayPath: String? = null,
     val lanUpdateState: LanUpdateState = LanUpdateState()
 )
 
@@ -114,12 +115,17 @@ class HuiyiRuntime private constructor(
             result.fold(
                 onSuccess = { pipelineResult ->
                     val messages = pipelineResult.context?.currentScreenMessages ?: mutableState.value.demoState.messages
+                    val scenario = mutableState.value.selectedRealDeviceScenario
+                    val visualDebug = VisualDebugCapture(File(appContext.filesDir, "debug/real_device_visual_debug"))
+                        .capture(HuiyiAccessibilityService.instance, pipelineResult, scenario)
+                    val resultWithVisualDebug = pipelineResult.copy(visualDebugResult = visualDebug)
                     mutableState.update {
                         it.copy(
                             demoState = it.demoState.copy(messages = messages),
-                            latestPipelineResult = pipelineResult,
+                            latestPipelineResult = resultWithVisualDebug,
                             panelVisible = true,
                             lastError = pipelineResult.persistenceError,
+                            lastVisualDebugOverlayPath = visualDebug.overlayImagePath
                         )
                     }
                 },
@@ -211,7 +217,10 @@ class HuiyiRuntime private constructor(
                     context = context,
                     lastSpeakerDecision = lastSpeaker,
                     tacticalDecision = decision,
-                    routes = routes
+                    routes = routes,
+                    userCorrectionProvided = true,
+                    correctedLastSpeaker = correctedSpeaker,
+                    correctedMessageId = lastEffectiveId
                 ),
                 demoState = it.demoState.copy(messages = updatedMessages),
                 lastDebugCorrection = correctedSpeaker?.name ?: "NOT_CHAT_MESSAGE"
@@ -239,15 +248,17 @@ class HuiyiRuntime private constructor(
         val generator = EvidencePackReportGenerator()
         val now = System.currentTimeMillis()
         val scenario = mutableState.value.selectedRealDeviceScenario
-        val markdown = generator.buildMarkdown(result, HuiyiAccessibilityService.state.value, now, scenario)
-        val json = generator.buildJson(result, HuiyiAccessibilityService.state.value, now, scenario)
+        val resultWithVisualDebug = result
+        val markdown = generator.buildMarkdown(resultWithVisualDebug, HuiyiAccessibilityService.state.value, now, scenario)
+        val json = generator.buildJson(resultWithVisualDebug, HuiyiAccessibilityService.state.value, now, scenario)
         val exporter = PublicDownloadExporter(appContext)
         val markdownExport = exporter.exportText("real-device-current-screen-report-for-gpt.md", markdown)
             .getOrElse { exporter.fallbackToPrivate("real-device-current-screen-report-for-gpt.md", markdown) }
         val jsonExport = exporter.exportText("real-device-current-screen-report.json", json, "application/json")
             .getOrElse { exporter.fallbackToPrivate("real-device-current-screen-report.json", json) }
+        exportVisualDebugOverlay(exporter, resultWithVisualDebug)
         val files = EvidencePackReportGenerator()
-            .writeTo(File(appContext.filesDir, "debug"), result, HuiyiAccessibilityService.state.value, scenario)
+            .writeTo(File(appContext.filesDir, "debug"), resultWithVisualDebug, HuiyiAccessibilityService.state.value, scenario)
             .getOrNull()
             ?: EvidencePackFiles(
                 markdown = markdownExport.privateFallbackFile ?: File(appContext.filesDir, "debug/real-device-current-screen-report-for-gpt.md"),
@@ -286,15 +297,33 @@ class HuiyiRuntime private constructor(
                 .getOrElse { exporter.fallbackToPrivate(fileName, text, subDirectory = "debug/review") }
                 .displayPath
         }
+        val overlayPath = mutableState.value.latestPipelineResult?.visualDebugResult?.let { visualDebug ->
+            visualDebug.overlayImagePath?.let { exportVisualDebugOverlay(exporter, mutableState.value.latestPipelineResult)?.displayPath }
+        }
         mutableState.update {
             it.copy(
                 lastDebugExportPath = "realDeviceSmoke=${content.realDeviceSmokeResult}; overall=${content.overallResult}",
                 lastEvidenceJsonPath = displayPaths.firstOrNull { path -> path.endsWith("real-device-current-screen-report.json") },
-                lastPublicExportPath = displayPaths.joinToString(" / "),
+                lastPublicExportPath = (displayPaths + listOfNotNull(overlayPath)).joinToString(" / "),
                 lastError = if (content.realDeviceSmokeResult == "NOT_TESTED") content.failReason else null
             )
         }
         return displayPaths
+    }
+
+    private fun exportVisualDebugOverlay(
+        exporter: PublicDownloadExporter,
+        result: CurrentScreenPipelineResult?
+    ): ExportedTextFile? {
+        val path = result?.visualDebugResult?.overlayImagePath ?: return null
+        val file = File(path)
+        if (!file.exists()) return null
+        return exporter.exportBinary(
+            fileName = "current_screen_overlay.png",
+            bytes = file.readBytes(),
+            mimeType = "image/png",
+            relativePath = "Huiyi/review/real_device_visual_debug"
+        ).getOrNull()
     }
 
     fun exportTextDebug(name: String, text: String): File {

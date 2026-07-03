@@ -3,12 +3,12 @@
 ## 1. 基本信息
 
 - project: Huiyi v4 Core
-- versionName: 4.1.7
-- versionCode: 418
+- versionName: 4.1.8
+- versionCode: 420
 - branch: main
-- commitHash: b4d7b2f
-- generatedAt: 2026-07-03 11:09:13 +0800
-- taskName: v4.1.7 Real Device Scenario A Hard Acceptance
+- commitHash: 007a5d7
+- generatedAt: 2026-07-03 11:41:08 +0800
+- taskName: v4.1.8 Accessibility + Visual Truth Calibration
 - review_freshness_result: PASS
 - mockchat_result: PASS
 - real_device_smoke_result: NOT_TESTED
@@ -17,10 +17,10 @@
 
 ## Current Round Evidence
 
-- currentTaskName: v4.1.7 Real Device Scenario A Hard Acceptance
-- currentVersion: 4.1.7
-- currentGeneratedAt: 2026-07-03 11:09:13 +0800
-- currentReports: outputs/v4.1.7-real-device-review-validation-fix-report-for-gpt.md
+- currentTaskName: v4.1.8 Accessibility + Visual Truth Calibration
+- currentVersion: 4.1.8
+- currentGeneratedAt: 2026-07-03 11:41:08 +0800
+- currentReports: outputs/v4.1.8-visual-truth-calibration-report-for-gpt.md
 - currentSampleSources: emulator_mock_chat_accessibility
 - currentOverallResult: PARTIAL
 - review_freshness_result: PASS
@@ -30,10 +30,10 @@
 - mockChatMatrixStillPass: true
 - smokeDisclaimer: 本轮 Review Freshness 通过，但 Real Device Smoke 未执行，不代表真实聊天 App 已通过。
 
-### v4.1.7-real-device-review-validation-fix-report-for-gpt.md
+### v4.1.8-visual-truth-calibration-report-for-gpt.md
 
 - overall_result: PARTIAL
-- versionName: 4.1.7
+- versionName: 4.1.8
 
 ## Historical / Trace Reports
 
@@ -75,7 +75,7 @@ These reports are historical references only. Their FAIL or `sample_source=unkno
 - overall_result: NOT_TESTED
 - sample_source: NOT_TESTED
 - appPackage: NOT_TESTED
-- versionName: 4.1.7
+- versionName: 4.1.8
 - overlayShownInTargetApp: NOT_TESTED
 - mainActivityOpened: NOT_TESTED
 ### v4-core-implementation-report-for-gpt.md
@@ -134,12 +134,13 @@ These reports are historical references only. Their FAIL or `sample_source=unkno
 
 ```
 outputs/review/archive/
+outputs/v4.1.8-visual-truth-calibration-report-for-gpt.md
 ```
 
 ### 修改文件
 
 ```
-outputs/v4.1.7-real-device-review-validation-fix-report-for-gpt.md
+
 ```
 
 ### 删除文件
@@ -198,9 +199,9 @@ See Current Round Evidence and Historical / Trace Reports above.
 
 ## 8. 产物清单
 
-- path: outputs/v4.1.7-real-device-review-validation-fix-report-for-gpt.md
+- path: outputs/v4.1.8-visual-truth-calibration-report-for-gpt.md
   type: report
-  sha256: 79c22b284730642f5736491d4df9ad46dc92850e039c5be17530b6856c4163a7
+  sha256: 38763940c8bad2c3ebd98ffc8c254db95b0dad38450941cc4cfb79ff105ccb2a
   是否建议发给 GPT: false
   用途: Current round evidence.
   isCurrentRound: true
@@ -218,7 +219,7 @@ See Current Round Evidence and Historical / Trace Reports above.
   stale: true
 - path: outputs/mockchat-current-screen-report-for-gpt.md
   type: report
-  sha256: e0da506567186c7b7b96c608d7d13cb6f1a2359758204c1ee24366fe6193ce2a
+  sha256: b13cf4334d595c04ffb5b47988160e8dccba37f2618eb29cf1acdb6624a12d01
   是否建议发给 GPT: false
   用途: Historical / trace evidence.
   isCurrentRound: false
@@ -254,7 +255,7 @@ See Current Round Evidence and Historical / Trace Reports above.
   stale: true
 - path: outputs/real-device-current-screen-report-for-gpt.md
   type: report
-  sha256: 155b9f13a602b75936e2620229914b939e0dae088bfc980e7761ad0c6ce33ba6
+  sha256: d34cc92d0b24d47cd34dfa7c50eeed7a0669efd37b816f2966afe9f2ee496dc8
   是否建议发给 GPT: false
   用途: Historical / trace evidence.
   isCurrentRound: false

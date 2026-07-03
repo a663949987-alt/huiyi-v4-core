@@ -33,3 +33,16 @@ enum class ScreenCaptureType {
 interface OcrEngine {
     suspend fun recognize(frame: ScreenFrame): List<VisualTextLine>
 }
+
+data class VisualDebugResult(
+    val screenshotCaptured: Boolean,
+    val screenshotUnavailable: Boolean,
+    val reason: String?,
+    val screenshotPath: String?,
+    val overlayImagePath: String?,
+    val screenshotWidth: Int,
+    val screenshotHeight: Int,
+    val accessibilityBoundsProjected: Boolean,
+    val ocrUsed: Boolean,
+    val visualTruthAvailable: Boolean
+)

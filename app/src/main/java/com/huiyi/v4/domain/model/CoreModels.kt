@@ -92,7 +92,14 @@ data class MessageNode(
     val sideMarginLeft: Int? = null,
     val sideMarginRight: Int? = null,
     val finalDecisionSource: String? = null,
-    val possibleSpeakerConflict: Boolean = false
+    val possibleSpeakerConflict: Boolean = false,
+    val visualDebugBoxDrawn: Boolean = false,
+    val projectedBox: VisualBounds? = null,
+    val accessibilitySide: String? = null,
+    val visualProjectedSide: String? = null,
+    val visualConflict: Boolean = false,
+    val visualConflictReason: String? = null,
+    val visualSpeakerFallbackUsed: Boolean = false
 )
 
 enum class Speaker {

@@ -1,10 +1,10 @@
-# v4.1.7 Real Device Smoke Report
+# v4.1.8 Real Device Smoke Report
 
 ## Basic
 
-- generatedAt: 2026-07-03 11:07:07 +08:00
-- versionName: 4.1.7
-- versionCode: 418
+- generatedAt: 2026-07-03 11:30:00 +08:00
+- versionName: 4.1.8
+- versionCode: 420
 - overall_result: NOT_TESTED
 - realDeviceSmoke: NOT_TESTED
 - scenarioName: last_me
@@ -13,6 +13,7 @@
 - windowTitle: NOT_TESTED
 - apiCalled: false
 - failReason: not_tested
+- failureCategory: visual_projection_unavailable
 
 ## Scenario A Hard Acceptance
 
@@ -26,22 +27,19 @@
 - scenarioResult: NOT_TESTED
 - failureReason: not_tested
 
-## Required Phone Result
+## Visual Debug
 
-When the user selects A last_me on a real Liaoqi chat window:
+- screenshotCaptured: false
+- screenshotUnavailable: true
+- overlayImagePath: outputs/real_device_visual_debug/current_screen_overlay.png
+- accessibilityBoundsProjected: false
+- ocrUsed: false
+- visualTruthAvailable: false
+- VisualSpeakerFallbackUsed: NOT_TESTED
+- conflictCount: NOT_TESTED
 
-- actualLastSpeaker must be ME
-- actualDecisionType must be WAIT
-- actualRouteCount must be 0
-- apiCalled must be false
+## Phone Acceptance Rule
 
-If actualLastSpeaker=OTHER, the report must be FAIL with failureReason=last_speaker_mismatch.
+If scenarioName=last_me and actualLastSpeaker=OTHER, the result must be FAIL with failureReason=last_speaker_mismatch.
 
-## Parser Diagnostics
-
-- LiaoqiRealParser priority: enabled for com.bajiao.im.liaoqi
-- GenericVisualBubbleParser fallback: enabled only if LiaoqiRealParser produces no effective chat messages
-- visual order table: added to current screen report
-- bounds table: added to current screen report
-- possible_speaker_conflict: added
-- date metadata filtering: 07-02 and related formats now DATE/SYSTEM/non-effective
+If scenario A still fails in v4.1.8, the exported visual overlay image must show why the final effective message was classified as OTHER.

@@ -67,6 +67,7 @@ class EvidencePackReportGenerator {
         val voiceShown = decision.decisionType == TacticalDecisionType.VOICE_SUMMARY_REQUIRED
         val contextShown = decision.decisionType == TacticalDecisionType.CONTEXT_REQUIRED
         val scenarioValidation = RealDeviceScenarioValidator.validate(result, scenario)
+        val visualDebug = result.visualDebugResult
         return buildString {
             appendLine("# Real Device Current Screen Evidence Pack")
             appendLine()
@@ -118,6 +119,26 @@ class EvidencePackReportGenerator {
             appendLine("- userStayedInChatApp: ${result.userStayedInChatApp}")
             appendLine("- resultShownAsOverlay: ${result.resultShownAsOverlay}")
             appendLine("- mainActivityOpened: ${result.mainActivityOpened}")
+            appendLine()
+            appendLine("## Visual Debug")
+            appendLine()
+            appendLine("- screenshotCaptured: ${visualDebug?.screenshotCaptured ?: false}")
+            appendLine("- screenshotUnavailable: ${visualDebug?.screenshotUnavailable ?: true}")
+            appendLine("- reason: ${visualDebug?.reason ?: "visual_projection_only_or_not_captured"}")
+            appendLine("- screenshotPath: ${visualDebug?.screenshotPath ?: "none"}")
+            appendLine("- overlayImagePath: ${visualDebug?.overlayImagePath ?: "none"}")
+            appendLine("- screenshotWidth: ${visualDebug?.screenshotWidth ?: capture?.snapshot?.screenWidth ?: 0}")
+            appendLine("- screenshotHeight: ${visualDebug?.screenshotHeight ?: capture?.snapshot?.screenHeight ?: 0}")
+            appendLine("- accessibilityBoundsProjected: ${visualDebug?.accessibilityBoundsProjected ?: capture?.accessibilityBoundsProjected ?: false}")
+            appendLine("- ocrUsed: ${visualDebug?.ocrUsed ?: capture?.ocrUsed ?: false}")
+            appendLine("- visualTruthAvailable: ${visualDebug?.visualTruthAvailable ?: capture?.visualTruthAvailable ?: false}")
+            appendLine("- VisualSpeakerFallbackUsed: ${capture?.visualSpeakerFallbackCount?.let { it > 0 } ?: false}")
+            appendLine("- visualSpeakerFallbackCount: ${capture?.visualSpeakerFallbackCount ?: 0}")
+            appendLine("- conflictCount: ${messages.count { it.visualConflict }}")
+            appendLine("- failureCategory: ${failureCategory(result, scenarioValidation)}")
+            appendLine("- userCorrectionProvided: ${result.userCorrectionProvided}")
+            appendLine("- correctedLastSpeaker: ${result.correctedLastSpeaker ?: "none"}")
+            appendLine("- correctedMessageId: ${result.correctedMessageId ?: "none"}")
             appendLine()
             appendLine("## 解析结果")
             appendLine("- rawParsedNodeCount: ${messages.size}")
@@ -175,16 +196,16 @@ class EvidencePackReportGenerator {
             appendLine()
             appendLine("## Visual Order Table")
             appendLine()
-            appendLine("| rawNodeOrder | finalVisualOrder | text | rawSpeaker | finalSpeaker | contentType | metadataType | isEffectiveChatMessage | textBounds | rowBounds | bubbleBounds | parentBounds | inferredSide | speakerReason | sideMarginLeft | sideMarginRight | finalDecisionSource | possible_speaker_conflict |")
-            appendLine("| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |")
+            appendLine("| rawNodeOrder | finalVisualOrder | text | rawSpeaker | finalSpeaker | contentType | metadataType | isEffectiveChatMessage | textBounds | rowBounds | bubbleBounds | parentBounds | ancestorBoundsChain | accessibilitySide | visualProjectedSide | projectedBox | speakerConfidence | speakerReason | conflict | conflictReason | VisualSpeakerFallbackUsed | possibleSpeakerConflict |")
+            appendLine("| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |")
             messages.forEach { message ->
                 appendLine(visualTableRow(message))
             }
             appendLine()
             appendLine("## Effective Visual Order Table")
             appendLine()
-            appendLine("| rawNodeOrder | finalVisualOrder | text | rawSpeaker | finalSpeaker | contentType | metadataType | isEffectiveChatMessage | textBounds | rowBounds | bubbleBounds | parentBounds | inferredSide | speakerReason | sideMarginLeft | sideMarginRight | finalDecisionSource | possible_speaker_conflict |")
-            appendLine("| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |")
+            appendLine("| rawNodeOrder | finalVisualOrder | text | rawSpeaker | finalSpeaker | contentType | metadataType | isEffectiveChatMessage | textBounds | rowBounds | bubbleBounds | parentBounds | ancestorBoundsChain | accessibilitySide | visualProjectedSide | projectedBox | speakerConfidence | speakerReason | conflict | conflictReason | VisualSpeakerFallbackUsed | possibleSpeakerConflict |")
+            appendLine("| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |")
             effectiveMessages.forEach { message ->
                 appendLine(visualTableRow(message))
             }
@@ -274,6 +295,7 @@ class EvidencePackReportGenerator {
     ): String {
         val capture = result.captureResult
         val scenarioValidation = RealDeviceScenarioValidator.validate(result, scenario)
+        val visualDebug = result.visualDebugResult
         val messagesJson = capture?.messages.orEmpty().mapIndexed { index, message ->
             """
               {
@@ -290,6 +312,13 @@ class EvidencePackReportGenerator {
                 "isEffectiveChatMessage": ${message.isEffectiveChatMessage},
                 "metadataType": "${message.metadataType ?: com.huiyi.v4.domain.model.MetadataType.NONE}",
                 "inferredSide": "${escape(message.inferredSide ?: "")}",
+                "accessibilitySide": "${escape(message.accessibilitySide ?: "")}",
+                "visualProjectedSide": "${escape(message.visualProjectedSide ?: "")}",
+                "visualDebugBoxDrawn": ${message.visualDebugBoxDrawn},
+                "projectedBox": ${boundsJson(message.projectedBox)},
+                "conflict": ${message.visualConflict},
+                "conflictReason": "${escape(message.visualConflictReason ?: "")}",
+                "VisualSpeakerFallbackUsed": ${message.visualSpeakerFallbackUsed},
                 "bounds": ${boundsJson(message.bounds)},
                 "rowBounds": ${boundsJson(message.rowBounds)},
                 "textBounds": ${boundsJson(message.textBounds)},
@@ -348,6 +377,25 @@ class EvidencePackReportGenerator {
               "parserName": "${escape(capture?.parserName ?: "unknown")}",
               "LiaoqiRealParserUsed": ${capture?.parserName == "LiaoqiRealParser"},
               "GenericVisualBubbleParserFallbackUsed": ${capture?.parserFallbackUsed == true},
+              "VisualDebug": {
+                "screenshotCaptured": ${visualDebug?.screenshotCaptured ?: false},
+                "screenshotUnavailable": ${visualDebug?.screenshotUnavailable ?: true},
+                "reason": "${escape(visualDebug?.reason ?: "visual_projection_only_or_not_captured")}",
+                "screenshotPath": "${escape(visualDebug?.screenshotPath ?: "")}",
+                "overlayImagePath": "${escape(visualDebug?.overlayImagePath ?: "")}",
+                "screenshotWidth": ${visualDebug?.screenshotWidth ?: capture?.snapshot?.screenWidth ?: 0},
+                "screenshotHeight": ${visualDebug?.screenshotHeight ?: capture?.snapshot?.screenHeight ?: 0},
+                "accessibilityBoundsProjected": ${visualDebug?.accessibilityBoundsProjected ?: capture?.accessibilityBoundsProjected ?: false},
+                "ocrUsed": ${visualDebug?.ocrUsed ?: capture?.ocrUsed ?: false},
+                "visualTruthAvailable": ${visualDebug?.visualTruthAvailable ?: capture?.visualTruthAvailable ?: false},
+                "VisualSpeakerFallbackUsed": ${capture?.visualSpeakerFallbackCount?.let { it > 0 } ?: false},
+                "visualSpeakerFallbackCount": ${capture?.visualSpeakerFallbackCount ?: 0},
+                "conflictCount": ${capture?.messages?.count { it.visualConflict } ?: 0},
+                "failureCategory": "${failureCategory(result, scenarioValidation)}"
+              },
+              "userCorrectionProvided": ${result.userCorrectionProvided},
+              "correctedLastSpeaker": "${result.correctedLastSpeaker ?: "none"}",
+              "correctedMessageId": "${escape(result.correctedMessageId ?: "none")}",
               "rawParsedNodeCount": ${capture?.messages?.size ?: 0},
               "metadataFilteredCount": ${capture?.messages?.count { it.metadataType != MetadataType.NONE || it.speaker == Speaker.SYSTEM } ?: 0},
               "dateMetadataFilteredCount": ${capture?.messages?.count { it.metadataType == MetadataType.DATE && it.speaker == Speaker.SYSTEM && !it.isEffectiveChatMessage } ?: 0},
@@ -422,7 +470,7 @@ class EvidencePackReportGenerator {
         val bubble = message.bubbleBounds ?: message.bounds
         val orderInfo = " rawNodeOrder=${message.rawNodeOrder ?: index} finalVisualOrder=${message.finalVisualOrder ?: index}"
         val conflictInfo = " possible_speaker_conflict=${message.possibleSpeakerConflict}"
-        val boundsInfo = "$orderInfo rowBounds=${row?.toReport()} textBounds=${textBounds?.toReport()} parentBounds=${parent?.toReport()} bubbleBounds=${bubble?.toReport()} inferredSide=${message.inferredSide ?: side} sideMarginLeft=${message.sideMarginLeft ?: "none"} sideMarginRight=${message.sideMarginRight ?: "none"} finalDecisionSource=${message.finalDecisionSource ?: "none"} unknownReason=${message.unknownReason ?: "none"}$conflictInfo"
+        val boundsInfo = "$orderInfo rowBounds=${row?.toReport()} textBounds=${textBounds?.toReport()} parentBounds=${parent?.toReport()} bubbleBounds=${bubble?.toReport()} projectedBox=${message.projectedBox?.toReport()} accessibilitySide=${message.accessibilitySide ?: "none"} visualProjectedSide=${message.visualProjectedSide ?: "none"} conflict=${message.visualConflict} conflictReason=${message.visualConflictReason ?: "none"} inferredSide=${message.inferredSide ?: side} sideMarginLeft=${message.sideMarginLeft ?: "none"} sideMarginRight=${message.sideMarginRight ?: "none"} finalDecisionSource=${message.finalDecisionSource ?: "none"} unknownReason=${message.unknownReason ?: "none"}$conflictInfo"
         return if (content is MessageContent.Voice) {
             "[m${index.toString().padStart(3, '0')}][$side][${message.speaker.name.lowercase()} voice ${content.transcriptStatus.name.lowercase()}] [语音 ${content.durationSeconds ?: "?"}秒]$boundsInfo speakerReason=${message.speakerReason}"
         } else {
@@ -465,13 +513,32 @@ class EvidencePackReportGenerator {
             message.rowBounds?.toReport() ?: "none",
             message.bubbleBounds?.toReport() ?: "none",
             message.parentBounds?.toReport() ?: "none",
-            message.inferredSide ?: "unknown",
+            message.ancestorBoundsChain.joinToString(" > ") { it.toReport() }.ifBlank { "none" },
+            message.accessibilitySide ?: "unknown",
+            message.visualProjectedSide ?: "unknown",
+            message.projectedBox?.toReport() ?: "none",
+            message.speakerConfidence.toString(),
             tableEscape(message.speakerReason ?: "unknown_visual_bounds"),
-            message.sideMarginLeft?.toString() ?: "none",
-            message.sideMarginRight?.toString() ?: "none",
-            tableEscape(message.finalDecisionSource ?: "none"),
+            message.visualConflict.toString(),
+            tableEscape(message.visualConflictReason ?: "none"),
+            message.visualSpeakerFallbackUsed.toString(),
             message.possibleSpeakerConflict.toString()
         ).joinToString(prefix = "| ", separator = " | ", postfix = " |")
+    }
+
+    private fun failureCategory(result: CurrentScreenPipelineResult, scenarioValidation: RealDeviceScenarioValidation): String {
+        val capture = result.captureResult
+        return when {
+            scenarioValidation.scenarioResult == "PASS" -> "none"
+            capture?.messages.orEmpty().any { it.metadataType == MetadataType.DATE && it.speaker != Speaker.SYSTEM } -> "metadata_leak"
+            result.userCorrectionProvided -> "user_selected_wrong_scenario"
+            capture?.visualTruthAvailable != true -> "visual_projection_unavailable"
+            capture.messages.any { it.visualConflict } -> "parser_side_conflict"
+            result.lastSpeakerDecision.lastEffectiveMessage == null -> "visual_order_wrong"
+            capture.messages.count { it.speaker == Speaker.UNKNOWN }.toFloat() / capture.messages.size.coerceAtLeast(1) > 0.30f -> "unknown_too_high"
+            scenarioValidation.failureReason == "last_speaker_mismatch" -> "accessibility_bounds_wrong"
+            else -> scenarioValidation.failureReason
+        }
     }
 
     private fun tableEscape(value: String): String = value

@@ -5,6 +5,7 @@ import com.huiyi.v4.accessibility.HuiyiAccessibilityService
 import com.huiyi.v4.accessibility.ScreenNodeSnapshot
 import com.huiyi.v4.domain.capture.GenericVisualBubbleParser
 import com.huiyi.v4.domain.capture.LiaoqiRealParser
+import com.huiyi.v4.domain.capture.VisualTruthAligner
 import com.huiyi.v4.domain.capture.VisualBubble
 import com.huiyi.v4.domain.model.MessageContent
 import com.huiyi.v4.domain.model.MessageNode
@@ -16,7 +17,12 @@ data class CurrentScreenCaptureResult(
     val sampleSource: SampleSource,
     val warning: String? = null,
     val parserName: String = "GenericVisualBubbleParser",
-    val parserFallbackUsed: Boolean = false
+    val parserFallbackUsed: Boolean = false,
+    val accessibilityBoundsProjected: Boolean = false,
+    val ocrUsed: Boolean = false,
+    val visualTruthAvailable: Boolean = false,
+    val visualConflictCount: Int = 0,
+    val visualSpeakerFallbackCount: Int = 0
 )
 
 open class CurrentScreenCaptureUseCase(
@@ -27,7 +33,8 @@ open class CurrentScreenCaptureUseCase(
         return service.captureCurrentScreen().mapCatching { snapshot ->
             val bubbles = snapshot.nodes.toVisualBubbles()
             val parsed = parseForApp(snapshot.appPackage, snapshot.screenWidth, bubbles)
-            val messages = parsed.messages
+            val visualAlignment = VisualTruthAligner(snapshot.screenWidth).align(parsed.messages)
+            val messages = visualAlignment.messages
                 .filter { it.normalizedText?.isNotBlank() == true || it.content is MessageContent.Voice }
             if (messages.isEmpty()) error("当前屏幕未识别到聊天消息。")
             val source = if (snapshot.appPackage == "com.huiyi.mockchat") {
@@ -41,7 +48,12 @@ open class CurrentScreenCaptureUseCase(
                 sampleSource = source,
                 warning = if (bubbles.size < snapshot.nodes.count { it.readableText != null }) "WARNING: fallback parser filtered low quality nodes." else null,
                 parserName = parsed.parserName,
-                parserFallbackUsed = parsed.fallbackUsed
+                parserFallbackUsed = parsed.fallbackUsed,
+                accessibilityBoundsProjected = visualAlignment.accessibilityBoundsProjected,
+                ocrUsed = visualAlignment.ocrUsed,
+                visualTruthAvailable = visualAlignment.visualTruthAvailable,
+                visualConflictCount = visualAlignment.conflictCount,
+                visualSpeakerFallbackCount = visualAlignment.visualSpeakerFallbackCount
             )
         }
     }

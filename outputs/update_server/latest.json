@@ -1,9 +1,9 @@
 {
-    "versionName":  "4.1.7",
-    "versionCode":  418,
-    "apkUrl":  "huiyi-v4.1.7-debug.apk",
-    "releaseNotes":  "v4.1.7 scenario A hard validation and Liaoqi parser diagnostics",
+    "versionName":  "4.1.8",
+    "versionCode":  420,
+    "apkUrl":  "huiyi-v4.1.8-debug.apk",
+    "releaseNotes":  "v4.1.8 visual truth calibration and overlay debug capture",
     "forceUpdate":  false,
-    "sha256":  "1FD5C02170F8B3A9F52447C28CCEFC94A59D54DA5F97487302CF4A1024062324",
-    "createdAt":  1783048014980
+    "sha256":  "662018E43784FBD92782A5F32BC40C44F20DF6E1B43BD15C6B04D5F564DD4154",
+    "createdAt":  1783049946627
 }
