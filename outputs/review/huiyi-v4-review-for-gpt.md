@@ -3,15 +3,15 @@
 ## v4.1.10 Current Round Summary
 
 - project: Huiyi v4 Core
-- versionName: 4.1.17
-- versionCode: 435
+- versionName: 4.1.18
+- versionCode: 436
 - branch: main
-- commitHash: 65ea029
-- generatedAt: 2026-07-03 16:38:48 +0800
-- taskName: last_me_wait_priority_and_message_status_metadata_fix
-- currentVersion: 4.1.17
-- currentTaskName: last_me_wait_priority_and_message_status_metadata_fix
-- currentGeneratedAt: 2026-07-03 16:38:48 +0800
+- commitHash: 52276b6
+- generatedAt: 2026-07-03 16:46:26 +0800
+- taskName: lan_update_check_failure_default_url_fallback
+- currentVersion: 4.1.18
+- currentTaskName: lan_update_check_failure_default_url_fallback
+- currentGeneratedAt: 2026-07-03 16:46:26 +0800
 - review_freshness_result: PASS
 - mockchat_result: PASS
 - real_device_smoke_result: NOT_TESTED
@@ -54,9 +54,9 @@ currentRegressionStatus:
 - resultShownAsOverlay: NOT_TESTED
 - mainActivityOpened: NOT_TESTED
 - effectiveMessageCount: NOT_TESTED
-- actualLastSpeaker: ME
-- decisionType: WAIT
-- routeCount: 0
+- actualLastSpeaker: NOT_TESTED
+- decisionType: NOT_TESTED
+- routeCount: NOT_TESTED
 - apiCalled: false
 - modelCalled: false
 - screenshotDiagnosticStatus: NOT_TESTED
@@ -66,7 +66,7 @@ currentRegressionStatus:
 
 - testIntent: USER_ASSERTED_LAST_ME
 - userAssertedLastSpeaker: ME
-- actualLastSpeaker: ME
+- actualLastSpeaker: NOT_TESTED
 - chosenCaptureSource: NONE
 - fallbackSnapshotAgeMs: null
 - currentRootLastSpeaker: NOT_CAPTURED
@@ -74,9 +74,9 @@ currentRegressionStatus:
 - postSendSettleAttempted: false
 - lastSpeakerBeforeSettle: NOT_TESTED
 - lastSpeakerAfterSettle: NOT_TESTED
-- decisionType: WAIT
+- decisionType: NOT_TESTED
 - routeCount: 0
-- waitPanelShown: true
+- waitPanelShown: false
 - routePanelShown: false
 - staleRoutesReused: false
 - panelContentFromCurrentSession: false
@@ -85,10 +85,10 @@ currentRegressionStatus:
 
 ## Last OTHER Regression
 
-- actualLastSpeaker: ME
-- decisionType: WAIT
+- actualLastSpeaker: NOT_TESTED
+- decisionType: NOT_TESTED
 - routeCount: 0
-- waitPanelShown: true
+- waitPanelShown: false
 - routePanelShown: false
 - resultShownAsOverlay: NOT_TESTED
 - mainActivityOpened: NOT_TESTED
@@ -139,20 +139,20 @@ currentRegressionStatus:
 ## 1. 基本信息
 
 - project: Huiyi v4 Core
-- versionName: 4.1.17
-- versionCode: 435
+- versionName: 4.1.18
+- versionCode: 436
 - branch: main
-- commitHash: 65ea029
-- generatedAt: 2026-07-03 16:38:48 +0800
-- taskName: last_me_wait_priority_and_message_status_metadata_fix
+- commitHash: 52276b6
+- generatedAt: 2026-07-03 16:46:26 +0800
+- taskName: lan_update_check_failure_default_url_fallback
 - review_freshness_result: PASS
 - mockchat_result: PASS
 - real_device_smoke_result: NOT_TESTED
 - overall_result: NOT_TESTED
 - failReason: 本轮 Review Freshness 通过，但 Real Device Smoke 未执行，不代表真实聊天 App 已通过。
-- currentVersion: 4.1.17
-- currentTaskName: last_me_wait_priority_and_message_status_metadata_fix
-- currentGeneratedAt: 2026-07-03 16:38:48 +0800
+- currentVersion: 4.1.18
+- currentTaskName: lan_update_check_failure_default_url_fallback
+- currentGeneratedAt: 2026-07-03 16:46:26 +0800
 - currentOverallResult: NOT_TESTED
 
 currentUserFeedback:
@@ -173,10 +173,10 @@ currentRegressionStatus:
 
 ## Current Round Evidence
 
-- currentTaskName: last_me_wait_priority_and_message_status_metadata_fix
-- currentVersion: 4.1.17
-- currentGeneratedAt: 2026-07-03 16:38:48 +0800
-- currentReports: outputs/last-me-wait-priority-status-metadata-report-for-gpt.md
+- currentTaskName: lan_update_check_failure_default_url_fallback
+- currentVersion: 4.1.18
+- currentGeneratedAt: 2026-07-03 16:46:26 +0800
+- currentReports: outputs/lan-update-check-failure-hotfix-report-for-gpt.md
 - currentSampleSources: not_tested
 - currentOverallResult: NOT_TESTED
 - review_freshness_result: PASS
@@ -186,12 +186,10 @@ currentRegressionStatus:
 - mockChatMatrixStillPass: true
 - smokeDisclaimer: 本轮 Review Freshness 通过，但 Real Device Smoke 未执行，不代表真实聊天 App 已通过。
 
-### last-me-wait-priority-status-metadata-report-for-gpt.md
+### lan-update-check-failure-hotfix-report-for-gpt.md
 
-- overall_result: PASS_FOR_LOCAL_BUILD_AND_UNIT_TESTS
-- versionName: 4.1.17
-- decisionType: WAIT
-- routeCount: 0
+- overall_result: PASS_FOR_LOCAL_BUILD_AND_LAN_SERVER_CHECK
+- versionName: 4.1.18
 
 ## Current Next Sentence Failure Diagnosis
 
@@ -359,7 +357,7 @@ These reports are historical references only. Their FAIL or `sample_source=unkno
 ### 新增文件
 
 ```
-outputs/last-me-wait-priority-status-metadata-report-for-gpt.md
+outputs/lan-update-check-failure-hotfix-report-for-gpt.md
 outputs/review/archive/
 ```
 
@@ -426,9 +424,9 @@ See Current Round Evidence and Historical / Trace Reports above.
 
 ## 8. 产物清单
 
-- path: outputs/last-me-wait-priority-status-metadata-report-for-gpt.md
+- path: outputs/lan-update-check-failure-hotfix-report-for-gpt.md
   type: report
-  sha256: d47b61a81504dcdd30b035231f0ab9bad75be6b0e5f231129bee412d7ad12007
+  sha256: d81f832ac020dc07d48bec7ff9e93c1298b5e32ae231f8980df2afb2d61cdd34
   是否建议发给 GPT: false
   用途: Current round evidence.
   isCurrentRound: true

@@ -20,8 +20,8 @@ android {
         applicationId = "com.huiyi.v4"
         minSdk = 29
         targetSdk = 35
-        versionCode = 435
-        versionName = "4.1.17"
+        versionCode = 436
+        versionName = "4.1.18"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
 
@@ -29,7 +29,7 @@ android {
         buildConfigField("String", "HUIYI_API_KEY", "\"${localProps.getProperty("huiyi.api.key", "")}\"")
         buildConfigField("String", "HUIYI_API_MODEL", "\"${localProps.getProperty("huiyi.api.model", "gpt-5.5")}\"")
         buildConfigField("Long", "HUIYI_API_TIMEOUT_SECONDS", "${localProps.getProperty("huiyi.api.timeoutSeconds", "60")}L")
-        buildConfigField("String", "HUIYI_UPDATE_BASE_URL", "\"${localProps.getProperty("huiyi.update.baseUrl", "")}\"")
+        buildConfigField("String", "HUIYI_UPDATE_BASE_URL", "\"${localProps.getProperty("huiyi.update.baseUrl", "http://192.168.31.243:8787/latest.json")}\"")
         buildConfigField("String", "HUIYI_REVIEW_UPLOAD_ENDPOINT", "\"${localProps.getProperty("huiyi.reviewUpload.endpoint", "")}\"")
         buildConfigField("String", "HUIYI_REVIEW_UPLOAD_CLIENT_KEY", "\"${localProps.getProperty("huiyi.reviewUpload.clientKey", "")}\"")
     }

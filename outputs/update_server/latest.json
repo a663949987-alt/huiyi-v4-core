@@ -1,9 +1,9 @@
 {
-    "versionName":  "4.1.17",
-    "versionCode":  435,
-    "apkUrl":  "huiyi-v4.1.17-debug.apk",
-    "releaseNotes":  "v4.1.17 last ME wait priority and message status metadata fix",
+    "versionName":  "4.1.18",
+    "versionCode":  436,
+    "apkUrl":  "huiyi-v4.1.18-debug.apk",
+    "releaseNotes":  "v4.1.18 fixed LAN update default URL and fallback check",
     "forceUpdate":  false,
-    "sha256":  "32E7158B17896B5DEA02A99E1D1BDCD98218859B81AF4F1FE73795AF055BE670",
-    "createdAt":  1783067887148
+    "sha256":  "CDFA64211896E0A2709AE322252A72583D1B82E3E352D62CB0AEE4937197AF98",
+    "createdAt":  1783068355404
 }

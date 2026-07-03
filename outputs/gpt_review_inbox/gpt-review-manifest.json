@@ -1,9 +1,9 @@
 {
   "project": "huiyi-v4",
-  "taskName": "last_me_wait_priority_and_message_status_metadata_fix",
-  "versionName": "4.1.17",
-  "versionCode": 435,
-  "generatedAt": "2026-07-03 16:38:49 +0800",
+  "taskName": "lan_update_check_failure_default_url_fallback",
+  "versionName": "4.1.18",
+  "versionCode": 436,
+  "generatedAt": "2026-07-03 16:46:27 +0800",
   "currentOverallResult": "NOT_TESTED",
   "lastMeRealDeviceResult": "NOT_TESTED",
   "lastOtherRealDeviceResult": "NOT_TESTED",
@@ -19,7 +19,7 @@
     "overlayShownInTargetApp": "NOT_TESTED",
     "resultShownAsOverlay": "NOT_TESTED",
     "mainActivityOpened": "NOT_TESTED",
-    "actualLastSpeaker": "ME",
+    "actualLastSpeaker": "NOT_TESTED",
     "decisionType": "NOT_TESTED",
     "routeCount": "NOT_TESTED",
     "scenarioName": "NOT_TESTED",
@@ -57,7 +57,7 @@
       "required": true,
       "exists": true,
       "description": "Main GPT review report",
-      "sha256": "b365041f4f33cb5989abb916654b6e1a40f919c7c0081aa7eb741ce5f283bf8b"
+      "sha256": "65d7f604b682c1555c2e34790ba305d0c7b28c38842b8addf4bedae767401fd4"
     },
     {
       "path": "manifest.json",
@@ -65,7 +65,7 @@
       "required": true,
       "exists": true,
       "description": "Review bundle manifest",
-      "sha256": "939c5a6f68b354e53302143a92d8e1deadb01088f530d87163a723c6f523697b"
+      "sha256": "cdafd2f21eee098c4ec2865d334677c133261b145498d36a7ec7efd831ed76a3"
     },
     {
       "path": "real-device-current-screen-report-for-gpt.md",
@@ -208,7 +208,7 @@
       "required": true,
       "exists": true,
       "description": "Inbox overview for GPT",
-      "sha256": "1910ccdf4847a7fbaa0e67741053d11b7f36682f9ec962d6c8a2cd4269b61517"
+      "sha256": "5b6ad1758fe49a437be42b7178ae06986523c7368ea58dbee5035f23a14b265f"
     },
     {
       "path": "changed-files-for-gpt.md",

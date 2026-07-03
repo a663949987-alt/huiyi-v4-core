@@ -112,7 +112,8 @@ class HuiyiRuntime private constructor(
 
     init {
         val savedUrl = prefs.getString("lan_update_url", "").orEmpty()
-        mutableState.update { it.copy(lanUpdateState = it.lanUpdateState.copy(updateUrl = savedUrl)) }
+        val initialUrl = savedUrl.ifBlank { BuildConfig.HUIYI_UPDATE_BASE_URL }
+        mutableState.update { it.copy(lanUpdateState = it.lanUpdateState.copy(updateUrl = initialUrl)) }
     }
 
     fun setPanelVisible(visible: Boolean) {
@@ -1017,55 +1018,69 @@ class HuiyiRuntime private constructor(
 
     fun checkLanUpdate() {
         scope.launch {
-            val url = mutableState.value.lanUpdateState.updateUrl
-            if (url.isBlank()) {
-                mutableState.update { it.copy(lanUpdateState = it.lanUpdateState.copy(status = "正在自动发现局域网更新服务", error = null)) }
-                updateManager.discoverAndCheck().fold(
-                    onSuccess = { (foundUrl, manifest, raw) ->
-                        prefs.edit().putString("lan_update_url", foundUrl).apply()
-                        mutableState.update {
-                            it.copy(
-                                lanUpdateState = it.lanUpdateState.copy(
-                                    updateUrl = foundUrl,
-                                    latestManifest = manifest,
-                                    latestJsonRaw = raw,
-                                    status = "已自动发现：${manifest.versionName} (${manifest.versionCode})",
-                                    error = null
-                                )
-                            )
-                        }
+            val configuredUrl = mutableState.value.lanUpdateState.updateUrl.ifBlank { BuildConfig.HUIYI_UPDATE_BASE_URL }
+            suspend fun applyFound(url: String, manifest: com.huiyi.v4.domain.model.UpdateManifest, raw: String, status: String) {
+                prefs.edit().putString("lan_update_url", url).apply()
+                mutableState.update {
+                    it.copy(
+                        lanUpdateState = it.lanUpdateState.copy(
+                            updateUrl = url,
+                            latestManifest = manifest,
+                            latestJsonRaw = raw,
+                            status = status,
+                            error = null
+                        )
+                    )
+                }
+            }
+
+            if (configuredUrl.isNotBlank()) {
+                mutableState.update { it.copy(lanUpdateState = it.lanUpdateState.copy(updateUrl = configuredUrl, status = "正在检查局域网更新", error = null)) }
+                updateManager.check(configuredUrl).fold(
+                    onSuccess = { (manifest, raw) ->
+                        applyFound(configuredUrl, manifest, raw, "发现版本 ${manifest.versionName} (${manifest.versionCode})")
                     },
-                    onFailure = { error ->
-                        mutableState.update {
-                            it.copy(lanUpdateState = it.lanUpdateState.copy(status = "自动发现失败", error = error.message))
+                    onFailure = { firstError ->
+                        val fallbackUrl = BuildConfig.HUIYI_UPDATE_BASE_URL
+                        if (fallbackUrl.isNotBlank() && fallbackUrl != configuredUrl) {
+                            updateManager.check(fallbackUrl).fold(
+                                onSuccess = { (manifest, raw) ->
+                                    applyFound(fallbackUrl, manifest, raw, "固定地址发现版本 ${manifest.versionName} (${manifest.versionCode})")
+                                },
+                                onFailure = { fallbackError ->
+                                    mutableState.update {
+                                        it.copy(
+                                            lanUpdateState = it.lanUpdateState.copy(
+                                                status = "检查失败",
+                                                error = "${firstError.message}; fallback ${fallbackUrl}: ${fallbackError.message}"
+                                            )
+                                        )
+                                    }
+                                }
+                            )
+                        } else {
+                            mutableState.update {
+                                it.copy(lanUpdateState = it.lanUpdateState.copy(status = "检查失败", error = firstError.message))
+                            }
                         }
                     }
                 )
                 return@launch
             }
-            mutableState.update { it.copy(lanUpdateState = it.lanUpdateState.copy(status = "正在检查", error = null)) }
-            updateManager.check(url).fold(
-                onSuccess = { (manifest, raw) ->
-                    mutableState.update {
-                        it.copy(
-                            lanUpdateState = it.lanUpdateState.copy(
-                                latestManifest = manifest,
-                                latestJsonRaw = raw,
-                                status = "发现版本 ${manifest.versionName} (${manifest.versionCode})",
-                                error = null
-                            )
-                        )
-                    }
+
+            mutableState.update { it.copy(lanUpdateState = it.lanUpdateState.copy(status = "正在自动发现局域网更新服务", error = null)) }
+            updateManager.discoverAndCheck().fold(
+                onSuccess = { (foundUrl, manifest, raw) ->
+                    applyFound(foundUrl, manifest, raw, "已自动发现：${manifest.versionName} (${manifest.versionCode})")
                 },
                 onFailure = { error ->
                     mutableState.update {
-                        it.copy(lanUpdateState = it.lanUpdateState.copy(status = "检查失败", error = error.message))
+                        it.copy(lanUpdateState = it.lanUpdateState.copy(status = "自动发现失败", error = error.message))
                     }
                 }
             )
         }
     }
-
     fun downloadLanUpdate() {
         scope.launch {
             val updateState = mutableState.value.lanUpdateState

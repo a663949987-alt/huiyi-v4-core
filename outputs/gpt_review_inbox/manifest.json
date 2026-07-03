@@ -1,10 +1,10 @@
 {
   "project": "Huiyi v4 Core",
-  "versionName": "4.1.17",
-  "versionCode": 435,
+  "versionName": "4.1.18",
+  "versionCode": 436,
   "branch": "main",
-  "commitHash": "65ea029",
-  "generatedAt": "2026-07-03 16:38:48 +0800",
+  "commitHash": "52276b6",
+  "generatedAt": "2026-07-03 16:46:26 +0800",
   "overallResult": "NOT_TESTED",
   "currentOverallResult": "NOT_TESTED",
   "lastMeRealDeviceResult": "NOT_TESTED",
@@ -18,7 +18,7 @@
   "scenarioAssertionResult": "NOT_TESTED",
   "scenarioDefinitionTrusted": false,
   "scenarioFailureCategory": "not_tested",
-  "taskName": "last_me_wait_priority_and_message_status_metadata_fix",
+  "taskName": "lan_update_check_failure_default_url_fallback",
   "sampleSources": [
     "not_tested"
   ],
@@ -28,7 +28,7 @@
     {
       "path": "outputs/review/huiyi-v4-review-for-gpt.md",
       "type": "review_markdown",
-      "sha256": "b365041f4f33cb5989abb916654b6e1a40f919c7c0081aa7eb741ce5f283bf8b",
+      "sha256": "65d7f604b682c1555c2e34790ba305d0c7b28c38842b8addf4bedae767401fd4",
       "sendToGpt": true,
       "description": "Default file for GPT review.",
       "generatedAt": null,
@@ -40,14 +40,14 @@
       "stale": false
     },
     {
-      "path": "outputs/last-me-wait-priority-status-metadata-report-for-gpt.md",
+      "path": "outputs/lan-update-check-failure-hotfix-report-for-gpt.md",
       "type": "report",
-      "sha256": "d47b61a81504dcdd30b035231f0ab9bad75be6b0e5f231129bee412d7ad12007",
+      "sha256": "d81f832ac020dc07d48bec7ff9e93c1298b5e32ae231f8980df2afb2d61cdd34",
       "sendToGpt": false,
       "description": "Current round evidence.",
-      "generatedAt": "2026-07-03 16:38:29 +08:00",
-      "taskName": "last_me_wait_priority_and_message_status_metadata_fix",
-      "versionName": "4.1.17",
+      "generatedAt": "2026-07-03 16:46:00 +08:00",
+      "taskName": "lan_update_check_failure_default_url_fallback",
+      "versionName": "4.1.18",
       "isCurrentRound": true,
       "evidenceRole": "current",
       "sample_source": [],

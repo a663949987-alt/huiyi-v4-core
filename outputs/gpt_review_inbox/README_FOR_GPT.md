@@ -1,10 +1,10 @@
 # Huiyi v4 GPT Review Inbox
 
 ## Current round
-- taskName: last_me_wait_priority_and_message_status_metadata_fix
-- versionName: 4.1.17
-- versionCode: 435
-- generatedAt: 2026-07-03 16:38:49 +0800
+- taskName: lan_update_check_failure_default_url_fallback
+- versionName: 4.1.18
+- versionCode: 436
+- generatedAt: 2026-07-03 16:46:27 +0800
 - currentOverallResult: NOT_TESTED
 - lastMeRealDeviceResult: NOT_TESTED
 - lastOtherRealDeviceResult: NOT_TESTED
@@ -58,7 +58,7 @@
 - realDeviceSmoke: NOT_TESTED
 
 ## APK
-- debugApkPath: outputs/huiyi-v4.1.17-debug.apk
+- debugApkPath: outputs/huiyi-v4.1.18-debug.apk
 - APK is not included in this review zip.
 
 ## Known remaining problems
