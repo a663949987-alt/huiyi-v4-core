@@ -2,9 +2,20 @@
 
 - 模拟器是否可跑: 已创建并启动 `Huawei_nova_11_API_36`，分辨率 `1084x2412`，密度 `395`。
 - mockchat 是否已安装: 已安装，包名 `com.huiyi.mockchat`。
-- 无障碍是否能读取 mockchat: 会意无障碍服务已在模拟器中启用，当前前台为 `com.huiyi.mockchat/.MainActivity`，仍需点击悬浮球做一次端到端确认。
-- overlay 是否显示在 mockchat 上方: 流水线报告按悬浮层路径记录为 true；悬浮窗权限已允许，仍需点击悬浮球确认窗口层级。
+- 无障碍是否能读取 mockchat: 已确认。MockChatLab 的标题、在线状态、时间戳、左右气泡、图片占位、输入栏都能作为真实无障碍节点读取。
+- overlay 是否显示在 mockchat 上方: 已确认。点击会意悬浮球“下一句”后，结果面板显示在 MockChatLab 上方，当前前台仍是 `com.huiyi.mockchat/.MainActivity`。
 - 是否仍需真机验证: 仍需。mockchat 用于稳定复现解析问题，不能替代真实聊天 App 兼容性。
+
+## 模拟器端到端实测
+
+- 设备: `Huawei_nova_11_API_36`
+- 场景: `B last_other`
+- 当前前台: `com.huiyi.mockchat/.MainActivity`
+- 结果: PASS，LastSpeakerDecision = OTHER，TacticalDecision = NORMAL_REPLY，ReplyRoutes = 5
+- overlayShownInTargetApp: true
+- foregroundPackageWhenPanelShown: `com.huiyi.mockchat`
+- huiyiActivityOpened: false
+- 截图: `outputs/mockchat_screenshots/mockchat_end_to_end_last_other.png`
 
 ## scenarioName: last_me
 
@@ -950,4 +961,3 @@
 - WAIT panel shown: false
 - VoiceSummaryCard shown: false
 - ContextRequiredCard shown: false
-

@@ -20,12 +20,9 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
@@ -213,20 +210,60 @@ private fun TopBar(
 
 @Composable
 private fun ChatList(items: List<ChatItem>, modifier: Modifier = Modifier) {
-    LazyColumn(
-        modifier = modifier.padding(horizontal = 12.dp),
-        verticalArrangement = Arrangement.spacedBy(10.dp)
+    Column(
+        modifier = modifier
+            .padding(horizontal = 12.dp, vertical = 12.dp),
+        verticalArrangement = Arrangement.spacedBy(6.dp)
     ) {
-        items(items) { item ->
-            when (item.kind) {
-                BubbleKind.TIME -> TimeStamp(item.text)
-                BubbleKind.OTHER -> OtherBubble(item.text)
-                BubbleKind.ME -> MeBubble(item.text)
-                BubbleKind.VOICE_OTHER -> OtherBubble(item.text, voice = true)
-                BubbleKind.IMAGE_OTHER -> ImageBubble(item.text)
-                BubbleKind.CENTER_UNKNOWN -> CenterBubble(item.text)
-            }
+        items.forEach { item ->
+            SimpleChatNode(item)
         }
+    }
+}
+
+@Composable
+private fun SimpleChatNode(item: ChatItem) {
+    val alignment = when (item.kind) {
+        BubbleKind.TIME -> Alignment.Center
+        BubbleKind.ME -> Alignment.CenterEnd
+        BubbleKind.CENTER_UNKNOWN -> Alignment.Center
+        else -> Alignment.CenterStart
+    }
+    val background = when (item.kind) {
+        BubbleKind.TIME -> Color(0xFFE3DDD4)
+        BubbleKind.ME -> Color(0xFFBEE6A8)
+        BubbleKind.CENTER_UNKNOWN -> Color(0xFFFFFBF1)
+        BubbleKind.IMAGE_OTHER -> Color(0xFFE9EEF1)
+        else -> Color.White
+    }
+    val width = when (item.kind) {
+        BubbleKind.TIME -> 92.dp
+        BubbleKind.VOICE_OTHER -> 150.dp
+        BubbleKind.IMAGE_OTHER -> 150.dp
+        BubbleKind.CENTER_UNKNOWN -> 250.dp
+        else -> 260.dp
+    }
+    val height = if (item.kind == BubbleKind.TIME) 26.dp else 48.dp
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(height)
+    ) {
+        Text(
+            text = item.text,
+            modifier = Modifier
+                .align(alignment)
+                .width(width)
+                .height(height)
+                .clip(RoundedCornerShape(8.dp))
+                .background(background)
+                .padding(horizontal = 8.dp, vertical = 5.dp),
+            fontSize = if (item.kind == BubbleKind.TIME) 12.sp else 14.sp,
+            lineHeight = 16.sp,
+            color = Color(0xFF23211E),
+            maxLines = if (item.kind == BubbleKind.TIME || item.kind == BubbleKind.VOICE_OTHER) 1 else 2,
+            overflow = TextOverflow.Ellipsis
+        )
     }
 }
 
@@ -254,12 +291,15 @@ private fun OtherBubble(text: String, voice: Boolean = false) {
             text = text,
             modifier = Modifier
                 .width(260.dp)
+                .height(52.dp)
                 .clip(RoundedCornerShape(8.dp))
                 .background(Color.White)
                 .padding(horizontal = 12.dp, vertical = if (voice) 13.dp else 10.dp),
             fontSize = 16.sp,
-            lineHeight = 22.sp,
-            color = Color(0xFF23211E)
+            lineHeight = 18.sp,
+            color = Color(0xFF23211E),
+            maxLines = if (voice) 1 else 2,
+            overflow = TextOverflow.Ellipsis
         )
     }
 }
@@ -271,12 +311,15 @@ private fun MeBubble(text: String) {
             text = text,
             modifier = Modifier
                 .width(260.dp)
+                .height(52.dp)
                 .clip(RoundedCornerShape(8.dp))
                 .background(Color(0xFFBEE6A8))
                 .padding(horizontal = 12.dp, vertical = 10.dp),
             fontSize = 16.sp,
-            lineHeight = 22.sp,
-            color = Color(0xFF1F2A1F)
+            lineHeight = 18.sp,
+            color = Color(0xFF1F2A1F),
+            maxLines = 2,
+            overflow = TextOverflow.Ellipsis
         )
         Spacer(Modifier.width(8.dp))
         Avatar(Color(0xFF7C9563))
@@ -290,13 +333,16 @@ private fun CenterBubble(text: String) {
             text = text,
             modifier = Modifier
                 .width(250.dp)
+                .height(52.dp)
                 .clip(RoundedCornerShape(8.dp))
                 .background(Color(0xFFFFFBF1))
                 .border(1.dp, Color(0xFFD0C6B8), RoundedCornerShape(8.dp))
                 .padding(horizontal = 12.dp, vertical = 10.dp),
             fontSize = 16.sp,
-            lineHeight = 22.sp,
-            color = Color(0xFF2C2824)
+            lineHeight = 18.sp,
+            color = Color(0xFF2C2824),
+            maxLines = 2,
+            overflow = TextOverflow.Ellipsis
         )
     }
 }
@@ -309,7 +355,7 @@ private fun ImageBubble(text: String) {
         Column(
             modifier = Modifier
                 .width(168.dp)
-                .height(120.dp)
+                .height(56.dp)
                 .clip(RoundedCornerShape(8.dp))
                 .background(Color(0xFFE9EEF1))
                 .border(1.dp, Color(0xFFC8D2D7), RoundedCornerShape(8.dp))
@@ -338,7 +384,7 @@ private fun InputBar() {
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .heightIn(min = 58.dp)
+            .height(58.dp)
             .background(Color(0xFFEEEAE4))
             .padding(horizontal = 10.dp, vertical = 8.dp),
         verticalAlignment = Alignment.CenterVertically
