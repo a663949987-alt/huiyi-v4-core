@@ -147,10 +147,13 @@ def main() -> None:
     }
 
     real_device_tested = parse_field(review_text, "real_device_smoke_result", "NOT_TESTED").upper() == "PASS"
+    evidence_text = review_text + "\n" + "\n".join(
+        read_text(repo / entry["source"]) for entry in copied if entry.get("exists") and entry.get("source")
+    )
     commands = {
-        "testDebugUnitTest": "PASS" if "testDebugUnitTest: PASS" in review_text or "unit tests: PASS" in review_text else "NOT_RUN",
-        "assembleDebug": "PASS" if "assembleDebug: PASS" in review_text else "NOT_RUN",
-        "assembleRelease": "PASS" if "assembleRelease: PASS" in review_text else "NOT_RUN",
+        "testDebugUnitTest": "PASS" if "testDebugUnitTest: PASS" in evidence_text or "unit tests: PASS" in evidence_text else "NOT_RUN",
+        "assembleDebug": "PASS" if "assembleDebug: PASS" in evidence_text else "NOT_RUN",
+        "assembleRelease": "PASS" if "assembleRelease: PASS" in evidence_text else "NOT_RUN",
         "realDeviceSmoke": parse_field(review_text, "real_device_smoke_result", "NOT_TESTED"),
     }
     privacy = {

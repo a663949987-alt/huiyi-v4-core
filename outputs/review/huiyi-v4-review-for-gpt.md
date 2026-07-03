@@ -3,20 +3,20 @@
 ## 1. 基本信息
 
 - project: Huiyi v4 Core
-- versionName: 4.1.9
-- versionCode: 423
+- versionName: 4.1.9a
+- versionCode: 424
 - branch: main
-- commitHash: d0f3be2
-- generatedAt: 2026-07-03 13:19:13 +0800
-- taskName: gpt_review_inbox_delivery_rule
+- commitHash: b9614f9
+- generatedAt: 2026-07-03 13:24:44 +0800
+- taskName: accessibility_service_auto_disabled_fix
 - review_freshness_result: PASS
 - mockchat_result: PASS
 - real_device_smoke_result: NOT_TESTED
 - overall_result: NOT_TESTED
 - failReason: 本轮 Review Freshness 通过，但 Real Device Smoke 未执行，不代表真实聊天 App 已通过。
-- currentVersion: 4.1.9
-- currentTaskName: gpt_review_inbox_delivery_rule
-- currentGeneratedAt: 2026-07-03 13:19:13 +0800
+- currentVersion: 4.1.9a
+- currentTaskName: accessibility_service_auto_disabled_fix
+- currentGeneratedAt: 2026-07-03 13:24:44 +0800
 - currentOverallResult: NOT_TESTED
 
 currentUserFeedback:
@@ -37,10 +37,10 @@ currentRegressionStatus:
 
 ## Current Round Evidence
 
-- currentTaskName: gpt_review_inbox_delivery_rule
-- currentVersion: 4.1.9
-- currentGeneratedAt: 2026-07-03 13:19:13 +0800
-- currentReports: outputs/accessibility-click-diagnostic-report-for-gpt.md, outputs/gpt-review-inbox-delivery-rule-report-for-gpt.md, outputs/latest-next-sentence-failure.json, outputs/latest-next-sentence-failure.md, outputs/next-sentence-screenshot-capability-audit-for-gpt.md
+- currentTaskName: accessibility_service_auto_disabled_fix
+- currentVersion: 4.1.9a
+- currentGeneratedAt: 2026-07-03 13:24:44 +0800
+- currentReports: outputs/accessibility-click-diagnostic-report-for-gpt.md, outputs/latest-next-sentence-failure.json, outputs/latest-next-sentence-failure.md, outputs/v4.1.9a-accessibility-service-stability-report-for-gpt.md
 - currentSampleSources: not_tested
 - currentOverallResult: NOT_TESTED
 - review_freshness_result: PASS
@@ -52,10 +52,6 @@ currentRegressionStatus:
 
 ### accessibility-click-diagnostic-report-for-gpt.md
 
-- versionName: 4.1.9
-### gpt-review-inbox-delivery-rule-report-for-gpt.md
-
-- overall_result: NOT_TESTED
 - versionName: 4.1.9
 ### latest-next-sentence-failure.json
 
@@ -73,9 +69,10 @@ currentRegressionStatus:
 - permission warning shown: false
 
 ## Failure stage
-### next-sentence-screenshot-capability-audit-for-gpt.md
+### v4.1.9a-accessibility-service-stability-report-for-gpt.md
 
-- versionName: 4.1.9
+- overall_result: NOT_TESTED
+- versionName: 4.1.9a
 
 ## Current Next Sentence Failure Diagnosis
 
@@ -241,8 +238,8 @@ These reports are historical references only. Their FAIL or `sample_source=unkno
 ### 新增文件
 
 ```
-outputs/gpt-review-inbox-delivery-rule-report-for-gpt.md
 outputs/review/archive/
+outputs/v4.1.9a-accessibility-service-stability-report-for-gpt.md
 ```
 
 ### 修改文件
@@ -251,7 +248,6 @@ outputs/review/archive/
 outputs/review/huiyi-v4-review-bundle-for-gpt.zip
 outputs/review/huiyi-v4-review-for-gpt.md
 outputs/review/manifest.json
-scripts/generate-review-bundle.ps1
 scripts/generate_review_bundle.py
 ```
 
@@ -321,15 +317,6 @@ See Current Round Evidence and Historical / Trace Reports above.
   evidenceRole: current
   sample_source: none
   stale: false
-- path: outputs/gpt-review-inbox-delivery-rule-report-for-gpt.md
-  type: report
-  sha256: 091228719a7cf7515de934dacaa6298866a1f9f8f98bf8a47bab85abb1ff5c7b
-  是否建议发给 GPT: false
-  用途: Current round evidence.
-  isCurrentRound: true
-  evidenceRole: current
-  sample_source: none
-  stale: false
 - path: outputs/latest-next-sentence-failure.json
   type: json
   sha256: bbcf227998eb3ddb2c64a7faf63cd8e05e414ddd0282a599d6a93705b6c728e6
@@ -348,9 +335,9 @@ See Current Round Evidence and Historical / Trace Reports above.
   evidenceRole: current
   sample_source: none
   stale: false
-- path: outputs/next-sentence-screenshot-capability-audit-for-gpt.md
+- path: outputs/v4.1.9a-accessibility-service-stability-report-for-gpt.md
   type: report
-  sha256: 9cd988bf45ff518395f9381ece2bd874d64cecc37686a7e2d5e5b3f47d6874a3
+  sha256: d75402d9b3344e6720060b3f0e4207b23d7ceb0d9da9e3c5ed6bb8c3430aeae9
   是否建议发给 GPT: false
   用途: Current round evidence.
   isCurrentRound: true

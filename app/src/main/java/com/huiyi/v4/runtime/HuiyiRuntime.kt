@@ -220,7 +220,7 @@ class HuiyiRuntime private constructor(
                             screenshotAttempted = true,
                             screenshotSuccess = visualDebug.screenshotCaptured,
                             screenshotAvailable = visualDebug.screenshotCaptured,
-                            screenshotCapabilityDeclared = true,
+                            screenshotCapabilityDeclared = false,
                             screenshotErrorCode = visualDebug.screenshotErrorCode?.let { NextSentenceErrorCode.valueOf(it) },
                             screenshotExceptionClass = visualDebug.screenshotExceptionClass,
                             screenshotExceptionMessageRedacted = visualDebug.screenshotExceptionMessageRedacted,

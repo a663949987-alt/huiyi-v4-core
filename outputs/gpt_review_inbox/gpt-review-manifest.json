@@ -1,9 +1,9 @@
 {
   "project": "huiyi-v4",
-  "taskName": "gpt_review_inbox_delivery_rule",
-  "versionName": "4.1.9",
-  "versionCode": 423,
-  "generatedAt": "2026-07-03 13:19:14 +0800",
+  "taskName": "accessibility_service_auto_disabled_fix",
+  "versionName": "4.1.9a",
+  "versionCode": 424,
+  "generatedAt": "2026-07-03 13:25:18 +0800",
   "currentOverallResult": "NOT_TESTED",
   "realDeviceTested": false,
   "reviewFiles": [
@@ -13,7 +13,7 @@
       "required": true,
       "exists": true,
       "description": "Main GPT review report",
-      "sha256": "4b37b4ce33eecb52dafa289f74b407994559460026511cc034f39ce063194191"
+      "sha256": "0cf172bac69752020123f757439ccb3d98ea0ad344a36c91c9b66fed64f4dcb1"
     },
     {
       "path": "manifest.json",
@@ -21,7 +21,7 @@
       "required": true,
       "exists": true,
       "description": "Review bundle manifest",
-      "sha256": "95f75d7a65a65863c7f2c8ffd59e34a7b112d47c19551577ed75fc362b327e33"
+      "sha256": "d39cfa4266ae6217c2a951858df33d09046b71fcbe1e169cfe0cf27d69d73da7"
     },
     {
       "path": "latest-next-sentence-failure.md",
@@ -108,7 +108,7 @@
       "required": true,
       "exists": true,
       "description": "Inbox overview for GPT",
-      "sha256": "2726c27f99efb6f18edf32015003d6af1de81bf85c9493c83a602e1c900f90cb"
+      "sha256": "83747618c5485b5a48c67ae1b6721a9cb97b9855e91d71ba8f2e49222f1ba941"
     },
     {
       "path": "changed-files-for-gpt.md",
@@ -130,8 +130,8 @@
   },
   "commands": {
     "testDebugUnitTest": "PASS",
-    "assembleDebug": "NOT_RUN",
-    "assembleRelease": "NOT_RUN",
+    "assembleDebug": "PASS",
+    "assembleRelease": "PASS",
     "realDeviceSmoke": "NOT_TESTED"
   },
   "privacy": {
