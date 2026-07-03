@@ -1,11 +1,14 @@
 # Huiyi v4 GPT Review Inbox
 
 ## Current round
-- taskName: real_device_scenario_truth_and_post_panel_contamination_fix
-- versionName: 4.1.10
-- versionCode: 426
-- generatedAt: 2026-07-03 14:02:37 +0800
+- taskName: phone_one_click_gpt_review_bundle_export
+- versionName: 4.1.11
+- versionCode: 428
+- generatedAt: 2026-07-03 14:32:48 +0800
 - currentOverallResult: NOT_TESTED
+- phoneBundleIncluded: false
+- phoneBundlePath: none
+- phoneBundleRequiredFromUser: true
 
 ## Current conclusion
 - realDeviceFunctionalSmoke: NOT_TESTED
@@ -36,10 +39,10 @@
 
 ## Files GPT should inspect first
 1. huiyi-v4-review-for-gpt.md
-2. real-device-current-screen-report-for-gpt.md
-3. real-device-current-screen-report.json
-4. changed-files-for-gpt.md
-5. latest-next-sentence-failure.json
+2. phone/huiyi-phone-gpt-review-v*.zip
+3. real-device-current-screen-report-for-gpt.md
+4. real-device-current-screen-report.json
+5. changed-files-for-gpt.md
 
 ## Build / test results
 - testDebugUnitTest: PASS
@@ -48,7 +51,7 @@
 - realDeviceSmoke: NOT_TESTED
 
 ## APK
-- debugApkPath: outputs/huiyi-v4.1.10-debug.apk
+- debugApkPath: outputs/huiyi-v4.1.11-debug.apk
 - APK is not included in this review zip.
 
 ## Known remaining problems

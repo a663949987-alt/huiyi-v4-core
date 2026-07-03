@@ -127,6 +127,8 @@ def main() -> None:
     review_text = read_text(outputs / "review/huiyi-v4-review-for-gpt.md")
     review_manifest = json_or_empty(outputs / "review/manifest.json")
     latest_failure = json_or_empty(outputs / "latest-next-sentence-failure.json")
+    phone_bundle = outputs / "from_phone/huiyi-phone-gpt-review-latest.zip"
+    phone_unpacked = outputs / "from_phone/unpacked"
 
     task_name = review_manifest.get("taskName") or parse_field(review_text, "taskName", "unknown")
     version_name = review_manifest.get("versionName") or parse_field(review_text, "versionName", "unknown")
@@ -151,6 +153,15 @@ def main() -> None:
     copied = []
     copied.extend(safe_copy(repo, inbox, REQUIRED_FILES))
     copied.extend(safe_copy(repo, inbox, [(src, dest, False, desc) for src, dest, desc in OPTIONAL_FILES]))
+    phone_bundle_included = phone_bundle.exists()
+    phone_bundle_dest = ""
+    if phone_bundle_included:
+        phone_dir = inbox / "phone"
+        phone_dir.mkdir(parents=True, exist_ok=True)
+        phone_bundle_dest = "phone/" + phone_bundle.name
+        shutil.copy2(phone_bundle, phone_dir / phone_bundle.name)
+        if phone_unpacked.exists():
+            shutil.copytree(phone_unpacked, phone_dir / "unpacked", dirs_exist_ok=True)
 
     current_status = {
         "overlayBubbleSurvivesAfterNextSentence": parse_field(review_text, "overlayBubbleSurvivesAfterNextSentence", "unknown"),
@@ -188,6 +199,9 @@ def main() -> None:
 - versionCode: {version_code}
 - generatedAt: {generated_at}
 - currentOverallResult: {overall}
+- phoneBundleIncluded: {str(phone_bundle_included).lower()}
+- phoneBundlePath: {phone_bundle_dest if phone_bundle_included else "none"}
+- phoneBundleRequiredFromUser: {str(not phone_bundle_included).lower()}
 
 ## Current conclusion
 - realDeviceFunctionalSmoke: {real_device_functional_smoke}
@@ -218,10 +232,10 @@ def main() -> None:
 
 ## Files GPT should inspect first
 1. huiyi-v4-review-for-gpt.md
-2. real-device-current-screen-report-for-gpt.md
-3. real-device-current-screen-report.json
-4. changed-files-for-gpt.md
-5. latest-next-sentence-failure.json
+2. phone/{phone_bundle.name if phone_bundle_included else "huiyi-phone-gpt-review-v*.zip"}
+3. real-device-current-screen-report-for-gpt.md
+4. real-device-current-screen-report.json
+5. changed-files-for-gpt.md
 
 ## Build / test results
 - testDebugUnitTest: {commands["testDebugUnitTest"]}
@@ -301,6 +315,9 @@ def main() -> None:
         "realDeviceFunctionalSmoke": real_device_functional_smoke,
         "scenarioAssertionResult": scenario_assertion_result,
         "realDeviceTested": real_device_tested,
+        "phoneBundleIncluded": phone_bundle_included,
+        "phoneBundlePath": phone_bundle_dest,
+        "phoneBundleRequiredFromUser": not phone_bundle_included,
         "currentStatus": {
             "overlayShownInTargetApp": parse_field(review_text, "overlayShownInTargetApp", "NOT_TESTED"),
             "resultShownAsOverlay": parse_field(review_text, "resultShownAsOverlay", "NOT_TESTED"),

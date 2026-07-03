@@ -1,9 +1,9 @@
 {
-    "versionName":  "4.1.10a",
-    "versionCode":  427,
-    "apkUrl":  "huiyi-v4.1.10a-debug.apk",
-    "releaseNotes":  "v4.1.10a: 修复无障碍已开启但 App 内仍显示未开启/未刷新。",
+    "versionName":  "4.1.11",
+    "versionCode":  428,
+    "apkUrl":  "huiyi-v4.1.11-debug.apk",
+    "releaseNotes":  "v4.1.11: 新增手机端一键导出 GPT 验收总包 zip。",
     "forceUpdate":  false,
-    "sha256":  "AD085DCFCA1EEDE63A84C9B1499D9A4AAF2A76E41088B93B1EA9E08E81242EBB",
-    "createdAt":  1783059094663
+    "sha256":  "C39E87B455E317DAD313F5892323433BE5AAF7877A43A6F68C08B2D2FDCF197D",
+    "createdAt":  1783060257783
 }

@@ -1,17 +1,20 @@
 {
   "project": "huiyi-v4",
-  "taskName": "real_device_scenario_truth_and_post_panel_contamination_fix",
-  "versionName": "4.1.10",
-  "versionCode": 426,
-  "generatedAt": "2026-07-03 14:02:37 +0800",
+  "taskName": "phone_one_click_gpt_review_bundle_export",
+  "versionName": "4.1.11",
+  "versionCode": 428,
+  "generatedAt": "2026-07-03 14:32:48 +0800",
   "currentOverallResult": "NOT_TESTED",
   "realDeviceFunctionalSmoke": "NOT_TESTED",
   "scenarioAssertionResult": "NOT_TESTED",
   "realDeviceTested": false,
+  "phoneBundleIncluded": false,
+  "phoneBundlePath": "",
+  "phoneBundleRequiredFromUser": true,
   "currentStatus": {
-    "overlayShownInTargetApp": "true",
-    "resultShownAsOverlay": "true",
-    "mainActivityOpened": "false",
+    "overlayShownInTargetApp": "NOT_TESTED",
+    "resultShownAsOverlay": "NOT_TESTED",
+    "mainActivityOpened": "NOT_TESTED",
     "actualLastSpeaker": "NOT_TESTED",
     "decisionType": "NOT_TESTED",
     "routeCount": "0",
@@ -29,7 +32,7 @@
       "required": true,
       "exists": true,
       "description": "Main GPT review report",
-      "sha256": "270b00d490c9310a3a544a3a28b10d0ee39dbc6d90a687706f4ee612211db59f"
+      "sha256": "69c7a2c8b7bca56f8ac395c26b5a148696a8646f7d06aba96548a5d2b66e3503"
     },
     {
       "path": "manifest.json",
@@ -37,7 +40,7 @@
       "required": true,
       "exists": true,
       "description": "Review bundle manifest",
-      "sha256": "a0ef2ff7f33db2c2b4d8d198347d6c2c7258631dfab2ca0c1f10a3474eafb792"
+      "sha256": "6de04c02dbfdbab28c0fa9648a13edaee9d576ea8b726612ea4f0cc15b0dbd2a"
     },
     {
       "path": "real-device-current-screen-report-for-gpt.md",
@@ -148,7 +151,7 @@
       "required": true,
       "exists": true,
       "description": "Inbox overview for GPT",
-      "sha256": "61e7bc2e0701614953b9c53595cdf338ff1c80f83040db83e5847df386291bb2"
+      "sha256": "ca82b5ca3fd0ffecb9b0fb45e3ddd2bb357e7d6c61981f623d6644791da4dfa3"
     },
     {
       "path": "changed-files-for-gpt.md",

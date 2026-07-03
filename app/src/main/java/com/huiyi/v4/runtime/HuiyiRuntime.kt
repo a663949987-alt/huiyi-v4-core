@@ -1,6 +1,7 @@
 package com.huiyi.v4.runtime
 
 import android.content.Context
+import android.content.Intent
 import com.huiyi.v4.data.DatabaseProvider
 import com.huiyi.v4.data.HuiyiPersistenceRepository
 import com.huiyi.v4.domain.capture.ManualContextCaptureSession
@@ -73,6 +74,7 @@ data class HuiyiRuntimeState(
     val lastNextSentenceTrace: NextSentenceSessionTrace? = null,
     val latestNextSentenceFailureMarkdownPath: String? = null,
     val latestNextSentenceFailureJsonPath: String? = null,
+    val latestPhoneGptReviewBundlePath: String? = null,
     val lanUpdateState: LanUpdateState = LanUpdateState()
 )
 
@@ -492,6 +494,102 @@ class HuiyiRuntime private constructor(
             )
         }
         return displayPaths
+    }
+
+    fun exportLastMeAcceptanceBundle(): List<String> = exportScenarioAcceptanceBundle(
+        scenario = RealDeviceScenario.LAST_ME,
+        folderName = "last-me",
+        filePrefix = "last-me-real-device-report"
+    )
+
+    fun exportLastOtherAcceptanceBundle(): List<String> = exportScenarioAcceptanceBundle(
+        scenario = RealDeviceScenario.LAST_OTHER,
+        folderName = "last-other",
+        filePrefix = "last-other-real-device-report"
+    )
+
+    private fun exportScenarioAcceptanceBundle(
+        scenario: RealDeviceScenario,
+        folderName: String,
+        filePrefix: String
+    ): List<String> {
+        val result = mutableState.value.latestPipelineResult
+        val markdown: String
+        val json: String
+        if (result == null) {
+            markdown = """
+                # ${scenario.displayName} Real Device Report
+
+                - scenarioName: ${scenario.id}
+                - overall_result: NOT_TESTED
+                - scenarioResult: NOT_TESTED
+                - failureReason: NOT_GENERATED_ON_PHONE
+            """.trimIndent()
+            json = """{"scenarioName":"${scenario.id}","overall_result":"NOT_TESTED","scenarioResult":"NOT_TESTED","failureReason":"NOT_GENERATED_ON_PHONE"}"""
+        } else {
+            markdown = EvidencePackReportGenerator().buildMarkdown(
+                result = result,
+                accessibilityState = HuiyiAccessibilityService.state.value,
+                generatedAt = System.currentTimeMillis(),
+                scenario = scenario
+            )
+            json = EvidencePackReportGenerator().buildJson(
+                result = result,
+                accessibilityState = HuiyiAccessibilityService.state.value,
+                generatedAt = System.currentTimeMillis(),
+                scenario = scenario
+            )
+        }
+        val privateDir = File(appContext.filesDir, "debug/review/$folderName").apply { mkdirs() }
+        val mdFile = File(privateDir, "$filePrefix-for-gpt.md")
+        val jsonFile = File(privateDir, "$filePrefix.json")
+        mdFile.writeText(markdown, Charsets.UTF_8)
+        jsonFile.writeText(json, Charsets.UTF_8)
+        val exporter = PublicDownloadExporter(appContext)
+        val publicMd = exporter.exportText("$filePrefix-for-gpt.md", markdown, relativePath = "Huiyi/review/$folderName")
+            .getOrElse { exporter.fallbackToPrivate("$filePrefix-for-gpt.md", markdown, subDirectory = "debug/review/$folderName") }
+        val publicJson = exporter.exportText("$filePrefix.json", json, "application/json", relativePath = "Huiyi/review/$folderName")
+            .getOrElse { exporter.fallbackToPrivate("$filePrefix.json", json, subDirectory = "debug/review/$folderName") }
+        mutableState.update {
+            it.copy(
+                lastDebugExportPath = mdFile.absolutePath,
+                lastPublicExportPath = "${publicMd.displayPath} / ${publicJson.displayPath}"
+            )
+        }
+        return listOf(publicMd.displayPath, publicJson.displayPath)
+    }
+
+    fun exportPhoneGptReviewBundle() {
+        scope.launch {
+            val exporter = PhoneGptReviewBundleExporter(appContext)
+            exporter.export(
+                latestResult = mutableState.value.latestPipelineResult,
+                selectedScenario = mutableState.value.selectedRealDeviceScenario,
+                latestSessionId = mutableState.value.lastNextSentenceTrace?.sessionId
+            ).fold(
+                onSuccess = { output ->
+                    runCatching {
+                        appContext.startActivity(
+                            Intent.createChooser(output.shareIntent, "分享 GPT 验收包")
+                                .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                        )
+                    }
+                    mutableState.update {
+                        it.copy(
+                            latestPhoneGptReviewBundlePath = output.zipFile.absolutePath,
+                            lastDebugExportPath = output.zipFile.absolutePath,
+                            lastPublicExportPath = output.publicCopyPath ?: output.displayPath,
+                            lastError = "GPT 验收包已生成，你只需要上传这个 zip。"
+                        )
+                    }
+                },
+                onFailure = { error ->
+                    mutableState.update {
+                        it.copy(lastError = "GPT 验收包导出失败：${error.message}")
+                    }
+                }
+            )
+        }
     }
 
     fun exportClickDiagnosticReports(): List<String> {

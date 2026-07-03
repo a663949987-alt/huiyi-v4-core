@@ -577,9 +577,11 @@ private fun DeveloperSettingsPage(
             }
             StatusCard("视觉调试图", state.lastVisualDebugOverlayPath ?: "点击下一句后生成")
             Text("导出真机验收包会包含当前聊天截图叠框图，仅用于开发者验收。")
-            Button(onClick = { runtime.exportParserReport() }, modifier = Modifier.fillMaxWidth()) { Text("导出当前屏幕解析报告") }
-            Button(onClick = { runtime.exportRealDeviceEvidencePack() }, modifier = Modifier.fillMaxWidth()) { Text("导出真机当前屏幕证据包") }
-            Button(onClick = { runtime.exportRealDeviceReviewBundle() }, modifier = Modifier.fillMaxWidth()) { Text("\u5bfc\u51fa\u771f\u673a\u9a8c\u6536\u5305") }
+            Button(onClick = { runtime.exportRealDeviceEvidencePack() }, modifier = Modifier.fillMaxWidth()) { Text("导出当前屏幕报告") }
+            Button(onClick = { runtime.exportLastMeAcceptanceBundle() }, modifier = Modifier.fillMaxWidth()) { Text("导出 last ME 验收包") }
+            Button(onClick = { runtime.exportLastOtherAcceptanceBundle() }, modifier = Modifier.fillMaxWidth()) { Text("导出 last OTHER 验收包") }
+            Button(onClick = { runtime.exportPhoneGptReviewBundle() }, modifier = Modifier.fillMaxWidth()) { Text("导出 GPT 验收总包") }
+            OutlinedButton(onClick = { runtime.exportParserReport() }, modifier = Modifier.fillMaxWidth()) { Text("导出解析调试报告") }
             Button(
                 onClick = { runtime.exportTextDebug("latest-context.txt", state.latestPipelineResult?.context.toString()) },
                 modifier = Modifier.fillMaxWidth()
@@ -601,6 +603,7 @@ private fun DeveloperSettingsPage(
                 modifier = Modifier.fillMaxWidth()
             ) { Text("导出点击诊断报告") }
             StatusCard("最近导出", state.lastDebugExportPath ?: "暂无")
+            StatusCard("GPT 验收总包", state.latestPhoneGptReviewBundlePath ?: "暂无")
             StatusCard("下载目录", state.lastPublicExportPath ?: "导出后显示")
             StatusCard("证据包 JSON", state.lastEvidenceJsonPath ?: "暂无")
             Card(modifier = Modifier.fillMaxWidth()) {
