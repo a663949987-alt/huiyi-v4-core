@@ -1,6 +1,7 @@
 package com.huiyi.v4
 
 import com.huiyi.v4.accessibility.AccessibilityRuntimeState
+import com.huiyi.v4.accessibility.AccessibilityRuntimeReader
 import com.huiyi.v4.accessibility.accessibilityRuntimeMessage
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
@@ -21,6 +22,17 @@ class AccessibilityRuntimeTextTest {
 
         assertFalse(message.contains("没有权限"))
         assertTrue(message.contains("无障碍已开启，但当前窗口暂时不可读取"))
+    }
+
+    @Test
+    fun enabledServiceSettingMatchesExactHuiyiComponentOnly() {
+        val packageName = "com.huiyi.v4"
+        val service = "com.huiyi.v4.accessibility.HuiyiAccessibilityService"
+
+        assertTrue(AccessibilityRuntimeReader.isHuiyiServiceEnabledInSetting("$packageName/$service", packageName))
+        assertTrue(AccessibilityRuntimeReader.isHuiyiServiceEnabledInSetting("$packageName/.accessibility.HuiyiAccessibilityService", packageName))
+        assertFalse(AccessibilityRuntimeReader.isHuiyiServiceEnabledInSetting("com.other.app/$service", packageName))
+        assertFalse(AccessibilityRuntimeReader.isHuiyiServiceEnabledInSetting("$packageName/com.other.Service", packageName))
     }
 
     private fun state(

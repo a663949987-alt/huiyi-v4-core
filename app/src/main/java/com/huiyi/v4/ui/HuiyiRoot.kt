@@ -31,6 +31,7 @@ import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
@@ -56,6 +57,7 @@ import com.huiyi.v4.domain.pipeline.RealDeviceScenario
 import com.huiyi.v4.floating.FloatingBubbleService
 import com.huiyi.v4.runtime.HuiyiRuntime
 import com.huiyi.v4.runtime.HuiyiRuntimeState
+import kotlinx.coroutines.delay
 
 private enum class TabPage(val title: String) {
     Home("首页"),
@@ -71,7 +73,17 @@ fun HuiyiRoot() {
     val runtime = remember { HuiyiRuntime.get(context) }
     val runtimeState by runtime.state.collectAsState()
     val accessibilityState by HuiyiAccessibilityService.state.collectAsState()
-    val accessibilityRuntime = AccessibilityRuntimeReader.read(context)
+    var accessibilityRefreshTick by remember { mutableStateOf(0L) }
+    LaunchedEffect(Unit) {
+        while (true) {
+            accessibilityRefreshTick = System.currentTimeMillis()
+            delay(1000L)
+        }
+    }
+    val accessibilityRuntime = remember(accessibilityRefreshTick, accessibilityState) {
+        AccessibilityRuntimeReader.read(context)
+    }
+    val accessibilityLabel = accessibilityRuntimeMessage(accessibilityRuntime)
     var accessGranted by remember { mutableStateOf(isAccessPasswordValid(context)) }
     var passwordInput by remember { mutableStateOf("") }
     var passwordError by remember { mutableStateOf<String?>(null) }
@@ -123,6 +135,7 @@ fun HuiyiRoot() {
             when (tab) {
                 TabPage.Home -> HomePage(
                     state = runtimeState,
+                    accessibilityLabel = accessibilityLabel,
                     onOpenPanel = { runtime.setPanelVisible(true) },
                     onRunPipeline = { runtime.runNextSentence() },
                     onPersona = { tab = TabPage.Persona },
@@ -130,9 +143,7 @@ fun HuiyiRoot() {
                 )
                 TabPage.Persona -> MyPersonaPage(runtimeState.demoState, onToggle = runtime::togglePersona)
                 TabPage.Settings -> SettingsPage(
-                    accessibilityLabel = when {
-                        else -> accessibilityRuntimeMessage(accessibilityRuntime)
-                    },
+                    accessibilityLabel = accessibilityLabel,
                     overlayLabel = if (Settings.canDrawOverlays(context)) "已授权" else "未授权",
                     lanUpdateUrl = runtimeState.lanUpdateState.updateUrl,
                     lanUpdateStatus = runtimeState.lanUpdateState.status,
@@ -232,6 +243,7 @@ private fun PasswordGate(
 @Composable
 private fun HomePage(
     state: HuiyiRuntimeState,
+    accessibilityLabel: String,
     onOpenPanel: () -> Unit,
     onRunPipeline: () -> Unit,
     onPersona: () -> Unit,
@@ -247,7 +259,7 @@ private fun HomePage(
             Text("今日状态")
             Spacer(Modifier.height(8.dp))
             StatusCard("当前模式", "手动开挂")
-            StatusCard("无障碍状态", accessibilityRuntimeMessage(AccessibilityRuntimeReader.read(LocalContext.current)))
+            StatusCard("无障碍状态", accessibilityLabel)
             StatusCard("悬浮球状态", "可在设置中开启")
             StatusCard("我的底色", if (state.demoState.personaEnabled) "已启用" else "已关闭")
             state.lastError?.let { StatusCard("最近提示", it) }
