@@ -8,33 +8,60 @@ import com.huiyi.v4.domain.model.VisualBounds
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import java.util.concurrent.atomic.AtomicLong
+import java.util.UUID
 
 class HuiyiAccessibilityService : AccessibilityService() {
+    private val serviceInstanceId: String = UUID.randomUUID().toString()
+
     override fun onServiceConnected() {
         super.onServiceConnected()
         instance = this
-        updateState { it.copy(serviceConnected = true, rootAvailable = rootInActiveWindow != null, lastError = null) }
+        val now = System.currentTimeMillis()
+        updateState {
+            it.copy(
+                serviceConnected = true,
+                rootAvailable = rootInActiveWindow != null,
+                lastError = null,
+                lastServiceConnectedAt = now,
+                lastRootAvailableAt = if (rootInActiveWindow != null) now else it.lastRootAvailableAt,
+                activeServiceInstanceId = serviceInstanceId
+            )
+        }
     }
 
     override fun onAccessibilityEvent(event: AccessibilityEvent?) {
         val pkg = event?.packageName?.toString()
         val title = event?.text?.joinToString(" ")?.takeIf { it.isNotBlank() }
+        val rootReady = rootInActiveWindow != null
+        val now = System.currentTimeMillis()
         updateState {
             it.copy(
                 currentPackage = pkg ?: it.currentPackage,
                 currentWindowTitle = title ?: it.currentWindowTitle,
-                rootAvailable = rootInActiveWindow != null
+                rootAvailable = rootReady,
+                lastAccessibilityEventAt = now,
+                lastRootAvailableAt = if (rootReady) now else it.lastRootAvailableAt,
+                activeServiceInstanceId = serviceInstanceId
             )
         }
     }
 
     override fun onInterrupt() {
-        updateState { it.copy(lastError = "无障碍服务被系统中断") }
+        updateState { it.copy(lastError = "无障碍服务被系统中断", lastInterruptAt = System.currentTimeMillis()) }
     }
 
     override fun onDestroy() {
         if (instance === this) instance = null
-        updateState { it.copy(serviceConnected = false, rootAvailable = false) }
+        val now = System.currentTimeMillis()
+        updateState {
+            it.copy(
+                serviceConnected = false,
+                rootAvailable = false,
+                lastDisconnectAt = now,
+                lastDestroyAt = now,
+                activeServiceInstanceId = null
+            )
+        }
         super.onDestroy()
     }
 
@@ -45,7 +72,7 @@ class HuiyiAccessibilityService : AccessibilityService() {
         val nodes = mutableListOf<ScreenNodeSnapshot>()
         collect(root, 0, emptyList(), nodes)
         val now = System.currentTimeMillis()
-        updateState { it.copy(rootAvailable = true, lastCaptureAt = now, lastError = null) }
+        updateState { it.copy(rootAvailable = true, lastCaptureAt = now, lastRootAvailableAt = now, lastError = null, activeServiceInstanceId = serviceInstanceId) }
         CurrentScreenSnapshot(
             appPackage = root.packageName?.toString() ?: state.value.currentPackage,
             windowTitle = state.value.currentWindowTitle,

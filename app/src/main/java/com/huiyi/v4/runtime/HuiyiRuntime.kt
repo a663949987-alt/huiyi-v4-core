@@ -23,6 +23,10 @@ import com.huiyi.v4.domain.pipeline.RealDeviceReviewBundleGenerator
 import com.huiyi.v4.domain.pipeline.RealDeviceScenario
 import com.huiyi.v4.domain.pipeline.ReplyAttemptFactory
 import com.huiyi.v4.accessibility.HuiyiAccessibilityService
+import com.huiyi.v4.accessibility.AccessibilityRuntimeReader
+import com.huiyi.v4.accessibility.AccessibilityRuntimeState
+import com.huiyi.v4.accessibility.accessibilityRuntimeMessage
+import com.huiyi.v4.floating.OverlayStateStore
 import com.huiyi.v4.domain.pipeline.EvidencePackFiles
 import com.huiyi.v4.BuildConfig
 import com.huiyi.v4.domain.tactical.ReplyRouteGenerator
@@ -37,6 +41,7 @@ import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import java.io.File
 import java.util.UUID
@@ -53,7 +58,16 @@ data class HuiyiRuntimeState(
     val showParserDiagnostics: Boolean = false,
     val lastDebugCorrection: String? = null,
     val lastVisualDebugOverlayPath: String? = null,
+    val clickDiagnostics: List<AccessibilityClickSample> = emptyList(),
+    val lastClickPipelineException: String? = null,
     val lanUpdateState: LanUpdateState = LanUpdateState()
+)
+
+data class AccessibilityClickSample(
+    val label: String,
+    val capturedAt: Long,
+    val runtimeState: AccessibilityRuntimeState,
+    val overlayState: com.huiyi.v4.floating.OverlayRuntimeState
 )
 
 class HuiyiRuntime private constructor(
@@ -110,28 +124,59 @@ class HuiyiRuntime private constructor(
 
     fun runNextSentence() {
         scope.launch {
-            val persona = currentPersona()
-            val result = pipeline.run(persona)
-            result.fold(
-                onSuccess = { pipelineResult ->
-                    val messages = pipelineResult.context?.currentScreenMessages ?: mutableState.value.demoState.messages
-                    val scenario = mutableState.value.selectedRealDeviceScenario
-                    val visualDebug = VisualDebugCapture(File(appContext.filesDir, "debug/real_device_visual_debug"))
-                        .capture(HuiyiAccessibilityService.instance, pipelineResult, scenario)
-                    val resultWithVisualDebug = pipelineResult.copy(visualDebugResult = visualDebug)
-                    mutableState.update {
-                        it.copy(
-                            demoState = it.demoState.copy(messages = messages),
-                            latestPipelineResult = resultWithVisualDebug,
-                            panelVisible = true,
-                            lastError = pipelineResult.persistenceError,
-                            lastVisualDebugOverlayPath = visualDebug.overlayImagePath
-                        )
+            sampleClickState("beforeClick")
+            launchClickFollowupSamples()
+            try {
+                val persona = currentPersona()
+                val result = pipeline.run(persona)
+                result.fold(
+                    onSuccess = { pipelineResult ->
+                        val messages = pipelineResult.context?.currentScreenMessages ?: mutableState.value.demoState.messages
+                        val scenario = mutableState.value.selectedRealDeviceScenario
+                        val visualDebug = VisualDebugCapture(File(appContext.filesDir, "debug/real_device_visual_debug"))
+                            .capture(HuiyiAccessibilityService.instance, pipelineResult, scenario)
+                        val resultWithVisualDebug = pipelineResult.copy(visualDebugResult = visualDebug)
+                        mutableState.update {
+                            it.copy(
+                                demoState = it.demoState.copy(messages = messages),
+                                latestPipelineResult = resultWithVisualDebug,
+                                panelVisible = true,
+                                lastError = pipelineResult.persistenceError,
+                                lastVisualDebugOverlayPath = visualDebug.overlayImagePath,
+                                lastClickPipelineException = null
+                            )
+                        }
+                    },
+                    onFailure = { error ->
+                        OverlayStateStore.recordPipelineException(error)
+                        mutableState.update {
+                            it.copy(
+                                panelVisible = true,
+                                lastError = friendlyPipelineError(error),
+                                lastClickPipelineException = "${error::class.java.name}: ${error.message}"
+                            )
+                        }
                     }
-                },
-                onFailure = { error ->
-                    mutableState.update { it.copy(panelVisible = true, lastError = error.message ?: "当前屏幕链路失败") }
+                )
+            } catch (error: Throwable) {
+                OverlayStateStore.recordPipelineException(error)
+                mutableState.update {
+                    it.copy(
+                        panelVisible = true,
+                        lastError = friendlyPipelineError(error),
+                        lastClickPipelineException = "${error::class.java.name}: ${error.message}"
+                    )
                 }
+            }
+        }
+    }
+
+    fun showOverlayError(error: Throwable) {
+        mutableState.update {
+            it.copy(
+                panelVisible = true,
+                lastError = friendlyPipelineError(error),
+                lastClickPipelineException = "${error::class.java.name}: ${error.message}"
             )
         }
     }
@@ -311,6 +356,18 @@ class HuiyiRuntime private constructor(
         return displayPaths
     }
 
+    fun exportClickDiagnosticReports(): List<String> {
+        val clickReport = buildClickDiagnosticReport()
+        val overlayReport = buildOverlayRuntimeReport()
+        val exporter = PublicDownloadExporter(appContext)
+        val click = exporter.exportText("accessibility-click-diagnostic-report-for-gpt.md", clickReport, relativePath = "Huiyi/review")
+            .getOrElse { exporter.fallbackToPrivate("accessibility-click-diagnostic-report-for-gpt.md", clickReport, subDirectory = "debug/review") }
+        val overlay = exporter.exportText("overlay-runtime-report-for-gpt.md", overlayReport, relativePath = "Huiyi/review")
+            .getOrElse { exporter.fallbackToPrivate("overlay-runtime-report-for-gpt.md", overlayReport, subDirectory = "debug/review") }
+        mutableState.update { it.copy(lastPublicExportPath = click.displayPath + " / " + overlay.displayPath) }
+        return listOf(click.displayPath, overlay.displayPath)
+    }
+
     private fun exportVisualDebugOverlay(
         exporter: PublicDownloadExporter,
         result: CurrentScreenPipelineResult?
@@ -332,6 +389,102 @@ class HuiyiRuntime private constructor(
         file.writeText(text, Charsets.UTF_8)
         mutableState.update { it.copy(lastDebugExportPath = file.absolutePath) }
         return file
+    }
+
+    private fun sampleClickState(label: String) {
+        val sample = AccessibilityClickSample(
+            label = label,
+            capturedAt = System.currentTimeMillis(),
+            runtimeState = AccessibilityRuntimeReader.read(appContext),
+            overlayState = OverlayStateStore.state.value
+        )
+        mutableState.update { it.copy(clickDiagnostics = (it.clickDiagnostics + sample).takeLast(20)) }
+    }
+
+    private fun launchClickFollowupSamples() {
+        listOf(100L to "afterClick_100ms", 500L to "afterClick_500ms", 1000L to "afterClick_1000ms", 3000L to "afterClick_3000ms").forEach { (ms, label) ->
+            scope.launch {
+                delay(ms)
+                sampleClickState(label)
+            }
+        }
+    }
+
+    private fun friendlyPipelineError(error: Throwable): String {
+        val runtime = AccessibilityRuntimeReader.read(appContext)
+        return when {
+            !runtime.systemAccessibilityEnabled -> "无障碍未开启，请前往系统设置开启。"
+            !runtime.serviceConnected -> "系统无障碍已开启，但会意服务暂未连接。请返回聊天窗口等待几秒，或重新关闭/开启一次无障碍。"
+            !runtime.rootAvailable -> "无障碍已开启，但当前窗口暂时不可读取。请确认你停留在聊天页面。"
+            else -> "这次分析失败，但悬浮球仍在。${error.message ?: ""}"
+        }
+    }
+
+    private fun buildClickDiagnosticReport(): String {
+        val samples = mutableState.value.clickDiagnostics
+        val runtime = AccessibilityRuntimeReader.read(appContext)
+        val overlay = OverlayStateStore.state.value
+        val wrongPermissionTextShown = mutableState.value.lastError == "无障碍没有权限"
+        return buildString {
+            appendLine("# Accessibility Click Diagnostic Report")
+            appendLine()
+            appendLine("- generatedAt: ${System.currentTimeMillis()}")
+            appendLine("- systemAccessibilityEnabled: ${runtime.systemAccessibilityEnabled}")
+            appendLine("- serviceConnected: ${runtime.serviceConnected}")
+            appendLine("- rootAvailable: ${runtime.rootAvailable}")
+            appendLine("- runtimeCategory: ${runtime.category}")
+            appendLine("- runtimeMessage: ${accessibilityRuntimeMessage(runtime)}")
+            appendLine("- system_enabled_but_service_not_connected: ${runtime.systemAccessibilityEnabled && !runtime.serviceConnected}")
+            appendLine("- overlayVisible: ${runtime.overlayVisible}")
+            appendLine("- floatingServiceRunning: ${runtime.floatingServiceRunning}")
+            appendLine("- windowManagerException: ${overlay.lastWindowManagerException ?: "none"}")
+            appendLine("- pipelineException: ${mutableState.value.lastClickPipelineException ?: overlay.lastPipelineException ?: "none"}")
+            appendLine("- floatingBubbleDisappearReason: ${overlay.removeViewReason ?: "none"}")
+            appendLine("- wrongNoPermissionTextShown: $wrongPermissionTextShown")
+            appendLine()
+            appendLine("## Samples")
+            samples.forEach { sample ->
+                appendLine("- ${sample.label}")
+                appendLine("  capturedAt: ${sample.capturedAt}")
+                appendLine("  systemAccessibilityEnabled: ${sample.runtimeState.systemAccessibilityEnabled}")
+                appendLine("  serviceConnected: ${sample.runtimeState.serviceConnected}")
+                appendLine("  rootAvailable: ${sample.runtimeState.rootAvailable}")
+                appendLine("  currentPackage: ${sample.runtimeState.currentPackage ?: "unknown"}")
+                appendLine("  currentWindowTitle: ${sample.runtimeState.currentWindowTitle ?: "unknown"}")
+                appendLine("  overlayVisible: ${sample.runtimeState.overlayVisible}")
+                appendLine("  floatingServiceRunning: ${sample.runtimeState.floatingServiceRunning}")
+                appendLine("  activeServiceInstanceId: ${sample.runtimeState.activeServiceInstanceId ?: "none"}")
+                appendLine("  lastError: ${sample.runtimeState.lastError ?: "none"}")
+            }
+        }
+    }
+
+    private fun buildOverlayRuntimeReport(): String {
+        val overlay = OverlayStateStore.state.value
+        val runtime = AccessibilityRuntimeReader.read(appContext)
+        return buildString {
+            appendLine("# Overlay Runtime Report")
+            appendLine()
+            appendLine("- generatedAt: ${System.currentTimeMillis()}")
+            appendLine("- bubbleVisible: ${overlay.bubbleVisible}")
+            appendLine("- resultPanelVisible: ${overlay.resultPanelVisible}")
+            appendLine("- errorPanelVisible: ${overlay.errorPanelVisible}")
+            appendLine("- lastPanelType: ${overlay.lastPanelType ?: "none"}")
+            appendLine("- lastBubbleClickAt: ${overlay.lastBubbleClickAt ?: "none"}")
+            appendLine("- lastPanelShownAt: ${overlay.lastPanelShownAt ?: "none"}")
+            appendLine("- lastPanelDismissedAt: ${overlay.lastPanelDismissedAt ?: "none"}")
+            appendLine("- lastOverlayError: ${overlay.lastOverlayError ?: "none"}")
+            appendLine("- lastWindowManagerException: ${overlay.lastWindowManagerException ?: "none"}")
+            appendLine("- lastWindowManagerStackTrace: ${overlay.lastWindowManagerStackTrace ?: "none"}")
+            appendLine("- addViewSuccess: ${overlay.addViewSuccess}")
+            appendLine("- removeViewReason: ${overlay.removeViewReason ?: "none"}")
+            appendLine("- floatingServiceRunning: ${overlay.floatingServiceRunning}")
+            appendLine("- lastPipelineException: ${overlay.lastPipelineException ?: "none"}")
+            appendLine("- serviceStoppedByUser: ${overlay.serviceStoppedByUser}")
+            appendLine("- overlayPermissionState: ${android.provider.Settings.canDrawOverlays(appContext)}")
+            appendLine("- currentForegroundPackage: ${runtime.currentPackage ?: "unknown"}")
+            appendLine("- targetPackage: ${appContext.packageName}")
+        }
     }
 
     fun setLanUpdateUrl(url: String) {

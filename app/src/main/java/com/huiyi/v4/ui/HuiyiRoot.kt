@@ -44,6 +44,8 @@ import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.unit.dp
 import com.huiyi.v4.BuildConfig
 import com.huiyi.v4.accessibility.HuiyiAccessibilityService
+import com.huiyi.v4.accessibility.AccessibilityRuntimeReader
+import com.huiyi.v4.accessibility.accessibilityRuntimeMessage
 import com.huiyi.v4.domain.model.MessageContent
 import com.huiyi.v4.domain.model.ReplyRoute
 import com.huiyi.v4.domain.model.RiskLevel
@@ -68,6 +70,7 @@ fun HuiyiRoot() {
     val runtime = remember { HuiyiRuntime.get(context) }
     val runtimeState by runtime.state.collectAsState()
     val accessibilityState by HuiyiAccessibilityService.state.collectAsState()
+    val accessibilityRuntime = AccessibilityRuntimeReader.read(context)
     var tab by remember { mutableStateOf(TabPage.Home) }
     var versionTapCount by remember { mutableIntStateOf(0) }
 
@@ -102,9 +105,7 @@ fun HuiyiRoot() {
                 TabPage.Persona -> MyPersonaPage(runtimeState.demoState, onToggle = runtime::togglePersona)
                 TabPage.Settings -> SettingsPage(
                     accessibilityLabel = when {
-                        accessibilityState.serviceConnected && accessibilityState.rootAvailable -> "已连接"
-                        accessibilityState.serviceConnected -> "已开启，等待窗口"
-                        else -> "未开启"
+                        else -> accessibilityRuntimeMessage(accessibilityRuntime)
                     },
                     overlayLabel = if (Settings.canDrawOverlays(context)) "已授权" else "未授权",
                     lanUpdateUrl = runtimeState.lanUpdateState.updateUrl,
@@ -162,7 +163,7 @@ private fun HomePage(
             Text("今日状态")
             Spacer(Modifier.height(8.dp))
             StatusCard("当前模式", "手动开挂")
-            StatusCard("无障碍状态", if (HuiyiAccessibilityService.state.value.serviceConnected) "已连接" else "未连接")
+            StatusCard("无障碍状态", accessibilityRuntimeMessage(AccessibilityRuntimeReader.read(LocalContext.current)))
             StatusCard("悬浮球状态", "可在设置中开启")
             StatusCard("我的底色", if (state.demoState.personaEnabled) "已启用" else "已关闭")
             state.lastError?.let { StatusCard("最近提示", it) }
@@ -499,6 +500,10 @@ private fun DeveloperSettingsPage(
                 onClick = { runtime.exportTextDebug("accessibility-status.txt", accessibilityStatus) },
                 modifier = Modifier.fillMaxWidth()
             ) { Text("导出无障碍状态报告") }
+            Button(
+                onClick = { runtime.exportClickDiagnosticReports() },
+                modifier = Modifier.fillMaxWidth()
+            ) { Text("导出点击诊断报告") }
             StatusCard("最近导出", state.lastDebugExportPath ?: "暂无")
             StatusCard("下载目录", state.lastPublicExportPath ?: "导出后显示")
             StatusCard("证据包 JSON", state.lastEvidenceJsonPath ?: "暂无")

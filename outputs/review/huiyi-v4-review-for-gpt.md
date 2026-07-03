@@ -3,12 +3,12 @@
 ## 1. 基本信息
 
 - project: Huiyi v4 Core
-- versionName: 4.1.8
-- versionCode: 420
+- versionName: 4.1.8a
+- versionCode: 421
 - branch: main
-- commitHash: 007a5d7
-- generatedAt: 2026-07-03 11:41:08 +0800
-- taskName: v4.1.8 Accessibility + Visual Truth Calibration
+- commitHash: b7d4d6f
+- generatedAt: 2026-07-03 12:10:15 +0800
+- taskName: v4.1.8a Accessibility Runtime State + Overlay Crash Guard
 - review_freshness_result: PASS
 - mockchat_result: PASS
 - real_device_smoke_result: NOT_TESTED
@@ -17,10 +17,10 @@
 
 ## Current Round Evidence
 
-- currentTaskName: v4.1.8 Accessibility + Visual Truth Calibration
-- currentVersion: 4.1.8
-- currentGeneratedAt: 2026-07-03 11:41:08 +0800
-- currentReports: outputs/v4.1.8-visual-truth-calibration-report-for-gpt.md
+- currentTaskName: v4.1.8a Accessibility Runtime State + Overlay Crash Guard
+- currentVersion: 4.1.8a
+- currentGeneratedAt: 2026-07-03 12:10:15 +0800
+- currentReports: outputs/v4.1.8a-runtime-overlay-guard-report-for-gpt.md
 - currentSampleSources: emulator_mock_chat_accessibility
 - currentOverallResult: PARTIAL
 - review_freshness_result: PASS
@@ -30,10 +30,10 @@
 - mockChatMatrixStillPass: true
 - smokeDisclaimer: 本轮 Review Freshness 通过，但 Real Device Smoke 未执行，不代表真实聊天 App 已通过。
 
-### v4.1.8-visual-truth-calibration-report-for-gpt.md
+### v4.1.8a-runtime-overlay-guard-report-for-gpt.md
 
 - overall_result: PARTIAL
-- versionName: 4.1.8
+- versionName: 4.1.8a
 
 ## Historical / Trace Reports
 
@@ -134,7 +134,7 @@ These reports are historical references only. Their FAIL or `sample_source=unkno
 
 ```
 outputs/review/archive/
-outputs/v4.1.8-visual-truth-calibration-report-for-gpt.md
+outputs/v4.1.8a-runtime-overlay-guard-report-for-gpt.md
 ```
 
 ### 修改文件
@@ -199,9 +199,9 @@ See Current Round Evidence and Historical / Trace Reports above.
 
 ## 8. 产物清单
 
-- path: outputs/v4.1.8-visual-truth-calibration-report-for-gpt.md
+- path: outputs/v4.1.8a-runtime-overlay-guard-report-for-gpt.md
   type: report
-  sha256: 38763940c8bad2c3ebd98ffc8c254db95b0dad38450941cc4cfb79ff105ccb2a
+  sha256: fd803662fde78cbddcd86f1d5cb856341842a1c7ac108bc6874ca1c90fa36207
   是否建议发给 GPT: false
   用途: Current round evidence.
   isCurrentRound: true
@@ -261,7 +261,7 @@ See Current Round Evidence and Historical / Trace Reports above.
   isCurrentRound: false
   evidenceRole: historical
   sample_source: NOT_TESTED
-  stale: false
+  stale: true
 - path: outputs/v4-core-implementation-report-for-gpt.md
   type: report
   sha256: cecaa9ac0248320560e1169b56a5bc6c420c964eaf0471e80dacddc69c16912d

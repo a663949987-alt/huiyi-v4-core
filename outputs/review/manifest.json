@@ -1,15 +1,15 @@
 {
   "project": "Huiyi v4 Core",
-  "versionName": "4.1.8",
-  "versionCode": 420,
+  "versionName": "4.1.8a",
+  "versionCode": 421,
   "branch": "main",
-  "commitHash": "007a5d7",
-  "generatedAt": "2026-07-03 11:41:08 +0800",
+  "commitHash": "b7d4d6f",
+  "generatedAt": "2026-07-03 12:10:15 +0800",
   "overallResult": "PARTIAL",
   "reviewFreshnessResult": "PASS",
   "mockchatResult": "PASS",
   "realDeviceSmokeResult": "NOT_TESTED",
-  "taskName": "v4.1.8 Accessibility + Visual Truth Calibration",
+  "taskName": "v4.1.8a Accessibility Runtime State + Overlay Crash Guard",
   "sampleSources": [
     "emulator_mock_chat_accessibility"
   ],
@@ -19,7 +19,7 @@
     {
       "path": "outputs/review/huiyi-v4-review-for-gpt.md",
       "type": "review_markdown",
-      "sha256": "eaeb7de7d5fd61c9639bdd8befce8c628e288f2eb7857c403bc1086e7b78dbd2",
+      "sha256": "91622bcc627a7cc74ad44f3ae498fdeab933f89f434fc54de5255041628a0e1b",
       "sendToGpt": true,
       "description": "Default file for GPT review.",
       "generatedAt": null,
@@ -31,14 +31,14 @@
       "stale": false
     },
     {
-      "path": "outputs/v4.1.8-visual-truth-calibration-report-for-gpt.md",
+      "path": "outputs/v4.1.8a-runtime-overlay-guard-report-for-gpt.md",
       "type": "report",
-      "sha256": "38763940c8bad2c3ebd98ffc8c254db95b0dad38450941cc4cfb79ff105ccb2a",
+      "sha256": "fd803662fde78cbddcd86f1d5cb856341842a1c7ac108bc6874ca1c90fa36207",
       "sendToGpt": false,
       "description": "Current round evidence.",
-      "generatedAt": "2026-07-03 11:30:00 +08:00",
-      "taskName": "v4.1.8 Accessibility + Visual Truth Calibration",
-      "versionName": "4.1.8",
+      "generatedAt": "2026-07-03 11:55:00 +08:00",
+      "taskName": "v4.1.8a Accessibility Runtime State + Overlay Crash Guard",
+      "versionName": "4.1.8a",
       "isCurrentRound": true,
       "evidenceRole": "current",
       "sample_source": [],
@@ -136,7 +136,7 @@
       "sample_source": [
         "NOT_TESTED"
       ],
-      "stale": false
+      "stale": true
     },
     {
       "path": "outputs/v4-core-implementation-report-for-gpt.md",

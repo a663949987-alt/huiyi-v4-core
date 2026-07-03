@@ -18,10 +18,16 @@ class FloatingBubbleService : Service() {
 
     override fun onCreate() {
         super.onCreate()
+        OverlayStateStore.markFloatingServiceRunning(true)
         val runtime = HuiyiRuntime.get(this)
         resultPanelController = FloatingResultPanelController(this, runtime)
         controller = FloatingBubbleController(this) {
-            runtime.runNextSentence()
+            runCatching {
+                runtime.runNextSentence()
+            }.onFailure { error ->
+                OverlayStateStore.recordPipelineException(error)
+                runtime.showOverlayError(error)
+            }
         }
         controller?.show()
         scope.launch {
@@ -35,7 +41,8 @@ class FloatingBubbleService : Service() {
     }
 
     override fun onDestroy() {
-        controller?.hide()
+        OverlayStateStore.markFloatingServiceRunning(false)
+        controller?.hide("service_destroy")
         resultPanelController?.hide()
         controller = null
         resultPanelController = null

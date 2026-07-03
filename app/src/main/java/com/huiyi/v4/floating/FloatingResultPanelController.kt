@@ -5,6 +5,7 @@ import android.content.ClipboardManager
 import android.content.Context
 import android.graphics.PixelFormat
 import android.os.Build
+import android.provider.Settings
 import android.view.Gravity
 import android.view.WindowManager
 import android.widget.Button
@@ -12,6 +13,7 @@ import android.widget.LinearLayout
 import android.widget.ScrollView
 import android.widget.TextView
 import android.widget.Toast
+import com.huiyi.v4.accessibility.HuiyiAccessibilityService
 import com.huiyi.v4.domain.model.TacticalDecisionType
 import com.huiyi.v4.runtime.HuiyiRuntime
 import com.huiyi.v4.runtime.HuiyiRuntimeState
@@ -26,6 +28,10 @@ class FloatingResultPanelController(
     fun show(state: HuiyiRuntimeState) {
         hide()
         val result = state.latestPipelineResult
+        if (state.lastError != null && result == null) {
+            showError(state.lastError)
+            return
+        }
         val decision = result?.tacticalDecision ?: state.demoState.decision
         val routes = result?.routes ?: state.demoState.routes
         val container = LinearLayout(context).apply {
@@ -78,14 +84,92 @@ class FloatingResultPanelController(
             gravity = Gravity.BOTTOM or Gravity.CENTER_HORIZONTAL
             y = 36
         }
-        windowManager.addView(scroll, params)
-        panelView = scroll
-        runtime.markOverlayPanelShown()
+        try {
+            windowManager.addView(scroll, params)
+            panelView = scroll
+            OverlayStateStore.markAddViewSuccess()
+            OverlayStateStore.markPanelShown(decision.decisionType.name)
+            runtime.markOverlayPanelShown()
+        } catch (error: Throwable) {
+            OverlayStateStore.recordWindowManagerException(
+                error = error,
+                operation = "addView",
+                windowType = params.type,
+                overlayPermissionState = Settings.canDrawOverlays(context),
+                currentForegroundPackage = HuiyiAccessibilityService.state.value.currentPackage,
+                targetPackage = context.packageName
+            )
+        }
     }
 
     fun hide() {
-        panelView?.let { runCatching { windowManager.removeView(it) } }
+        panelView?.let {
+            runCatching { windowManager.removeView(it) }.onFailure { error ->
+                OverlayStateStore.recordWindowManagerException(
+                    error = error,
+                    operation = "removeView",
+                    windowType = 0,
+                    overlayPermissionState = Settings.canDrawOverlays(context),
+                    currentForegroundPackage = HuiyiAccessibilityService.state.value.currentPackage,
+                    targetPackage = context.packageName
+                )
+            }
+        }
         panelView = null
+        OverlayStateStore.markPanelDismissed("panel_hide")
+    }
+
+    private fun showError(errorMessage: String) {
+        val container = LinearLayout(context).apply {
+            orientation = LinearLayout.VERTICAL
+            setPadding(22, 18, 22, 18)
+            setBackgroundColor(0xF2FFFFFF.toInt())
+        }
+        container.addView(text("这次分析失败，但悬浮球仍在。"))
+        container.addView(text(errorMessage))
+        container.addView(Button(context).apply {
+            text = "重试"
+            setOnClickListener { runtime.runNextSentence() }
+        })
+        container.addView(Button(context).apply {
+            text = "导出诊断"
+            setOnClickListener { runtime.exportClickDiagnosticReports() }
+        })
+        container.addView(Button(context).apply {
+            text = "打开无障碍设置"
+            setOnClickListener {
+                context.startActivity(android.content.Intent(android.provider.Settings.ACTION_ACCESSIBILITY_SETTINGS).addFlags(android.content.Intent.FLAG_ACTIVITY_NEW_TASK))
+            }
+        })
+        container.addView(Button(context).apply {
+            text = "隐藏悬浮球"
+            setOnClickListener { hide() }
+        })
+        val scroll = ScrollView(context).apply { addView(container) }
+        val params = WindowManager.LayoutParams(
+            (context.resources.displayMetrics.widthPixels * 0.92f).toInt(),
+            WindowManager.LayoutParams.WRAP_CONTENT,
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY else WindowManager.LayoutParams.TYPE_PHONE,
+            WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE,
+            PixelFormat.TRANSLUCENT
+        ).apply {
+            gravity = Gravity.BOTTOM or Gravity.CENTER_HORIZONTAL
+            y = 36
+        }
+        try {
+            windowManager.addView(scroll, params)
+            panelView = scroll
+            OverlayStateStore.markPanelShown("error")
+        } catch (error: Throwable) {
+            OverlayStateStore.recordWindowManagerException(
+                error = error,
+                operation = "addView",
+                windowType = params.type,
+                overlayPermissionState = Settings.canDrawOverlays(context),
+                currentForegroundPackage = HuiyiAccessibilityService.state.value.currentPackage,
+                targetPackage = context.packageName
+            )
+        }
     }
 
     private fun text(value: String): TextView = TextView(context).apply {

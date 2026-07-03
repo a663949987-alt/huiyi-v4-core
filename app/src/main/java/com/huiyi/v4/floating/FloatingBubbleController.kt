@@ -8,6 +8,7 @@ import android.view.Gravity
 import android.view.WindowManager
 import android.widget.Button
 import android.widget.LinearLayout
+import com.huiyi.v4.accessibility.HuiyiAccessibilityService
 
 class FloatingBubbleController(
     private val context: Context,
@@ -47,13 +48,40 @@ class FloatingBubbleController(
             x = 20
             y = 0
         }
-        windowManager.addView(container, params)
-        rootView = container
+        try {
+            windowManager.addView(container, params)
+            rootView = container
+            OverlayStateStore.markAddViewSuccess()
+            OverlayStateStore.markBubbleVisible(true)
+        } catch (error: Throwable) {
+            OverlayStateStore.recordWindowManagerException(
+                error = error,
+                operation = "addView",
+                windowType = params.type,
+                overlayPermissionState = canDrawOverlays(),
+                currentForegroundPackage = HuiyiAccessibilityService.state.value.currentPackage,
+                targetPackage = context.packageName
+            )
+        }
     }
 
-    fun hide() {
-        rootView?.let { windowManager.removeView(it) }
+    fun hide(reason: String = "user_hide") {
+        rootView?.let {
+            try {
+                windowManager.removeView(it)
+            } catch (error: Throwable) {
+                OverlayStateStore.recordWindowManagerException(
+                    error = error,
+                    operation = "removeView",
+                    windowType = 0,
+                    overlayPermissionState = canDrawOverlays(),
+                    currentForegroundPackage = HuiyiAccessibilityService.state.value.currentPackage,
+                    targetPackage = context.packageName
+                )
+            }
+        }
         rootView = null
+        if (reason == "user_hide") OverlayStateStore.markUserHide() else OverlayStateStore.markBubbleVisible(false)
     }
 
     private fun addMenu(container: LinearLayout) {
@@ -62,8 +90,11 @@ class FloatingBubbleController(
                 text = label
                 setOnClickListener {
                     when (label) {
-                        "下一句" -> onNextSentence()
-                        "暂停/隐藏" -> hide()
+                        "下一句" -> {
+                            OverlayStateStore.markBubbleClick()
+                            onNextSentence()
+                        }
+                        "暂停/隐藏" -> hide("user_hide")
                     }
                 }
             }
