@@ -233,27 +233,21 @@ class HuiyiRuntime private constructor(
                     onSuccess = { pipelineResult ->
                         val messages = pipelineResult.context?.currentScreenMessages ?: mutableState.value.demoState.messages
                         val scenario = mutableState.value.selectedRealDeviceScenario
-                        val visualDebug = runCatching {
-                            VisualDebugCapture(File(appContext.filesDir, "debug/real_device_visual_debug"))
-                                .capture(HuiyiAccessibilityService.instance, pipelineResult, scenario)
-                        }.getOrElse { error ->
-                            val screenshotCode = mapScreenshotException(error) ?: NextSentenceErrorCode.SCREENSHOT_FAILED
-                            VisualDebugResult(
-                                screenshotCaptured = false,
-                                screenshotUnavailable = true,
-                                reason = error.message ?: screenshotCode.name,
-                                screenshotPath = null,
-                                overlayImagePath = null,
-                                screenshotWidth = pipelineResult.captureResult?.snapshot?.screenWidth ?: 0,
-                                screenshotHeight = pipelineResult.captureResult?.snapshot?.screenHeight ?: 0,
-                                accessibilityBoundsProjected = pipelineResult.captureResult?.accessibilityBoundsProjected == true,
-                                ocrUsed = false,
-                                visualTruthAvailable = pipelineResult.captureResult?.visualTruthAvailable == true,
-                                screenshotErrorCode = screenshotCode.name,
-                                screenshotExceptionClass = error::class.java.name,
-                                screenshotExceptionMessageRedacted = error.message?.redactPrivateText()
-                            )
-                        }
+                        val visualDebug = VisualDebugResult(
+                            screenshotCaptured = false,
+                            screenshotUnavailable = true,
+                            reason = "REAL_USE_FAST_PATH",
+                            screenshotPath = null,
+                            overlayImagePath = null,
+                            screenshotWidth = pipelineResult.captureResult?.snapshot?.screenWidth ?: 0,
+                            screenshotHeight = pipelineResult.captureResult?.snapshot?.screenHeight ?: 0,
+                            accessibilityBoundsProjected = pipelineResult.captureResult?.accessibilityBoundsProjected == true,
+                            ocrUsed = false,
+                            visualTruthAvailable = pipelineResult.captureResult?.visualTruthAvailable == true,
+                            screenshotErrorCode = null,
+                            screenshotExceptionClass = null,
+                            screenshotExceptionMessageRedacted = null
+                        )
                         val waitPanelShown = pipelineResult.tacticalDecision.decisionType == TacticalDecisionType.WAIT &&
                             pipelineResult.routes.isEmpty()
                         val routePanelShown = pipelineResult.routes.isNotEmpty()
@@ -325,7 +319,7 @@ class HuiyiRuntime private constructor(
                             panelAttached = true,
                             panelRenderSuccess = true,
                             userFacingMessage = if (pipelineResult.tacticalDecision.decisionType == TacticalDecisionType.WAIT) {
-                                userFacingMessageFor(NextSentenceErrorCode.LAST_SPEAKER_IS_ME_SHOULD_WAIT)
+                                "你已经回过了，先等对方。"
                             } else null
                         )
                         val flightRecord = NextSentenceFlightRecordFactory.fromSuccess(resultWithVisualDebug, successTrace)
@@ -385,7 +379,7 @@ class HuiyiRuntime private constructor(
     ) {
         sessionWatchdogJob?.cancel()
         sessionWatchdogJob = scope.launch {
-            delay(8000L)
+            delay(6000L)
             val state = mutableState.value
             if (state.lastNextSentenceTrace?.sessionId != trace.sessionId) return@launch
             if (state.latestPipelineResult != null || state.lastError != null) return@launch
@@ -397,11 +391,7 @@ class HuiyiRuntime private constructor(
             val timeoutTrace = trace.failed(code, state.lastNextSentenceTrace?.stage ?: trace.stage)
                 .copy(
                     endedAt = System.currentTimeMillis(),
-                    userFacingMessage = if (scenario == RealDeviceScenario.LAST_ME) {
-                        "LAST ME 分析超时，已生成卡住证据报告。"
-                    } else {
-                        userFacingMessageFor(code)
-                    }
+                    userFacingMessage = "没读到当前聊天，请回到聊起聊天窗口再点一次“下一句”。"
                 )
             if (scenario == RealDeviceScenario.LAST_ME) {
                 writeScenarioAcceptanceBundle(
@@ -1019,9 +1009,9 @@ class HuiyiRuntime private constructor(
         val runtime = AccessibilityRuntimeReader.read(appContext)
         return when {
             !runtime.systemAccessibilityEnabled -> "无障碍未开启，请前往系统设置开启。"
-            !runtime.serviceConnected -> "系统无障碍已开启，但会意服务暂未连接。请返回聊天窗口等待几秒，或重新关闭/开启一次无障碍。"
-            !runtime.rootAvailable -> "无障碍已开启，但当前窗口暂时不可读取。请确认你停留在聊天页面。"
-            else -> "这次分析失败，但悬浮球仍在。${error.message ?: ""}"
+            !runtime.serviceConnected -> "系统无障碍已开启，但会意服务暂未连接。请回到聊起聊天窗口等几秒，再点一次“下一句”。"
+            !runtime.rootAvailable -> "没读到当前聊天，请确认你停留在聊起聊天窗口。"
+            else -> "没读到当前聊天，请回到聊起聊天窗口再点一次“下一句”。${error.message ?: ""}"
         }
     }
 

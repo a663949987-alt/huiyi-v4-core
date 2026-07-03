@@ -25,47 +25,47 @@ class FloatingResultPanelController(
     private val windowManager = context.getSystemService(Context.WINDOW_SERVICE) as WindowManager
     private var panelView: ScrollView? = null
 
+    fun showLoading() {
+        Toast.makeText(context, "会意正在看当前聊天…", Toast.LENGTH_SHORT).show()
+    }
+
     fun show(state: HuiyiRuntimeState) {
         hide()
         val result = state.latestPipelineResult
         if (state.lastError != null) {
-            showError(state.lastError)
+            showSimplePanel(
+                title = "没读到当前聊天",
+                body = "请回到聊起聊天窗口，再点一次“下一句”。"
+            )
             return
         }
         val decision = result?.tacticalDecision ?: state.demoState.decision
         val routes = result?.routes ?: state.demoState.routes
-        val container = LinearLayout(context).apply {
-            orientation = LinearLayout.VERTICAL
-            setPadding(22, 18, 22, 18)
-            setBackgroundColor(0xF2FFFFFF.toInt())
-        }
-        container.addView(text("会意雷达"))
-        container.addView(text("判断：${decision.situation}"))
-        container.addView(text("打法：${decision.bestMove}"))
-        container.addView(text("别做：${decision.avoidMoves.joinToString(" / ")}"))
-        decision.influenceProfile.riskWarning?.let { container.addView(text("风险：$it")) }
-        decision.fallbackMove?.let { container.addView(text("撤退：$it")) }
-
-        cloudStatusLabel(result, decision.decisionType)?.let { container.addView(text(it)) }
+        val container = panelContainer()
 
         if (decision.decisionType == TacticalDecisionType.WAIT) {
-            container.addView(text("最后一句是你发的，先等她回，不要继续补话。"))
-        } else if (routes.isEmpty()) {
-            container.addView(text("当前信息不足，先不要强行生成高置信回复。"))
+            container.addView(titleText("先等对方"))
+            container.addView(text("你已经回过了，先等对方。"))
         } else {
-            routes.forEachIndexed { index, route ->
-                container.addView(text("${index + 1}. ${route.name}｜${route.tag}"))
-                container.addView(text(route.message))
-                route.riskWarning?.let { container.addView(text("风险：$it")) }
-                val copyButton = Button(context).apply {
-                    text = "复制"
-                    setOnClickListener {
-                        copy(route.message)
-                        runtime.createCopiedAttempt(route)
-                        Toast.makeText(context, "已复制", Toast.LENGTH_SHORT).show()
+            container.addView(titleText(resultTitle(state)))
+            cloudStatusLine(result)?.let { container.addView(text(it)) }
+            if (routes.isEmpty()) {
+                container.addView(text("云端未就绪，已使用本地建议。请回到聊起聊天窗口再试一次。"))
+            } else {
+                routes.take(5).forEachIndexed { index, route ->
+                    container.addView(routeTitle("${index + 1}. ${route.name}"))
+                    container.addView(text(route.message))
+                    route.riskWarning?.let { container.addView(smallText("风险：$it")) }
+                    val copyButton = Button(context).apply {
+                        text = "复制"
+                        setOnClickListener {
+                            copy(route.message)
+                            runtime.createCopiedAttempt(route)
+                            Toast.makeText(context, "已复制", Toast.LENGTH_SHORT).show()
+                        }
                     }
+                    container.addView(copyButton)
                 }
-                container.addView(copyButton)
             }
         }
 
@@ -73,40 +73,12 @@ class FloatingResultPanelController(
             text = "这次不对，发给 GPT"
             setOnClickListener { runtime.exportOneTapFeedback() }
         })
-
-        val close = Button(context).apply {
-            text = "收起"
+        container.addView(Button(context).apply {
+            text = "隐藏"
             setOnClickListener { hide() }
-        }
-        container.addView(close)
-
-        val scroll = ScrollView(context).apply { addView(container) }
-        val params = WindowManager.LayoutParams(
-            (context.resources.displayMetrics.widthPixels * 0.92f).toInt(),
-            WindowManager.LayoutParams.WRAP_CONTENT,
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY else WindowManager.LayoutParams.TYPE_PHONE,
-            WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE,
-            PixelFormat.TRANSLUCENT
-        ).apply {
-            gravity = Gravity.BOTTOM or Gravity.CENTER_HORIZONTAL
-            y = 36
-        }
-        try {
-            windowManager.addView(scroll, params)
-            panelView = scroll
-            OverlayStateStore.markAddViewSuccess()
-            OverlayStateStore.markPanelShown(decision.decisionType.name)
-            runtime.markOverlayPanelShown()
-        } catch (error: Throwable) {
-            OverlayStateStore.recordWindowManagerException(
-                error = error,
-                operation = "addView",
-                windowType = params.type,
-                overlayPermissionState = Settings.canDrawOverlays(context),
-                currentForegroundPackage = HuiyiAccessibilityService.state.value.currentPackage,
-                targetPackage = context.packageName
-            )
-        }
+        })
+        attach(container, panelType = decision.decisionType.name)
+        runtime.markOverlayPanelShown()
     }
 
     fun hide() {
@@ -126,41 +98,29 @@ class FloatingResultPanelController(
         OverlayStateStore.markPanelDismissed("panel_hide")
     }
 
-    private fun showError(errorMessage: String) {
-        val container = LinearLayout(context).apply {
-            orientation = LinearLayout.VERTICAL
-            setPadding(22, 18, 22, 18)
-            setBackgroundColor(0xF2FFFFFF.toInt())
-        }
-        val title = if (errorMessage.contains("这次分析失败")) {
-            "这次分析失败，已保存诊断。"
-        } else {
-            "下一句没有跑完，已保存诊断。"
-        }
-        container.addView(text(title))
-        container.addView(text(errorMessage))
+    private fun showSimplePanel(title: String, body: String) {
+        hide()
+        val container = panelContainer()
+        container.addView(titleText(title))
+        container.addView(text(body))
         container.addView(Button(context).apply {
             text = "这次不对，发给 GPT"
             setOnClickListener { runtime.exportOneTapFeedback() }
         })
         container.addView(Button(context).apply {
-            text = "重试"
-            setOnClickListener { runtime.runNextSentence() }
-        })
-        container.addView(Button(context).apply {
-            text = "导出诊断"
-            setOnClickListener { runtime.exportClickDiagnosticReports() }
-        })
-        container.addView(Button(context).apply {
-            text = "打开无障碍设置"
-            setOnClickListener {
-                context.startActivity(android.content.Intent(android.provider.Settings.ACTION_ACCESSIBILITY_SETTINGS).addFlags(android.content.Intent.FLAG_ACTIVITY_NEW_TASK))
-            }
-        })
-        container.addView(Button(context).apply {
-            text = "隐藏悬浮球"
+            text = "隐藏"
             setOnClickListener { hide() }
         })
+        attach(container, panelType = "loading")
+    }
+
+    private fun panelContainer(): LinearLayout = LinearLayout(context).apply {
+        orientation = LinearLayout.VERTICAL
+        setPadding(22, 18, 22, 18)
+        setBackgroundColor(0xF2FFFFFF.toInt())
+    }
+
+    private fun attach(container: LinearLayout, panelType: String) {
         val scroll = ScrollView(context).apply { addView(container) }
         val params = WindowManager.LayoutParams(
             (context.resources.displayMetrics.widthPixels * 0.92f).toInt(),
@@ -175,7 +135,8 @@ class FloatingResultPanelController(
         try {
             windowManager.addView(scroll, params)
             panelView = scroll
-            OverlayStateStore.markPanelShown("error")
+            OverlayStateStore.markAddViewSuccess()
+            OverlayStateStore.markPanelShown(panelType)
         } catch (error: Throwable) {
             OverlayStateStore.recordWindowManagerException(
                 error = error,
@@ -188,22 +149,43 @@ class FloatingResultPanelController(
         }
     }
 
+    private fun resultTitle(state: HuiyiRuntimeState): String {
+        val cloud = state.latestPipelineResult?.cloudTrace
+        return if (cloud?.decisionSource == "CLOUD") "会意云端分析" else "本地建议"
+    }
+
+    private fun cloudStatusLine(result: com.huiyi.v4.domain.pipeline.CurrentScreenPipelineResult?): String? {
+        val cloud = result?.cloudTrace ?: return null
+        return when {
+            cloud.decisionSource == "CLOUD" -> "云端已就绪。"
+            cloud.cloudFallbackUsed -> "云端暂不可用，已使用本地建议。"
+            cloud.cloudSkippedReason == "CLOUD_NOT_CONFIGURED" ||
+                cloud.cloudSkippedReason == "RELAY_API_KEY_MISSING" ||
+                cloud.cloudSkippedReason == "RELAY_API_KEY_INSECURE_STORAGE" -> "云端未就绪，已使用本地建议。"
+            else -> null
+        }
+    }
+
+    private fun titleText(value: String): TextView = text(value).apply {
+        textSize = 18f
+        setTextColor(0xFF0F172A.toInt())
+    }
+
+    private fun routeTitle(value: String): TextView = text(value).apply {
+        textSize = 16f
+        setTextColor(0xFF111827.toInt())
+    }
+
+    private fun smallText(value: String): TextView = text(value).apply {
+        textSize = 13f
+        setTextColor(0xFF475569.toInt())
+    }
+
     private fun text(value: String): TextView = TextView(context).apply {
         text = value
         textSize = 15f
         setTextColor(0xFF111827.toInt())
         setPadding(0, 6, 0, 6)
-    }
-
-    private fun cloudStatusLabel(result: com.huiyi.v4.domain.pipeline.CurrentScreenPipelineResult?, decisionType: TacticalDecisionType): String? {
-        val cloud = result?.cloudTrace ?: return null
-        if (decisionType == TacticalDecisionType.WAIT) return null
-        return when {
-            cloud.decisionSource == "CLOUD" -> "会意云端分析"
-            cloud.cloudFallbackUsed -> "云端暂不可用，已使用本地建议"
-            cloud.cloudSkippedReason == "CLOUD_NOT_CONFIGURED" -> "本地建议：云端暂未配置。"
-            else -> null
-        }
     }
 
     private fun copy(value: String) {

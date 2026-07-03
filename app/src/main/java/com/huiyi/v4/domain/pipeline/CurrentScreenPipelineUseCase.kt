@@ -90,8 +90,11 @@ class CurrentScreenPipelineUseCase(
             val hasMissingVisualLastMessage = lastSpeaker.lastEffectiveMessage?.content.let {
                 it is MessageContent.Image || it is MessageContent.Sticker
             }
+            val isLiaoqiRealUse = capture.snapshot.appPackage == "com.bajiao.im.liaoqi"
+            val forceLastOtherRoutes = isLiaoqiRealUse && lastSpeaker.lastSpeaker == Speaker.OTHER
             val decision = when {
                 lastSpeaker.lastSpeaker == Speaker.ME -> lastMeWaitDecision()
+                forceLastOtherRoutes -> decisionEngine.decide(context)
                 unknownTooHigh -> unknownSpeakerDecision("UNKNOWN 说话人超过 30%，不允许高置信度生成。")
                 hasVisualConflict -> unknownSpeakerDecision("当前屏幕存在 Accessibility 与视觉投影冲突，需要先看 visual debug 图。")
                 hasUnknownChatNode -> unknownSpeakerDecision("当前屏幕存在边界不清的聊天气泡，不允许高置信度生成。")
@@ -99,7 +102,9 @@ class CurrentScreenPipelineUseCase(
                 lastSpeaker.unknownSpeaker -> unknownSpeakerDecision(lastSpeaker.reason)
                 else -> decisionEngine.decide(context)
             }
-            val localRoutes = if (
+            val localRoutes = if (forceLastOtherRoutes) {
+                routeGenerator.generate(context, decision)
+            } else if (
                 decision.decisionType == TacticalDecisionType.WAIT ||
                 decision.decisionType == TacticalDecisionType.CONTEXT_REQUIRED ||
                 lastSpeaker.unknownSpeaker ||

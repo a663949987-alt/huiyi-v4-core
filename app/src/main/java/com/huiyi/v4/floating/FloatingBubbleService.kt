@@ -25,6 +25,7 @@ class FloatingBubbleService : Service() {
             context = this,
             onNextSentence = {
                 runCatching {
+                    resultPanelController?.showLoading()
                     runtime.runNextSentence()
                 }.onFailure { error ->
                     OverlayStateStore.recordPipelineException(error)

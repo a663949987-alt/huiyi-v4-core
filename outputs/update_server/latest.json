@@ -2,8 +2,8 @@
     "versionName":  "4.1.25",
     "versionCode":  444,
     "apkUrl":  "huiyi-v4.1.25-debug.apk",
-    "releaseNotes":  "v4.1.25 secure relay runtime config and cloud response parsing MVP",
+    "releaseNotes":  "v4.1.25 liaoqi real-use MVP",
     "forceUpdate":  false,
-    "sha256":  "D90FE00449FB6871C8F6CA17A8D4E15870365E903B5A8614AD349820868E83EE",
-    "createdAt":  1783083038308
+    "sha256":  "C247C3FC540CBA6504904DA242ED3AE1AEBF4AEAC807B3013D2364A370101D90",
+    "createdAt":  1783083767525
 }
