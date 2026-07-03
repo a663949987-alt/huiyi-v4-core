@@ -57,11 +57,13 @@ class LastSpeakerAcceptanceReportGenerator {
         testIntent: RealDeviceTestIntent
     ): Summary {
         if (result == null) {
+            val stuck = trace?.errorCode == NextSentenceErrorCode.LAST_ME_ANALYSIS_STUCK ||
+                trace?.errorCode == NextSentenceErrorCode.SESSION_TIMEOUT_NO_TERMINAL_STATE
             return Summary(
-                result = "NOT_TESTED",
-                currentOverallResult = "NOT_TESTED",
-                failureCategory = "not_tested",
-                failureReason = "NOT_GENERATED_ON_PHONE",
+                result = if (stuck) "STUCK_ANALYZING" else "NOT_TESTED",
+                currentOverallResult = if (stuck) "CONTROLLED_FAIL_WITH_LAST_ME_STUCK_EVIDENCE" else "NOT_TESTED",
+                failureCategory = if (stuck) "last_me_stuck_analyzing" else "not_tested",
+                failureReason = if (stuck) "analysis_timeout_without_terminal_state" else "NOT_GENERATED_ON_PHONE",
                 expectedSpeaker = testIntent.assertedSpeaker?.name ?: scenario.expectedLastSpeaker?.name ?: "AUTO",
                 actualSpeaker = "NOT_TESTED",
                 decisionType = "NOT_TESTED",
@@ -73,7 +75,15 @@ class LastSpeakerAcceptanceReportGenerator {
                 currentRootLastSpeaker = "NOT_CAPTURED",
                 fallbackSnapshotLastSpeaker = "NOT_CAPTURED",
                 staleRoutesReused = false,
-                panelContentFromCurrentSession = false
+                panelContentFromCurrentSession = false,
+                sessionId = trace?.sessionId.orEmpty(),
+                sessionTerminalState = if (stuck) "TIMEOUT" else "NO_RESULT",
+                analysisStartedAt = trace?.startedAt ?: 0L,
+                analysisEndedAt = trace?.endedAt ?: 0L,
+                analysisDurationMs = ((trace?.endedAt ?: 0L) - trace?.startedAt.orZero()).coerceAtLeast(0L),
+                loadingStillVisibleAfterTimeout = stuck,
+                lastObservedStageBeforeTimeout = trace?.stage?.name ?: "NONE",
+                timeoutErrorCode = trace?.errorCode?.name ?: "NONE"
             )
         }
 
@@ -96,6 +106,7 @@ class LastSpeakerAcceptanceReportGenerator {
             result.overlayShownInTargetApp &&
             (
                 (decisionType == TacticalDecisionType.NORMAL_REPLY && routeCount == 5 && routePanelShown) ||
+                    (decisionType == TacticalDecisionType.EMPATHY_FIRST && routeCount == 5 && routePanelShown) ||
                     (decisionType == TacticalDecisionType.CONTEXT_REQUIRED && routeCount == 0)
                 )
         val lastMePass = expectedSpeaker == Speaker.ME &&
@@ -160,7 +171,18 @@ class LastSpeakerAcceptanceReportGenerator {
             panelContentFromCurrentSession = result.panelContentFromCurrentSession,
             sessionId = result.sessionId ?: trace?.sessionId.orEmpty(),
             previousSessionId = result.previousSessionId.orEmpty(),
-            panelSessionId = result.panelSessionId.orEmpty()
+            panelSessionId = result.panelSessionId.orEmpty(),
+            sessionTerminalState = result.sessionTerminalState,
+            analysisStartedAt = result.analysisStartedAt,
+            analysisEndedAt = result.analysisEndedAt,
+            analysisDurationMs = result.analysisDurationMs,
+            loadingStillVisibleAfterTimeout = result.loadingStillVisibleAfterTimeout,
+            lastObservedStageBeforeTimeout = result.lastObservedStageBeforeTimeout,
+            timeoutErrorCode = result.timeoutErrorCode,
+            waitDecisionReached = result.waitDecisionReached,
+            waitPanelRenderAttempted = result.waitPanelRenderAttempted,
+            waitPanelRenderSuccess = result.waitPanelRenderSuccess,
+            decisionTypeFamily = result.decisionTypeFamily
         )
     }
 
@@ -187,7 +209,7 @@ class LastSpeakerAcceptanceReportGenerator {
             appendLine()
             appendLine("- versionName: $versionName")
             appendLine("- versionCode: $versionCode")
-            appendLine("- taskName: real_device_last_me_wait_regression_fix")
+            appendLine("- taskName: last_me_stuck_analyzing_and_phone_bundle_real_reports_fix")
             appendLine("- generatedAt: $generatedAt")
             appendLine("- currentOverallResult: ${summary.currentOverallResult}")
             appendLine("- scenarioResult: ${summary.result}")
@@ -240,6 +262,17 @@ class LastSpeakerAcceptanceReportGenerator {
             appendLine("- panelContentFromCurrentSession: ${summary.panelContentFromCurrentSession}")
             appendLine("- staleRoutesClearedAtSessionStart: ${result?.staleRoutesClearedAtSessionStart ?: true}")
             appendLine("- staleRoutesReused: ${summary.staleRoutesReused}")
+            appendLine("- sessionTerminalState: ${summary.sessionTerminalState}")
+            appendLine("- analysisStartedAt: ${summary.analysisStartedAt}")
+            appendLine("- analysisEndedAt: ${summary.analysisEndedAt}")
+            appendLine("- analysisDurationMs: ${summary.analysisDurationMs}")
+            appendLine("- loadingStillVisibleAfterTimeout: ${summary.loadingStillVisibleAfterTimeout}")
+            appendLine("- lastObservedStageBeforeTimeout: ${summary.lastObservedStageBeforeTimeout}")
+            appendLine("- timeoutErrorCode: ${summary.timeoutErrorCode}")
+            appendLine("- waitDecisionReached: ${summary.waitDecisionReached}")
+            appendLine("- waitPanelRenderAttempted: ${summary.waitPanelRenderAttempted}")
+            appendLine("- waitPanelRenderSuccess: ${summary.waitPanelRenderSuccess}")
+            appendLine("- decisionTypeFamily: ${summary.decisionTypeFamily}")
             appendLine()
             appendLine("## Runtime")
             appendLine("- serviceConnected: ${accessibilityState.serviceConnected}")
@@ -281,7 +314,7 @@ class LastSpeakerAcceptanceReportGenerator {
             {
               "versionName": "${escape(versionName)}",
               "versionCode": $versionCode,
-              "taskName": "real_device_last_me_wait_regression_fix",
+              "taskName": "last_me_stuck_analyzing_and_phone_bundle_real_reports_fix",
               "generatedAt": $generatedAt,
               "testIntent": "$testIntent",
               "currentOverallResult": "${summary.currentOverallResult}",
@@ -322,6 +355,17 @@ class LastSpeakerAcceptanceReportGenerator {
               "panelContentFromCurrentSession": ${summary.panelContentFromCurrentSession},
               "staleRoutesClearedAtSessionStart": ${result?.staleRoutesClearedAtSessionStart ?: true},
               "staleRoutesReused": ${summary.staleRoutesReused},
+              "sessionTerminalState": "${summary.sessionTerminalState}",
+              "analysisStartedAt": ${summary.analysisStartedAt},
+              "analysisEndedAt": ${summary.analysisEndedAt},
+              "analysisDurationMs": ${summary.analysisDurationMs},
+              "loadingStillVisibleAfterTimeout": ${summary.loadingStillVisibleAfterTimeout},
+              "lastObservedStageBeforeTimeout": "${summary.lastObservedStageBeforeTimeout}",
+              "timeoutErrorCode": "${summary.timeoutErrorCode}",
+              "waitDecisionReached": ${summary.waitDecisionReached},
+              "waitPanelRenderAttempted": ${summary.waitPanelRenderAttempted},
+              "waitPanelRenderSuccess": ${summary.waitPanelRenderSuccess},
+              "decisionTypeFamily": "${summary.decisionTypeFamily}",
               "permissionMissingMessageShown": ${trace?.permissionMissingMessageShown ?: false},
               "mainActivityOpened": ${result?.mainActivityOpened ?: false},
               "overlayShownInTargetApp": ${result?.overlayShownInTargetApp ?: false},
@@ -352,8 +396,21 @@ class LastSpeakerAcceptanceReportGenerator {
         val panelContentFromCurrentSession: Boolean,
         val sessionId: String = "",
         val previousSessionId: String = "",
-        val panelSessionId: String = ""
+        val panelSessionId: String = "",
+        val sessionTerminalState: String = "UNKNOWN",
+        val analysisStartedAt: Long = 0L,
+        val analysisEndedAt: Long = 0L,
+        val analysisDurationMs: Long = 0L,
+        val loadingStillVisibleAfterTimeout: Boolean = false,
+        val lastObservedStageBeforeTimeout: String = "NONE",
+        val timeoutErrorCode: String = "NONE",
+        val waitDecisionReached: Boolean = false,
+        val waitPanelRenderAttempted: Boolean = false,
+        val waitPanelRenderSuccess: Boolean = false,
+        val decisionTypeFamily: String = "UNKNOWN"
     )
+
+    private fun Long?.orZero(): Long = this ?: 0L
 
     private fun textOf(message: MessageNode): String = when (val content = message.content) {
         is MessageContent.Text -> content.text

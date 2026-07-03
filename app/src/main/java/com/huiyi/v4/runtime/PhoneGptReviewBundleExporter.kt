@@ -31,6 +31,8 @@ data class PhoneGptReviewBundleSummary(
     val latestActualLastSpeaker: String?,
     val latestDecisionType: String?,
     val latestRouteCount: Int?,
+    val latestFailureFreshness: String,
+    val latestFailureUsedForCurrentOverallResult: Boolean,
     val privacy: PhoneBundlePrivacySummary,
     val files: List<PhoneBundleFileEntry>,
     val staleReports: List<PhoneBundleStaleReport>
@@ -190,6 +192,21 @@ class PhoneGptReviewBundleBuilder {
         zipFile.parentFile?.mkdirs()
         val entries = mutableListOf<PhoneBundleFileEntry>()
         val stale = input.staleReports.map { PhoneBundleStaleReport("stale/${it.key}", "Older generatedAt than current report") }
+        val latestFailureFreshness = latestFailureFreshness(input)
+        val currentFailureMarkdown = if (latestFailureFreshness == "CURRENT") input.latestFailureMarkdown else null
+        val currentFailureJson = if (latestFailureFreshness == "CURRENT") input.latestFailureJson else null
+        val staleFailureReports = buildMap {
+            putAll(input.staleReports)
+            if (latestFailureFreshness.startsWith("STALE")) {
+                input.latestFailureMarkdown?.let { put("old-latest-next-sentence-failure.md", it) }
+                input.latestFailureJson?.let { put("old-latest-next-sentence-failure.json", it) }
+            }
+        }
+        val staleAll = stale + if (latestFailureFreshness.startsWith("STALE")) {
+            listOf(PhoneBundleStaleReport("stale/old-latest-next-sentence-failure.md", latestFailureFreshness))
+        } else {
+            emptyList()
+        }
         val currentOverall = parseField(input.currentReviewMarkdown.orEmpty(), "currentOverallResult")
             ?: parseField(input.currentScreenMarkdown.orEmpty(), "currentOverallResult")
             ?: parseField(input.currentReviewMarkdown.orEmpty(), "overall_result")
@@ -228,9 +245,11 @@ class PhoneGptReviewBundleBuilder {
                 ?: parseField(input.currentScreenMarkdown.orEmpty(), "decisionType"),
             latestRouteCount = parseField(input.currentScreenMarkdown.orEmpty(), "actualRouteCount")?.toIntOrNull()
                 ?: parseField(input.currentScreenMarkdown.orEmpty(), "routeCount")?.toIntOrNull(),
+            latestFailureFreshness = latestFailureFreshness,
+            latestFailureUsedForCurrentOverallResult = false,
             privacy = privacy,
             files = entries,
-            staleReports = stale
+            staleReports = staleAll
         )
         val readme = writeReadme(input, summary)
         val manifest = writeManifest(input, summary)
@@ -244,8 +263,8 @@ class PhoneGptReviewBundleBuilder {
             addText(zip, "last-me/last-me-real-device-report.json", input.lastMeJson ?: placeholderJson("last_me"), entries, true, freshness(input.lastMeJson), "Last ME JSON")
             addText(zip, "last-other/last-other-real-device-report-for-gpt.md", input.lastOtherMarkdown ?: placeholder("last_other"), entries, true, freshness(input.lastOtherMarkdown), "Last OTHER report")
             addText(zip, "last-other/last-other-real-device-report.json", input.lastOtherJson ?: placeholderJson("last_other"), entries, true, freshness(input.lastOtherJson), "Last OTHER JSON")
-            addText(zip, "failure/latest-next-sentence-failure.md", input.latestFailureMarkdown ?: placeholder("latest_failure"), entries, false, freshness(input.latestFailureMarkdown), "Latest failure markdown")
-            addText(zip, "failure/latest-next-sentence-failure.json", input.latestFailureJson ?: placeholderJson("latest_failure"), entries, false, freshness(input.latestFailureJson), "Latest failure JSON")
+            addText(zip, "failure/latest-next-sentence-failure.md", currentFailureMarkdown ?: placeholder("latest_failure"), entries, false, freshness(currentFailureMarkdown), "Latest failure markdown")
+            addText(zip, "failure/latest-next-sentence-failure.json", currentFailureJson ?: placeholderJson("latest_failure"), entries, false, freshness(currentFailureJson), "Latest failure JSON")
             listOf(
                 "accessibility-click-diagnostic-report-for-gpt.md",
                 "real-device-overlay-accessibility-report-for-gpt.md",
@@ -267,8 +286,8 @@ class PhoneGptReviewBundleBuilder {
                 addText(zip, "visual/current_screen_overlay.png", "NOT_AVAILABLE", entries, false, "NOT_AVAILABLE", "Accessibility overlay debug image placeholder")
             }
             addText(zip, "visual/visual-debug-index.md", visualIndex, entries, true, "CURRENT", "Visual debug index")
-            addText(zip, "stale/README_STALE_REPORTS.md", staleReadme(stale), entries, true, "CURRENT", "Stale report explanation")
-            input.staleReports.forEach { (name, text) ->
+            addText(zip, "stale/README_STALE_REPORTS.md", staleReadme(staleAll), entries, true, "CURRENT", "Stale report explanation")
+            staleFailureReports.forEach { (name, text) ->
                 addText(zip, "stale/$name", text, entries, false, "STALE", "Stale historical report")
             }
             addText(zip, "metadata/export-log.txt", exportLog(input, summary), entries, true, "CURRENT", "Export log")
@@ -333,6 +352,8 @@ class PhoneGptReviewBundleBuilder {
         appendLine("- latestActualLastSpeaker: ${summary.latestActualLastSpeaker ?: "NOT_TESTED"}")
         appendLine("- latestDecisionType: ${summary.latestDecisionType ?: "NOT_TESTED"}")
         appendLine("- latestRouteCount: ${summary.latestRouteCount ?: 0}")
+        appendLine("- latestFailureFreshness: ${summary.latestFailureFreshness}")
+        appendLine("- latestFailureUsedForCurrentOverallResult: ${summary.latestFailureUsedForCurrentOverallResult}")
         appendLine("- permissionFalseAlarmObserved: unknown")
         appendLine("- screenshotFailureBlocksMainPath: ${parseField(input.currentScreenMarkdown.orEmpty(), "screenshotFailureBlocksMainPath") ?: "unknown"}")
         appendLine("- mainActivityOpened: ${parseField(input.currentScreenMarkdown.orEmpty(), "mainActivityOpened") ?: "unknown"}")
@@ -417,6 +438,8 @@ class PhoneGptReviewBundleBuilder {
                 "permissionFalseAlarmObserved": "unknown",
                 "screenshotFailureBlocksMainPath": "${parseField(input.currentScreenMarkdown.orEmpty(), "screenshotFailureBlocksMainPath") ?: "unknown"}"
               },
+              "latestFailureFreshness": "${summary.latestFailureFreshness}",
+              "latestFailureUsedForCurrentOverallResult": ${summary.latestFailureUsedForCurrentOverallResult},
               "lastMe": ${scenarioJson(input.lastMeMarkdown, "ME", summary.lastMeRealDeviceResult)},
               "lastOther": ${scenarioJson(input.lastOtherMarkdown, "OTHER", summary.lastOtherRealDeviceResult)},
               "latestFailure": {
@@ -474,6 +497,8 @@ class PhoneGptReviewBundleBuilder {
         appendLine("source=PHONE_APP_EXPORT")
         appendLine("appVersion=${input.appVersionName} (${input.appVersionCode})")
         appendLine("currentOverallResult=${summary.currentOverallResult}")
+        appendLine("latestFailureFreshness=${summary.latestFailureFreshness}")
+        appendLine("latestFailureUsedForCurrentOverallResult=${summary.latestFailureUsedForCurrentOverallResult}")
         appendLine("safeForPublicGitHub=${summary.privacy.safeForPublicGitHub}")
     }
 
@@ -496,6 +521,19 @@ class PhoneGptReviewBundleBuilder {
     private fun placeholderJson(name: String): String = """{"reportName":"$name","result":"NOT_TESTED","reason":"NOT_GENERATED_ON_PHONE"}"""
 
     private fun freshness(text: String?): String = if (text == null) "NOT_AVAILABLE" else "CURRENT"
+
+    private fun latestFailureFreshness(input: PhoneGptReviewBundleInput): String {
+        val text = input.latestFailureJson.orEmpty() + "\n" + input.latestFailureMarkdown.orEmpty()
+        if (text.isBlank()) return "NOT_AVAILABLE"
+        val failureVersionCode = parseField(text, "versionCode")?.toIntOrNull()
+        if (failureVersionCode != null && failureVersionCode < input.appVersionCode) return "STALE_OLD_VERSION"
+        val failureVersionName = parseField(text, "versionName")
+        if (!failureVersionName.isNullOrBlank() && failureVersionName != input.appVersionName) return "STALE_OLD_VERSION"
+        if (text.contains("4.1.8b", ignoreCase = true) && text.contains("SecurityException", ignoreCase = true)) {
+            return "STALE_OLD_VERSION"
+        }
+        return "CURRENT"
+    }
 
     private fun parseField(text: String, key: String): String? {
         val escaped = Regex.escape(key)

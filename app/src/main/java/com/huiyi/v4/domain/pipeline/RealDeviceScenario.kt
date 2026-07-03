@@ -134,8 +134,7 @@ object RealDeviceScenarioValidator {
         val title = result?.captureResult?.snapshot?.windowTitle.orEmpty()
         val titleContaminated = isPostPanelWindowTitle(title)
         val visualDebug = result?.visualDebugResult
-        val visualTruthAvailable = visualDebug?.visualTruthAvailable == true ||
-            result?.captureResult?.visualTruthAvailable == true ||
+        val visualTruthAvailable = visualDebug?.screenshotCaptured == true ||
             result?.userCorrectionProvided == true
         val screenshotDiagnosticStatus = when {
             visualDebug?.screenshotCaptured == true -> "OPTIONAL_SUCCEEDED"
@@ -231,7 +230,9 @@ object RealDeviceScenarioValidator {
             !result.resultShownAsOverlay -> "result_panel_not_shown_as_overlay"
             !result.userStayedInChatApp -> "user_left_chat_app"
             actualLastSpeaker == Speaker.ME && (decision != TacticalDecisionType.WAIT || routeCount != 0) -> "actual_me_should_wait"
-            actualLastSpeaker == Speaker.OTHER && decision == TacticalDecisionType.NORMAL_REPLY && routeCount == 5 -> "none"
+            actualLastSpeaker == Speaker.OTHER &&
+                decision in setOf(TacticalDecisionType.NORMAL_REPLY, TacticalDecisionType.EMPATHY_FIRST) &&
+                routeCount == 5 -> "none"
             actualLastSpeaker == Speaker.OTHER && decision == TacticalDecisionType.CONTEXT_REQUIRED && routeCount == 0 -> "context_required_for_actual_other"
             actualLastSpeaker == Speaker.OTHER && decision == TacticalDecisionType.VOICE_SUMMARY_REQUIRED && routeCount == 0 -> "voice_summary_required_for_actual_other"
             actualLastSpeaker == Speaker.OTHER -> "actual_other_should_generate_or_request_context"

@@ -42,7 +42,18 @@ data class CurrentScreenPipelineResult(
     val staleRoutesClearedAtSessionStart: Boolean = true,
     val staleRoutesReused: Boolean = false,
     val waitPanelShown: Boolean = false,
-    val routePanelShown: Boolean = false
+    val routePanelShown: Boolean = false,
+    val sessionTerminalState: String = "UNKNOWN",
+    val analysisStartedAt: Long = 0L,
+    val analysisEndedAt: Long = 0L,
+    val analysisDurationMs: Long = 0L,
+    val loadingStillVisibleAfterTimeout: Boolean = false,
+    val lastObservedStageBeforeTimeout: String = "NONE",
+    val timeoutErrorCode: String = "NONE",
+    val waitDecisionReached: Boolean = false,
+    val waitPanelRenderAttempted: Boolean = false,
+    val waitPanelRenderSuccess: Boolean = false,
+    val decisionTypeFamily: String = "UNKNOWN"
 )
 
 class CurrentScreenPipelineUseCase(

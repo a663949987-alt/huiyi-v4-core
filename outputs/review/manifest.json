@@ -1,10 +1,10 @@
 {
   "project": "Huiyi v4 Core",
-  "versionName": "4.1.11a",
-  "versionCode": 429,
+  "versionName": "4.1.12",
+  "versionCode": 430,
   "branch": "main",
-  "commitHash": "6646a09",
-  "generatedAt": "2026-07-03 14:45:11 +0800",
+  "commitHash": "80a2a13",
+  "generatedAt": "2026-07-03 15:09:24 +0800",
   "overallResult": "NOT_TESTED",
   "currentOverallResult": "NOT_TESTED",
   "lastMeRealDeviceResult": "NOT_TESTED",
@@ -18,7 +18,7 @@
   "scenarioAssertionResult": "NOT_TESTED",
   "scenarioDefinitionTrusted": false,
   "scenarioFailureCategory": "not_tested",
-  "taskName": "real_device_last_me_wait_regression_fix",
+  "taskName": "last_me_stuck_analyzing_and_phone_bundle_real_reports_fix",
   "sampleSources": [
     "not_tested"
   ],
@@ -28,7 +28,7 @@
     {
       "path": "outputs/review/huiyi-v4-review-for-gpt.md",
       "type": "review_markdown",
-      "sha256": "b959a1b0bd025e42497cd7f05de290dfda470d8172a8452854d70af7bb2c6287",
+      "sha256": "700656e797c6516bb91f1fe59855b7f7ffe6cdd2d0b3bdc32084da062832d919",
       "sendToGpt": true,
       "description": "Default file for GPT review.",
       "generatedAt": null,
@@ -40,14 +40,14 @@
       "stale": false
     },
     {
-      "path": "outputs/v4.1.11-last-me-wait-regression-report-for-gpt.md",
+      "path": "outputs/v4.1.12-last-me-stuck-analyzing-report-for-gpt.md",
       "type": "report",
-      "sha256": "fb72accfad64d9b97e1df1968bbb457f08f4dfc10886035ab2e0fb47831e17f7",
+      "sha256": "c9c3f2f0ff5c57fa2be4a75487827a9ecbafefdaf0b638fb7a29f75696815857",
       "sendToGpt": false,
       "description": "Current round evidence.",
-      "generatedAt": "2026-07-03 14:43:00 +08:00",
-      "taskName": "real_device_last_me_wait_regression_fix",
-      "versionName": "4.1.11a",
+      "generatedAt": "2026-07-03 15:09:16 +08:00",
+      "taskName": "last_me_stuck_analyzing_and_phone_bundle_real_reports_fix",
+      "versionName": "4.1.12",
       "isCurrentRound": true,
       "evidenceRole": "current",
       "sample_source": [],

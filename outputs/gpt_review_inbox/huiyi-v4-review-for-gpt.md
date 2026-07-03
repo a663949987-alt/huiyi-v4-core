@@ -3,15 +3,15 @@
 ## v4.1.10 Current Round Summary
 
 - project: Huiyi v4 Core
-- versionName: 4.1.11a
-- versionCode: 429
+- versionName: 4.1.12
+- versionCode: 430
 - branch: main
-- commitHash: 6646a09
-- generatedAt: 2026-07-03 14:45:11 +0800
-- taskName: real_device_last_me_wait_regression_fix
-- currentVersion: 4.1.11a
-- currentTaskName: real_device_last_me_wait_regression_fix
-- currentGeneratedAt: 2026-07-03 14:45:11 +0800
+- commitHash: 80a2a13
+- generatedAt: 2026-07-03 15:09:24 +0800
+- taskName: last_me_stuck_analyzing_and_phone_bundle_real_reports_fix
+- currentVersion: 4.1.12
+- currentTaskName: last_me_stuck_analyzing_and_phone_bundle_real_reports_fix
+- currentGeneratedAt: 2026-07-03 15:09:24 +0800
 - review_freshness_result: PASS
 - mockchat_result: PASS
 - real_device_smoke_result: NOT_TESTED
@@ -139,20 +139,20 @@ currentRegressionStatus:
 ## 1. 基本信息
 
 - project: Huiyi v4 Core
-- versionName: 4.1.11a
-- versionCode: 429
+- versionName: 4.1.12
+- versionCode: 430
 - branch: main
-- commitHash: 6646a09
-- generatedAt: 2026-07-03 14:45:11 +0800
-- taskName: real_device_last_me_wait_regression_fix
+- commitHash: 80a2a13
+- generatedAt: 2026-07-03 15:09:24 +0800
+- taskName: last_me_stuck_analyzing_and_phone_bundle_real_reports_fix
 - review_freshness_result: PASS
 - mockchat_result: PASS
 - real_device_smoke_result: NOT_TESTED
 - overall_result: NOT_TESTED
 - failReason: 本轮 Review Freshness 通过，但 Real Device Smoke 未执行，不代表真实聊天 App 已通过。
-- currentVersion: 4.1.11a
-- currentTaskName: real_device_last_me_wait_regression_fix
-- currentGeneratedAt: 2026-07-03 14:45:11 +0800
+- currentVersion: 4.1.12
+- currentTaskName: last_me_stuck_analyzing_and_phone_bundle_real_reports_fix
+- currentGeneratedAt: 2026-07-03 15:09:24 +0800
 - currentOverallResult: NOT_TESTED
 
 currentUserFeedback:
@@ -173,10 +173,10 @@ currentRegressionStatus:
 
 ## Current Round Evidence
 
-- currentTaskName: real_device_last_me_wait_regression_fix
-- currentVersion: 4.1.11a
-- currentGeneratedAt: 2026-07-03 14:45:11 +0800
-- currentReports: outputs/v4.1.11-last-me-wait-regression-report-for-gpt.md
+- currentTaskName: last_me_stuck_analyzing_and_phone_bundle_real_reports_fix
+- currentVersion: 4.1.12
+- currentGeneratedAt: 2026-07-03 15:09:24 +0800
+- currentReports: outputs/v4.1.12-last-me-stuck-analyzing-report-for-gpt.md
 - currentSampleSources: not_tested
 - currentOverallResult: NOT_TESTED
 - review_freshness_result: PASS
@@ -186,10 +186,10 @@ currentRegressionStatus:
 - mockChatMatrixStillPass: true
 - smokeDisclaimer: 本轮 Review Freshness 通过，但 Real Device Smoke 未执行，不代表真实聊天 App 已通过。
 
-### v4.1.11-last-me-wait-regression-report-for-gpt.md
+### v4.1.12-last-me-stuck-analyzing-report-for-gpt.md
 
 - overall_result: NOT_TESTED
-- versionName: 4.1.11a
+- versionName: 4.1.12
 
 ## Current Next Sentence Failure Diagnosis
 
@@ -358,7 +358,7 @@ These reports are historical references only. Their FAIL or `sample_source=unkno
 
 ```
 outputs/review/archive/
-outputs/v4.1.11-last-me-wait-regression-report-for-gpt.md
+outputs/v4.1.12-last-me-stuck-analyzing-report-for-gpt.md
 ```
 
 ### 修改文件
@@ -424,9 +424,9 @@ See Current Round Evidence and Historical / Trace Reports above.
 
 ## 8. 产物清单
 
-- path: outputs/v4.1.11-last-me-wait-regression-report-for-gpt.md
+- path: outputs/v4.1.12-last-me-stuck-analyzing-report-for-gpt.md
   type: report
-  sha256: fb72accfad64d9b97e1df1968bbb457f08f4dfc10886035ab2e0fb47831e17f7
+  sha256: c9c3f2f0ff5c57fa2be4a75487827a9ecbafefdaf0b638fb7a29f75696815857
   是否建议发给 GPT: false
   用途: Current round evidence.
   isCurrentRound: true

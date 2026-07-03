@@ -56,6 +56,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.Job
 import java.io.File
 import java.util.UUID
 
@@ -98,6 +99,7 @@ class HuiyiRuntime private constructor(
         captureUseCase = CurrentScreenCaptureUseCase(),
         persistenceRepository = persistence
     )
+    private var sessionWatchdogJob: Job? = null
 
     private val mutableState = MutableStateFlow(HuiyiRuntimeState())
     val state: StateFlow<HuiyiRuntimeState> = mutableState
@@ -159,6 +161,7 @@ class HuiyiRuntime private constructor(
                 activePackageBeforeClick = beforeRuntime.currentPackage
             )
             val previousSessionId = mutableState.value.lastNextSentenceTrace?.sessionId
+            val scenarioAtStart = mutableState.value.selectedRealDeviceScenario
             mutableState.update {
                 it.copy(
                     lastNextSentenceTrace = startedTrace,
@@ -167,6 +170,7 @@ class HuiyiRuntime private constructor(
                     panelVisible = false
                 )
             }
+            launchSessionTerminalWatchdog(startedTrace, scenarioAtStart)
             try {
                 val persona = currentPersona()
                 val result = pipeline.run(persona)
@@ -198,6 +202,8 @@ class HuiyiRuntime private constructor(
                         val waitPanelShown = pipelineResult.tacticalDecision.decisionType == TacticalDecisionType.WAIT &&
                             pipelineResult.routes.isEmpty()
                         val routePanelShown = pipelineResult.routes.isNotEmpty()
+                        val endedAt = System.currentTimeMillis()
+                        val terminalState = terminalStateFor(pipelineResult.tacticalDecision.decisionType)
                         val resultWithVisualDebug = pipelineResult.copy(
                             visualDebugResult = visualDebug,
                             sessionId = startedTrace.sessionId,
@@ -207,11 +213,20 @@ class HuiyiRuntime private constructor(
                             staleRoutesClearedAtSessionStart = true,
                             staleRoutesReused = false,
                             waitPanelShown = waitPanelShown,
-                            routePanelShown = routePanelShown
+                            routePanelShown = routePanelShown,
+                            sessionTerminalState = terminalState,
+                            analysisStartedAt = startedTrace.startedAt,
+                            analysisEndedAt = endedAt,
+                            analysisDurationMs = endedAt - startedTrace.startedAt,
+                            loadingStillVisibleAfterTimeout = false,
+                            waitDecisionReached = pipelineResult.tacticalDecision.decisionType == TacticalDecisionType.WAIT,
+                            waitPanelRenderAttempted = waitPanelShown,
+                            waitPanelRenderSuccess = waitPanelShown,
+                            decisionTypeFamily = decisionTypeFamily(pipelineResult.tacticalDecision.decisionType)
                         )
                         val capture = pipelineResult.captureResult
                         val successTrace = startedTrace.copy(
-                            endedAt = System.currentTimeMillis(),
+                            endedAt = endedAt,
                             stage = NextSentenceStage.ROUTES_GENERATED,
                             activePackageAtCaptureStart = capture?.currentRootPackageAtCapture,
                             activePackageAfterRootRetry = capture?.snapshot?.appPackage,
@@ -278,6 +293,93 @@ class HuiyiRuntime private constructor(
                 handleNextSentenceFailure(error, startedTrace)
             }
         }
+    }
+
+    fun runLastMeAcceptanceTestAndExport() {
+        setRealDeviceScenario(RealDeviceScenario.LAST_ME)
+        runNextSentence()
+        scope.launch {
+            waitForSessionTerminal()
+            exportLastMeAcceptanceBundle()
+        }
+    }
+
+    fun runLastOtherAcceptanceTestAndExport() {
+        setRealDeviceScenario(RealDeviceScenario.LAST_OTHER)
+        runNextSentence()
+        scope.launch {
+            waitForSessionTerminal()
+            exportLastOtherAcceptanceBundle()
+        }
+    }
+
+    private suspend fun waitForSessionTerminal() {
+        repeat(18) {
+            delay(500L)
+            val state = mutableState.value
+            if (state.latestPipelineResult != null || state.lastError != null) return
+        }
+    }
+
+    private fun launchSessionTerminalWatchdog(
+        trace: NextSentenceSessionTrace,
+        scenario: RealDeviceScenario
+    ) {
+        sessionWatchdogJob?.cancel()
+        sessionWatchdogJob = scope.launch {
+            delay(8000L)
+            val state = mutableState.value
+            if (state.lastNextSentenceTrace?.sessionId != trace.sessionId) return@launch
+            if (state.latestPipelineResult != null || state.lastError != null) return@launch
+            val code = if (scenario == RealDeviceScenario.LAST_ME) {
+                NextSentenceErrorCode.LAST_ME_ANALYSIS_STUCK
+            } else {
+                NextSentenceErrorCode.SESSION_TIMEOUT_NO_TERMINAL_STATE
+            }
+            val timeoutTrace = trace.failed(code, state.lastNextSentenceTrace?.stage ?: trace.stage)
+                .copy(
+                    endedAt = System.currentTimeMillis(),
+                    userFacingMessage = if (scenario == RealDeviceScenario.LAST_ME) {
+                        "LAST ME 分析超时，已生成卡住证据报告。"
+                    } else {
+                        userFacingMessageFor(code)
+                    }
+                )
+            if (scenario == RealDeviceScenario.LAST_ME) {
+                writeScenarioAcceptanceBundle(
+                    scenario = RealDeviceScenario.LAST_ME,
+                    testIntent = RealDeviceTestIntent.USER_ASSERTED_LAST_ME,
+                    folderName = "last-me",
+                    filePrefix = "last-me-real-device-report",
+                    result = null,
+                    trace = timeoutTrace
+                )
+            }
+            mutableState.update {
+                it.copy(
+                    lastNextSentenceTrace = timeoutTrace,
+                    lastError = timeoutTrace.userFacingMessage,
+                    panelVisible = true,
+                    latestPipelineResult = null
+                )
+            }
+        }
+    }
+
+    private fun terminalStateFor(type: TacticalDecisionType): String = when (type) {
+        TacticalDecisionType.WAIT -> "PANEL_RENDERED_WAIT"
+        TacticalDecisionType.CONTEXT_REQUIRED,
+        TacticalDecisionType.VOICE_SUMMARY_REQUIRED -> "PANEL_RENDERED_CONTEXT_REQUIRED"
+        else -> "PANEL_RENDERED_ROUTE"
+    }
+
+    private fun decisionTypeFamily(type: TacticalDecisionType): String = when (type) {
+        TacticalDecisionType.WAIT -> "WAIT"
+        TacticalDecisionType.CONTEXT_REQUIRED,
+        TacticalDecisionType.VOICE_SUMMARY_REQUIRED -> "CONTEXT_REQUIRED"
+        TacticalDecisionType.NORMAL_REPLY,
+        TacticalDecisionType.EMPATHY_FIRST -> "REPLY_ROUTES"
+        else -> "REPLY_ROUTES"
     }
 
     fun showOverlayError(error: Throwable) {
@@ -541,10 +643,27 @@ class HuiyiRuntime private constructor(
         folderName: String,
         filePrefix: String
     ): List<String> {
-        val result = mutableState.value.latestPipelineResult
+        return writeScenarioAcceptanceBundle(
+            scenario = scenario,
+            testIntent = testIntent,
+            folderName = folderName,
+            filePrefix = filePrefix,
+            result = mutableState.value.latestPipelineResult,
+            trace = mutableState.value.lastNextSentenceTrace
+        )
+    }
+
+    private fun writeScenarioAcceptanceBundle(
+        scenario: RealDeviceScenario,
+        testIntent: RealDeviceTestIntent,
+        folderName: String,
+        filePrefix: String,
+        result: CurrentScreenPipelineResult?,
+        trace: NextSentenceSessionTrace?
+    ): List<String> {
         val report = LastSpeakerAcceptanceReportGenerator().build(
             result = result,
-            trace = mutableState.value.lastNextSentenceTrace,
+            trace = trace,
             accessibilityState = AccessibilityRuntimeReader.read(appContext),
             scenario = scenario,
             testIntent = testIntent,

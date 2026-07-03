@@ -1,10 +1,10 @@
 # Huiyi v4 GPT Review Inbox
 
 ## Current round
-- taskName: real_device_last_me_wait_regression_fix
-- versionName: 4.1.11a
-- versionCode: 429
-- generatedAt: 2026-07-03 14:45:11 +0800
+- taskName: last_me_stuck_analyzing_and_phone_bundle_real_reports_fix
+- versionName: 4.1.12
+- versionCode: 430
+- generatedAt: 2026-07-03 15:09:24 +0800
 - currentOverallResult: NOT_TESTED
 - lastMeRealDeviceResult: NOT_TESTED
 - lastOtherRealDeviceResult: NOT_TESTED
@@ -58,7 +58,7 @@
 - realDeviceSmoke: NOT_TESTED
 
 ## APK
-- debugApkPath: outputs/huiyi-v4.1.11a-debug.apk
+- debugApkPath: outputs/huiyi-v4.1.12-debug.apk
 - APK is not included in this review zip.
 
 ## Known remaining problems

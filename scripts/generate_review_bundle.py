@@ -11,6 +11,7 @@ from zipfile import ZIP_DEFLATED, ZipFile
 
 
 DEFAULT_CURRENT_REPORTS = [
+    "outputs/v4.1.12-last-me-stuck-analyzing-report-for-gpt.md",
     "outputs/v4.1.11-last-me-wait-regression-report-for-gpt.md",
     "outputs/last-me-real-device-report-for-gpt.md",
     "outputs/last-me-real-device-report.json",

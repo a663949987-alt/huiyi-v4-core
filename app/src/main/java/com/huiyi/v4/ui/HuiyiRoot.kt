@@ -578,8 +578,8 @@ private fun DeveloperSettingsPage(
             StatusCard("视觉调试图", state.lastVisualDebugOverlayPath ?: "点击下一句后生成")
             Text("导出真机验收包会包含当前聊天截图叠框图，仅用于开发者验收。")
             Button(onClick = { runtime.exportRealDeviceEvidencePack() }, modifier = Modifier.fillMaxWidth()) { Text("导出当前屏幕报告") }
-            Button(onClick = { runtime.exportLastMeAcceptanceBundle() }, modifier = Modifier.fillMaxWidth()) { Text("导出 last ME 验收包") }
-            Button(onClick = { runtime.exportLastOtherAcceptanceBundle() }, modifier = Modifier.fillMaxWidth()) { Text("导出 last OTHER 验收包") }
+            Button(onClick = { runtime.runLastMeAcceptanceTestAndExport() }, modifier = Modifier.fillMaxWidth()) { Text("导出 last ME 验收包") }
+            Button(onClick = { runtime.runLastOtherAcceptanceTestAndExport() }, modifier = Modifier.fillMaxWidth()) { Text("导出 last OTHER 验收包") }
             Button(onClick = { runtime.exportPhoneGptReviewBundle() }, modifier = Modifier.fillMaxWidth()) { Text("导出 GPT 验收总包") }
             OutlinedButton(onClick = { runtime.exportParserReport() }, modifier = Modifier.fillMaxWidth()) { Text("导出解析调试报告") }
             Button(

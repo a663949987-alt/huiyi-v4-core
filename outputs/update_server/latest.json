@@ -1,9 +1,9 @@
 {
-    "versionName":  "4.1.11a",
-    "versionCode":  429,
-    "apkUrl":  "huiyi-v4.1.11a-debug.apk",
-    "releaseNotes":  "v4.1.11a last-me wait evidence and stale route guard",
+    "versionName":  "4.1.12",
+    "versionCode":  430,
+    "apkUrl":  "huiyi-v4.1.12-debug.apk",
+    "releaseNotes":  "v4.1.12 last-me stuck guard phone reports stale failure separation",
     "forceUpdate":  false,
-    "sha256":  "47B9C04962C5C2A468EEFE2BE6672778A3A5CE43446F2D28FF1FC1EEC63C694A",
-    "createdAt":  1783061148429
+    "sha256":  "ED1D024182CAB3675A89B93130041D417698433DC91067CC39A345B27F489B54",
+    "createdAt":  1783062527767
 }
