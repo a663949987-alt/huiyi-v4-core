@@ -11,6 +11,7 @@ from zipfile import ZIP_DEFLATED, ZipFile
 
 
 DEFAULT_CURRENT_REPORTS = [
+    "outputs/v4.1.10-real-device-scenario-truth-report-for-gpt.md",
     "outputs/v4.1.5-local-validation-report.md",
     "outputs/mockchat-fontscale-matrix-report-for-gpt.md",
     "outputs/real-device-smoke-report-for-gpt.md",
@@ -180,7 +181,7 @@ def classify_report(repo: Path, path: Path, version_name: str, current_paths: se
 
 def scan_secrets(repo: Path, review_dir: Path) -> dict:
     roots = ["app", "mockchat", "scripts", "outputs"]
-    excluded_ext = {".apk", ".png", ".jpg", ".jpeg", ".zip", ".jks", ".keystore"}
+    excluded_ext = {".apk", ".png", ".jpg", ".jpeg", ".zip", ".jks", ".keystore", ".pyc"}
     excluded_names = {"generate_review_bundle.py", "generate-review-bundle.ps1"}
     patterns = {
         "api_key": re.compile(r"(?i)(api[_-]?key|secret[_-]?key)\s*[:=]\s*['\"]?[A-Za-z0-9_\-]{16,}"),
@@ -196,7 +197,8 @@ def scan_secrets(repo: Path, review_dir: Path) -> dict:
         if not root.exists():
             continue
         for path in root.rglob("*"):
-            if not path.is_file() or path.suffix in excluded_ext or path.name in excluded_names or "\\build\\" in str(path):
+            normalized = str(path).replace("/", "\\")
+            if not path.is_file() or path.suffix in excluded_ext or path.name in excluded_names or "\\build\\" in normalized or "\\__pycache__\\" in normalized:
                 continue
             content = read_text(path)
             for name, pattern in patterns.items():
@@ -278,7 +280,43 @@ def main() -> None:
     matrix_text = read_text(outputs / "mockchat-layout-matrix-report-for-gpt.md")
     matrix_pass = bool(re.search(r"failed:\s*0", matrix_text))
     smoke_text = read_text(outputs / "real-device-smoke-report-for-gpt.md")
-    smoke_status = parse_field(smoke_text, "overall_result") or "NOT_TESTED"
+    smoke_status = (
+        parse_field(smoke_text, "realDeviceFunctionalSmoke") or
+        parse_field(smoke_text, "realDeviceSmoke") or
+        parse_field(smoke_text, "overall_result") or
+        "NOT_TESTED"
+    )
+    scenario_assertion_result = (
+        parse_field(current_text, "scenarioAssertionResult") or
+        parse_field(smoke_text, "scenarioAssertionResult") or
+        "NOT_TESTED"
+    )
+    current_overall_result = (
+        parse_field(current_text, "currentOverallResult") or
+        parse_field(smoke_text, "currentOverallResult") or
+        parse_field(smoke_text, "overall_result") or
+        "NOT_TESTED"
+    )
+    scenario_definition_trusted = (
+        parse_field(current_text, "scenarioDefinitionTrusted") or
+        parse_field(smoke_text, "scenarioDefinitionTrusted") or
+        "false"
+    )
+    scenario_failure_category = (
+        parse_field(current_text, "scenarioFailureCategory") or
+        parse_field(smoke_text, "scenarioFailureCategory") or
+        "none"
+    )
+    post_panel_contamination = (
+        parse_field(current_text, "reportWindowTitleContaminatedByPanel") or
+        parse_field(smoke_text, "reportWindowTitleContaminatedByPanel") or
+        "false"
+    )
+    screenshot_blocks_main_path = (
+        parse_field(current_text, "screenshotFailureBlocksMainPath") or
+        parse_field(smoke_text, "screenshotFailureBlocksMainPath") or
+        "false"
+    )
 
     review_freshness_result = "FAIL" if secret_scan["containsSecrets"] or current_has_unknown or current_has_fail else "PASS"
     mockchat_result = "PASS" if matrix_pass else "FAIL"
@@ -289,10 +327,13 @@ def main() -> None:
         next_sentence_task or
         "gpt_review_inbox" in task_name_lower or
         "accessibility_service_auto_disabled" in task_name_lower or
-        "access_password" in task_name_lower
+        "access_password" in task_name_lower or
+        "real_device_scenario_truth" in task_name_lower
     )
     if review_freshness_result == "FAIL" or mockchat_result == "FAIL" or real_device_smoke_result == "FAIL":
         overall = "FAIL"
+    elif current_overall_result in {"PASS", "CONTROLLED_PASS_WITH_SCENARIO_MISMATCH", "CONTROLLED_FAIL", "NOT_TESTED"}:
+        overall = current_overall_result
     elif real_device_smoke_result == "PASS":
         overall = "PASS"
     elif no_real_device_task:
@@ -308,6 +349,8 @@ def main() -> None:
         fail_reason = "A current round report has overall_result=FAIL."
     elif not matrix_pass:
         fail_reason = "MockChat matrix has failing scenarios."
+    elif overall == "CONTROLLED_PASS_WITH_SCENARIO_MISMATCH":
+        fail_reason = "scenario_definition_mismatch"
     elif real_device_smoke_result != "PASS":
         fail_reason = "本轮 Review Freshness 通过，但 Real Device Smoke 未执行，不代表真实聊天 App 已通过。"
     else:
@@ -599,6 +642,106 @@ See Current Round Evidence and Historical / Trace Reports above.
 - 需要 GPT 重点看的点: Current Round Evidence 是否不再被旧报告污染；real-device smoke 是否如实 NOT_TESTED；manifest freshness 字段是否足够清楚。
 - 下一步建议: 连接真机后跑 `com.bajiao.im.liaoqi` 或其他真实聊天窗口的 A/B/C smoke。
 """
+    v410_header = f"""# Huiyi v4 Review For GPT
+
+## v4.1.10 Current Round Summary
+
+- project: Huiyi v4 Core
+- versionName: {version_name}
+- versionCode: {version_code}
+- branch: {branch}
+- commitHash: {commit_hash}
+- generatedAt: {generated_at}
+- taskName: {args.task_name}
+- currentVersion: {version_name}
+- currentTaskName: {args.task_name}
+- currentGeneratedAt: {generated_at}
+- review_freshness_result: {review_freshness_result}
+- mockchat_result: {mockchat_result}
+- real_device_smoke_result: {real_device_smoke_result}
+- realDeviceFunctionalSmoke: {real_device_smoke_result}
+- scenarioAssertionResult: {scenario_assertion_result}
+- currentOverallResult: {overall}
+- overall_result: {overall}
+- failReason: {fail_reason}
+
+currentUserFeedback:
+  - v4.1.9a 真机已能在目标 App 内显示会意路线面板
+  - 当前 FAIL 来自 scenarioName=last_me 与真实最后有效消息 OTHER 冲突
+  - screenshot unavailable 仍存在，但不再阻断主链路
+
+currentRegressionStatus:
+  overlayBubbleSurvivesAfterNextSentence: unknown_without_new_phone_export
+  resultShownAsOverlayInTargetApp: {parse_field(current_text, "resultShownAsOverlay") or "NOT_TESTED"}
+  mainActivityOpened: {parse_field(current_text, "mainActivityOpened") or "NOT_TESTED"}
+  screenshotFailureBlocksMainPath: {screenshot_blocks_main_path}
+  preAnalysisSnapshotAvailable: {parse_field(current_text, "preAnalysisSnapshotAvailable") or "false"}
+  postPanelContaminationDetected: {post_panel_contamination}
+  scenarioDefinitionTrusted: {scenario_definition_trusted}
+  scenarioDefinitionMismatch: {str(scenario_assertion_result == "MISMATCH").lower()}
+  productDecisionConsistentWithActualLastSpeaker: {parse_field(current_text, "productDecisionConsistentWithActualLastSpeaker") or "NOT_TESTED"}
+  genericAnalysisFailedStillShown: unknown_without_new_phone_export
+
+## Current Real Device Functional Smoke
+
+- realDeviceFunctionalSmoke: {real_device_smoke_result}
+- overlayShownInTargetApp: {parse_field(current_text, "overlayShownInTargetApp") or "NOT_TESTED"}
+- foregroundPackageWhenPanelShown: {parse_field(current_text, "foregroundPackageWhenPanelShown") or "NOT_TESTED"}
+- userStayedInChatApp: {parse_field(current_text, "userStayedInChatApp") or "NOT_TESTED"}
+- resultShownAsOverlay: {parse_field(current_text, "resultShownAsOverlay") or "NOT_TESTED"}
+- mainActivityOpened: {parse_field(current_text, "mainActivityOpened") or "NOT_TESTED"}
+- effectiveMessageCount: {parse_field(current_text, "effectiveMessageCount") or "NOT_TESTED"}
+- actualLastSpeaker: {parse_field(current_text, "actualLastSpeaker") or "NOT_TESTED"}
+- decisionType: {parse_field(current_text, "actualDecisionType") or parse_field(current_text, "decisionType") or "NOT_TESTED"}
+- routeCount: {parse_field(current_text, "actualRouteCount") or parse_field(current_text, "routeCount") or "NOT_TESTED"}
+- apiCalled: {parse_field(current_text, "apiCalled") or "false"}
+- modelCalled: false
+- screenshotDiagnosticStatus: {parse_field(current_text, "screenshotDiagnosticStatus") or "NOT_TESTED"}
+- screenshotFailureBlocksMainPath: {screenshot_blocks_main_path}
+
+## Scenario Assertion Diagnosis
+
+- scenarioName: {parse_field(current_text, "scenarioName") or "NOT_TESTED"}
+- scenarioNameSource: {parse_field(current_text, "scenarioNameSource") or "NOT_TESTED"}
+- expectedLastSpeaker: {parse_field(current_text, "expectedLastSpeaker") or "NOT_TESTED"}
+- expectedLastSpeakerSource: {parse_field(current_text, "expectedLastSpeakerSource") or "NOT_TESTED"}
+- actualLastSpeakerFromPreAnalysisSnapshot: {parse_field(current_text, "actualLastSpeakerFromPreAnalysisSnapshot") or "NOT_TESTED"}
+- actualLastSpeakerFromDecisionSnapshot: {parse_field(current_text, "actualLastSpeakerFromDecisionSnapshot") or "NOT_TESTED"}
+- expectedDecisionType: {parse_field(current_text, "expectedDecisionType") or "NOT_TESTED"}
+- actualDecisionType: {parse_field(current_text, "actualDecisionType") or "NOT_TESTED"}
+- expectedRouteCount: {parse_field(current_text, "expectedRouteCount") or "NOT_TESTED"}
+- actualRouteCount: {parse_field(current_text, "actualRouteCount") or "NOT_TESTED"}
+- scenarioDefinitionTrusted: {scenario_definition_trusted}
+- scenarioAssertionResult: {scenario_assertion_result}
+- scenarioFailureCategory: {scenario_failure_category}
+- scenarioDefinitionMismatchReason: {parse_field(current_text, "scenarioDefinitionMismatchReason") or "none"}
+
+## Snapshot Phase Separation
+
+- preAnalysisSnapshotAvailable: {parse_field(current_text, "preAnalysisSnapshotAvailable") or "false"}
+- preAnalysisWindowTitle: {parse_field(current_text, "preAnalysisWindowTitle") or "NOT_TESTED"}
+- preAnalysisResultPanelVisible: false
+- decisionSnapshotAvailable: {parse_field(current_text, "decisionSnapshotAvailable") or "false"}
+- postPanelSnapshotAvailable: {parse_field(current_text, "postPanelSnapshotAvailable") or "false"}
+- postPanelWindowTitle: {parse_field(current_text, "postPanelWindowTitle") or "none"}
+- reportWindowTitleContaminatedByPanel: {post_panel_contamination}
+- postPanelStateUsedForScenarioExpectation: {parse_field(current_text, "postPanelStateUsedForScenarioExpectation") or "false"}
+
+## Visual Truth / Projection
+
+- screenshotCaptured: {parse_field(current_text, "screenshotCaptured") or "false"}
+- screenshotUnavailable: {parse_field(current_text, "screenshotUnavailable") or "NOT_TESTED"}
+- screenshotReason: {parse_field(current_text, "reason") or "none"}
+- visualTruthAvailable: {parse_field(current_text, "visualTruthAvailable") or "false"}
+- visualTruthSource: {parse_field(current_text, "visualTruthSource") or "NONE"}
+- accessibilityProjectionAvailable: {parse_field(current_text, "accessibilityProjectionAvailable") or "false"}
+- overlayDebugImageAvailable: {parse_field(current_text, "overlayImagePath") or "none"}
+- failureCategory: {parse_field(current_text, "failureCategory") or scenario_failure_category}
+
+---
+
+"""
+    review_text = v410_header + review_text
     review_md.write_text(review_text, encoding="utf-8")
 
     manifest_files: list[dict] = []
@@ -612,9 +755,14 @@ See Current Round Evidence and Historical / Trace Reports above.
         "commitHash": commit_hash,
         "generatedAt": generated_at,
         "overallResult": overall,
+        "currentOverallResult": overall,
         "reviewFreshnessResult": review_freshness_result,
         "mockchatResult": mockchat_result,
         "realDeviceSmokeResult": real_device_smoke_result,
+        "realDeviceFunctionalSmoke": real_device_smoke_result,
+        "scenarioAssertionResult": scenario_assertion_result,
+        "scenarioDefinitionTrusted": scenario_definition_trusted.lower() == "true",
+        "scenarioFailureCategory": scenario_failure_category,
         "taskName": args.task_name,
         "sampleSources": current_sources,
         "apiCalled": False,

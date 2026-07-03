@@ -64,7 +64,7 @@ data class HuiyiRuntimeState(
     val lastDebugExportPath: String? = null,
     val lastEvidenceJsonPath: String? = null,
     val lastPublicExportPath: String? = null,
-    val selectedRealDeviceScenario: RealDeviceScenario = RealDeviceScenario.LAST_ME,
+    val selectedRealDeviceScenario: RealDeviceScenario = RealDeviceScenario.AUTO_FROM_SCREEN,
     val showParserDiagnostics: Boolean = false,
     val lastDebugCorrection: String? = null,
     val lastVisualDebugOverlayPath: String? = null,

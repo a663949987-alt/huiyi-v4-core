@@ -3,6 +3,7 @@ package com.huiyi.v4
 import com.huiyi.v4.accessibility.CurrentScreenSnapshot
 import com.huiyi.v4.accessibility.ScreenNodeSnapshot
 import com.huiyi.v4.domain.context.ContextAssembler
+import com.huiyi.v4.domain.capture.VisualDebugResult
 import com.huiyi.v4.domain.model.Speaker
 import com.huiyi.v4.domain.model.VisualBounds
 import com.huiyi.v4.domain.pipeline.CurrentScreenCaptureResult
@@ -17,11 +18,13 @@ fun evidenceResult(
     source: SampleSource,
     messages: List<com.huiyi.v4.domain.model.MessageNode>,
     includeRoutes: Boolean = true,
-    apiCalled: Boolean = false
+    apiCalled: Boolean = false,
+    windowTitle: String = "聊天窗口",
+    visualDebugResult: VisualDebugResult? = null
 ): CurrentScreenPipelineResult {
     val snapshot = CurrentScreenSnapshot(
         appPackage = appPackage,
-        windowTitle = "聊天窗口",
+        windowTitle = windowTitle,
         screenWidth = 1080,
         screenHeight = 2400,
         nodes = messages.mapIndexed { index, message ->
@@ -49,6 +52,7 @@ fun evidenceResult(
         lastSpeakerDecision = LastSpeakerDecisionUseCase().decide(messages),
         tacticalDecision = decision,
         routes = routes,
-        apiCalled = apiCalled
+        apiCalled = apiCalled,
+        visualDebugResult = visualDebugResult
     )
 }

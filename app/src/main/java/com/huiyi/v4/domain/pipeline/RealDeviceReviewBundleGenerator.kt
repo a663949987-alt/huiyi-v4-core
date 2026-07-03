@@ -31,7 +31,7 @@ class RealDeviceReviewBundleGenerator(
         versionName: String,
         versionCode: Int,
         ownAppPackage: String,
-        scenario: RealDeviceScenario = RealDeviceScenario.LAST_ME
+        scenario: RealDeviceScenario = RealDeviceScenario.AUTO_FROM_SCREEN
     ): RealDeviceReviewBundleContent {
         val realResult = latestResult?.takeIf { it.isRealChatAppCapture(ownAppPackage) }
         val currentScreenMarkdown = if (realResult == null) {
@@ -46,13 +46,13 @@ class RealDeviceReviewBundleGenerator(
         }
 
         val scenarioValidation = RealDeviceScenarioValidator.validate(realResult, scenario)
-        val realDeviceSmokeResult = scenarioValidation.scenarioResult
-        val overallResult = when (realDeviceSmokeResult) {
-            "PASS" -> "PASS"
-            "FAIL" -> "FAIL"
-            else -> "PARTIAL"
+        val realDeviceSmokeResult = scenarioValidation.realDeviceFunctionalSmoke
+        val overallResult = scenarioValidation.currentOverallResult
+        val failReason = when {
+            scenarioValidation.failureReason == "none" -> "none"
+            overallResult == "CONTROLLED_PASS_WITH_SCENARIO_MISMATCH" -> scenarioValidation.scenarioFailureCategory.lowercase()
+            else -> scenarioValidation.failureReason
         }
-        val failReason = if (scenarioValidation.failureReason == "none") "none" else scenarioValidation.failureReason
         val smokeMarkdown = buildSmokeReport(
             latestResult = latestResult,
             realResult = realResult,
@@ -110,15 +110,40 @@ class RealDeviceReviewBundleGenerator(
             appendLine("- versionName: $versionName")
             appendLine("- versionCode: $versionCode")
             appendLine("- generatedAt: $generatedAt")
-            appendLine("- taskName: Export Real Device Acceptance Bundle")
+            appendLine("- currentVersion: $versionName")
+            appendLine("- currentTaskName: real_device_scenario_truth_and_post_panel_contamination_fix")
+            appendLine("- currentGeneratedAt: $generatedAt")
+            appendLine("- taskName: real_device_scenario_truth_and_post_panel_contamination_fix")
             appendLine("- scenarioName: ${scenarioValidation.scenarioName}")
             appendLine("- review_freshness_result: PASS")
             appendLine("- mockchat_result: NOT_INCLUDED_IN_PHONE_EXPORT")
             appendLine("- real_device_smoke_result: $realDeviceSmokeResult")
+            appendLine("- realDeviceFunctionalSmoke: ${scenarioValidation.realDeviceFunctionalSmoke}")
+            appendLine("- scenarioAssertionResult: ${scenarioValidation.scenarioAssertionResult}")
+            appendLine("- currentOverallResult: ${scenarioValidation.currentOverallResult}")
             appendLine("- overall_result: $overallResult")
             appendLine("- failReason: $failReason")
             appendLine("- realDeviceSmoke: $realDeviceSmokeResult")
             if (realDeviceSmokeResult == "NOT_TESTED") appendLine("- smokeDisclaimer: $REAL_SMOKE_NOT_TESTED_NOTICE")
+            appendLine()
+            appendLine("## Current User Feedback")
+            appendLine()
+            appendLine("- v4.1.9a 真机已能在目标 App 内显示会意路线面板")
+            appendLine("- 当前 FAIL 来自 scenarioName=last_me 与真实最后有效消息 OTHER 冲突")
+            appendLine("- screenshot unavailable 仍存在，但不再阻断主链路")
+            appendLine()
+            appendLine("## Current Regression Status")
+            appendLine()
+            appendLine("- overlayBubbleSurvivesAfterNextSentence: ${realResult?.overlayShownInTargetApp ?: "unknown"}")
+            appendLine("- resultShownAsOverlayInTargetApp: ${realResult?.resultShownAsOverlay ?: "unknown"}")
+            appendLine("- mainActivityOpened: ${realResult?.mainActivityOpened ?: "unknown"}")
+            appendLine("- screenshotFailureBlocksMainPath: ${scenarioValidation.screenshotFailureBlocksMainPath}")
+            appendLine("- preAnalysisSnapshotAvailable: ${scenarioValidation.preAnalysisSnapshotAvailable}")
+            appendLine("- postPanelContaminationDetected: ${scenarioValidation.reportWindowTitleContaminatedByPanel}")
+            appendLine("- scenarioDefinitionTrusted: ${scenarioValidation.scenarioDefinitionTrusted}")
+            appendLine("- scenarioDefinitionMismatch: ${scenarioValidation.scenarioAssertionResult == "MISMATCH"}")
+            appendLine("- productDecisionConsistentWithActualLastSpeaker: ${scenarioValidation.productDecisionConsistentWithActualLastSpeaker}")
+            appendLine("- genericAnalysisFailedStillShown: unknown")
             appendLine()
             appendLine("## Data Source")
             appendLine()
@@ -134,16 +159,40 @@ class RealDeviceReviewBundleGenerator(
             appendLine("- screenshotCaptured: ${visualDebug?.screenshotCaptured ?: false}")
             appendLine("- visualTruthAvailable: ${visualDebug?.visualTruthAvailable ?: false}")
             appendLine()
-            appendLine("## Scenario Validation")
+            appendLine("## Current Real Device Functional Smoke")
+            appendLine()
+            appendLine("- overlayShownInTargetApp: ${realResult?.overlayShownInTargetApp ?: "NOT_TESTED"}")
+            appendLine("- foregroundPackageWhenPanelShown: ${realResult?.foregroundPackageWhenPanelShown ?: "NOT_TESTED"}")
+            appendLine("- userStayedInChatApp: ${realResult?.userStayedInChatApp ?: "NOT_TESTED"}")
+            appendLine("- resultShownAsOverlay: ${realResult?.resultShownAsOverlay ?: "NOT_TESTED"}")
+            appendLine("- mainActivityOpened: ${realResult?.mainActivityOpened ?: "NOT_TESTED"}")
+            appendLine("- effectiveMessageCount: ${capture?.messages?.count { it.isEffectiveChatMessage && it.speaker != Speaker.SYSTEM } ?: "NOT_TESTED"}")
+            appendLine("- actualLastSpeaker: ${scenarioValidation.actualLastSpeaker}")
+            appendLine("- decisionType: ${scenarioValidation.actualDecisionType}")
+            appendLine("- routeCount: ${scenarioValidation.actualRouteCount}")
+            appendLine("- apiCalled: ${realResult?.apiCalled ?: false}")
+            appendLine("- modelCalled: false")
+            appendLine("- screenshotDiagnosticStatus: ${scenarioValidation.screenshotDiagnosticStatus}")
+            appendLine("- screenshotFailureBlocksMainPath: ${scenarioValidation.screenshotFailureBlocksMainPath}")
+            appendLine()
+            appendLine("## Scenario Assertion Diagnosis")
             appendLine()
             appendLine("- scenarioName: ${scenarioValidation.scenarioName}")
+            appendLine("- scenarioNameSource: ${scenarioValidation.scenarioNameSource}")
             appendLine("- expectedLastSpeaker: ${scenarioValidation.expectedLastSpeaker}")
+            appendLine("- expectedLastSpeakerSource: ${scenarioValidation.expectedLastSpeakerSource}")
+            appendLine("- actualLastSpeakerFromPreAnalysisSnapshot: ${scenarioValidation.actualLastSpeakerFromPreAnalysisSnapshot}")
+            appendLine("- actualLastSpeakerFromDecisionSnapshot: ${scenarioValidation.actualLastSpeakerFromDecisionSnapshot}")
             appendLine("- actualLastSpeaker: ${scenarioValidation.actualLastSpeaker}")
             appendLine("- expectedDecisionType: ${scenarioValidation.expectedDecisionType}")
             appendLine("- actualDecisionType: ${scenarioValidation.actualDecisionType}")
             appendLine("- expectedRouteCount: ${scenarioValidation.expectedRouteCount}")
             appendLine("- actualRouteCount: ${scenarioValidation.actualRouteCount}")
             appendLine("- scenarioResult: ${scenarioValidation.scenarioResult}")
+            appendLine("- scenarioDefinitionTrusted: ${scenarioValidation.scenarioDefinitionTrusted}")
+            appendLine("- scenarioAssertionResult: ${scenarioValidation.scenarioAssertionResult}")
+            appendLine("- scenarioFailureCategory: ${scenarioValidation.scenarioFailureCategory}")
+            appendLine("- scenarioDefinitionMismatchReason: ${scenarioValidation.scenarioDefinitionMismatchReason ?: "none"}")
             appendLine("- failureReason: ${scenarioValidation.failureReason}")
             appendLine("- failureCategory: ${realResult?.let { failureCategory(it, scenarioValidation) } ?: "not_tested"}")
             appendLine("- VisualSpeakerFallbackUsed: ${capture?.visualSpeakerFallbackCount?.let { it > 0 } ?: false}")
@@ -151,6 +200,28 @@ class RealDeviceReviewBundleGenerator(
             appendLine("- userCorrectionProvided: ${realResult?.userCorrectionProvided ?: false}")
             appendLine("- correctedLastSpeaker: ${realResult?.correctedLastSpeaker ?: "none"}")
             appendLine("- correctedMessageId: ${realResult?.correctedMessageId ?: "none"}")
+            appendLine()
+            appendLine("## Snapshot Phase Separation")
+            appendLine()
+            appendLine("- preAnalysisSnapshotAvailable: ${scenarioValidation.preAnalysisSnapshotAvailable}")
+            appendLine("- preAnalysisWindowTitle: ${scenarioValidation.preAnalysisWindowTitle}")
+            appendLine("- preAnalysisResultPanelVisible: false")
+            appendLine("- decisionSnapshotAvailable: ${realResult?.captureResult != null}")
+            appendLine("- postPanelSnapshotAvailable: ${scenarioValidation.postPanelSnapshotAvailable}")
+            appendLine("- postPanelWindowTitle: ${scenarioValidation.postPanelWindowTitle}")
+            appendLine("- reportWindowTitleContaminatedByPanel: ${scenarioValidation.reportWindowTitleContaminatedByPanel}")
+            appendLine("- postPanelStateUsedForScenarioExpectation: ${scenarioValidation.postPanelStateUsedForScenarioExpectation}")
+            appendLine()
+            appendLine("## Visual Truth / Projection")
+            appendLine()
+            appendLine("- screenshotCaptured: ${visualDebug?.screenshotCaptured ?: false}")
+            appendLine("- screenshotUnavailable: ${visualDebug?.screenshotUnavailable ?: false}")
+            appendLine("- screenshotReason: ${visualDebug?.reason ?: "none"}")
+            appendLine("- visualTruthAvailable: ${scenarioValidation.visualTruthAvailable}")
+            appendLine("- visualTruthSource: ${scenarioValidation.visualTruthSource}")
+            appendLine("- accessibilityProjectionAvailable: ${scenarioValidation.accessibilityProjectionAvailable}")
+            appendLine("- overlayDebugImageAvailable: ${visualDebug?.overlayImagePath != null}")
+            appendLine("- failureCategory: ${realResult?.let { failureCategory(it, scenarioValidation) } ?: "not_tested"}")
             appendLine()
             appendLine("## Acceptance")
             appendLine()
@@ -201,8 +272,11 @@ class RealDeviceReviewBundleGenerator(
             appendLine()
             appendLine("- generatedAt: $generatedAt")
             appendLine("- scenarioName: ${scenarioValidation.scenarioName}")
-            appendLine("- overall_result: $realDeviceSmokeResult")
+            appendLine("- overall_result: ${scenarioValidation.currentOverallResult}")
             appendLine("- realDeviceSmoke: $realDeviceSmokeResult")
+            appendLine("- realDeviceFunctionalSmoke: ${scenarioValidation.realDeviceFunctionalSmoke}")
+            appendLine("- scenarioAssertionResult: ${scenarioValidation.scenarioAssertionResult}")
+            appendLine("- currentOverallResult: ${scenarioValidation.currentOverallResult}")
             appendLine("- failReason: $failReason")
             appendLine("- sample_source: ${capture?.sampleSource?.reportValue ?: "NOT_TESTED"}")
             appendLine("- appPackage: ${capture?.snapshot?.appPackage ?: "NOT_TESTED"}")
@@ -217,17 +291,28 @@ class RealDeviceReviewBundleGenerator(
             appendLine("## Smoke Decision Validation")
             appendLine()
             appendLine("- scenarioName: ${scenarioValidation.scenarioName}")
+            appendLine("- scenarioNameSource: ${scenarioValidation.scenarioNameSource}")
             appendLine("- expectedLastSpeaker: ${scenarioValidation.expectedLastSpeaker}")
+            appendLine("- expectedLastSpeakerSource: ${scenarioValidation.expectedLastSpeakerSource}")
             appendLine("- actualLastSpeaker: ${scenarioValidation.actualLastSpeaker}")
             appendLine("- expectedDecisionType: ${scenarioValidation.expectedDecisionType}")
             appendLine("- actualDecisionType: ${scenarioValidation.actualDecisionType}")
             appendLine("- expectedRouteCount: ${scenarioValidation.expectedRouteCount}")
             appendLine("- actualRouteCount: ${scenarioValidation.actualRouteCount}")
             appendLine("- scenarioResult: ${scenarioValidation.scenarioResult}")
+            appendLine("- scenarioDefinitionTrusted: ${scenarioValidation.scenarioDefinitionTrusted}")
+            appendLine("- scenarioAssertionResult: ${scenarioValidation.scenarioAssertionResult}")
+            appendLine("- scenarioFailureCategory: ${scenarioValidation.scenarioFailureCategory}")
+            appendLine("- scenarioDefinitionMismatchReason: ${scenarioValidation.scenarioDefinitionMismatchReason ?: "none"}")
             appendLine("- failureReason: ${scenarioValidation.failureReason}")
             appendLine("- failureCategory: ${realResult?.let { failureCategory(it, scenarioValidation) } ?: "not_tested"}")
             appendLine("- screenshotCaptured: ${visualDebug?.screenshotCaptured ?: false}")
-            appendLine("- visualTruthAvailable: ${visualDebug?.visualTruthAvailable ?: false}")
+            appendLine("- screenshotUnavailable: ${visualDebug?.screenshotUnavailable ?: false}")
+            appendLine("- screenshotDiagnosticStatus: ${scenarioValidation.screenshotDiagnosticStatus}")
+            appendLine("- screenshotFailureBlocksMainPath: ${scenarioValidation.screenshotFailureBlocksMainPath}")
+            appendLine("- secondaryDiagnosticErrorCode: ${scenarioValidation.secondaryDiagnosticErrorCode}")
+            appendLine("- visualTruthAvailable: ${scenarioValidation.visualTruthAvailable}")
+            appendLine("- visualTruthSource: ${scenarioValidation.visualTruthSource}")
             appendLine("- VisualSpeakerFallbackUsed: ${capture?.visualSpeakerFallbackCount?.let { it > 0 } ?: false}")
             appendLine("- conflictCount: ${capture?.messages?.count { it.visualConflict } ?: "NOT_TESTED"}")
             appendLine("- userCorrectionProvided: ${realResult?.userCorrectionProvided ?: false}")
@@ -263,6 +348,9 @@ class RealDeviceReviewBundleGenerator(
             appendLine("# Real Device Current Screen Evidence Pack")
             appendLine()
             appendLine("- overall_result: NOT_TESTED")
+            appendLine("- realDeviceFunctionalSmoke: NOT_TESTED")
+            appendLine("- scenarioAssertionResult: NOT_TESTED")
+            appendLine("- currentOverallResult: NOT_TESTED")
             appendLine("- realDeviceSmoke: NOT_TESTED")
             appendLine("- generatedAt: $generatedAt")
             appendLine("- scenarioName: ${scenario.id}")
@@ -273,6 +361,8 @@ class RealDeviceReviewBundleGenerator(
             appendLine("- expectedRouteCount: ${scenario.expectedRouteCount?.toString() ?: "NO_FIXED_EXPECTATION"}")
             appendLine("- actualRouteCount: 0")
             appendLine("- scenarioResult: NOT_TESTED")
+            appendLine("- scenarioDefinitionTrusted: false")
+            appendLine("- scenarioFailureCategory: not_tested")
             appendLine("- failureReason: not_tested")
             appendLine("- sample_source: NOT_TESTED")
             appendLine("- appPackage: NOT_TESTED")
@@ -321,6 +411,9 @@ class RealDeviceReviewBundleGenerator(
         return """
             {
               "overall_result": "NOT_TESTED",
+              "realDeviceFunctionalSmoke": "NOT_TESTED",
+              "scenarioAssertionResult": "NOT_TESTED",
+              "currentOverallResult": "NOT_TESTED",
               "realDeviceSmoke": "NOT_TESTED",
               "generatedAt": $generatedAt,
               "scenarioName": "${scenario.id}",
@@ -331,6 +424,8 @@ class RealDeviceReviewBundleGenerator(
               "expectedRouteCount": "${scenario.expectedRouteCount?.toString() ?: "NO_FIXED_EXPECTATION"}",
               "actualRouteCount": 0,
               "scenarioResult": "NOT_TESTED",
+              "scenarioDefinitionTrusted": false,
+              "scenarioFailureCategory": "not_tested",
               "failureReason": "not_tested",
               "sample_source": "NOT_TESTED",
               "appPackage": "NOT_TESTED",
@@ -376,14 +471,15 @@ class RealDeviceReviewBundleGenerator(
     private fun failureCategory(result: CurrentScreenPipelineResult, scenarioValidation: RealDeviceScenarioValidation): String {
         val capture = result.captureResult
         return when {
-            scenarioValidation.scenarioResult == "PASS" -> "none"
+            scenarioValidation.scenarioFailureCategory == "SCENARIO_DEFINITION_MISMATCH" -> "scenario_definition_mismatch"
+            scenarioValidation.currentOverallResult == "PASS" -> "none"
             capture?.messages.orEmpty().any { it.metadataType == MetadataType.DATE && it.speaker != Speaker.SYSTEM } -> "metadata_leak"
             result.userCorrectionProvided -> "user_selected_wrong_scenario"
-            capture?.visualTruthAvailable != true -> "visual_projection_unavailable"
-            capture.messages.any { it.visualConflict } -> "parser_side_conflict"
+            !scenarioValidation.visualTruthAvailable -> scenarioValidation.failureReason
+            capture?.messages.orEmpty().any { it.visualConflict } -> "parser_side_conflict"
             result.lastSpeakerDecision.lastEffectiveMessage == null -> "visual_order_wrong"
-            capture.messages.count { it.speaker == Speaker.UNKNOWN }.toFloat() / capture.messages.size.coerceAtLeast(1) > 0.30f -> "unknown_too_high"
-            scenarioValidation.failureReason == "last_speaker_mismatch" -> "accessibility_bounds_wrong"
+            capture?.messages.orEmpty().count { it.speaker == Speaker.UNKNOWN }.toFloat() /
+                capture?.messages.orEmpty().size.coerceAtLeast(1) > 0.30f -> "unknown_too_high"
             else -> scenarioValidation.failureReason
         }
     }

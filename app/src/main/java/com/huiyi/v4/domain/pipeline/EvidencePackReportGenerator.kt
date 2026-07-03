@@ -51,7 +51,7 @@ class EvidencePackReportGenerator {
         result: CurrentScreenPipelineResult,
         accessibilityState: HuiyiAccessibilityState,
         generatedAt: Long = System.currentTimeMillis(),
-        scenario: RealDeviceScenario = RealDeviceScenario.LAST_ME
+        scenario: RealDeviceScenario = RealDeviceScenario.AUTO_FROM_SCREEN
     ): String {
         val capture = result.captureResult
         val context = result.context
@@ -71,20 +71,36 @@ class EvidencePackReportGenerator {
         return buildString {
             appendLine("# Real Device Current Screen Evidence Pack")
             appendLine()
-            appendLine("- overall_result: ${scenarioValidation.scenarioResult}")
+            appendLine("- overall_result: ${scenarioValidation.currentOverallResult}")
+            appendLine("- realDeviceFunctionalSmoke: ${scenarioValidation.realDeviceFunctionalSmoke}")
+            appendLine("- scenarioAssertionResult: ${scenarioValidation.scenarioAssertionResult}")
+            appendLine("- currentOverallResult: ${scenarioValidation.currentOverallResult}")
             appendLine("- generatedAt: $generatedAt")
             appendLine("- scenarioName: ${scenarioValidation.scenarioName}")
+            appendLine("- scenarioNameSource: ${scenarioValidation.scenarioNameSource}")
             appendLine("- expectedLastSpeaker: ${scenarioValidation.expectedLastSpeaker}")
+            appendLine("- expectedLastSpeakerSource: ${scenarioValidation.expectedLastSpeakerSource}")
             appendLine("- actualLastSpeaker: ${scenarioValidation.actualLastSpeaker}")
+            appendLine("- actualLastSpeakerFromPreAnalysisSnapshot: ${scenarioValidation.actualLastSpeakerFromPreAnalysisSnapshot}")
+            appendLine("- actualLastSpeakerFromDecisionSnapshot: ${scenarioValidation.actualLastSpeakerFromDecisionSnapshot}")
+            appendLine("- actualLastSpeakerFromPostPanelSnapshot: ${scenarioValidation.actualLastSpeakerFromPostPanelSnapshot}")
             appendLine("- expectedDecisionType: ${scenarioValidation.expectedDecisionType}")
             appendLine("- actualDecisionType: ${scenarioValidation.actualDecisionType}")
             appendLine("- expectedRouteCount: ${scenarioValidation.expectedRouteCount}")
             appendLine("- actualRouteCount: ${scenarioValidation.actualRouteCount}")
             appendLine("- scenarioResult: ${scenarioValidation.scenarioResult}")
+            appendLine("- scenarioDefinitionTrusted: ${scenarioValidation.scenarioDefinitionTrusted}")
+            appendLine("- scenarioFailureCategory: ${scenarioValidation.scenarioFailureCategory}")
+            appendLine("- scenarioDefinitionMismatchReason: ${scenarioValidation.scenarioDefinitionMismatchReason ?: "none"}")
+            appendLine("- productDecisionConsistentWithActualLastSpeaker: ${scenarioValidation.productDecisionConsistentWithActualLastSpeaker}")
             appendLine("- failureReason: ${scenarioValidation.failureReason}")
             appendLine("- sample_source: ${capture?.sampleSource?.reportValue ?: SampleSource.UNKNOWN.reportValue}")
             appendLine("- appPackage: ${capture?.snapshot?.appPackage ?: "unknown"}")
             appendLine("- windowTitle: ${capture?.snapshot?.windowTitle ?: "unknown"}")
+            appendLine("- preAnalysisWindowTitle: ${scenarioValidation.preAnalysisWindowTitle}")
+            appendLine("- postPanelWindowTitle: ${scenarioValidation.postPanelWindowTitle}")
+            appendLine("- reportWindowTitleContaminatedByPanel: ${scenarioValidation.reportWindowTitleContaminatedByPanel}")
+            appendLine("- postPanelStateUsedForScenarioExpectation: ${scenarioValidation.postPanelStateUsedForScenarioExpectation}")
             appendLine("- screenWidth: ${capture?.snapshot?.screenWidth ?: 0}")
             appendLine("- screenHeight: ${capture?.snapshot?.screenHeight ?: 0}")
             appendLine("- density: ${capture?.snapshot?.density ?: "unknown"}")
@@ -124,6 +140,9 @@ class EvidencePackReportGenerator {
             appendLine()
             appendLine("- screenshotCaptured: ${visualDebug?.screenshotCaptured ?: false}")
             appendLine("- screenshotUnavailable: ${visualDebug?.screenshotUnavailable ?: true}")
+            appendLine("- screenshotDiagnosticStatus: ${scenarioValidation.screenshotDiagnosticStatus}")
+            appendLine("- screenshotFailureBlocksMainPath: ${scenarioValidation.screenshotFailureBlocksMainPath}")
+            appendLine("- secondaryDiagnosticErrorCode: ${scenarioValidation.secondaryDiagnosticErrorCode}")
             appendLine("- reason: ${visualDebug?.reason ?: "visual_projection_only_or_not_captured"}")
             appendLine("- screenshotPath: ${visualDebug?.screenshotPath ?: "none"}")
             appendLine("- overlayImagePath: ${visualDebug?.overlayImagePath ?: "none"}")
@@ -131,7 +150,10 @@ class EvidencePackReportGenerator {
             appendLine("- screenshotHeight: ${visualDebug?.screenshotHeight ?: capture?.snapshot?.screenHeight ?: 0}")
             appendLine("- accessibilityBoundsProjected: ${visualDebug?.accessibilityBoundsProjected ?: capture?.accessibilityBoundsProjected ?: false}")
             appendLine("- ocrUsed: ${visualDebug?.ocrUsed ?: capture?.ocrUsed ?: false}")
-            appendLine("- visualTruthAvailable: ${visualDebug?.visualTruthAvailable ?: capture?.visualTruthAvailable ?: false}")
+            appendLine("- visualTruthAvailable: ${scenarioValidation.visualTruthAvailable}")
+            appendLine("- visualTruthSource: ${scenarioValidation.visualTruthSource}")
+            appendLine("- accessibilityProjectionAvailable: ${scenarioValidation.accessibilityProjectionAvailable}")
+            appendLine("- visualProjectionSource: ${scenarioValidation.visualProjectionSource}")
             appendLine("- VisualSpeakerFallbackUsed: ${capture?.visualSpeakerFallbackCount?.let { it > 0 } ?: false}")
             appendLine("- visualSpeakerFallbackCount: ${capture?.visualSpeakerFallbackCount ?: 0}")
             appendLine("- conflictCount: ${messages.count { it.visualConflict }}")
@@ -139,6 +161,17 @@ class EvidencePackReportGenerator {
             appendLine("- userCorrectionProvided: ${result.userCorrectionProvided}")
             appendLine("- correctedLastSpeaker: ${result.correctedLastSpeaker ?: "none"}")
             appendLine("- correctedMessageId: ${result.correctedMessageId ?: "none"}")
+            appendLine()
+            appendLine("## Snapshot Phase Separation")
+            appendLine()
+            appendLine("- preAnalysisSnapshotAvailable: ${scenarioValidation.preAnalysisSnapshotAvailable}")
+            appendLine("- preAnalysisWindowTitle: ${scenarioValidation.preAnalysisWindowTitle}")
+            appendLine("- preAnalysisResultPanelVisible: false")
+            appendLine("- decisionSnapshotAvailable: ${result.captureResult != null}")
+            appendLine("- postPanelSnapshotAvailable: ${scenarioValidation.postPanelSnapshotAvailable}")
+            appendLine("- postPanelWindowTitle: ${scenarioValidation.postPanelWindowTitle}")
+            appendLine("- reportWindowTitleContaminatedByPanel: ${scenarioValidation.reportWindowTitleContaminatedByPanel}")
+            appendLine("- postPanelStateUsedForScenarioExpectation: ${scenarioValidation.postPanelStateUsedForScenarioExpectation}")
             appendLine()
             appendLine("## 解析结果")
             appendLine("- rawParsedNodeCount: ${messages.size}")
@@ -291,7 +324,7 @@ class EvidencePackReportGenerator {
         result: CurrentScreenPipelineResult,
         accessibilityState: HuiyiAccessibilityState,
         generatedAt: Long = System.currentTimeMillis(),
-        scenario: RealDeviceScenario = RealDeviceScenario.LAST_ME
+        scenario: RealDeviceScenario = RealDeviceScenario.AUTO_FROM_SCREEN
     ): String {
         val capture = result.captureResult
         val scenarioValidation = RealDeviceScenarioValidator.validate(result, scenario)
@@ -349,20 +382,38 @@ class EvidencePackReportGenerator {
         }
         return """
             {
-              "overall_result": "${scenarioValidation.scenarioResult}",
+              "overall_result": "${scenarioValidation.currentOverallResult}",
+              "realDeviceFunctionalSmoke": "${scenarioValidation.realDeviceFunctionalSmoke}",
+              "scenarioAssertionResult": "${scenarioValidation.scenarioAssertionResult}",
+              "currentOverallResult": "${scenarioValidation.currentOverallResult}",
               "generatedAt": $generatedAt,
               "scenarioName": "${scenarioValidation.scenarioName}",
+              "scenarioNameSource": "${scenarioValidation.scenarioNameSource}",
               "expectedLastSpeaker": "${scenarioValidation.expectedLastSpeaker}",
+              "expectedLastSpeakerSource": "${scenarioValidation.expectedLastSpeakerSource}",
               "actualLastSpeaker": "${scenarioValidation.actualLastSpeaker}",
+              "actualLastSpeakerFromPreAnalysisSnapshot": "${scenarioValidation.actualLastSpeakerFromPreAnalysisSnapshot}",
+              "actualLastSpeakerFromDecisionSnapshot": "${scenarioValidation.actualLastSpeakerFromDecisionSnapshot}",
+              "actualLastSpeakerFromPostPanelSnapshot": "${scenarioValidation.actualLastSpeakerFromPostPanelSnapshot}",
               "expectedDecisionType": "${scenarioValidation.expectedDecisionType}",
+              "expectedDecisionTypeSource": "${scenarioValidation.expectedDecisionTypeSource}",
               "actualDecisionType": "${scenarioValidation.actualDecisionType}",
               "expectedRouteCount": "${scenarioValidation.expectedRouteCount}",
+              "expectedRouteCountSource": "${scenarioValidation.expectedRouteCountSource}",
               "actualRouteCount": ${scenarioValidation.actualRouteCount},
               "scenarioResult": "${scenarioValidation.scenarioResult}",
+              "scenarioDefinitionTrusted": ${scenarioValidation.scenarioDefinitionTrusted},
+              "scenarioFailureCategory": "${scenarioValidation.scenarioFailureCategory}",
+              "scenarioDefinitionMismatchReason": "${escape(scenarioValidation.scenarioDefinitionMismatchReason ?: "none")}",
+              "productDecisionConsistentWithActualLastSpeaker": ${scenarioValidation.productDecisionConsistentWithActualLastSpeaker},
               "failureReason": "${scenarioValidation.failureReason}",
               "sample_source": "${capture?.sampleSource?.reportValue ?: SampleSource.UNKNOWN.reportValue}",
               "appPackage": "${escape(capture?.snapshot?.appPackage ?: "unknown")}",
               "windowTitle": "${escape(capture?.snapshot?.windowTitle ?: "unknown")}",
+              "preAnalysisWindowTitle": "${escape(scenarioValidation.preAnalysisWindowTitle)}",
+              "postPanelWindowTitle": "${escape(scenarioValidation.postPanelWindowTitle)}",
+              "reportWindowTitleContaminatedByPanel": ${scenarioValidation.reportWindowTitleContaminatedByPanel},
+              "postPanelStateUsedForScenarioExpectation": ${scenarioValidation.postPanelStateUsedForScenarioExpectation},
               "screenWidth": ${capture?.snapshot?.screenWidth ?: 0},
               "screenHeight": ${capture?.snapshot?.screenHeight ?: 0},
               "density": ${capture?.snapshot?.density ?: 0f},
@@ -380,6 +431,9 @@ class EvidencePackReportGenerator {
               "VisualDebug": {
                 "screenshotCaptured": ${visualDebug?.screenshotCaptured ?: false},
                 "screenshotUnavailable": ${visualDebug?.screenshotUnavailable ?: true},
+                "screenshotDiagnosticStatus": "${scenarioValidation.screenshotDiagnosticStatus}",
+                "screenshotFailureBlocksMainPath": ${scenarioValidation.screenshotFailureBlocksMainPath},
+                "secondaryDiagnosticErrorCode": "${escape(scenarioValidation.secondaryDiagnosticErrorCode)}",
                 "reason": "${escape(visualDebug?.reason ?: "visual_projection_only_or_not_captured")}",
                 "screenshotPath": "${escape(visualDebug?.screenshotPath ?: "")}",
                 "overlayImagePath": "${escape(visualDebug?.overlayImagePath ?: "")}",
@@ -387,7 +441,10 @@ class EvidencePackReportGenerator {
                 "screenshotHeight": ${visualDebug?.screenshotHeight ?: capture?.snapshot?.screenHeight ?: 0},
                 "accessibilityBoundsProjected": ${visualDebug?.accessibilityBoundsProjected ?: capture?.accessibilityBoundsProjected ?: false},
                 "ocrUsed": ${visualDebug?.ocrUsed ?: capture?.ocrUsed ?: false},
-                "visualTruthAvailable": ${visualDebug?.visualTruthAvailable ?: capture?.visualTruthAvailable ?: false},
+                "visualTruthAvailable": ${scenarioValidation.visualTruthAvailable},
+                "visualTruthSource": "${scenarioValidation.visualTruthSource}",
+                "accessibilityProjectionAvailable": ${scenarioValidation.accessibilityProjectionAvailable},
+                "visualProjectionSource": "${scenarioValidation.visualProjectionSource}",
                 "VisualSpeakerFallbackUsed": ${capture?.visualSpeakerFallbackCount?.let { it > 0 } ?: false},
                 "visualSpeakerFallbackCount": ${capture?.visualSpeakerFallbackCount ?: 0},
                 "conflictCount": ${capture?.messages?.count { it.visualConflict } ?: 0},
@@ -396,6 +453,16 @@ class EvidencePackReportGenerator {
               "userCorrectionProvided": ${result.userCorrectionProvided},
               "correctedLastSpeaker": "${result.correctedLastSpeaker ?: "none"}",
               "correctedMessageId": "${escape(result.correctedMessageId ?: "none")}",
+              "SnapshotPhaseSeparation": {
+                "preAnalysisSnapshotAvailable": ${scenarioValidation.preAnalysisSnapshotAvailable},
+                "preAnalysisWindowTitle": "${escape(scenarioValidation.preAnalysisWindowTitle)}",
+                "preAnalysisResultPanelVisible": false,
+                "decisionSnapshotAvailable": ${result.captureResult != null},
+                "postPanelSnapshotAvailable": ${scenarioValidation.postPanelSnapshotAvailable},
+                "postPanelWindowTitle": "${escape(scenarioValidation.postPanelWindowTitle)}",
+                "reportWindowTitleContaminatedByPanel": ${scenarioValidation.reportWindowTitleContaminatedByPanel},
+                "postPanelStateUsedForScenarioExpectation": ${scenarioValidation.postPanelStateUsedForScenarioExpectation}
+              },
               "rawParsedNodeCount": ${capture?.messages?.size ?: 0},
               "metadataFilteredCount": ${capture?.messages?.count { it.metadataType != MetadataType.NONE || it.speaker == Speaker.SYSTEM } ?: 0},
               "dateMetadataFilteredCount": ${capture?.messages?.count { it.metadataType == MetadataType.DATE && it.speaker == Speaker.SYSTEM && !it.isEffectiveChatMessage } ?: 0},
@@ -445,7 +512,7 @@ class EvidencePackReportGenerator {
         directory: File,
         result: CurrentScreenPipelineResult,
         accessibilityState: HuiyiAccessibilityState,
-        scenario: RealDeviceScenario = RealDeviceScenario.LAST_ME
+        scenario: RealDeviceScenario = RealDeviceScenario.AUTO_FROM_SCREEN
     ): Result<EvidencePackFiles> = runCatching {
         directory.mkdirs()
         val md = File(directory, "real-device-current-screen-report-for-gpt.md")
@@ -529,14 +596,15 @@ class EvidencePackReportGenerator {
     private fun failureCategory(result: CurrentScreenPipelineResult, scenarioValidation: RealDeviceScenarioValidation): String {
         val capture = result.captureResult
         return when {
-            scenarioValidation.scenarioResult == "PASS" -> "none"
+            scenarioValidation.scenarioFailureCategory == "SCENARIO_DEFINITION_MISMATCH" -> "scenario_definition_mismatch"
+            scenarioValidation.currentOverallResult == "PASS" -> "none"
             capture?.messages.orEmpty().any { it.metadataType == MetadataType.DATE && it.speaker != Speaker.SYSTEM } -> "metadata_leak"
             result.userCorrectionProvided -> "user_selected_wrong_scenario"
-            capture?.visualTruthAvailable != true -> "visual_projection_unavailable"
-            capture.messages.any { it.visualConflict } -> "parser_side_conflict"
+            !scenarioValidation.visualTruthAvailable -> scenarioValidation.failureReason
+            capture?.messages.orEmpty().any { it.visualConflict } -> "parser_side_conflict"
             result.lastSpeakerDecision.lastEffectiveMessage == null -> "visual_order_wrong"
-            capture.messages.count { it.speaker == Speaker.UNKNOWN }.toFloat() / capture.messages.size.coerceAtLeast(1) > 0.30f -> "unknown_too_high"
-            scenarioValidation.failureReason == "last_speaker_mismatch" -> "accessibility_bounds_wrong"
+            capture?.messages.orEmpty().count { it.speaker == Speaker.UNKNOWN }.toFloat() /
+                capture?.messages.orEmpty().size.coerceAtLeast(1) > 0.30f -> "unknown_too_high"
             else -> scenarioValidation.failureReason
         }
     }

@@ -1,16 +1,25 @@
 # Huiyi v4 GPT Review Inbox
 
 ## Current round
-- taskName: access_password_and_public_github
-- versionName: 4.1.9b
-- versionCode: 425
-- generatedAt: 2026-07-03 13:46:36 +0800
+- taskName: real_device_scenario_truth_and_post_panel_contamination_fix
+- versionName: 4.1.10
+- versionCode: 426
+- generatedAt: 2026-07-03 14:02:37 +0800
 - currentOverallResult: NOT_TESTED
 
+## Current conclusion
+- realDeviceFunctionalSmoke: NOT_TESTED
+- scenarioAssertionResult: NOT_TESTED
+- scenarioDefinitionTrusted: false
+- scenarioDefinitionMismatch: false
+- screenshotFailureBlocksMainPath: false
+- postPanelContaminationDetected: false
+
 ## What changed this round
-1. Added fixed GPT review inbox delivery folder generation.
-2. Added machine-readable GPT inbox manifest and changed-files summary.
-3. Added single upload zip: `outputs/huiyi-gpt-review-inbox.zip`.
+1. Split product functional smoke from scenario assertion.
+2. Mark last_me expected speaker conflicts as scenario_definition_mismatch instead of parser/product failure.
+3. Separate pre-analysis snapshot fields from post-panel overlay state.
+4. Keep screenshot failure as optional diagnostic.
 
 ## Current real-device status
 - realDeviceTested: false
@@ -27,10 +36,10 @@
 
 ## Files GPT should inspect first
 1. huiyi-v4-review-for-gpt.md
-2. latest-next-sentence-failure.json
-3. latest-next-sentence-failure.md
-4. accessibility-click-diagnostic-report-for-gpt.md
-5. next-sentence-screenshot-capability-audit-for-gpt.md
+2. real-device-current-screen-report-for-gpt.md
+3. real-device-current-screen-report.json
+4. changed-files-for-gpt.md
+5. latest-next-sentence-failure.json
 
 ## Build / test results
 - testDebugUnitTest: PASS
@@ -39,11 +48,12 @@
 - realDeviceSmoke: NOT_TESTED
 
 ## APK
-- debugApkPath: outputs/huiyi-v4.1.9b-debug.apk
+- debugApkPath: outputs/huiyi-v4.1.10-debug.apk
 - APK is not included in this review zip.
 
 ## Known remaining problems
-- Real-device smoke is not completed in this Codex environment unless the user exports phone diagnostics.
+- This local Codex run cannot execute a physical-phone smoke test by itself.
+- User should install the v4.1.10 APK through LAN update, run one phone scenario, then export the review bundle from the app.
 - Historical MockChat output files may be dirty in the workspace; they are not included as current-round evidence.
 
 ## Privacy / secret scan

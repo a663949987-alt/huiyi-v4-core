@@ -1,27 +1,35 @@
 # Changed Files For GPT
 
 ## Files changed this round
-- path: scripts/generate_gpt_review_inbox.py
-  - reason: Generate the fixed GPT review inbox folder, manifest, README, changed-files summary, and zip.
-  - risk: Low; output packaging only.
-- path: scripts/generate-gpt-review-inbox.ps1
-  - reason: PowerShell wrapper for Windows/Codex workflow.
-  - risk: Low; wrapper only.
-- path: scripts/generate-review-bundle.ps1
-  - reason: Automatically refresh GPT review inbox after review bundle generation.
-  - risk: Low; keeps future deliveries consistent.
-- path: outputs/gpt_review_inbox/*
-  - reason: Current GPT upload folder.
-  - risk: Low; excludes APKs, local.properties, keystore, and secrets.
+- path: app/src/main/java/com/huiyi/v4/domain/pipeline/RealDeviceScenario.kt
+  - reason: Split real-device functional smoke, scenario assertion, and current overall result.
+  - risk: Medium; acceptance verdict logic changed.
+- path: app/src/main/java/com/huiyi/v4/domain/pipeline/EvidencePackReportGenerator.kt
+  - reason: Add expected-vs-actual fields, snapshot phase separation, screenshot diagnostic status, and panel contamination fields.
+  - risk: Low; report output only.
+- path: app/src/main/java/com/huiyi/v4/domain/pipeline/RealDeviceReviewBundleGenerator.kt
+  - reason: Review bundle now reports controlled scenario mismatch instead of product failure.
+  - risk: Low; export/report output only.
+- path: app/src/main/java/com/huiyi/v4/runtime/HuiyiRuntime.kt
+  - reason: Default real-device scenario now derives from the current screen instead of legacy last_me.
+  - risk: Medium; developer export default changed.
+- path: app/build.gradle.kts
+  - reason: Bump app version for LAN update detection.
+  - risk: Low.
+- path: scripts/generate_review_bundle.py and scripts/generate_gpt_review_inbox.py
+  - reason: Include v4.1.10 result layers and fixed GPT inbox files.
+  - risk: Low; packaging only.
 
 ## Important logic changes
-1. GPT review files are centralized under `outputs/gpt_review_inbox/`.
-2. `outputs/huiyi-gpt-review-inbox.zip` is generated for one-file upload.
-3. The inbox includes a README and machine-readable manifest.
+1. `scenarioName=last_me` no longer overrides actual current-screen evidence.
+2. `LastSpeakerDecision=OTHER` with `NORMAL_REPLY + 5 routes` is a functional PASS when the screen evidence supports OTHER.
+3. Scenario mismatch is now reported as `CONTROLLED_PASS_WITH_SCENARIO_MISMATCH`.
+4. Post-panel overlay title is flagged and cannot define scenario expectations.
 
 ## Tests added / updated
-- No Android runtime tests needed; this is a delivery packaging rule.
+- `testDebugUnitTest`: PASS
+- `assembleDebug`: PASS
 
 ## Known risk areas
-- If future reports are renamed, add them to `OPTIONAL_FILES` in `scripts/generate_gpt_review_inbox.py`.
-- If real device diagnostics exist only on the phone, the user still needs to export them first.
+- This local run cannot prove the next physical-phone sample; user still needs one real-device export after installing v4.1.10.
+- If phone update cache still serves an older latest.json, restart the LAN update server or refresh the served folder.

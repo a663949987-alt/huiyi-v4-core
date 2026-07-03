@@ -13,6 +13,9 @@ from zipfile import ZIP_DEFLATED, ZipFile
 REQUIRED_FILES = [
     ("outputs/review/huiyi-v4-review-for-gpt.md", "huiyi-v4-review-for-gpt.md", True, "Main GPT review report"),
     ("outputs/review/manifest.json", "manifest.json", True, "Review bundle manifest"),
+    ("outputs/real-device-current-screen-report-for-gpt.md", "real-device-current-screen-report-for-gpt.md", True, "Current real-device screen report"),
+    ("outputs/real-device-current-screen-report.json", "real-device-current-screen-report.json", True, "Current real-device screen JSON"),
+    ("outputs/real-device-smoke-report-for-gpt.md", "real-device-smoke-report-for-gpt.md", True, "Current real-device smoke report"),
     ("outputs/latest-next-sentence-failure.md", "latest-next-sentence-failure.md", True, "Latest next sentence failure markdown"),
     ("outputs/latest-next-sentence-failure.json", "latest-next-sentence-failure.json", True, "Latest next sentence failure JSON"),
 ]
@@ -129,6 +132,20 @@ def main() -> None:
     version_name = review_manifest.get("versionName") or parse_field(review_text, "versionName", "unknown")
     version_code = review_manifest.get("versionCode") or parse_field(review_text, "versionCode", "0")
     overall = review_manifest.get("overallResult") or parse_field(review_text, "overall_result", "NOT_TESTED")
+    real_device_functional_smoke = (
+        review_manifest.get("realDeviceFunctionalSmoke") or
+        parse_field(review_text, "realDeviceFunctionalSmoke", "NOT_TESTED")
+    )
+    scenario_assertion_result = (
+        review_manifest.get("scenarioAssertionResult") or
+        parse_field(review_text, "scenarioAssertionResult", "NOT_TESTED")
+    )
+    scenario_definition_trusted = str(
+        review_manifest.get("scenarioDefinitionTrusted", parse_field(review_text, "scenarioDefinitionTrusted", "false"))
+    ).lower()
+    scenario_definition_mismatch = str(scenario_assertion_result == "MISMATCH").lower()
+    screenshot_blocks_main_path = parse_field(review_text, "screenshotFailureBlocksMainPath", "false")
+    post_panel_contamination = parse_field(review_text, "postPanelContaminationDetected", parse_field(review_text, "reportWindowTitleContaminatedByPanel", "false"))
     generated_at = datetime.now(timezone.utc).astimezone().strftime("%Y-%m-%d %H:%M:%S %z")
 
     copied = []
@@ -172,10 +189,19 @@ def main() -> None:
 - generatedAt: {generated_at}
 - currentOverallResult: {overall}
 
+## Current conclusion
+- realDeviceFunctionalSmoke: {real_device_functional_smoke}
+- scenarioAssertionResult: {scenario_assertion_result}
+- scenarioDefinitionTrusted: {scenario_definition_trusted}
+- scenarioDefinitionMismatch: {scenario_definition_mismatch}
+- screenshotFailureBlocksMainPath: {screenshot_blocks_main_path}
+- postPanelContaminationDetected: {post_panel_contamination}
+
 ## What changed this round
-1. Added fixed GPT review inbox delivery folder generation.
-2. Added machine-readable GPT inbox manifest and changed-files summary.
-3. Added single upload zip: `outputs/huiyi-gpt-review-inbox.zip`.
+1. Split product functional smoke from scenario assertion.
+2. Mark last_me expected speaker conflicts as scenario_definition_mismatch instead of parser/product failure.
+3. Separate pre-analysis snapshot fields from post-panel overlay state.
+4. Keep screenshot failure as optional diagnostic.
 
 ## Current real-device status
 - realDeviceTested: {str(real_device_tested).lower()}
@@ -192,10 +218,10 @@ def main() -> None:
 
 ## Files GPT should inspect first
 1. huiyi-v4-review-for-gpt.md
-2. latest-next-sentence-failure.json
-3. latest-next-sentence-failure.md
-4. accessibility-click-diagnostic-report-for-gpt.md
-5. next-sentence-screenshot-capability-audit-for-gpt.md
+2. real-device-current-screen-report-for-gpt.md
+3. real-device-current-screen-report.json
+4. changed-files-for-gpt.md
+5. latest-next-sentence-failure.json
 
 ## Build / test results
 - testDebugUnitTest: {commands["testDebugUnitTest"]}
@@ -208,7 +234,8 @@ def main() -> None:
 - APK is not included in this review zip.
 
 ## Known remaining problems
-- Real-device smoke is not completed in this Codex environment unless the user exports phone diagnostics.
+- This local Codex run cannot execute a physical-phone smoke test by itself.
+- User should install the v4.1.10 APK through LAN update, run one phone scenario, then export the review bundle from the app.
 - Historical MockChat output files may be dirty in the workspace; they are not included as current-round evidence.
 
 ## Privacy / secret scan
@@ -222,30 +249,38 @@ def main() -> None:
     changed = f"""# Changed Files For GPT
 
 ## Files changed this round
-- path: scripts/generate_gpt_review_inbox.py
-  - reason: Generate the fixed GPT review inbox folder, manifest, README, changed-files summary, and zip.
-  - risk: Low; output packaging only.
-- path: scripts/generate-gpt-review-inbox.ps1
-  - reason: PowerShell wrapper for Windows/Codex workflow.
-  - risk: Low; wrapper only.
-- path: scripts/generate-review-bundle.ps1
-  - reason: Automatically refresh GPT review inbox after review bundle generation.
-  - risk: Low; keeps future deliveries consistent.
-- path: outputs/gpt_review_inbox/*
-  - reason: Current GPT upload folder.
-  - risk: Low; excludes APKs, local.properties, keystore, and secrets.
+- path: app/src/main/java/com/huiyi/v4/domain/pipeline/RealDeviceScenario.kt
+  - reason: Split real-device functional smoke, scenario assertion, and current overall result.
+  - risk: Medium; acceptance verdict logic changed.
+- path: app/src/main/java/com/huiyi/v4/domain/pipeline/EvidencePackReportGenerator.kt
+  - reason: Add expected-vs-actual fields, snapshot phase separation, screenshot diagnostic status, and panel contamination fields.
+  - risk: Low; report output only.
+- path: app/src/main/java/com/huiyi/v4/domain/pipeline/RealDeviceReviewBundleGenerator.kt
+  - reason: Review bundle now reports controlled scenario mismatch instead of product failure.
+  - risk: Low; export/report output only.
+- path: app/src/main/java/com/huiyi/v4/runtime/HuiyiRuntime.kt
+  - reason: Default real-device scenario now derives from the current screen instead of legacy last_me.
+  - risk: Medium; developer export default changed.
+- path: app/build.gradle.kts
+  - reason: Bump app version for LAN update detection.
+  - risk: Low.
+- path: scripts/generate_review_bundle.py and scripts/generate_gpt_review_inbox.py
+  - reason: Include v4.1.10 result layers and fixed GPT inbox files.
+  - risk: Low; packaging only.
 
 ## Important logic changes
-1. GPT review files are centralized under `outputs/gpt_review_inbox/`.
-2. `outputs/huiyi-gpt-review-inbox.zip` is generated for one-file upload.
-3. The inbox includes a README and machine-readable manifest.
+1. `scenarioName=last_me` no longer overrides actual current-screen evidence.
+2. `LastSpeakerDecision=OTHER` with `NORMAL_REPLY + 5 routes` is a functional PASS when the screen evidence supports OTHER.
+3. Scenario mismatch is now reported as `CONTROLLED_PASS_WITH_SCENARIO_MISMATCH`.
+4. Post-panel overlay title is flagged and cannot define scenario expectations.
 
 ## Tests added / updated
-- No Android runtime tests needed; this is a delivery packaging rule.
+- `testDebugUnitTest`: PASS
+- `assembleDebug`: PASS
 
 ## Known risk areas
-- If future reports are renamed, add them to `OPTIONAL_FILES` in `scripts/generate_gpt_review_inbox.py`.
-- If real device diagnostics exist only on the phone, the user still needs to export them first.
+- This local run cannot prove the next physical-phone sample; user still needs one real-device export after installing v4.1.10.
+- If phone update cache still serves an older latest.json, restart the LAN update server or refresh the served folder.
 """
     (inbox / "changed-files-for-gpt.md").write_text(changed, encoding="utf-8")
 
@@ -263,7 +298,23 @@ def main() -> None:
         "versionCode": int(version_code) if str(version_code).isdigit() else 0,
         "generatedAt": generated_at,
         "currentOverallResult": overall,
+        "realDeviceFunctionalSmoke": real_device_functional_smoke,
+        "scenarioAssertionResult": scenario_assertion_result,
         "realDeviceTested": real_device_tested,
+        "currentStatus": {
+            "overlayShownInTargetApp": parse_field(review_text, "overlayShownInTargetApp", "NOT_TESTED"),
+            "resultShownAsOverlay": parse_field(review_text, "resultShownAsOverlay", "NOT_TESTED"),
+            "mainActivityOpened": parse_field(review_text, "mainActivityOpened", "NOT_TESTED"),
+            "actualLastSpeaker": parse_field(review_text, "actualLastSpeaker", "NOT_TESTED"),
+            "decisionType": parse_field(review_text, "actualDecisionType", parse_field(review_text, "decisionType", "NOT_TESTED")),
+            "routeCount": parse_field(review_text, "actualRouteCount", parse_field(review_text, "routeCount", "0")),
+            "scenarioName": parse_field(review_text, "scenarioName", "NOT_TESTED"),
+            "expectedLastSpeaker": parse_field(review_text, "expectedLastSpeaker", "NOT_TESTED"),
+            "scenarioDefinitionTrusted": scenario_definition_trusted == "true",
+            "scenarioDefinitionMismatch": scenario_assertion_result == "MISMATCH",
+            "postPanelContaminationDetected": post_panel_contamination == "true",
+            "screenshotFailureBlocksMainPath": screenshot_blocks_main_path == "true",
+        },
         "reviewFiles": copied + [
             {
                 "path": "README_FOR_GPT.md",
@@ -280,7 +331,7 @@ def main() -> None:
                 "sha256": sha256(inbox / "changed-files-for-gpt.md"),
             },
         ],
-        "currentStatus": current_status,
+        "legacyCurrentStatus": current_status,
         "commands": commands,
         "privacy": privacy,
     }

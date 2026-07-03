@@ -1,11 +1,27 @@
 {
   "project": "huiyi-v4",
-  "taskName": "access_password_and_public_github",
-  "versionName": "4.1.9b",
-  "versionCode": 425,
-  "generatedAt": "2026-07-03 13:46:36 +0800",
+  "taskName": "real_device_scenario_truth_and_post_panel_contamination_fix",
+  "versionName": "4.1.10",
+  "versionCode": 426,
+  "generatedAt": "2026-07-03 14:02:37 +0800",
   "currentOverallResult": "NOT_TESTED",
+  "realDeviceFunctionalSmoke": "NOT_TESTED",
+  "scenarioAssertionResult": "NOT_TESTED",
   "realDeviceTested": false,
+  "currentStatus": {
+    "overlayShownInTargetApp": "true",
+    "resultShownAsOverlay": "true",
+    "mainActivityOpened": "false",
+    "actualLastSpeaker": "NOT_TESTED",
+    "decisionType": "NOT_TESTED",
+    "routeCount": "0",
+    "scenarioName": "auto_from_screen",
+    "expectedLastSpeaker": "NO_FIXED_EXPECTATION",
+    "scenarioDefinitionTrusted": false,
+    "scenarioDefinitionMismatch": false,
+    "postPanelContaminationDetected": false,
+    "screenshotFailureBlocksMainPath": false
+  },
   "reviewFiles": [
     {
       "path": "huiyi-v4-review-for-gpt.md",
@@ -13,7 +29,7 @@
       "required": true,
       "exists": true,
       "description": "Main GPT review report",
-      "sha256": "5e28ec067649ed5e538f61dccdaf8e1932d55622c65dcd66cc5c838ba6a48686"
+      "sha256": "270b00d490c9310a3a544a3a28b10d0ee39dbc6d90a687706f4ee612211db59f"
     },
     {
       "path": "manifest.json",
@@ -21,7 +37,31 @@
       "required": true,
       "exists": true,
       "description": "Review bundle manifest",
-      "sha256": "c0a1c0074865ed3ad916baa08385beb41467dec9d1c5c3a2d327e3f3e888689c"
+      "sha256": "a0ef2ff7f33db2c2b4d8d198347d6c2c7258631dfab2ca0c1f10a3474eafb792"
+    },
+    {
+      "path": "real-device-current-screen-report-for-gpt.md",
+      "source": "outputs/real-device-current-screen-report-for-gpt.md",
+      "required": true,
+      "exists": true,
+      "description": "Current real-device screen report",
+      "sha256": "a69a41a5447f4e54409244fe77b8a2b51caa45ae68c97058a505c49c6711cbf7"
+    },
+    {
+      "path": "real-device-current-screen-report.json",
+      "source": "outputs/real-device-current-screen-report.json",
+      "required": true,
+      "exists": true,
+      "description": "Current real-device screen JSON",
+      "sha256": "3aa6e3206d498034fa5d87fc9aa1c2445eacfeb4e8968f31bd2d77ebfddb8ab5"
+    },
+    {
+      "path": "real-device-smoke-report-for-gpt.md",
+      "source": "outputs/real-device-smoke-report-for-gpt.md",
+      "required": true,
+      "exists": true,
+      "description": "Current real-device smoke report",
+      "sha256": "6269270af503f6acac379e43831328063826fb0ee8715d1ddf5a88abd7076d3e"
     },
     {
       "path": "latest-next-sentence-failure.md",
@@ -108,17 +148,17 @@
       "required": true,
       "exists": true,
       "description": "Inbox overview for GPT",
-      "sha256": "d6bb100ba123b9a996cde77caabbdede8fe0ca7854b397aa84a542783cd69b1a"
+      "sha256": "61e7bc2e0701614953b9c53595cdf338ff1c80f83040db83e5847df386291bb2"
     },
     {
       "path": "changed-files-for-gpt.md",
       "required": true,
       "exists": true,
       "description": "Current delivery change summary",
-      "sha256": "28856441307a4ff96d9b336ad0062a83349a733b507a5bc9d88ff0708f53cae2"
+      "sha256": "7efbcac269c3dbcea075dc7e9c217e4b9d4753ff338850201d6f1a875168eb70"
     }
   ],
-  "currentStatus": {
+  "legacyCurrentStatus": {
     "overlayBubbleSurvivesAfterNextSentence": "unknown",
     "permissionFalseAlarmObserved": "unknown",
     "nextSentenceAnalysisResult": "NOT_TESTED",

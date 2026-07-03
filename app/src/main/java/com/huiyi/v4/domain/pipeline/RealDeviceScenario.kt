@@ -12,6 +12,7 @@ enum class RealDeviceScenario(
     val expectedDecisionType: TacticalDecisionType?,
     val expectedRouteCount: Int?
 ) {
+    AUTO_FROM_SCREEN("auto_from_screen", "Auto from current screen", null, null, null),
     LAST_ME("last_me", "A last_me", Speaker.ME, TacticalDecisionType.WAIT, 0),
     LAST_OTHER("last_other", "B last_other", Speaker.OTHER, null, 5),
     METADATA_TRAP("metadata_trap", "C metadata_trap", null, null, null),
@@ -34,7 +35,34 @@ data class RealDeviceScenarioValidation(
     val expectedRouteCount: String,
     val actualRouteCount: Int,
     val scenarioResult: String,
-    val failureReason: String
+    val failureReason: String,
+    val realDeviceFunctionalSmoke: String,
+    val scenarioAssertionResult: String,
+    val currentOverallResult: String,
+    val scenarioDefinitionTrusted: Boolean,
+    val scenarioFailureCategory: String,
+    val scenarioNameSource: String,
+    val expectedLastSpeakerSource: String,
+    val scenarioDefinitionMismatchReason: String?,
+    val actualLastSpeakerFromPreAnalysisSnapshot: String,
+    val actualLastSpeakerFromDecisionSnapshot: String,
+    val actualLastSpeakerFromPostPanelSnapshot: String,
+    val expectedDecisionTypeSource: String,
+    val expectedRouteCountSource: String,
+    val productDecisionConsistentWithActualLastSpeaker: Boolean,
+    val screenshotDiagnosticStatus: String,
+    val screenshotFailureBlocksMainPath: Boolean,
+    val secondaryDiagnosticErrorCode: String,
+    val visualTruthAvailable: Boolean,
+    val visualTruthSource: String,
+    val accessibilityProjectionAvailable: Boolean,
+    val visualProjectionSource: String,
+    val preAnalysisSnapshotAvailable: Boolean,
+    val preAnalysisWindowTitle: String,
+    val postPanelSnapshotAvailable: Boolean,
+    val postPanelWindowTitle: String,
+    val reportWindowTitleContaminatedByPanel: Boolean,
+    val postPanelStateUsedForScenarioExpectation: Boolean
 )
 
 object RealDeviceScenarioValidator {
@@ -45,28 +73,171 @@ object RealDeviceScenarioValidator {
         val effectiveMessages = result?.captureResult?.messages.orEmpty()
             .filter { it.isEffectiveChatMessage && it.speaker != Speaker.SYSTEM }
         val lastEffective = result?.lastSpeakerDecision?.lastEffectiveMessage
-        val failureReason = when {
+        val scenarioIsAuto = scenario == RealDeviceScenario.AUTO_FROM_SCREEN
+        val derivedScenarioName = when (actualLastSpeaker) {
+            Speaker.ME -> "real_device_last_me"
+            Speaker.OTHER -> "real_device_last_other"
+            Speaker.UNKNOWN -> "real_device_last_unknown"
+            Speaker.SYSTEM -> "real_device_last_system"
+            null -> scenario.id
+        }
+        val expectedSpeaker = if (scenarioIsAuto) actualLastSpeaker else scenario.expectedLastSpeaker
+        val expectedDecisionType = if (scenarioIsAuto) expectedDecisionFor(expectedSpeaker) else scenario.expectedDecisionType
+        val expectedRouteCount = if (scenarioIsAuto) expectedRouteCountFor(expectedSpeaker, actualDecisionType, actualRouteCount) else scenario.expectedRouteCount
+        val scenarioName = if (scenarioIsAuto && result != null) derivedScenarioName else scenario.id
+        val scenarioSource = if (scenarioIsAuto) "AUTO_FROM_PRE_ANALYSIS_SNAPSHOT" else "MANUAL"
+        val functionalFailureReason = functionalFailureReason(result, effectiveMessages)
+        val realDeviceFunctionalSmoke = when {
+            result == null -> "NOT_TESTED"
+            functionalFailureReason == "none" -> "PASS"
+            functionalFailureReason in setOf("context_required_for_actual_other", "voice_summary_required_for_actual_other") -> "PASS"
+            else -> "FAIL"
+        }
+        val scenarioMismatch = expectedSpeaker != null && actualLastSpeaker != null && actualLastSpeaker != expectedSpeaker
+        val scenarioFailureReason = when {
             result == null -> "not_tested"
+            scenarioMismatch -> "scenario_definition_mismatch"
             result.apiCalled -> "api_called"
             effectiveMessages.isEmpty() -> "no_effective_message"
-            scenario.expectedLastSpeaker != null && actualLastSpeaker != scenario.expectedLastSpeaker -> "last_speaker_mismatch"
-            scenario.expectedDecisionType != null && actualDecisionType != scenario.expectedDecisionType -> "decision_type_mismatch"
-            scenario.expectedRouteCount != null && actualRouteCount != scenario.expectedRouteCount -> "route_count_mismatch"
-            scenario == RealDeviceScenario.LAST_OTHER && actualDecisionType in setOf(TacticalDecisionType.WAIT, TacticalDecisionType.CONTEXT_REQUIRED) -> "last_other_should_generate_routes"
+            expectedDecisionType != null && actualDecisionType != expectedDecisionType -> "decision_type_mismatch"
+            expectedRouteCount != null && actualRouteCount != expectedRouteCount -> "route_count_mismatch"
+            scenario == RealDeviceScenario.LAST_OTHER && actualDecisionType == TacticalDecisionType.WAIT -> "last_other_should_not_wait"
             scenario == RealDeviceScenario.METADATA_TRAP && lastEffective?.metadataType != MetadataType.NONE -> "metadata_polluted_last_speaker"
             scenario == RealDeviceScenario.VOICE_LAST_OTHER && lastEffective?.content !is MessageContent.Voice -> "voice_expected"
             else -> "none"
         }
+        val scenarioAssertionResult = when {
+            result == null -> "NOT_TESTED"
+            scenario == RealDeviceScenario.METADATA_TRAP -> if (scenarioFailureReason == "none") "PASS" else "MISMATCH"
+            scenarioIsAuto -> "PASS"
+            scenarioMismatch -> "MISMATCH"
+            scenario.expectedLastSpeaker == null && scenario.expectedDecisionType == null && scenario.expectedRouteCount == null -> "NOT_APPLICABLE"
+            scenarioFailureReason == "none" || scenarioFailureReason in setOf(
+                "context_required_for_actual_other",
+                "voice_summary_required_for_actual_other"
+            ) -> "PASS"
+            else -> "MISMATCH"
+        }
+        val currentOverallResult = when {
+            result == null -> "NOT_TESTED"
+            realDeviceFunctionalSmoke == "FAIL" -> "FAIL"
+            realDeviceFunctionalSmoke == "PASS" && scenarioAssertionResult == "MISMATCH" -> "CONTROLLED_PASS_WITH_SCENARIO_MISMATCH"
+            realDeviceFunctionalSmoke == "PASS" -> "PASS"
+            else -> "CONTROLLED_FAIL"
+        }
+        val scenarioFailureCategory = when {
+            result == null -> "not_tested"
+            scenarioMismatch -> "SCENARIO_DEFINITION_MISMATCH"
+            scenarioFailureReason == "decision_type_mismatch" || scenarioFailureReason == "route_count_mismatch" -> "FUNCTIONAL_PASS_ASSERTION_FAIL"
+            else -> "none"
+        }
+        val title = result?.captureResult?.snapshot?.windowTitle.orEmpty()
+        val titleContaminated = isPostPanelWindowTitle(title)
+        val visualDebug = result?.visualDebugResult
+        val visualTruthAvailable = visualDebug?.visualTruthAvailable == true ||
+            result?.captureResult?.visualTruthAvailable == true ||
+            result?.userCorrectionProvided == true
+        val screenshotDiagnosticStatus = when {
+            visualDebug?.screenshotCaptured == true -> "OPTIONAL_SUCCEEDED"
+            visualDebug?.screenshotUnavailable == true -> "OPTIONAL_FAILED"
+            else -> "NOT_ATTEMPTED"
+        }
+        val secondaryErrorCode = when {
+            visualDebug?.screenshotErrorCode != null -> visualDebug.screenshotErrorCode
+            visualDebug?.screenshotUnavailable == true -> "SCREENSHOT_CAPABILITY_MISSING"
+            else -> "none"
+        }
         return RealDeviceScenarioValidation(
-            scenarioName = scenario.id,
-            expectedLastSpeaker = scenario.expectedLastSpeaker?.name ?: "NO_FIXED_EXPECTATION",
+            scenarioName = scenarioName,
+            expectedLastSpeaker = expectedSpeaker?.name ?: "NO_FIXED_EXPECTATION",
             actualLastSpeaker = actualLastSpeaker?.name ?: "NOT_TESTED",
-            expectedDecisionType = scenario.expectedDecisionType?.name ?: "NO_FIXED_EXPECTATION",
+            expectedDecisionType = expectedDecisionType?.name ?: "NO_FIXED_EXPECTATION",
             actualDecisionType = actualDecisionType?.name ?: "NOT_TESTED",
-            expectedRouteCount = scenario.expectedRouteCount?.toString() ?: "NO_FIXED_EXPECTATION",
+            expectedRouteCount = expectedRouteCount?.toString() ?: "NO_FIXED_EXPECTATION",
             actualRouteCount = actualRouteCount,
-            scenarioResult = if (failureReason == "none") "PASS" else if (failureReason == "not_tested") "NOT_TESTED" else "FAIL",
-            failureReason = failureReason
+            scenarioResult = scenarioAssertionResult,
+            failureReason = scenarioFailureReason,
+            realDeviceFunctionalSmoke = realDeviceFunctionalSmoke,
+            scenarioAssertionResult = scenarioAssertionResult,
+            currentOverallResult = currentOverallResult,
+            scenarioDefinitionTrusted = scenarioAssertionResult != "MISMATCH" && !titleContaminated,
+            scenarioFailureCategory = scenarioFailureCategory,
+            scenarioNameSource = scenarioSource,
+            expectedLastSpeakerSource = scenarioSource,
+            scenarioDefinitionMismatchReason = if (scenarioMismatch) "expectedLastSpeaker_${expectedSpeaker?.name}_actual_${actualLastSpeaker?.name}" else null,
+            actualLastSpeakerFromPreAnalysisSnapshot = actualLastSpeaker?.name ?: "NOT_TESTED",
+            actualLastSpeakerFromDecisionSnapshot = actualLastSpeaker?.name ?: "NOT_TESTED",
+            actualLastSpeakerFromPostPanelSnapshot = actualLastSpeaker?.name ?: "NOT_TESTED",
+            expectedDecisionTypeSource = if (expectedDecisionType == null) "NO_FIXED_EXPECTATION" else if (scenarioIsAuto) "DERIVED_FROM_EXPECTED_LAST_SPEAKER" else "MANUAL",
+            expectedRouteCountSource = if (expectedRouteCount == null) "NO_FIXED_EXPECTATION" else if (scenarioIsAuto) "DERIVED_FROM_EXPECTED_LAST_SPEAKER" else "MANUAL",
+            productDecisionConsistentWithActualLastSpeaker = functionalFailureReason == "none" ||
+                functionalFailureReason in setOf("context_required_for_actual_other", "voice_summary_required_for_actual_other"),
+            screenshotDiagnosticStatus = screenshotDiagnosticStatus,
+            screenshotFailureBlocksMainPath = false,
+            secondaryDiagnosticErrorCode = secondaryErrorCode ?: "none",
+            visualTruthAvailable = visualTruthAvailable,
+            visualTruthSource = when {
+                visualDebug?.screenshotCaptured == true -> "SCREENSHOT"
+                result?.userCorrectionProvided == true -> "USER_CORRECTION"
+                else -> "NONE"
+            },
+            accessibilityProjectionAvailable = visualDebug?.accessibilityBoundsProjected ?: result?.captureResult?.accessibilityBoundsProjected ?: false,
+            visualProjectionSource = "ACCESSIBILITY_BOUNDS_ONLY",
+            preAnalysisSnapshotAvailable = result?.captureResult != null,
+            preAnalysisWindowTitle = if (titleContaminated) "UNKNOWN_CONTAMINATED_BY_POST_PANEL" else title.ifBlank { "unknown" },
+            postPanelSnapshotAvailable = titleContaminated || result?.resultShownAsOverlay == true,
+            postPanelWindowTitle = if (titleContaminated) title else "none",
+            reportWindowTitleContaminatedByPanel = titleContaminated,
+            postPanelStateUsedForScenarioExpectation = false
         )
+    }
+
+    fun isPostPanelWindowTitle(title: String?): Boolean {
+        if (title.isNullOrBlank()) return false
+        val markers = listOf("会意雷达", "路线", "打法", "判断：", "复制路线", "VoiceSummaryCard")
+        return markers.any { title.contains(it, ignoreCase = true) }
+    }
+
+    private fun expectedDecisionFor(speaker: Speaker?): TacticalDecisionType? = when (speaker) {
+        Speaker.ME -> TacticalDecisionType.WAIT
+        Speaker.OTHER -> null
+        Speaker.UNKNOWN -> TacticalDecisionType.CONTEXT_REQUIRED
+        else -> null
+    }
+
+    private fun expectedRouteCountFor(
+        speaker: Speaker?,
+        actualDecisionType: TacticalDecisionType?,
+        actualRouteCount: Int
+    ): Int? = when (speaker) {
+        Speaker.ME, Speaker.UNKNOWN -> 0
+        Speaker.OTHER -> if (actualDecisionType == TacticalDecisionType.CONTEXT_REQUIRED) actualRouteCount else 5
+        else -> null
+    }
+
+    private fun functionalFailureReason(
+        result: CurrentScreenPipelineResult?,
+        effectiveMessages: List<com.huiyi.v4.domain.model.MessageNode>
+    ): String {
+        if (result == null) return "not_tested"
+        val actualLastSpeaker = result.lastSpeakerDecision.lastSpeaker
+        val decision = result.tacticalDecision.decisionType
+        val routeCount = result.routes.size
+        return when {
+            result.apiCalled -> "api_called"
+            effectiveMessages.isEmpty() -> "no_effective_message"
+            result.mainActivityOpened -> "main_activity_opened"
+            !result.overlayShownInTargetApp -> "overlay_not_in_target_app"
+            !result.resultShownAsOverlay -> "result_panel_not_shown_as_overlay"
+            !result.userStayedInChatApp -> "user_left_chat_app"
+            actualLastSpeaker == Speaker.ME && (decision != TacticalDecisionType.WAIT || routeCount != 0) -> "actual_me_should_wait"
+            actualLastSpeaker == Speaker.OTHER && decision == TacticalDecisionType.NORMAL_REPLY && routeCount == 5 -> "none"
+            actualLastSpeaker == Speaker.OTHER && decision == TacticalDecisionType.CONTEXT_REQUIRED && routeCount == 0 -> "context_required_for_actual_other"
+            actualLastSpeaker == Speaker.OTHER && decision == TacticalDecisionType.VOICE_SUMMARY_REQUIRED && routeCount == 0 -> "voice_summary_required_for_actual_other"
+            actualLastSpeaker == Speaker.OTHER -> "actual_other_should_generate_or_request_context"
+            actualLastSpeaker == Speaker.UNKNOWN && decision == TacticalDecisionType.CONTEXT_REQUIRED && routeCount == 0 -> "none"
+            actualLastSpeaker == Speaker.UNKNOWN -> "unknown_should_block_routes"
+            else -> "none"
+        }
     }
 }

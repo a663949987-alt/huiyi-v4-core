@@ -1,22 +1,120 @@
 # Huiyi v4 Review For GPT
 
+## v4.1.10 Current Round Summary
+
+- project: Huiyi v4 Core
+- versionName: 4.1.10
+- versionCode: 426
+- branch: main
+- commitHash: fc61499
+- generatedAt: 2026-07-03 14:02:36 +0800
+- taskName: real_device_scenario_truth_and_post_panel_contamination_fix
+- currentVersion: 4.1.10
+- currentTaskName: real_device_scenario_truth_and_post_panel_contamination_fix
+- currentGeneratedAt: 2026-07-03 14:02:36 +0800
+- review_freshness_result: PASS
+- mockchat_result: PASS
+- real_device_smoke_result: NOT_TESTED
+- realDeviceFunctionalSmoke: NOT_TESTED
+- scenarioAssertionResult: NOT_TESTED
+- currentOverallResult: NOT_TESTED
+- overall_result: NOT_TESTED
+- failReason: 本轮 Review Freshness 通过，但 Real Device Smoke 未执行，不代表真实聊天 App 已通过。
+
+currentUserFeedback:
+  - v4.1.9a 真机已能在目标 App 内显示会意路线面板
+  - 当前 FAIL 来自 scenarioName=last_me 与真实最后有效消息 OTHER 冲突
+  - screenshot unavailable 仍存在，但不再阻断主链路
+
+currentRegressionStatus:
+  overlayBubbleSurvivesAfterNextSentence: unknown_without_new_phone_export
+  resultShownAsOverlayInTargetApp: true
+  mainActivityOpened: false
+  screenshotFailureBlocksMainPath: false
+  preAnalysisSnapshotAvailable: false
+  postPanelContaminationDetected: false
+  scenarioDefinitionTrusted: false
+  scenarioDefinitionMismatch: false
+  productDecisionConsistentWithActualLastSpeaker: NOT_TESTED
+  genericAnalysisFailedStillShown: unknown_without_new_phone_export
+
+## Current Real Device Functional Smoke
+
+- realDeviceFunctionalSmoke: NOT_TESTED
+- overlayShownInTargetApp: true
+- foregroundPackageWhenPanelShown: NOT_TESTED
+- userStayedInChatApp: NOT_TESTED
+- resultShownAsOverlay: true
+- mainActivityOpened: false
+- effectiveMessageCount: NOT_TESTED
+- actualLastSpeaker: NOT_TESTED
+- decisionType: NOT_TESTED
+- routeCount: 0
+- apiCalled: false
+- modelCalled: false
+- screenshotDiagnosticStatus: NOT_ATTEMPTED
+- screenshotFailureBlocksMainPath: false
+
+## Scenario Assertion Diagnosis
+
+- scenarioName: auto_from_screen
+- scenarioNameSource: AUTO_FROM_PRE_ANALYSIS_SNAPSHOT
+- expectedLastSpeaker: NO_FIXED_EXPECTATION
+- expectedLastSpeakerSource: AUTO_FROM_PRE_ANALYSIS_SNAPSHOT
+- actualLastSpeakerFromPreAnalysisSnapshot: NOT_TESTED
+- actualLastSpeakerFromDecisionSnapshot: NOT_TESTED
+- expectedDecisionType: NO_FIXED_EXPECTATION
+- actualDecisionType: NOT_TESTED
+- expectedRouteCount: NO_FIXED_EXPECTATION
+- actualRouteCount: 0
+- scenarioDefinitionTrusted: false
+- scenarioAssertionResult: NOT_TESTED
+- scenarioFailureCategory: not_tested
+- scenarioDefinitionMismatchReason: none
+
+## Snapshot Phase Separation
+
+- preAnalysisSnapshotAvailable: false
+- preAnalysisWindowTitle: NOT_TESTED
+- preAnalysisResultPanelVisible: false
+- decisionSnapshotAvailable: false
+- postPanelSnapshotAvailable: false
+- postPanelWindowTitle: none
+- reportWindowTitleContaminatedByPanel: false
+- postPanelStateUsedForScenarioExpectation: false
+
+## Visual Truth / Projection
+
+- screenshotCaptured: false
+- screenshotUnavailable: NOT_TESTED
+- screenshotReason: no physical Android device is attached to this Codex environment.
+- visualTruthAvailable: false
+- visualTruthSource: NONE
+- accessibilityProjectionAvailable: false
+- overlayDebugImageAvailable: none
+- failureCategory: scenario_definition_mismatch
+
+---
+
+# Huiyi v4 Review For GPT
+
 ## 1. 基本信息
 
 - project: Huiyi v4 Core
-- versionName: 4.1.9b
-- versionCode: 425
+- versionName: 4.1.10
+- versionCode: 426
 - branch: main
-- commitHash: 07f0ceb
-- generatedAt: 2026-07-03 13:46:35 +0800
-- taskName: access_password_and_public_github
+- commitHash: fc61499
+- generatedAt: 2026-07-03 14:02:36 +0800
+- taskName: real_device_scenario_truth_and_post_panel_contamination_fix
 - review_freshness_result: PASS
 - mockchat_result: PASS
 - real_device_smoke_result: NOT_TESTED
 - overall_result: NOT_TESTED
 - failReason: 本轮 Review Freshness 通过，但 Real Device Smoke 未执行，不代表真实聊天 App 已通过。
-- currentVersion: 4.1.9b
-- currentTaskName: access_password_and_public_github
-- currentGeneratedAt: 2026-07-03 13:46:35 +0800
+- currentVersion: 4.1.10
+- currentTaskName: real_device_scenario_truth_and_post_panel_contamination_fix
+- currentGeneratedAt: 2026-07-03 14:02:36 +0800
 - currentOverallResult: NOT_TESTED
 
 currentUserFeedback:
@@ -37,10 +135,10 @@ currentRegressionStatus:
 
 ## Current Round Evidence
 
-- currentTaskName: access_password_and_public_github
-- currentVersion: 4.1.9b
-- currentGeneratedAt: 2026-07-03 13:46:35 +0800
-- currentReports: outputs/v4.1.9b-access-password-report-for-gpt.md
+- currentTaskName: real_device_scenario_truth_and_post_panel_contamination_fix
+- currentVersion: 4.1.10
+- currentGeneratedAt: 2026-07-03 14:02:36 +0800
+- currentReports: outputs/real-device-current-screen-report-for-gpt.md, outputs/real-device-current-screen-report.json, outputs/real-device-smoke-report-for-gpt.md, outputs/v4.1.10-real-device-scenario-truth-report-for-gpt.md
 - currentSampleSources: not_tested
 - currentOverallResult: NOT_TESTED
 - review_freshness_result: PASS
@@ -50,10 +148,38 @@ currentRegressionStatus:
 - mockChatMatrixStillPass: true
 - smokeDisclaimer: 本轮 Review Freshness 通过，但 Real Device Smoke 未执行，不代表真实聊天 App 已通过。
 
-### v4.1.9b-access-password-report-for-gpt.md
+### real-device-current-screen-report-for-gpt.md
 
 - overall_result: NOT_TESTED
-- versionName: 4.1.9b
+- sample_source: NOT_TESTED
+- appPackage: NOT_TESTED
+- versionName: 4.1.10
+- metadataFilteredCount: NOT_TESTED
+- resultShownAsOverlay: NOT_TESTED
+- overlayShownInTargetApp: NOT_TESTED
+- mainActivityOpened: NOT_TESTED
+### real-device-current-screen-report.json
+
+- overall_result: NOT_TESTED
+- sample_source: NOT_TESTED
+- appPackage: NOT_TESTED
+- versionName: 4.1.10
+- resultShownAsOverlay: NOT_TESTED
+- overlayShownInTargetApp: NOT_TESTED
+- mainActivityOpened: NOT_TESTED
+### real-device-smoke-report-for-gpt.md
+
+- overall_result: NOT_TESTED
+- sample_source: NOT_TESTED
+- appPackage: NOT_TESTED
+- versionName: 4.1.10
+### v4.1.10-real-device-scenario-truth-report-for-gpt.md
+
+- overall_result: NOT_TESTED
+- versionName: 4.1.10
+- resultShownAsOverlay: true
+- overlayShownInTargetApp: true
+- mainActivityOpened: false
 
 ## Current Next Sentence Failure Diagnosis
 
@@ -156,14 +282,6 @@ These reports are historical references only. Their FAIL or `sample_source=unkno
 
 - sample_source: emulator_mock_chat_accessibility
 - appPackage: com.huiyi.mockchat
-### real-device-current-screen-report-for-gpt.md
-
-- overall_result: NOT_TESTED
-- sample_source: NOT_TESTED
-- appPackage: NOT_TESTED
-- versionName: 4.1.8
-- overlayShownInTargetApp: NOT_TESTED
-- mainActivityOpened: NOT_TESTED
 ### v4-core-implementation-report-for-gpt.md
 
 # 会意 v4 Core 实现报告
@@ -220,12 +338,15 @@ These reports are historical references only. Their FAIL or `sample_source=unkno
 
 ```
 outputs/review/archive/
-outputs/v4.1.9b-access-password-report-for-gpt.md
+outputs/v4.1.10-real-device-scenario-truth-report-for-gpt.md
 ```
 
 ### 修改文件
 
 ```
+outputs/real-device-current-screen-report-for-gpt.md
+outputs/real-device-current-screen-report.json
+outputs/real-device-smoke-report-for-gpt.md
 outputs/review/huiyi-v4-review-bundle-for-gpt.zip
 outputs/review/huiyi-v4-review-for-gpt.md
 outputs/review/manifest.json
@@ -289,9 +410,36 @@ See Current Round Evidence and Historical / Trace Reports above.
 
 ## 8. 产物清单
 
-- path: outputs/v4.1.9b-access-password-report-for-gpt.md
+- path: outputs/real-device-current-screen-report-for-gpt.md
   type: report
-  sha256: 834a1d9536a74da73de2efd297b846d11b168c0f77210d9d0f24e86967cc308a
+  sha256: a69a41a5447f4e54409244fe77b8a2b51caa45ae68c97058a505c49c6711cbf7
+  是否建议发给 GPT: false
+  用途: Current round evidence.
+  isCurrentRound: true
+  evidenceRole: current
+  sample_source: NOT_TESTED
+  stale: false
+- path: outputs/real-device-current-screen-report.json
+  type: json
+  sha256: 3aa6e3206d498034fa5d87fc9aa1c2445eacfeb4e8968f31bd2d77ebfddb8ab5
+  是否建议发给 GPT: false
+  用途: Current round evidence.
+  isCurrentRound: true
+  evidenceRole: current
+  sample_source: NOT_TESTED
+  stale: false
+- path: outputs/real-device-smoke-report-for-gpt.md
+  type: report
+  sha256: 6269270af503f6acac379e43831328063826fb0ee8715d1ddf5a88abd7076d3e
+  是否建议发给 GPT: false
+  用途: Current round evidence.
+  isCurrentRound: true
+  evidenceRole: current
+  sample_source: NOT_TESTED
+  stale: false
+- path: outputs/v4.1.10-real-device-scenario-truth-report-for-gpt.md
+  type: report
+  sha256: a51b97b78fc59a835972edcedaf4026ec4dacdb5fb40a200ccd4a4cbeda89c77
   是否建议发给 GPT: false
   用途: Current round evidence.
   isCurrentRound: true
@@ -309,7 +457,7 @@ See Current Round Evidence and Historical / Trace Reports above.
   stale: true
 - path: outputs/mockchat-current-screen-report-for-gpt.md
   type: report
-  sha256: b13cf4334d595c04ffb5b47988160e8dccba37f2618eb29cf1acdb6624a12d01
+  sha256: 2e3f252b763bdd9c1dc0700c35266ea8542049a8a6ecce267eea4edda89d4400
   是否建议发给 GPT: false
   用途: Historical / trace evidence.
   isCurrentRound: false
@@ -342,15 +490,6 @@ See Current Round Evidence and Historical / Trace Reports above.
   isCurrentRound: false
   evidenceRole: historical
   sample_source: emulator_mock_chat_accessibility
-  stale: true
-- path: outputs/real-device-current-screen-report-for-gpt.md
-  type: report
-  sha256: d34cc92d0b24d47cd34dfa7c50eeed7a0669efd37b816f2966afe9f2ee496dc8
-  是否建议发给 GPT: false
-  用途: Historical / trace evidence.
-  isCurrentRound: false
-  evidenceRole: historical
-  sample_source: NOT_TESTED
   stale: true
 - path: outputs/v4-core-implementation-report-for-gpt.md
   type: report
