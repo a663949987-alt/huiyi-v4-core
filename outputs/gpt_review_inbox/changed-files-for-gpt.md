@@ -1,35 +1,43 @@
 # Changed Files For GPT
 
 ## Files changed this round
+
+- path: app/src/main/java/com/huiyi/v4/domain/pipeline/CurrentScreenPipelineUseCase.kt
+  - reason: Hard-gate LAST ME to local WAIT before context completeness, uncertainty guards, routes, or cloud analysis.
+  - risk: Medium; this is the main decision priority path.
+- path: app/src/main/java/com/huiyi/v4/runtime/HuiyiRuntime.kt
+  - reason: Normalize rendered terminal states to `WAIT_PANEL`, `CONTEXT_REQUIRED_PANEL`, and `ROUTE_PANEL`.
+  - risk: Low; report/runtime wording alignment.
 - path: app/src/main/java/com/huiyi/v4/domain/pipeline/RealDeviceScenario.kt
-  - reason: Split real-device functional smoke, scenario assertion, and current overall result.
-  - risk: Medium; acceptance verdict logic changed.
+  - reason: Add pre-analysis title trust/source fields and explicit Huiyi overlay title contamination markers.
+  - risk: Low; validation/report metadata.
 - path: app/src/main/java/com/huiyi/v4/domain/pipeline/EvidencePackReportGenerator.kt
-  - reason: Add expected-vs-actual fields, snapshot phase separation, screenshot diagnostic status, and panel contamination fields.
+  - reason: Export `preAnalysisSnapshotTrusted` and `preAnalysisWindowTitleSource` in real-device md/json.
   - risk: Low; report output only.
 - path: app/src/main/java/com/huiyi/v4/domain/pipeline/RealDeviceReviewBundleGenerator.kt
-  - reason: Review bundle now reports controlled scenario mismatch instead of product failure.
-  - risk: Low; export/report output only.
-- path: app/src/main/java/com/huiyi/v4/runtime/HuiyiRuntime.kt
-  - reason: Default real-device scenario now derives from the current screen instead of legacy last_me.
-  - risk: Medium; developer export default changed.
+  - reason: Include the new snapshot trust/source fields in review summaries.
+  - risk: Low; report output only.
+- path: app/src/test/java/com/huiyi/v4/CloudAnalysisMvpSafetyGateTest.kt
+  - reason: Add regression coverage for visual LAST ME being overridden by context ordering.
+  - risk: Low; tests only.
 - path: app/build.gradle.kts
-  - reason: Bump app version for LAN update detection.
+  - reason: Bump to 4.1.20 / 438 for LAN update detection.
   - risk: Low.
-- path: scripts/generate_review_bundle.py and scripts/generate_gpt_review_inbox.py
-  - reason: Include v4.1.10 result layers and fixed GPT inbox files.
-  - risk: Low; packaging only.
 
 ## Important logic changes
-1. `scenarioName=last_me` no longer overrides actual current-screen evidence.
-2. `LastSpeakerDecision=OTHER` with `NORMAL_REPLY + 5 routes` is a functional PASS when the screen evidence supports OTHER.
-3. Scenario mismatch is now reported as `CONTROLLED_PASS_WITH_SCENARIO_MISMATCH`.
-4. Post-panel overlay title is flagged and cannot define scenario expectations.
 
-## Tests added / updated
-- `testDebugUnitTest`: PASS
-- `assembleDebug`: PASS
+1. If `LastSpeakerDecision=ME`, product decision must be `WAIT`.
+2. LAST ME returns zero routes, `apiCalled=false`, `modelCalled=false`, `cloudAttempted=false`.
+3. LAST ME cloud trace reports `cloudSkippedReason=LAST_SPEAKER_ME_WAIT` and `decisionSource=LOCAL_WAIT`.
+4. Huiyi overlay titles such as `下一句没有跑完`, `正在上传 GitHub`, and `当前信息不足` are marked as contaminated panel titles.
 
-## Known risk areas
-- This local run cannot prove the next physical-phone sample; user still needs one real-device export after installing v4.1.10.
-- If phone update cache still serves an older latest.json, restart the LAN update server or refresh the served folder.
+## Tests
+
+- targeted LAST ME/cloud/report tests: PASS
+- `:app:testDebugUnitTest`: PASS
+- `:app:assembleDebug`: PASS
+
+## Remaining validation
+
+- Real phone LAST ME smoke is still NOT_TESTED for v4.1.20.
+- User should install/update v4.1.20 through LAN update and run one LAST ME scenario in the real Liaoqi chat.

@@ -50,6 +50,27 @@ class CloudAnalysisMvpSafetyGateTest {
     }
 
     @Test
+    fun LastMeContextOrderingCannotOverrideWaitTest() = runTest {
+        val messages = listOf(
+            textNode("other-sequence-late", Speaker.OTHER, "need more context", 99),
+            textNode("me-visual-last", Speaker.ME, "I already replied", 1).copy(contentConfidence = 40)
+        )
+        val cloud = FakeCloudService()
+        val result = pipeline(messages, cloud).run(emptyPersona()).getOrThrow()
+
+        assertEquals(Speaker.ME, result.lastSpeakerDecision.lastSpeaker)
+        assertEquals(Speaker.OTHER, result.context?.lastMessage?.speaker)
+        assertEquals(TacticalDecisionType.WAIT, result.tacticalDecision.decisionType)
+        assertEquals("WAIT", result.tacticalDecision.decisionType.name)
+        assertTrue(result.routes.isEmpty())
+        assertFalse(result.apiCalled)
+        assertFalse(result.cloudTrace.cloudAttempted)
+        assertEquals("LAST_SPEAKER_ME_WAIT", result.cloudTrace.cloudSkippedReason)
+        assertEquals("LOCAL_WAIT", result.cloudTrace.decisionSource)
+        assertEquals(0, cloud.callCount)
+    }
+
+    @Test
     fun LastOtherCallsCloudWhenEnabledTest() = runTest {
         val cloud = FakeCloudService()
         val result = pipeline(lastOtherMessages(), cloud).run(emptyPersona()).getOrThrow()

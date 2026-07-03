@@ -87,6 +87,8 @@ class LastMeWaitPriorityAndStatusMetadataFixTest {
         val validation = RealDeviceScenarioValidator.validate(result, RealDeviceScenario.LAST_ME)
 
         assertTrue(validation.reportWindowTitleContaminatedByPanel)
+        assertEquals("PARTIAL", validation.preAnalysisSnapshotTrusted)
+        assertEquals("HUIYI_OVERLAY_CONTAMINATED", validation.preAnalysisWindowTitleSource)
     }
 
     @Test

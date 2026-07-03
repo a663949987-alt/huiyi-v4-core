@@ -59,6 +59,8 @@ data class RealDeviceScenarioValidation(
     val visualProjectionSource: String,
     val preAnalysisSnapshotAvailable: Boolean,
     val preAnalysisWindowTitle: String,
+    val preAnalysisSnapshotTrusted: String,
+    val preAnalysisWindowTitleSource: String,
     val postPanelSnapshotAvailable: Boolean,
     val postPanelWindowTitle: String,
     val reportWindowTitleContaminatedByPanel: Boolean,
@@ -184,6 +186,8 @@ object RealDeviceScenarioValidator {
             visualProjectionSource = "ACCESSIBILITY_BOUNDS_ONLY",
             preAnalysisSnapshotAvailable = result?.captureResult != null,
             preAnalysisWindowTitle = if (titleContaminated) "UNKNOWN_CONTAMINATED_BY_POST_PANEL" else title.ifBlank { "unknown" },
+            preAnalysisSnapshotTrusted = if (titleContaminated) "PARTIAL" else "true",
+            preAnalysisWindowTitleSource = if (titleContaminated) "HUIYI_OVERLAY_CONTAMINATED" else "TARGET_PRE_ANALYSIS",
             postPanelSnapshotAvailable = titleContaminated || result?.resultShownAsOverlay == true,
             postPanelWindowTitle = if (titleContaminated) title else "none",
             reportWindowTitleContaminatedByPanel = titleContaminated,
@@ -219,8 +223,23 @@ object RealDeviceScenarioValidator {
             "闅愯棌",
             "閲嶈瘯"
         )
-        return markers.any { title.contains(it, ignoreCase = true) }
+        return markers.any { title.contains(it, ignoreCase = true) } ||
+            explicitOverlayTitleMarkers().any { title.contains(it, ignoreCase = true) }
     }
+
+    private fun explicitOverlayTitleMarkers(): List<String> = listOf(
+        "会意雷达",
+        "下一句没有跑完",
+        "正在上传 GitHub",
+        "这次不对",
+        "发给 GPT",
+        "导出诊断",
+        "打开无障碍设置",
+        "隐藏悬浮球",
+        "重试",
+        "当前信息不足",
+        "说话人或内容不确定"
+    )
 
     private fun expectedDecisionFor(speaker: Speaker?): TacticalDecisionType? = when (speaker) {
         Speaker.ME -> TacticalDecisionType.WAIT

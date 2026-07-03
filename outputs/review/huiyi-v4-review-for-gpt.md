@@ -3,15 +3,15 @@
 ## v4.1.10 Current Round Summary
 
 - project: Huiyi v4 Core
-- versionName: 4.1.19
-- versionCode: 437
+- versionName: 4.1.20
+- versionCode: 438
 - branch: main
-- commitHash: b628f5a
-- generatedAt: 2026-07-03 17:07:02 +0800
-- taskName: cloud_analysis_mvp_with_local_safety_gate
-- currentVersion: 4.1.19
-- currentTaskName: cloud_analysis_mvp_with_local_safety_gate
-- currentGeneratedAt: 2026-07-03 17:07:02 +0800
+- commitHash: 04b6315
+- generatedAt: 2026-07-03 17:31:57 +0800
+- taskName: last_me_context_required_decision_priority_fix
+- currentVersion: 4.1.20
+- currentTaskName: last_me_context_required_decision_priority_fix
+- currentGeneratedAt: 2026-07-03 17:31:57 +0800
 - review_freshness_result: PASS
 - mockchat_result: PASS
 - real_device_smoke_result: NOT_TESTED
@@ -54,9 +54,9 @@ currentRegressionStatus:
 - resultShownAsOverlay: NOT_TESTED
 - mainActivityOpened: NOT_TESTED
 - effectiveMessageCount: NOT_TESTED
-- actualLastSpeaker: ME
-- decisionType: WAIT
-- routeCount: 0
+- actualLastSpeaker: NOT_TESTED
+- decisionType: NOT_TESTED
+- routeCount: NOT_TESTED
 - apiCalled: false
 - modelCalled: false
 - screenshotDiagnosticStatus: NOT_TESTED
@@ -66,7 +66,7 @@ currentRegressionStatus:
 
 - testIntent: USER_ASSERTED_LAST_ME
 - userAssertedLastSpeaker: ME
-- actualLastSpeaker: ME
+- actualLastSpeaker: NOT_TESTED
 - chosenCaptureSource: NONE
 - fallbackSnapshotAgeMs: null
 - currentRootLastSpeaker: NOT_CAPTURED
@@ -74,7 +74,7 @@ currentRegressionStatus:
 - postSendSettleAttempted: false
 - lastSpeakerBeforeSettle: NOT_TESTED
 - lastSpeakerAfterSettle: NOT_TESTED
-- decisionType: WAIT
+- decisionType: NOT_TESTED
 - routeCount: 0
 - waitPanelShown: false
 - routePanelShown: false
@@ -85,8 +85,8 @@ currentRegressionStatus:
 
 ## Last OTHER Regression
 
-- actualLastSpeaker: ME
-- decisionType: WAIT
+- actualLastSpeaker: NOT_TESTED
+- decisionType: NOT_TESTED
 - routeCount: 0
 - waitPanelShown: false
 - routePanelShown: false
@@ -97,13 +97,13 @@ currentRegressionStatus:
 
 - scenarioName: NOT_TESTED
 - scenarioNameSource: NOT_TESTED
-- expectedLastSpeaker: NOT_TESTED
+- expectedLastSpeaker: ME
 - expectedLastSpeakerSource: NOT_TESTED
 - actualLastSpeakerFromPreAnalysisSnapshot: NOT_TESTED
 - actualLastSpeakerFromDecisionSnapshot: NOT_TESTED
-- expectedDecisionType: NOT_TESTED
+- expectedDecisionType: WAIT
 - actualDecisionType: NOT_TESTED
-- expectedRouteCount: NOT_TESTED
+- expectedRouteCount: 0
 - actualRouteCount: NOT_TESTED
 - scenarioDefinitionTrusted: false
 - scenarioAssertionResult: NOT_TESTED
@@ -139,20 +139,20 @@ currentRegressionStatus:
 ## 1. 基本信息
 
 - project: Huiyi v4 Core
-- versionName: 4.1.19
-- versionCode: 437
+- versionName: 4.1.20
+- versionCode: 438
 - branch: main
-- commitHash: b628f5a
-- generatedAt: 2026-07-03 17:07:02 +0800
-- taskName: cloud_analysis_mvp_with_local_safety_gate
+- commitHash: 04b6315
+- generatedAt: 2026-07-03 17:31:57 +0800
+- taskName: last_me_context_required_decision_priority_fix
 - review_freshness_result: PASS
 - mockchat_result: PASS
 - real_device_smoke_result: NOT_TESTED
 - overall_result: NOT_TESTED
 - failReason: 本轮 Review Freshness 通过，但 Real Device Smoke 未执行，不代表真实聊天 App 已通过。
-- currentVersion: 4.1.19
-- currentTaskName: cloud_analysis_mvp_with_local_safety_gate
-- currentGeneratedAt: 2026-07-03 17:07:02 +0800
+- currentVersion: 4.1.20
+- currentTaskName: last_me_context_required_decision_priority_fix
+- currentGeneratedAt: 2026-07-03 17:31:57 +0800
 - currentOverallResult: NOT_TESTED
 
 currentUserFeedback:
@@ -173,10 +173,10 @@ currentRegressionStatus:
 
 ## Current Round Evidence
 
-- currentTaskName: cloud_analysis_mvp_with_local_safety_gate
-- currentVersion: 4.1.19
-- currentGeneratedAt: 2026-07-03 17:07:02 +0800
-- currentReports: outputs/cloud-analysis-mvp-local-safety-gate-report-for-gpt.md
+- currentTaskName: last_me_context_required_decision_priority_fix
+- currentVersion: 4.1.20
+- currentGeneratedAt: 2026-07-03 17:31:57 +0800
+- currentReports: outputs/last-me-context-required-decision-priority-fix-report-for-gpt.md
 - currentSampleSources: not_tested
 - currentOverallResult: NOT_TESTED
 - review_freshness_result: PASS
@@ -186,12 +186,12 @@ currentRegressionStatus:
 - mockChatMatrixStillPass: true
 - smokeDisclaimer: 本轮 Review Freshness 通过，但 Real Device Smoke 未执行，不代表真实聊天 App 已通过。
 
-### cloud-analysis-mvp-local-safety-gate-report-for-gpt.md
+### last-me-context-required-decision-priority-fix-report-for-gpt.md
 
-- overall_result: CONTROLLED_LOCAL_PASS
-- versionName: 4.1.19
-- decisionType: WAIT
-- routeCount: 0
+- overall_result: NOT_TESTED
+- sample_source: not_tested
+- appPackage: NOT_TESTED
+- versionName: 4.1.20
 
 ## Current Next Sentence Failure Diagnosis
 
@@ -359,7 +359,7 @@ These reports are historical references only. Their FAIL or `sample_source=unkno
 ### 新增文件
 
 ```
-outputs/cloud-analysis-mvp-local-safety-gate-report-for-gpt.md
+outputs/last-me-context-required-decision-priority-fix-report-for-gpt.md
 outputs/review/archive/
 ```
 
@@ -428,14 +428,14 @@ See Current Round Evidence and Historical / Trace Reports above.
 
 ## 8. 产物清单
 
-- path: outputs/cloud-analysis-mvp-local-safety-gate-report-for-gpt.md
+- path: outputs/last-me-context-required-decision-priority-fix-report-for-gpt.md
   type: report
-  sha256: 5b2b23cd34b193997616e532ebfeb8d1bc70decfabf5a256ca81f2e8409bf426
+  sha256: 8804db59c0fb845dfeafb744f46f19af9c9f5ce487257da48ce64a58916da9d1
   是否建议发给 GPT: false
   用途: Current round evidence.
   isCurrentRound: true
   evidenceRole: current
-  sample_source: none
+  sample_source: not_tested
   stale: false
 - path: outputs/current-screen-parser-report-for-gpt.md
   type: report
@@ -448,7 +448,7 @@ See Current Round Evidence and Historical / Trace Reports above.
   stale: true
 - path: outputs/mockchat-current-screen-report-for-gpt.md
   type: report
-  sha256: 681d5f6dbac3e1c2e7d0046cd7f9f59ca35c7c3e8d4500cdba922c84903953d2
+  sha256: 50aab13d32255461c405e0ec0f54cebc093b63ba5b7be9d5da829cbb159d7f11
   是否建议发给 GPT: false
   用途: Historical / trace evidence.
   isCurrentRound: false

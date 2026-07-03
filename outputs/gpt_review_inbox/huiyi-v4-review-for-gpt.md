@@ -3,15 +3,15 @@
 ## v4.1.10 Current Round Summary
 
 - project: Huiyi v4 Core
-- versionName: 4.1.19
-- versionCode: 437
+- versionName: 4.1.20
+- versionCode: 438
 - branch: main
-- commitHash: b628f5a
-- generatedAt: 2026-07-03 17:07:02 +0800
-- taskName: cloud_analysis_mvp_with_local_safety_gate
-- currentVersion: 4.1.19
-- currentTaskName: cloud_analysis_mvp_with_local_safety_gate
-- currentGeneratedAt: 2026-07-03 17:07:02 +0800
+- commitHash: 04b6315
+- generatedAt: 2026-07-03 17:31:16 +0800
+- taskName: last_me_context_required_decision_priority_fix
+- currentVersion: 4.1.20
+- currentTaskName: last_me_context_required_decision_priority_fix
+- currentGeneratedAt: 2026-07-03 17:31:16 +0800
 - review_freshness_result: PASS
 - mockchat_result: PASS
 - real_device_smoke_result: NOT_TESTED
@@ -55,7 +55,7 @@ currentRegressionStatus:
 - mainActivityOpened: NOT_TESTED
 - effectiveMessageCount: NOT_TESTED
 - actualLastSpeaker: ME
-- decisionType: WAIT
+- decisionType: CONTEXT_REQUIRED
 - routeCount: 0
 - apiCalled: false
 - modelCalled: false
@@ -74,7 +74,7 @@ currentRegressionStatus:
 - postSendSettleAttempted: false
 - lastSpeakerBeforeSettle: NOT_TESTED
 - lastSpeakerAfterSettle: NOT_TESTED
-- decisionType: WAIT
+- decisionType: CONTEXT_REQUIRED
 - routeCount: 0
 - waitPanelShown: false
 - routePanelShown: false
@@ -86,7 +86,7 @@ currentRegressionStatus:
 ## Last OTHER Regression
 
 - actualLastSpeaker: ME
-- decisionType: WAIT
+- decisionType: CONTEXT_REQUIRED
 - routeCount: 0
 - waitPanelShown: false
 - routePanelShown: false
@@ -97,13 +97,13 @@ currentRegressionStatus:
 
 - scenarioName: NOT_TESTED
 - scenarioNameSource: NOT_TESTED
-- expectedLastSpeaker: NOT_TESTED
+- expectedLastSpeaker: ME
 - expectedLastSpeakerSource: NOT_TESTED
 - actualLastSpeakerFromPreAnalysisSnapshot: NOT_TESTED
 - actualLastSpeakerFromDecisionSnapshot: NOT_TESTED
-- expectedDecisionType: NOT_TESTED
+- expectedDecisionType: WAIT
 - actualDecisionType: NOT_TESTED
-- expectedRouteCount: NOT_TESTED
+- expectedRouteCount: 0
 - actualRouteCount: NOT_TESTED
 - scenarioDefinitionTrusted: false
 - scenarioAssertionResult: NOT_TESTED
@@ -139,20 +139,20 @@ currentRegressionStatus:
 ## 1. 基本信息
 
 - project: Huiyi v4 Core
-- versionName: 4.1.19
-- versionCode: 437
+- versionName: 4.1.20
+- versionCode: 438
 - branch: main
-- commitHash: b628f5a
-- generatedAt: 2026-07-03 17:07:02 +0800
-- taskName: cloud_analysis_mvp_with_local_safety_gate
+- commitHash: 04b6315
+- generatedAt: 2026-07-03 17:31:16 +0800
+- taskName: last_me_context_required_decision_priority_fix
 - review_freshness_result: PASS
 - mockchat_result: PASS
 - real_device_smoke_result: NOT_TESTED
 - overall_result: NOT_TESTED
 - failReason: 本轮 Review Freshness 通过，但 Real Device Smoke 未执行，不代表真实聊天 App 已通过。
-- currentVersion: 4.1.19
-- currentTaskName: cloud_analysis_mvp_with_local_safety_gate
-- currentGeneratedAt: 2026-07-03 17:07:02 +0800
+- currentVersion: 4.1.20
+- currentTaskName: last_me_context_required_decision_priority_fix
+- currentGeneratedAt: 2026-07-03 17:31:16 +0800
 - currentOverallResult: NOT_TESTED
 
 currentUserFeedback:
@@ -173,10 +173,10 @@ currentRegressionStatus:
 
 ## Current Round Evidence
 
-- currentTaskName: cloud_analysis_mvp_with_local_safety_gate
-- currentVersion: 4.1.19
-- currentGeneratedAt: 2026-07-03 17:07:02 +0800
-- currentReports: outputs/cloud-analysis-mvp-local-safety-gate-report-for-gpt.md
+- currentTaskName: last_me_context_required_decision_priority_fix
+- currentVersion: 4.1.20
+- currentGeneratedAt: 2026-07-03 17:31:16 +0800
+- currentReports: outputs/cloud-analysis-mvp-local-safety-gate-report-for-gpt.md, outputs/last-me-context-required-decision-priority-fix-report-for-gpt.md
 - currentSampleSources: not_tested
 - currentOverallResult: NOT_TESTED
 - review_freshness_result: PASS
@@ -192,6 +192,13 @@ currentRegressionStatus:
 - versionName: 4.1.19
 - decisionType: WAIT
 - routeCount: 0
+### last-me-context-required-decision-priority-fix-report-for-gpt.md
+
+- overall_result: NOT_TESTED
+- sample_source: not_tested
+- appPackage: NOT_TESTED
+- versionName: 4.1.20
+- decisionType: CONTEXT_REQUIRED
 
 ## Current Next Sentence Failure Diagnosis
 
@@ -359,16 +366,14 @@ These reports are historical references only. Their FAIL or `sample_source=unkno
 ### 新增文件
 
 ```
-outputs/cloud-analysis-mvp-local-safety-gate-report-for-gpt.md
+outputs/last-me-context-required-decision-priority-fix-report-for-gpt.md
 outputs/review/archive/
 ```
 
 ### 修改文件
 
 ```
-outputs/review/huiyi-v4-review-bundle-for-gpt.zip
-outputs/review/huiyi-v4-review-for-gpt.md
-outputs/review/manifest.json
+
 ```
 
 ### 删除文件
@@ -437,6 +442,15 @@ See Current Round Evidence and Historical / Trace Reports above.
   evidenceRole: current
   sample_source: none
   stale: false
+- path: outputs/last-me-context-required-decision-priority-fix-report-for-gpt.md
+  type: report
+  sha256: 4180d1aa2ab4c0fc25ab398a58addc527778c0504de94770aa98f9d8049478d0
+  是否建议发给 GPT: false
+  用途: Current round evidence.
+  isCurrentRound: true
+  evidenceRole: current
+  sample_source: not_tested
+  stale: false
 - path: outputs/current-screen-parser-report-for-gpt.md
   type: report
   sha256: 85ef2422f3dfce6858f036e18c6ad2a2f3527a3c748d6c79a057af793e668a50
@@ -448,7 +462,7 @@ See Current Round Evidence and Historical / Trace Reports above.
   stale: true
 - path: outputs/mockchat-current-screen-report-for-gpt.md
   type: report
-  sha256: 681d5f6dbac3e1c2e7d0046cd7f9f59ca35c7c3e8d4500cdba922c84903953d2
+  sha256: 50aab13d32255461c405e0ec0f54cebc093b63ba5b7be9d5da829cbb159d7f11
   是否建议发给 GPT: false
   用途: Historical / trace evidence.
   isCurrentRound: false

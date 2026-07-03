@@ -91,7 +91,7 @@ class CurrentScreenPipelineUseCase(
                 it is MessageContent.Image || it is MessageContent.Sticker
             }
             val decision = when {
-                lastSpeaker.lastSpeaker == Speaker.ME -> decisionEngine.decide(context)
+                lastSpeaker.lastSpeaker == Speaker.ME -> lastMeWaitDecision()
                 unknownTooHigh -> unknownSpeakerDecision("UNKNOWN 说话人超过 30%，不允许高置信度生成。")
                 hasVisualConflict -> unknownSpeakerDecision("当前屏幕存在 Accessibility 与视觉投影冲突，需要先看 visual debug 图。")
                 hasUnknownChatNode -> unknownSpeakerDecision("当前屏幕存在边界不清的聊天气泡，不允许高置信度生成。")
@@ -146,7 +146,7 @@ class CurrentScreenPipelineUseCase(
         val service = cloudAnalysisService
         val config = service?.config ?: CloudAnalysisConfig(cloudEnabled = false)
         if (lastSpeaker.lastSpeaker == Speaker.ME) {
-            return CloudPipelineResult(localDecision, emptyList(), CloudAnalysisTrace.skipped(config, "LAST_SPEAKER_ME_WAIT", "LOCAL_WAIT"))
+            return CloudPipelineResult(lastMeWaitDecision(), emptyList(), CloudAnalysisTrace.skipped(config, "LAST_SPEAKER_ME_WAIT", "LOCAL_WAIT"))
         }
         if (lastSpeaker.lastSpeaker == Speaker.UNKNOWN || lastSpeaker.unknownSpeaker) {
             return CloudPipelineResult(localDecision, localRoutes, CloudAnalysisTrace.skipped(config, "LAST_SPEAKER_UNKNOWN", "LOCAL_FALLBACK"))
@@ -186,6 +186,25 @@ class CurrentScreenPipelineUseCase(
         val decision: TacticalDecision,
         val routes: List<ReplyRoute>,
         val trace: CloudAnalysisTrace
+    )
+
+    private fun lastMeWaitDecision(): TacticalDecision = TacticalDecision(
+        decisionType = TacticalDecisionType.WAIT,
+        situation = "最后一句是我。",
+        coreInsight = "LAST ME 已经成立，必须先等对方，不能进入上下文不足或云端分析。",
+        userLikelyMistake = "继续补话、解释或追问会稀释表达。",
+        bestMove = "你已经回过了，先等对方。",
+        avoidMoves = listOf("不要追问", "不要追加解释", "不要调用云端分析"),
+        coCreationOpportunity = null,
+        shouldUseUserStory = false,
+        selectedStoryCardIds = emptyList(),
+        influenceProfile = InfluenceProfile(
+            intensity = InfluenceIntensity.LOW,
+            riskLevel = RiskLevel.LOW,
+            riskWarning = null,
+            fallbackMove = "等对方回来再接。"
+        ),
+        fallbackMove = "如果很久没回，再发一条轻生活关心。"
     )
 
     private fun unknownSpeakerDecision(reason: String): TacticalDecision = TacticalDecision(

@@ -108,6 +108,8 @@ class EvidencePackReportGenerator {
             appendLine("- appPackage: ${capture?.snapshot?.appPackage ?: "unknown"}")
             appendLine("- windowTitle: ${capture?.snapshot?.windowTitle ?: "unknown"}")
             appendLine("- preAnalysisWindowTitle: ${scenarioValidation.preAnalysisWindowTitle}")
+            appendLine("- preAnalysisSnapshotTrusted: ${scenarioValidation.preAnalysisSnapshotTrusted}")
+            appendLine("- preAnalysisWindowTitleSource: ${scenarioValidation.preAnalysisWindowTitleSource}")
             appendLine("- postPanelWindowTitle: ${scenarioValidation.postPanelWindowTitle}")
             appendLine("- reportWindowTitleContaminatedByPanel: ${scenarioValidation.reportWindowTitleContaminatedByPanel}")
             appendLine("- postPanelStateUsedForScenarioExpectation: ${scenarioValidation.postPanelStateUsedForScenarioExpectation}")
@@ -186,6 +188,8 @@ class EvidencePackReportGenerator {
             appendLine()
             appendLine("- preAnalysisSnapshotAvailable: ${scenarioValidation.preAnalysisSnapshotAvailable}")
             appendLine("- preAnalysisWindowTitle: ${scenarioValidation.preAnalysisWindowTitle}")
+            appendLine("- preAnalysisSnapshotTrusted: ${scenarioValidation.preAnalysisSnapshotTrusted}")
+            appendLine("- preAnalysisWindowTitleSource: ${scenarioValidation.preAnalysisWindowTitleSource}")
             appendLine("- preAnalysisResultPanelVisible: false")
             appendLine("- decisionSnapshotAvailable: ${result.captureResult != null}")
             appendLine("- postPanelSnapshotAvailable: ${scenarioValidation.postPanelSnapshotAvailable}")
@@ -452,6 +456,8 @@ class EvidencePackReportGenerator {
               "appPackage": "${escape(capture?.snapshot?.appPackage ?: "unknown")}",
               "windowTitle": "${escape(capture?.snapshot?.windowTitle ?: "unknown")}",
               "preAnalysisWindowTitle": "${escape(scenarioValidation.preAnalysisWindowTitle)}",
+              "preAnalysisSnapshotTrusted": "${escape(scenarioValidation.preAnalysisSnapshotTrusted)}",
+              "preAnalysisWindowTitleSource": "${escape(scenarioValidation.preAnalysisWindowTitleSource)}",
               "postPanelWindowTitle": "${escape(scenarioValidation.postPanelWindowTitle)}",
               "reportWindowTitleContaminatedByPanel": ${scenarioValidation.reportWindowTitleContaminatedByPanel},
               "postPanelStateUsedForScenarioExpectation": ${scenarioValidation.postPanelStateUsedForScenarioExpectation},
@@ -497,6 +503,8 @@ class EvidencePackReportGenerator {
               "SnapshotPhaseSeparation": {
                 "preAnalysisSnapshotAvailable": ${scenarioValidation.preAnalysisSnapshotAvailable},
                 "preAnalysisWindowTitle": "${escape(scenarioValidation.preAnalysisWindowTitle)}",
+                "preAnalysisSnapshotTrusted": "${escape(scenarioValidation.preAnalysisSnapshotTrusted)}",
+                "preAnalysisWindowTitleSource": "${escape(scenarioValidation.preAnalysisWindowTitleSource)}",
                 "preAnalysisResultPanelVisible": false,
                 "decisionSnapshotAvailable": ${result.captureResult != null},
                 "postPanelSnapshotAvailable": ${scenarioValidation.postPanelSnapshotAvailable},

@@ -392,10 +392,10 @@ class HuiyiRuntime private constructor(
     }
 
     private fun terminalStateFor(type: TacticalDecisionType): String = when (type) {
-        TacticalDecisionType.WAIT -> "PANEL_RENDERED_WAIT"
+        TacticalDecisionType.WAIT -> "WAIT_PANEL"
         TacticalDecisionType.CONTEXT_REQUIRED,
-        TacticalDecisionType.VOICE_SUMMARY_REQUIRED -> "PANEL_RENDERED_CONTEXT_REQUIRED"
-        else -> "PANEL_RENDERED_ROUTE"
+        TacticalDecisionType.VOICE_SUMMARY_REQUIRED -> "CONTEXT_REQUIRED_PANEL"
+        else -> "ROUTE_PANEL"
     }
 
     private fun decisionTypeFamily(type: TacticalDecisionType): String = when (type) {

@@ -1,9 +1,9 @@
 {
-    "versionName":  "4.1.19",
-    "versionCode":  437,
-    "apkUrl":  "huiyi-v4.1.19-debug.apk",
-    "releaseNotes":  "v4.1.19 cloud analysis MVP with local LAST ME safety gate",
+    "versionName":  "4.1.20",
+    "versionCode":  438,
+    "apkUrl":  "huiyi-v4.1.20-debug.apk",
+    "releaseNotes":  "v4.1.20 LAST ME hard WAIT priority fix",
     "forceUpdate":  false,
-    "sha256":  "ED2006BD89A5B82F59DF71D75B2EAA0AC6217B0BF2B2977E055FAFB84C9452EA",
-    "createdAt":  1783069558011
+    "sha256":  "E19AD8E5B3789A7D58879A4291F3B82C9CEA2B12E40BEAB81276AF4EB49CC487",
+    "createdAt":  1783071012010
 }

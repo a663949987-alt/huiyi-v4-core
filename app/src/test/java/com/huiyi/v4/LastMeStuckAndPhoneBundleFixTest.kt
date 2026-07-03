@@ -52,7 +52,7 @@ class LastMeStuckAndPhoneBundleFixTest {
         ).copy(
             waitPanelShown = true,
             routePanelShown = false,
-            sessionTerminalState = "PANEL_RENDERED_WAIT",
+            sessionTerminalState = "WAIT_PANEL",
             decisionTypeFamily = "WAIT"
         )
 
@@ -60,7 +60,7 @@ class LastMeStuckAndPhoneBundleFixTest {
         assertTrue(result.waitPanelShown)
         assertFalse(result.routePanelShown)
         assertEquals(0, result.routes.size)
-        assertEquals("PANEL_RENDERED_WAIT", result.sessionTerminalState)
+        assertEquals("WAIT_PANEL", result.sessionTerminalState)
     }
 
     @Test
