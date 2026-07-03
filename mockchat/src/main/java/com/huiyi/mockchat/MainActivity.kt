@@ -137,6 +137,8 @@ enum class MockFontScaleProfile(val id: String, val label: String, val scale: Fl
 enum class MockScenario(val id: String, val label: String) {
     LAST_ME("last_me", "A last_me"),
     LAST_OTHER("last_other", "B last_other"),
+    READ_RECEIPT_STATUS("read_receipt_status", "C1 read_receipt_status"),
+    SEND_FAILED("send_failed", "C2 send_failed"),
     METADATA_TRAP("metadata_trap", "C metadata_trap"),
     VOICE_LAST_OTHER("voice_last_other", "D voice_last_other"),
     IMAGE_OR_STICKER("image_or_sticker", "E image_or_sticker"),
@@ -144,7 +146,8 @@ enum class MockScenario(val id: String, val label: String) {
     LONG_MULTILINE("long_multiline", "G long_multiline"),
     QUOTED_REPLY("quoted_reply", "H quoted_reply"),
     UNKNOWN_BOUNDS("unknown_bounds", "I unknown_bounds"),
-    TIME_AT_BOTTOM("time_at_bottom", "J time_at_bottom")
+    TIME_AT_BOTTOM("time_at_bottom", "J time_at_bottom"),
+    HUIYI_OVERLAY_CONTAMINATION("huiyi_overlay_contamination", "K huiyi_overlay_contamination")
 }
 
 private enum class BubbleKind {
@@ -160,6 +163,7 @@ private enum class BubbleKind {
     PROFILE_CARD,
     LONG_OTHER,
     CENTER_UNKNOWN,
+    STATUS,
     QUOTED_OTHER
 }
 
@@ -345,6 +349,7 @@ private fun SimpleChatNode(profile: MockChatLayoutProfile, item: ChatItem, fontS
     val alignment = when (item.kind) {
         BubbleKind.TIME, BubbleKind.DATE, BubbleKind.SYSTEM, BubbleKind.CENTER_UNKNOWN -> Alignment.Center
         BubbleKind.ME -> Alignment.CenterEnd
+        BubbleKind.STATUS -> Alignment.CenterEnd
         else -> Alignment.CenterStart
     }
     val background = when (item.kind) {
@@ -352,6 +357,7 @@ private fun SimpleChatNode(profile: MockChatLayoutProfile, item: ChatItem, fontS
         BubbleKind.SYSTEM -> Color(0xFFFFF0C7)
         BubbleKind.ME -> profile.outgoing
         BubbleKind.CENTER_UNKNOWN -> Color(0xFFFFFBF1)
+        BubbleKind.STATUS -> Color.Transparent
         BubbleKind.IMAGE_OTHER, BubbleKind.STICKER_OTHER, BubbleKind.SHARE_OTHER, BubbleKind.PROFILE_CARD -> Color(0xFFE9EEF1)
         else -> profile.incoming
     }
@@ -363,11 +369,13 @@ private fun SimpleChatNode(profile: MockChatLayoutProfile, item: ChatItem, fontS
         BubbleKind.IMAGE_OTHER, BubbleKind.STICKER_OTHER -> 164.dp
         BubbleKind.SHARE_OTHER, BubbleKind.PROFILE_CARD -> 220.dp
         BubbleKind.CENTER_UNKNOWN -> 250.dp
+        BubbleKind.STATUS -> 120.dp
         else -> if (profile == MockChatLayoutProfile.LIAOQI_HUAWEI_LARGE_TEXT) 318.dp else 268.dp
     }
     val height = when (item.kind) {
         BubbleKind.TIME, BubbleKind.DATE -> (26 * fontScale).dp
         BubbleKind.SYSTEM -> (32 * fontScale).dp
+        BubbleKind.STATUS -> (22 * fontScale).dp
         BubbleKind.IMAGE_OTHER, BubbleKind.STICKER_OTHER -> 58.dp
         BubbleKind.SHARE_OTHER, BubbleKind.PROFILE_CARD -> 62.dp
         BubbleKind.LONG_OTHER -> (72 * fontScale).dp
@@ -400,6 +408,7 @@ private fun SimpleChatNode(profile: MockChatLayoutProfile, item: ChatItem, fontS
                 color = Color(0xFF23211E),
                 maxLines = when (item.kind) {
                     BubbleKind.TIME, BubbleKind.DATE, BubbleKind.VOICE_OTHER -> 1
+                    BubbleKind.STATUS -> 1
                     BubbleKind.SHARE_OTHER, BubbleKind.PROFILE_CARD, BubbleKind.LONG_OTHER -> 3
                     else -> 2
                 },
@@ -475,6 +484,21 @@ private fun MockScenario.items(profile: MockChatLayoutProfile): List<ChatItem> =
         ChatItem(BubbleKind.ME, "你们是离了婚才生的小孩吗？你刚刚说你离婚都10年了。")
     )
     MockScenario.LAST_OTHER -> baseOtherThread(profile)
+    MockScenario.READ_RECEIPT_STATUS -> listOf(
+        ChatItem(BubbleKind.TIME, "11:08"),
+        ChatItem(BubbleKind.OTHER, "I may be offline for a while."),
+        ChatItem(BubbleKind.ME, "Okay, I will not keep pushing."),
+        ChatItem(BubbleKind.STATUS, "\u5df2\u8bfb"),
+        ChatItem(BubbleKind.STATUS, "\u672a\u8bfb"),
+        ChatItem(BubbleKind.STATUS, "\u2713\u2713")
+    )
+    MockScenario.SEND_FAILED -> listOf(
+        ChatItem(BubbleKind.TIME, "11:09"),
+        ChatItem(BubbleKind.OTHER, "I need a little space."),
+        ChatItem(BubbleKind.ME, "Understood, I will pause."),
+        ChatItem(BubbleKind.STATUS, "\u53d1\u9001\u5931\u8d25"),
+        ChatItem(BubbleKind.STATUS, "\u91cd\u53d1")
+    )
     MockScenario.METADATA_TRAP -> metadataTrapThread(profile)
     MockScenario.VOICE_LAST_OTHER -> listOf(
         ChatItem(BubbleKind.TIME, "10:56"),
@@ -516,6 +540,12 @@ private fun MockScenario.items(profile: MockChatLayoutProfile): List<ChatItem> =
         ChatItem(BubbleKind.CENTER_UNKNOWN, "这句故意居中，边界不明显。")
     )
     MockScenario.TIME_AT_BOTTOM -> baseOtherThread(profile) + ChatItem(BubbleKind.TIME, "11:08")
+    MockScenario.HUIYI_OVERLAY_CONTAMINATION -> listOf(
+        ChatItem(BubbleKind.TIME, "11:10"),
+        ChatItem(BubbleKind.OTHER, "I was not ignoring you, I just got overwhelmed."),
+        ChatItem(BubbleKind.ME, "I hear you. I will slow down."),
+        ChatItem(BubbleKind.SYSTEM, "\u4f1a\u610f\u96f7\u8fbe \u6700\u540e\u4e00\u53e5\u662f\u6211 \u8fd9\u6b21\u4e0d\u5bf9\uff0c\u53d1\u7ed9 GPT")
+    )
 }
 
 private fun metadataTrapThread(profile: MockChatLayoutProfile): List<ChatItem> = listOf(

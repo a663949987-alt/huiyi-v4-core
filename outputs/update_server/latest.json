@@ -1,9 +1,9 @@
 {
-    "versionName":  "4.1.21",
-    "versionCode":  439,
-    "apkUrl":  "huiyi-v4.1.21-debug.apk",
-    "releaseNotes":  "v4.1.21 one-tap feedback target session fix",
+    "versionName":  "4.1.22",
+    "versionCode":  440,
+    "apkUrl":  "huiyi-v4.1.22-debug.apk",
+    "releaseNotes":  "v4.1.22 simulation-first validation system",
     "forceUpdate":  false,
-    "sha256":  "62BF264E5E0B38C022655E5E4E65DBB3B794159DDCBFA6F72BE29612E3295D0D",
-    "createdAt":  1783072171799
+    "sha256":  "8580B6164A49C619840D3AD7B32C0F5F187185EA210005C40E6AEFA4BA125507",
+    "createdAt":  1783073062559
 }

@@ -16,7 +16,12 @@ class MetadataMessageFilter {
         if (onlineStatusValues.any { value == it || value.startsWith(it) } || value.startsWith("涓婃")) {
             return MetadataType.ONLINE_STATUS
         }
-        if (uiControls.contains(value) || scenarioRegex.matches(value) || profileScenarioRegex.matches(value)) {
+        if (
+            uiControls.contains(value) ||
+            scenarioRegex.matches(value) ||
+            profileScenarioRegex.matches(value) ||
+            huiyiOverlayKeywords.any { value.contains(it, ignoreCase = true) }
+        ) {
             return MetadataType.UI_CONTROL
         }
         if (systemNoticeKeywords.any { value.contains(it) }) {
@@ -91,8 +96,17 @@ class MetadataMessageFilter {
             "瀵煎嚭鎴浘",
             "杈撳叆妗?"
         )
-        val scenarioRegex = Regex("""^[A-J]\s+(last_me|last_other|metadata_trap|voice_last_other|image_or_sticker|low_expression|long_multiline|quoted_reply|unknown_bounds|time_at_bottom)$""")
-        val profileScenarioRegex = Regex("""^(WECHAT_LIKE|QQ_LIKE|REDBOOK_DM_LIKE|DATING_APP_LIKE|MINIMAL_CHAT_LIKE)\s*/\s*[A-J]\s+.*$""")
+        val scenarioRegex = Regex("""^([A-K]|C1|C2)\s+(last_me|last_other|read_receipt_status|send_failed|metadata_trap|voice_last_other|image_or_sticker|low_expression|long_multiline|quoted_reply|unknown_bounds|time_at_bottom|huiyi_overlay_contamination)$""")
+        val profileScenarioRegex = Regex("""^(WECHAT_LIKE|QQ_LIKE|REDBOOK_DM_LIKE|DATING_APP_LIKE|MINIMAL_CHAT_LIKE|LIAOQI_HUAWEI_LARGE_TEXT)\s*/\s*([A-K]|C1|C2)\s+.*$""")
+        val huiyiOverlayKeywords = listOf(
+            "\u4f1a\u610f\u96f7\u8fbe",
+            "\u6700\u540e\u4e00\u53e5\u662f\u6211",
+            "\u4f60\u5df2\u7ecf\u56de\u8fc7\u4e86",
+            "\u8fd9\u6b21\u4e0d\u5bf9",
+            "\u53d1\u7ed9 GPT",
+            "Huiyi Radar",
+            "send to GPT"
+        )
         val systemNoticeKeywords = listOf(
             "\u7cfb\u7edf\u63d0\u793a",
             "\u7cfb\u7edf\u63a8\u8350",

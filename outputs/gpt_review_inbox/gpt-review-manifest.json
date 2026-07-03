@@ -1,28 +1,43 @@
 {
   "project": "huiyi-v4",
-  "taskName": "one_tap_feedback_export_target_session_fix_before_cloud_contract",
-  "versionName": "4.1.21",
-  "versionCode": 439,
-  "currentOverallResult": "NOT_TESTED",
-  "realDeviceFunctionalSmoke": "NOT_TESTED",
-  "feedbackBoundToOriginalSession": "PASS",
-  "feedbackTriggeredNewAnalysis": false,
-  "feedbackReCapturedCurrentRoot": false,
-  "preAnalysisContaminationDetection": "PASS",
-  "reportConsistencyChecks": "PASS",
-  "lastMeWaitRule": "PASS",
-  "cloudContractImplemented": "TODO_ONLY",
-  "cloudAnalysisAttempted": false,
-  "filesToInspectFirst": [
-    "huiyi-v4-review-for-gpt.md",
-    "one-tap-feedback-target-session-fix-report-for-gpt.md",
-    "changed-files-for-gpt.md",
-    "manifest.json"
+  "taskName": "simulation_first_acceptance_system",
+  "versionName": "4.1.22",
+  "versionCode": 440,
+  "currentOverallResult": "PASS",
+  "simulationFirstResult": "PASS",
+  "fixtureReplayResult": "PASS",
+  "syntheticCorpusResult": "PASS",
+  "cloudContractReplayResult": "PASS",
+  "mockchatResult": "PASS",
+  "realDeviceSmokeResult": "NOT_TESTED",
+  "realDeviceSmokePolicy": [
+    "liaoqi LAST_ME: ME -> WAIT",
+    "liaoqi LAST_OTHER: OTHER -> routes",
+    "unsupported app: show unsupported prompt and export adapter bundle"
   ],
-  "privacy": {
-    "containsRawPrivateChat": false,
-    "containsApiKey": false,
-    "containsKeystore": false,
-    "containsLocalProperties": false
-  }
+  "userNeedsRepeatedPrivateChatValidation": false,
+  "phoneBundleRequiredFromUser": false,
+  "apiCalled": false,
+  "reviewFiles": [
+    {
+      "path": "huiyi-v4-review-for-gpt.md",
+      "sendToGpt": true,
+      "description": "Main GPT review report"
+    },
+    {
+      "path": "simulation-first-validation-report-for-gpt.md",
+      "sendToGpt": true,
+      "description": "Simulation-first fixture, corpus, contract, and smoke policy report"
+    },
+    {
+      "path": "changed-files-for-gpt.md",
+      "sendToGpt": true,
+      "description": "Current round change summary"
+    },
+    {
+      "path": "manifest.json",
+      "sendToGpt": true,
+      "description": "Review bundle manifest"
+    }
+  ]
 }

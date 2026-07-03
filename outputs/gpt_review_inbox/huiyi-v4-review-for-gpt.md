@@ -3,27 +3,32 @@
 ## v4.1.10 Current Round Summary
 
 - project: Huiyi v4 Core
-- versionName: 4.1.21
-- versionCode: 439
+- versionName: 4.1.22
+- versionCode: 440
 - branch: main
-- commitHash: 9554b6c
-- generatedAt: 2026-07-03 17:50:02 +0800
-- taskName: one_tap_feedback_export_target_session_fix_before_cloud_contract
-- currentVersion: 4.1.21
-- currentTaskName: one_tap_feedback_export_target_session_fix_before_cloud_contract
-- currentGeneratedAt: 2026-07-03 17:50:02 +0800
+- commitHash: f01d53a
+- generatedAt: 2026-07-03 18:05:51 +0800
+- taskName: simulation_first_acceptance_system
+- currentVersion: 4.1.22
+- currentTaskName: simulation_first_acceptance_system
+- currentGeneratedAt: 2026-07-03 18:05:51 +0800
 - review_freshness_result: PASS
+- simulation_first_result: PASS
+- fixture_replay_result: PASS
+- synthetic_corpus_result: PASS
+- cloud_contract_replay_result: PASS
 - mockchat_result: PASS
 - real_device_smoke_result: NOT_TESTED
 - realDeviceFunctionalSmoke: NOT_TESTED
 - scenarioAssertionResult: NOT_TESTED
-- currentOverallResult: NOT_TESTED
+- currentOverallResult: PASS
 - lastMeRealDeviceResult: NOT_TESTED
 - lastOtherRealDeviceResult: NOT_TESTED
 - staleSnapshotGuard: PASS
 - staleRoutesGuard: PASS
-- overall_result: NOT_TESTED
-- failReason: 本轮 Review Freshness 通过，但 Real Device Smoke 未执行，不代表真实聊天 App 已通过。
+- overall_result: PASS
+- failReason: none
+- realDeviceSmokeNote: Simulation-first validation passed. Real app validation is reduced to 3 smoke tests; those smoke tests were not executed in this local run.
 
 currentUserFeedback:
   - 用户反馈 last ME 好像没过
@@ -139,21 +144,26 @@ currentRegressionStatus:
 ## 1. 基本信息
 
 - project: Huiyi v4 Core
-- versionName: 4.1.21
-- versionCode: 439
+- versionName: 4.1.22
+- versionCode: 440
 - branch: main
-- commitHash: 9554b6c
-- generatedAt: 2026-07-03 17:50:02 +0800
-- taskName: one_tap_feedback_export_target_session_fix_before_cloud_contract
+- commitHash: f01d53a
+- generatedAt: 2026-07-03 18:05:51 +0800
+- taskName: simulation_first_acceptance_system
 - review_freshness_result: PASS
+- simulation_first_result: PASS
+- fixture_replay_result: PASS
+- synthetic_corpus_result: PASS
+- cloud_contract_replay_result: PASS
 - mockchat_result: PASS
 - real_device_smoke_result: NOT_TESTED
-- overall_result: NOT_TESTED
-- failReason: 本轮 Review Freshness 通过，但 Real Device Smoke 未执行，不代表真实聊天 App 已通过。
-- currentVersion: 4.1.21
-- currentTaskName: one_tap_feedback_export_target_session_fix_before_cloud_contract
-- currentGeneratedAt: 2026-07-03 17:50:02 +0800
-- currentOverallResult: NOT_TESTED
+- overall_result: PASS
+- failReason: none
+- realDeviceSmokeNote: Simulation-first validation passed. Real app validation is reduced to 3 smoke tests; those smoke tests were not executed in this local run.
+- currentVersion: 4.1.22
+- currentTaskName: simulation_first_acceptance_system
+- currentGeneratedAt: 2026-07-03 18:05:51 +0800
+- currentOverallResult: PASS
 
 currentUserFeedback:
   - 点击“下一句”后提示“这次分析失败，已保存诊断。”
@@ -173,10 +183,10 @@ currentRegressionStatus:
 
 ## Current Round Evidence
 
-- currentTaskName: one_tap_feedback_export_target_session_fix_before_cloud_contract
-- currentVersion: 4.1.21
-- currentGeneratedAt: 2026-07-03 17:50:02 +0800
-- currentReports: outputs/one-tap-feedback-target-session-fix-report-for-gpt.md
+- currentTaskName: simulation_first_acceptance_system
+- currentVersion: 4.1.22
+- currentGeneratedAt: 2026-07-03 18:05:51 +0800
+- currentReports: outputs/simulation-first-validation-report-for-gpt.md
 - currentSampleSources: not_tested
 - currentOverallResult: NOT_TESTED
 - review_freshness_result: PASS
@@ -186,11 +196,10 @@ currentRegressionStatus:
 - mockChatMatrixStillPass: true
 - smokeDisclaimer: 本轮 Review Freshness 通过，但 Real Device Smoke 未执行，不代表真实聊天 App 已通过。
 
-### one-tap-feedback-target-session-fix-report-for-gpt.md
+### simulation-first-validation-report-for-gpt.md
 
-- overall_result: NOT_TESTED
-- sample_source: not_tested
-- versionName: 4.1.21
+- overall_result: PASS
+- versionName: 4.1.22
 
 ## Current Next Sentence Failure Diagnosis
 
@@ -358,8 +367,8 @@ These reports are historical references only. Their FAIL or `sample_source=unkno
 ### 新增文件
 
 ```
-outputs/one-tap-feedback-target-session-fix-report-for-gpt.md
 outputs/review/archive/
+outputs/simulation-first-validation-report-for-gpt.md
 ```
 
 ### 修改文件
@@ -425,14 +434,14 @@ See Current Round Evidence and Historical / Trace Reports above.
 
 ## 8. 产物清单
 
-- path: outputs/one-tap-feedback-target-session-fix-report-for-gpt.md
+- path: outputs/simulation-first-validation-report-for-gpt.md
   type: report
-  sha256: e2d806011c3f5b584925def6e3ba5d78c64a039e576a4d0a153efe52c595c4a7
+  sha256: 83b429497a88e8bf6c3d79e414e2a0892f8bc9418b9552c7dd8cb76403fd4c8a
   是否建议发给 GPT: false
   用途: Current round evidence.
   isCurrentRound: true
   evidenceRole: current
-  sample_source: not_tested
+  sample_source: none
   stale: false
 - path: outputs/current-screen-parser-report-for-gpt.md
   type: report

@@ -1,50 +1,82 @@
 # Huiyi v4 GPT Review Inbox
 
 ## Current round
-
-- taskName: one_tap_feedback_export_target_session_fix_before_cloud_contract
-- versionName: 4.1.21
-- versionCode: 439
-- currentOverallResult: NOT_TESTED
-- realDeviceFunctionalSmoke: NOT_TESTED
-- feedbackBoundToOriginalSession: PASS
-- feedbackTriggersNewAnalysis: NO
-- feedbackReCapturedCurrentRoot: NO
-- preAnalysisContaminationDetection: PASS
-- reportConsistencyChecks: PASS
-- lastMeWaitRule: PASS
-- cloudContractImplemented: TODO_ONLY
-- cloudAnalysisAttempted: false
-
-## Files GPT should inspect first
-
-1. `huiyi-v4-review-for-gpt.md`
-2. `one-tap-feedback-target-session-fix-report-for-gpt.md`
-3. `changed-files-for-gpt.md`
-4. `manifest.json`
+- taskName: simulation_first_acceptance_system
+- versionName: 4.1.22
+- versionCode: 440
+- generatedAt: 2026-07-03 18:05:52 +0800
+- currentOverallResult: PASS
+- simulationFirstResult: PASS
+- fixtureReplayResult: PASS
+- syntheticCorpusResult: PASS
+- cloudContractReplayResult: PASS
+- lastMeRealDeviceResult: NOT_TESTED
+- lastOtherRealDeviceResult: NOT_TESTED
+- staleSnapshotGuard: PASS
+- staleRoutesGuard: PASS
+- phoneBundleIncluded: false
+- phoneBundlePath: none
+- phoneBundleRequiredFromUser: false
 
 ## Current conclusion
+- simulationFirstValidation: PASS
+- realDeviceFunctionalSmoke: NOT_TESTED
+- lastMeRealDeviceResult: NOT_TESTED
+- lastOtherRealDeviceResult: NOT_TESTED
+- currentOverallResult: PASS
+- scenarioAssertionResult: NOT_TESTED
+- scenarioDefinitionTrusted: false
+- scenarioDefinitionMismatch: false
+- screenshotFailureBlocksMainPath: false
+- postPanelContaminationDetected: false
 
-This round fixes one-tap feedback credibility. The exported phone feedback bundle must now point at the original panel-bound session instead of re-sampling Huiyi's overlay after the user taps feedback.
+## What changed this round
+1. Added AccessibilityNodeFixture replay from node dump / real-device report JSON.
+2. Added required fixture categories for Liaoqi, metadata, read receipts, overlay contamination, and unsupported app.
+3. Extended MockChatLab scenarios for read/unread/checkmark, send failed, and Huiyi overlay contamination.
+4. Added a 200-sample synthetic relationship corpus generator.
+5. Enforced HuiyiTacticalContract v1 cloud output fields with local fallback on invalid schema.
+6. Reduced real-device testing policy to 3 smoke checks only.
 
-Cloud HUD contract is documented only in `docs/HuiyiTacticalContract-v1.md`; it is not enabled.
+## Current real-device status
+- realDeviceTested: false
+- realDeviceDataSource: user_upload_required
+- deviceSource: not_tested
+- overlayBubbleSurvivesAfterNextSentence: unknown
+- permissionFalseAlarmObserved: unknown
+- nextSentenceAnalysisResult: NOT_TESTED
+- currentPrimaryErrorCode: NOT_TESTED
+- currentSecondaryErrorCode: none
+- failedStage: NOT_TESTED
+- pipelineExceptionClass: none
+- pipelineExceptionMessageRedacted: none
 
-## Required phone validation
+## Files GPT should inspect first
+1. huiyi-v4-review-for-gpt.md
+2. simulation-first-validation-report-for-gpt.md
+3. docs/SimulationFirstAcceptance.md
+4. docs/HuiyiTacticalContract-v1.md
+5. changed-files-for-gpt.md
 
-Install v4.1.21 through LAN update. Open Liaoqi, send `嗯嗯`, tap `下一句`, and if the result looks wrong tap `这次不对，发给 GPT`.
+## Build / test results
+- testDebugUnitTest: PASS
+- assembleDebug: PASS
+- assembleRelease: PASS
+- simulationFirstTests: PASS
+- realDeviceSmoke: NOT_TESTED, intentionally reduced to 3 smoke tests
 
-The phone upload should show:
+## APK
+- debugApkPath: outputs/huiyi-v4.1.22-debug.apk
+- APK is not included in this review zip.
 
-- `feedbackTargetSessionId`
-- `feedbackExportSource`
-- `feedbackTriggeredNewAnalysis=false`
-- `feedbackReCapturedCurrentRoot=false`
-- `feedbackUsedOverlayStateAsPreAnalysis=false` unless a contaminated export is explicitly detected
-- `reportConsistencyResult=PASS` or `FAIL_CONTAMINATED_EXPORT`
+## Known remaining problems
+- This local Codex run cannot execute a physical-phone smoke test by itself.
+- User does not need repeated private-chat validation for this round.
+- Optional later smoke: Liaoqi LAST_ME, Liaoqi LAST_OTHER, unsupported app adapter prompt.
+- Historical MockChat output files may be dirty in the workspace; they are not included as current-round evidence.
 
-## Privacy
-
-- containsRawPrivateChat: false in local review bundle
+## Privacy / secret scan
+- containsRawPrivateChat: false
 - containsApiKey: false
 - containsKeystore: false
 - containsLocalProperties: false

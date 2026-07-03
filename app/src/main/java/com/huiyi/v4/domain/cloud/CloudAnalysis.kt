@@ -175,6 +175,7 @@ class CloudAnalysisException(val code: String, cause: Throwable? = null) : Runti
 
 class CloudTacticalDecisionMapper {
     private val json = Json { ignoreUnknownKeys = true }
+    private val contractValidator = HuiyiTacticalContractValidator()
 
     fun buildRequest(input: CloudAnalysisInput, config: CloudAnalysisConfig): String {
         val messages = input.context.currentScreenMessages
@@ -225,11 +226,12 @@ class CloudTacticalDecisionMapper {
 
     fun parseResponse(responseJson: String, latencyMs: Long): CloudAnalysisOutput {
         val root = json.parseToJsonElement(responseJson).jsonObject
+        contractValidator.validate(root).getOrElse { throw it }
         val decisionType = root.string("decisionType").toDecisionType()
         val routes = root["routes"]?.jsonArray.orEmpty().mapIndexed { index, element ->
             element.toRoute(index)
         }
-        if (decisionType in setOf(TacticalDecisionType.NORMAL_REPLY, TacticalDecisionType.EMPATHY_FIRST) && routes.size != 5) {
+        if (routes.size != 5 || decisionType !in cloudReplyDecisionTypes) {
             throw CloudAnalysisException("SCHEMA_INVALID")
         }
         if (routes.any { it.message.isBlank() || it.message.length > 160 }) {
@@ -238,7 +240,7 @@ class CloudTacticalDecisionMapper {
         val decision = TacticalDecision(
             decisionType = decisionType,
             situation = root.string("situation").ifBlank { "cloud analysis" },
-            coreInsight = root.string("coreInsight"),
+            coreInsight = root.string("coCreationPoint").ifBlank { root.string("coreInsight") },
             userLikelyMistake = root.string("userLikelyMistake").ifBlank { null },
             bestMove = root.string("bestMove").ifBlank { routes.firstOrNull()?.message.orEmpty() },
             avoidMoves = root["avoidMoves"]?.jsonArray?.mapNotNull { it.jsonPrimitive.contentOrNull } ?: emptyList(),
@@ -246,7 +248,7 @@ class CloudTacticalDecisionMapper {
             shouldUseUserStory = false,
             selectedStoryCardIds = emptyList(),
             influenceProfile = InfluenceProfile(
-                intensity = root.string("influenceIntensity").toIntensity(),
+                intensity = root.string("intensityPolicy").ifBlank { root.string("influenceIntensity") }.toIntensity(),
                 riskLevel = root.string("riskLevel").toRisk(),
                 riskWarning = root.string("riskWarning").ifBlank { null },
                 fallbackMove = root.string("fallbackMove").ifBlank { null }
@@ -294,4 +296,40 @@ class CloudTacticalDecisionMapper {
         "REPAIR" -> ReplyRouteType.REPAIR
         else -> ReplyRouteType.STABLE
     }
+
+    private companion object {
+        val cloudReplyDecisionTypes = setOf(
+            TacticalDecisionType.NORMAL_REPLY,
+            TacticalDecisionType.EMPATHY_FIRST,
+            TacticalDecisionType.HUIYI_MOMENT,
+            TacticalDecisionType.REPAIR,
+            TacticalDecisionType.WARM_UP,
+            TacticalDecisionType.BOUNDARY_RESPECT,
+            TacticalDecisionType.PUSH_LIGHTLY
+        )
+    }
+}
+
+class HuiyiTacticalContractValidator {
+    fun validate(root: JsonObject): Result<Unit> = runCatching {
+        val required = listOf(
+            "coCreationPoint",
+            "userLikelyMistake",
+            "intensityPolicy",
+            "riskWarning",
+            "fallbackMove"
+        )
+        if (required.any { root.string(it).isBlank() }) {
+            throw CloudAnalysisException("SCHEMA_INVALID")
+        }
+        val routes = root["routes"]?.jsonArray ?: throw CloudAnalysisException("SCHEMA_INVALID")
+        if (routes.size != 5) throw CloudAnalysisException("SCHEMA_INVALID")
+        routes.forEach { element ->
+            val route = element.jsonObject
+            if (route.string("message").isBlank()) throw CloudAnalysisException("SCHEMA_INVALID")
+            if (route.string("fallbackMove").isBlank()) throw CloudAnalysisException("SCHEMA_INVALID")
+        }
+    }
+
+    private fun JsonObject.string(name: String): String = this[name]?.jsonPrimitive?.contentOrNull.orEmpty()
 }
