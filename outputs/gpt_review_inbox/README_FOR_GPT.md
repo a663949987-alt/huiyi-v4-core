@@ -4,9 +4,9 @@
 - phoneBundleIncluded: true
 - oneTapFeedbackIncluded: true
 - uploadedFromPhone: true
-- latestPhoneUploadAt: 2026-07-03T09:36:43.478001+00:00
-- latestPhoneSessionId: dae07e50-5e97-4770-a263-e11e886a254c
-- githubCommitHash: f51c6bd6f0b59884e5ca3a474ec542d86f60b52c
+- latestPhoneUploadAt: 2026-07-03T09:37:30.624137+00:00
+- latestPhoneSessionId: c55e6d7f-023b-4765-b3df-9b10f7b45f3a
+- githubCommitHash: PENDING
 - githubReviewPath: outputs/gpt_review_inbox/phone/latest/
 - realDeviceTested: true
 
@@ -14,7 +14,7 @@
 - terminalState: ROUTE_PANEL
 - appPackage: com.bajiao.im.liaoqi
 - actualLastSpeaker: OTHER
-- decisionType: NORMAL_REPLY
+- decisionType: HUIYI_MOMENT
 - routeCount: 5
 - waitPanelShown: False
 - routePanelShown: True
