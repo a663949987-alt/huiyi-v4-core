@@ -283,12 +283,14 @@ def main() -> None:
     review_freshness_result = "FAIL" if secret_scan["containsSecrets"] or current_has_unknown or current_has_fail else "PASS"
     mockchat_result = "PASS" if matrix_pass else "FAIL"
     real_device_smoke_result = smoke_status.upper()
-    next_sentence_task = "next_sentence" in args.task_name.lower()
+    task_name_lower = args.task_name.lower()
+    next_sentence_task = "next_sentence" in task_name_lower
+    no_real_device_task = next_sentence_task or "gpt_review_inbox" in task_name_lower
     if review_freshness_result == "FAIL" or mockchat_result == "FAIL" or real_device_smoke_result == "FAIL":
         overall = "FAIL"
     elif real_device_smoke_result == "PASS":
         overall = "PASS"
-    elif next_sentence_task:
+    elif no_real_device_task:
         overall = "NOT_TESTED"
     else:
         overall = "PARTIAL"

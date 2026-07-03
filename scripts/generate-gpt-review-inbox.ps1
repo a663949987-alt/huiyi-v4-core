@@ -1,7 +1,4 @@
-param(
-    [string]$TaskName = "Review Freshness + Real Device Smoke Test",
-    [string[]]$CurrentReport = @()
-)
+param()
 
 $ErrorActionPreference = "Stop"
 $repo = (Resolve-Path ".").Path
@@ -28,13 +25,5 @@ foreach ($candidate in $pythonCandidates) {
 if (-not $python) {
     throw "Python runtime not found. Codex bundled Python should exist under .cache\codex-runtimes."
 }
-
-$argsList = @((Join-Path $repo "scripts\generate_review_bundle.py"), "--task-name", $TaskName)
-foreach ($report in $CurrentReport) {
-    $argsList += "--current-report"
-    $argsList += $report
-}
-
-& $python @argsList
 
 & $python (Join-Path $repo "scripts\generate_gpt_review_inbox.py")

@@ -1,0 +1,204 @@
+diff --git a/outputs/review/huiyi-v4-review-bundle-for-gpt.zip b/outputs/review/huiyi-v4-review-bundle-for-gpt.zip
+index e0a7633..c16c8d9 100644
+Binary files a/outputs/review/huiyi-v4-review-bundle-for-gpt.zip and b/outputs/review/huiyi-v4-review-bundle-for-gpt.zip differ
+diff --git a/outputs/review/huiyi-v4-review-for-gpt.md b/outputs/review/huiyi-v4-review-for-gpt.md
+index 38fe9a9..9a87635 100644
+--- a/outputs/review/huiyi-v4-review-for-gpt.md
++++ b/outputs/review/huiyi-v4-review-for-gpt.md
+@@ -6,17 +6,17 @@
+ - versionName: 4.1.9
+ - versionCode: 423
+ - branch: main
+-- commitHash: cdd0bdf
+-- generatedAt: 2026-07-03 13:13:55 +0800
+-- taskName: next_sentence_screenshot_capability_failure_fix
++- commitHash: d0f3be2
++- generatedAt: 2026-07-03 13:19:13 +0800
++- taskName: gpt_review_inbox_delivery_rule
+ - review_freshness_result: PASS
+ - mockchat_result: PASS
+ - real_device_smoke_result: NOT_TESTED
+ - overall_result: NOT_TESTED
+ - failReason: 本轮 Review Freshness 通过，但 Real Device Smoke 未执行，不代表真实聊天 App 已通过。
+ - currentVersion: 4.1.9
+-- currentTaskName: next_sentence_screenshot_capability_failure_fix
+-- currentGeneratedAt: 2026-07-03 13:13:55 +0800
++- currentTaskName: gpt_review_inbox_delivery_rule
++- currentGeneratedAt: 2026-07-03 13:19:13 +0800
+ - currentOverallResult: NOT_TESTED
+ 
+ currentUserFeedback:
+@@ -37,10 +37,10 @@ currentRegressionStatus:
+ 
+ ## Current Round Evidence
+ 
+-- currentTaskName: next_sentence_screenshot_capability_failure_fix
++- currentTaskName: gpt_review_inbox_delivery_rule
+ - currentVersion: 4.1.9
+-- currentGeneratedAt: 2026-07-03 13:13:55 +0800
+-- currentReports: outputs/accessibility-click-diagnostic-report-for-gpt.md, outputs/latest-next-sentence-failure.json, outputs/latest-next-sentence-failure.md, outputs/next-sentence-screenshot-capability-audit-for-gpt.md
++- currentGeneratedAt: 2026-07-03 13:19:13 +0800
++- currentReports: outputs/accessibility-click-diagnostic-report-for-gpt.md, outputs/gpt-review-inbox-delivery-rule-report-for-gpt.md, outputs/latest-next-sentence-failure.json, outputs/latest-next-sentence-failure.md, outputs/next-sentence-screenshot-capability-audit-for-gpt.md
+ - currentSampleSources: not_tested
+ - currentOverallResult: NOT_TESTED
+ - review_freshness_result: PASS
+@@ -52,6 +52,10 @@ currentRegressionStatus:
+ 
+ ### accessibility-click-diagnostic-report-for-gpt.md
+ 
++- versionName: 4.1.9
++### gpt-review-inbox-delivery-rule-report-for-gpt.md
++
++- overall_result: NOT_TESTED
+ - versionName: 4.1.9
+ ### latest-next-sentence-failure.json
+ 
+@@ -237,16 +241,17 @@ These reports are historical references only. Their FAIL or `sample_source=unkno
+ ### 新增文件
+ 
+ ```
+-outputs/next-sentence-screenshot-capability-audit-for-gpt.md
++outputs/gpt-review-inbox-delivery-rule-report-for-gpt.md
+ outputs/review/archive/
+ ```
+ 
+ ### 修改文件
+ 
+ ```
+-outputs/accessibility-click-diagnostic-report-for-gpt.md
+-outputs/latest-next-sentence-failure.json
+-outputs/latest-next-sentence-failure.md
++outputs/review/huiyi-v4-review-bundle-for-gpt.zip
++outputs/review/huiyi-v4-review-for-gpt.md
++outputs/review/manifest.json
++scripts/generate-review-bundle.ps1
+ scripts/generate_review_bundle.py
+ ```
+ 
+@@ -316,6 +321,15 @@ See Current Round Evidence and Historical / Trace Reports above.
+   evidenceRole: current
+   sample_source: none
+   stale: false
++- path: outputs/gpt-review-inbox-delivery-rule-report-for-gpt.md
++  type: report
++  sha256: 091228719a7cf7515de934dacaa6298866a1f9f8f98bf8a47bab85abb1ff5c7b
++  是否建议发给 GPT: false
++  用途: Current round evidence.
++  isCurrentRound: true
++  evidenceRole: current
++  sample_source: none
++  stale: false
+ - path: outputs/latest-next-sentence-failure.json
+   type: json
+   sha256: bbcf227998eb3ddb2c64a7faf63cd8e05e414ddd0282a599d6a93705b6c728e6
+diff --git a/outputs/review/manifest.json b/outputs/review/manifest.json
+index ffd934c..722df5b 100644
+--- a/outputs/review/manifest.json
++++ b/outputs/review/manifest.json
+@@ -3,13 +3,13 @@
+   "versionName": "4.1.9",
+   "versionCode": 423,
+   "branch": "main",
+-  "commitHash": "cdd0bdf",
+-  "generatedAt": "2026-07-03 13:13:55 +0800",
++  "commitHash": "d0f3be2",
++  "generatedAt": "2026-07-03 13:19:13 +0800",
+   "overallResult": "NOT_TESTED",
+   "reviewFreshnessResult": "PASS",
+   "mockchatResult": "PASS",
+   "realDeviceSmokeResult": "NOT_TESTED",
+-  "taskName": "next_sentence_screenshot_capability_failure_fix",
++  "taskName": "gpt_review_inbox_delivery_rule",
+   "sampleSources": [
+     "not_tested"
+   ],
+@@ -19,7 +19,7 @@
+     {
+       "path": "outputs/review/huiyi-v4-review-for-gpt.md",
+       "type": "review_markdown",
+-      "sha256": "98530dd59234ddcb2ff48a8359f032a33411b63a64ab1a60649bb3e590b3c46f",
++      "sha256": "4b37b4ce33eecb52dafa289f74b407994559460026511cc034f39ce063194191",
+       "sendToGpt": true,
+       "description": "Default file for GPT review.",
+       "generatedAt": null,
+@@ -37,7 +37,21 @@
+       "sendToGpt": false,
+       "description": "Current round evidence.",
+       "generatedAt": "local_build_no_physical_device",
+-      "taskName": "next_sentence_screenshot_capability_failure_fix",
++      "taskName": "gpt_review_inbox_delivery_rule",
++      "versionName": "4.1.9",
++      "isCurrentRound": true,
++      "evidenceRole": "current",
++      "sample_source": [],
++      "stale": false
++    },
++    {
++      "path": "outputs/gpt-review-inbox-delivery-rule-report-for-gpt.md",
++      "type": "report",
++      "sha256": "091228719a7cf7515de934dacaa6298866a1f9f8f98bf8a47bab85abb1ff5c7b",
++      "sendToGpt": false,
++      "description": "Current round evidence.",
++      "generatedAt": "2026-07-03",
++      "taskName": "gpt_review_inbox_delivery_rule",
+       "versionName": "4.1.9",
+       "isCurrentRound": true,
+       "evidenceRole": "current",
+@@ -51,7 +65,7 @@
+       "sendToGpt": false,
+       "description": "Current round evidence.",
+       "generatedAt": null,
+-      "taskName": "next_sentence_screenshot_capability_failure_fix",
++      "taskName": "gpt_review_inbox_delivery_rule",
+       "versionName": "4.1.9",
+       "isCurrentRound": true,
+       "evidenceRole": "current",
+@@ -65,7 +79,7 @@
+       "sendToGpt": false,
+       "description": "Current round evidence.",
+       "generatedAt": null,
+-      "taskName": "next_sentence_screenshot_capability_failure_fix",
++      "taskName": "gpt_review_inbox_delivery_rule",
+       "versionName": null,
+       "isCurrentRound": true,
+       "evidenceRole": "current",
+@@ -79,7 +93,7 @@
+       "sendToGpt": false,
+       "description": "Current round evidence.",
+       "generatedAt": null,
+-      "taskName": "next_sentence_screenshot_capability_failure_fix",
++      "taskName": "gpt_review_inbox_delivery_rule",
+       "versionName": "4.1.9",
+       "isCurrentRound": true,
+       "evidenceRole": "current",
+diff --git a/scripts/generate-review-bundle.ps1 b/scripts/generate-review-bundle.ps1
+index b24e634..280c80c 100644
+--- a/scripts/generate-review-bundle.ps1
++++ b/scripts/generate-review-bundle.ps1
+@@ -36,3 +36,5 @@ foreach ($report in $CurrentReport) {
+ }
+ 
+ & $python @argsList
++
++& $python (Join-Path $repo "scripts\generate_gpt_review_inbox.py")
+diff --git a/scripts/generate_review_bundle.py b/scripts/generate_review_bundle.py
+index 0324a29..d9923f2 100644
+--- a/scripts/generate_review_bundle.py
++++ b/scripts/generate_review_bundle.py
+@@ -283,12 +283,14 @@ def main() -> None:
+     review_freshness_result = "FAIL" if secret_scan["containsSecrets"] or current_has_unknown or current_has_fail else "PASS"
+     mockchat_result = "PASS" if matrix_pass else "FAIL"
+     real_device_smoke_result = smoke_status.upper()
+-    next_sentence_task = "next_sentence" in args.task_name.lower()
++    task_name_lower = args.task_name.lower()
++    next_sentence_task = "next_sentence" in task_name_lower
++    no_real_device_task = next_sentence_task or "gpt_review_inbox" in task_name_lower
+     if review_freshness_result == "FAIL" or mockchat_result == "FAIL" or real_device_smoke_result == "FAIL":
+         overall = "FAIL"
+     elif real_device_smoke_result == "PASS":
+         overall = "PASS"
+-    elif next_sentence_task:
++    elif no_real_device_task:
+         overall = "NOT_TESTED"
+     else:
+         overall = "PARTIAL"
