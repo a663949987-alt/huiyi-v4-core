@@ -1,10 +1,10 @@
 {
   "project": "Huiyi v4 Core",
-  "versionName": "4.1.15",
-  "versionCode": 433,
+  "versionName": "4.1.16",
+  "versionCode": 434,
   "branch": "main",
-  "commitHash": "e8a1c9d",
-  "generatedAt": "2026-07-03 16:07:58 +0800",
+  "commitHash": "e2bd834",
+  "generatedAt": "2026-07-03 16:14:13 +0800",
   "overallResult": "NOT_TESTED",
   "currentOverallResult": "NOT_TESTED",
   "lastMeRealDeviceResult": "NOT_TESTED",
@@ -18,7 +18,7 @@
   "scenarioAssertionResult": "NOT_TESTED",
   "scenarioDefinitionTrusted": false,
   "scenarioFailureCategory": "not_tested",
-  "taskName": "one_tap_feedback_duplicate_entry_fix",
+  "taskName": "one_tap_feedback_lan_github_gateway",
   "sampleSources": [
     "not_tested"
   ],
@@ -28,7 +28,7 @@
     {
       "path": "outputs/review/huiyi-v4-review-for-gpt.md",
       "type": "review_markdown",
-      "sha256": "13bff0f2ec3031fc7c892ca23d4f2eb2c0b2abf2712b1c8ead8dc5819f8b9f11",
+      "sha256": "89581124d91321202f4e66477a91b85d3bf0ccfafabcba1bb375a693e0d3f2fa",
       "sendToGpt": true,
       "description": "Default file for GPT review.",
       "generatedAt": null,
@@ -40,14 +40,14 @@
       "stale": false
     },
     {
-      "path": "outputs/one-tap-feedback-duplicate-entry-fix-report-for-gpt.md",
+      "path": "outputs/one-tap-lan-github-gateway-report-for-gpt.md",
       "type": "report",
-      "sha256": "b625d03eff854830a1ef3cda3a7bfef60412ffe958e818602312fb0a44e15061",
+      "sha256": "c9522fa38be282f6845aee54419c70b6cb70002f8a060a84872e4ee8a296f891",
       "sendToGpt": false,
       "description": "Current round evidence.",
       "generatedAt": null,
-      "taskName": "one_tap_feedback_duplicate_entry_fix",
-      "versionName": "4.1.15",
+      "taskName": "one_tap_feedback_lan_github_gateway",
+      "versionName": "4.1.16",
       "isCurrentRound": true,
       "evidenceRole": "current",
       "sample_source": [],

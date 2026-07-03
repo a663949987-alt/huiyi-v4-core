@@ -15,6 +15,7 @@ import okhttp3.OkHttpClient
 import okhttp3.Request
 import okhttp3.RequestBody.Companion.asRequestBody
 import java.io.File
+import java.net.URI
 import java.util.concurrent.TimeUnit
 import java.util.zip.ZipFile
 
@@ -73,6 +74,22 @@ data class OneTapGithubUploadConfig(
     val timeoutSeconds: Long = 30
 ) {
     val enabled: Boolean get() = endpoint.isNotBlank()
+}
+
+object ReviewUploadEndpointResolver {
+    fun resolve(
+        configuredEndpoint: String,
+        lanUpdateUrl: String,
+        uploadPort: Int = 8791
+    ): String {
+        if (configuredEndpoint.isNotBlank()) return configuredEndpoint.trim()
+        val trimmed = lanUpdateUrl.trim()
+        if (trimmed.isBlank()) return ""
+        val uri = runCatching { URI(trimmed) }.getOrNull() ?: return ""
+        val scheme = uri.scheme?.takeIf { it == "http" || it == "https" } ?: return ""
+        val host = uri.host?.takeIf { it.isNotBlank() } ?: return ""
+        return "$scheme://$host:$uploadPort/api/huiyi/review-upload"
+    }
 }
 
 data class OneTapGithubUploadRequest(

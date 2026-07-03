@@ -1,0 +1,22 @@
+# One Tap LAN GitHub Gateway Report
+
+- versionName: 4.1.16
+- versionCode: 434
+- taskName: one_tap_feedback_lan_github_gateway
+- userReportedResult: upload failed but local zip saved
+- rootCause: phone app had no configured review upload gateway, so upload fell back to local zip.
+- appFix: when no cloud endpoint is configured, derive the upload endpoint from the saved LAN update URL.
+- derivedEndpointExample: http://192.168.31.243:8791/api/huiyi/review-upload
+- desktopGateway: scripts/serve-review-upload-gateway.ps1
+- desktopGatewayHealthLocal: PASS
+- desktopGatewayHealthLan: PASS
+- desktopGatewayUrl: http://192.168.31.243:8791/health
+- githubPushMode: desktop gateway receives phone zip, extracts public-safe files, updates outputs/gpt_review_inbox/phone/latest, commits, and pushes to GitHub.
+- privacyGate: PASS
+- tokenInApk: false
+- unitTests: PASS
+- debugBuild: PASS
+- lanUpdate: PASS
+- lanUpdateVersion: 4.1.16 (434)
+- userNeedsRealDeviceRetry: true
+- overallResult: READY_FOR_PHONE_RETRY

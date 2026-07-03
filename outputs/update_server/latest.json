@@ -1,9 +1,9 @@
 {
-    "versionName":  "4.1.15",
-    "versionCode":  433,
-    "apkUrl":  "huiyi-v4.1.15-debug.apk",
-    "releaseNotes":  "v4.1.15 fix duplicate one tap feedback session entries",
+    "versionName":  "4.1.16",
+    "versionCode":  434,
+    "apkUrl":  "huiyi-v4.1.16-debug.apk",
+    "releaseNotes":  "v4.1.16 local review upload gateway auto github push",
     "forceUpdate":  false,
-    "sha256":  "212F342BDE03FC75075DED64452351426D4C0F144C911043F8104366D18E4522",
-    "createdAt":  1783066062934
+    "sha256":  "048EA725B466D1E7172DBAF137CFC795D309E5E0B2DEC652E3F5CB42B7C8EF43",
+    "createdAt":  1783066376766
 }

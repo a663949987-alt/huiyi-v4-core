@@ -781,7 +781,12 @@ class HuiyiRuntime private constructor(
                             panelVisible = true
                         )
                     }
-                    val uploadConfig = OneTapGithubUploadConfig()
+                    val uploadConfig = OneTapGithubUploadConfig(
+                        endpoint = ReviewUploadEndpointResolver.resolve(
+                            configuredEndpoint = BuildConfig.HUIYI_REVIEW_UPLOAD_ENDPOINT,
+                            lanUpdateUrl = mutableState.value.lanUpdateState.updateUrl
+                        )
+                    )
                     mutableState.update {
                         it.copy(
                             oneTapGithubUploadState = OneTapGithubUploadState(

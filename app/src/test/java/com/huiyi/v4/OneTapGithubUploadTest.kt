@@ -13,6 +13,7 @@ import com.huiyi.v4.runtime.OneTapGithubUploadRequest
 import com.huiyi.v4.runtime.OneTapGithubUploadResponse
 import com.huiyi.v4.runtime.OneTapGithubUploadStage
 import com.huiyi.v4.runtime.OneTapGithubUploader
+import com.huiyi.v4.runtime.ReviewUploadEndpointResolver
 import kotlinx.coroutines.runBlocking
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
@@ -108,6 +109,16 @@ class OneTapGithubUploadTest {
         assertFalse(combined.contains("ghp_"))
         assertFalse(combined.contains("github_pat_"))
         assertFalse(combined.contains("GITHUB_APP_PRIVATE_KEY"))
+    }
+
+    @Test
+    fun githubUploadEndpointDerivedFromLanUpdateUrl() {
+        val endpoint = ReviewUploadEndpointResolver.resolve(
+            configuredEndpoint = "",
+            lanUpdateUrl = "http://192.168.31.243:8787/latest.json"
+        )
+
+        assertEquals("http://192.168.31.243:8791/api/huiyi/review-upload", endpoint)
     }
 
     private class FakeGateway(
