@@ -1,6 +1,10 @@
 package com.huiyi.v4.domain.pipeline
 
 import com.huiyi.v4.accessibility.HuiyiAccessibilityState
+import com.huiyi.v4.domain.model.MessageContent
+import com.huiyi.v4.domain.model.MetadataType
+import com.huiyi.v4.domain.model.Speaker
+import com.huiyi.v4.domain.model.TacticalDecisionType
 
 data class RealDeviceReviewBundleContent(
     val reviewMarkdown: String,
@@ -9,6 +13,11 @@ data class RealDeviceReviewBundleContent(
     val currentScreenJson: String,
     val realDeviceSmokeResult: String,
     val overallResult: String,
+    val failReason: String
+)
+
+private data class RealDeviceSmokeValidation(
+    val result: String,
     val failReason: String
 )
 
@@ -35,17 +44,14 @@ class RealDeviceReviewBundleGenerator(
             evidenceGenerator.buildJson(realResult, accessibilityState, generatedAt)
         }
 
-        val realDeviceSmokeResult = realResult?.let { evidenceGenerator.overallResult(it) } ?: "NOT_TESTED"
+        val smokeValidation = validateRealDeviceSmoke(realResult)
+        val realDeviceSmokeResult = smokeValidation.result
         val overallResult = when (realDeviceSmokeResult) {
             "PASS" -> "PASS"
             "FAIL" -> "FAIL"
             else -> "PARTIAL"
         }
-        val failReason = when (realDeviceSmokeResult) {
-            "PASS" -> "none"
-            "FAIL" -> "Real Device Smoke failed. See real-device-current-screen-report-for-gpt.md."
-            else -> REAL_SMOKE_NOT_TESTED_NOTICE
-        }
+        val failReason = smokeValidation.failReason
         val smokeMarkdown = buildSmokeReport(
             latestResult = latestResult,
             realResult = realResult,
@@ -124,8 +130,8 @@ class RealDeviceReviewBundleGenerator(
             appendLine("- overlayShownInTargetApp: ${realResult?.overlayShownInTargetApp ?: "NOT_TESTED"}")
             appendLine("- mainActivityOpened: ${realResult?.mainActivityOpened ?: "NOT_TESTED"}")
             appendLine("- parsedMessageCount: ${capture?.messages?.size ?: "NOT_TESTED"}")
-            appendLine("- metadataFilteredCount: ${capture?.messages?.count { !it.isEffectiveChatMessage || it.metadataType != com.huiyi.v4.domain.model.MetadataType.NONE } ?: "NOT_TESTED"}")
-            appendLine("- effectiveMessageCount: ${capture?.messages?.count { it.isEffectiveChatMessage && it.speaker != com.huiyi.v4.domain.model.Speaker.SYSTEM } ?: "NOT_TESTED"}")
+            appendLine("- metadataFilteredCount: ${capture?.messages?.count { !it.isEffectiveChatMessage || it.metadataType != MetadataType.NONE } ?: "NOT_TESTED"}")
+            appendLine("- effectiveMessageCount: ${capture?.messages?.count { it.isEffectiveChatMessage && it.speaker != Speaker.SYSTEM } ?: "NOT_TESTED"}")
             appendLine("- LastSpeakerDecision: ${realResult?.lastSpeakerDecision?.lastSpeaker ?: "NOT_TESTED"}")
             appendLine("- TacticalDecision: ${realResult?.tacticalDecision?.decisionType ?: "NOT_TESTED"}")
             appendLine("- ReplyRoutes: ${realResult?.routes?.size ?: "NOT_TESTED"}")
@@ -177,16 +183,69 @@ class RealDeviceReviewBundleGenerator(
             appendLine("- apiCalled: ${realResult?.apiCalled ?: false}")
             if (realDeviceSmokeResult == "NOT_TESTED") appendLine("- disclaimer: $REAL_SMOKE_NOT_TESTED_NOTICE")
             appendLine()
+            appendLine("## Smoke Decision Validation")
+            appendLine()
+            appendLine("- expectedIfLastSpeakerME: WAIT + 0 routes + no API")
+            appendLine("- expectedIfLastSpeakerOTHER: 5 routes, unless voice/image/unknown requires context")
+            appendLine("- actualLastSpeaker: ${realResult?.lastSpeakerDecision?.lastSpeaker ?: "NOT_TESTED"}")
+            appendLine("- actualDecisionType: ${realResult?.tacticalDecision?.decisionType ?: "NOT_TESTED"}")
+            appendLine("- actualRouteCount: ${realResult?.routes?.size ?: "NOT_TESTED"}")
+            appendLine("- validationResult: $realDeviceSmokeResult")
+            appendLine()
             appendLine("## Required Fields")
             appendLine()
             appendLine("- parsedMessageCount: ${capture?.messages?.size ?: "NOT_TESTED"}")
-            appendLine("- metadataFilteredCount: ${capture?.messages?.count { !it.isEffectiveChatMessage || it.metadataType != com.huiyi.v4.domain.model.MetadataType.NONE } ?: "NOT_TESTED"}")
-            appendLine("- effectiveMessageCount: ${capture?.messages?.count { it.isEffectiveChatMessage && it.speaker != com.huiyi.v4.domain.model.Speaker.SYSTEM } ?: "NOT_TESTED"}")
+            appendLine("- metadataFilteredCount: ${capture?.messages?.count { !it.isEffectiveChatMessage || it.metadataType != MetadataType.NONE } ?: "NOT_TESTED"}")
+            appendLine("- effectiveMessageCount: ${capture?.messages?.count { it.isEffectiveChatMessage && it.speaker != Speaker.SYSTEM } ?: "NOT_TESTED"}")
             appendLine("- LastSpeakerDecision: ${realResult?.lastSpeakerDecision?.lastSpeaker ?: "NOT_TESTED"}")
             appendLine("- TacticalDecision: ${realResult?.tacticalDecision?.decisionType ?: "NOT_TESTED"}")
             appendLine("- ReplyRoutes: ${realResult?.routes?.size ?: "NOT_TESTED"}")
             appendLine("- overlayShownInTargetApp: ${realResult?.overlayShownInTargetApp ?: "NOT_TESTED"}")
             appendLine("- mainActivityOpened: ${realResult?.mainActivityOpened ?: "NOT_TESTED"}")
+        }
+    }
+
+    private fun validateRealDeviceSmoke(realResult: CurrentScreenPipelineResult?): RealDeviceSmokeValidation {
+        if (realResult == null) return RealDeviceSmokeValidation("NOT_TESTED", REAL_SMOKE_NOT_TESTED_NOTICE)
+        val capture = realResult.captureResult
+            ?: return RealDeviceSmokeValidation("FAIL", "Real Device Smoke failed: no current screen capture.")
+        if (capture.sampleSource != SampleSource.REAL_DEVICE_ACCESSIBILITY) {
+            return RealDeviceSmokeValidation("FAIL", "Real Device Smoke failed: sample_source is ${capture.sampleSource.reportValue}.")
+        }
+        val messages = capture.messages
+        val effectiveMessages = messages.filter { it.isEffectiveChatMessage && it.speaker != Speaker.SYSTEM }
+        val candidateMessages = messages.filter { it.metadataType == MetadataType.NONE && it.speaker != Speaker.SYSTEM }
+        val unknownRatio = candidateMessages.count { it.speaker == Speaker.UNKNOWN }
+            .toFloat() / candidateMessages.size.coerceAtLeast(1)
+        val lastSpeaker = realResult.lastSpeakerDecision.lastSpeaker
+        val decisionType = realResult.tacticalDecision.decisionType
+        val routeCount = realResult.routes.size
+        val lastContent = realResult.lastSpeakerDecision.lastEffectiveMessage?.content
+
+        val fail = { reason: String -> RealDeviceSmokeValidation("FAIL", "Real Device Smoke failed: $reason") }
+        return when {
+            realResult.apiCalled -> fail("apiCalled must be false during smoke validation.")
+            !realResult.overlayShownInTargetApp -> fail("overlayShownInTargetApp must be true.")
+            realResult.mainActivityOpened -> fail("mainActivityOpened must be false.")
+            effectiveMessages.isEmpty() -> fail("no effective chat message was parsed.")
+            unknownRatio > 0.30f -> fail("unknown speaker ratio is too high (${String.format("%.2f", unknownRatio)}).")
+            lastSpeaker == Speaker.ME && decisionType == TacticalDecisionType.WAIT && routeCount == 0 ->
+                RealDeviceSmokeValidation("PASS", "none")
+            lastSpeaker == Speaker.ME ->
+                fail("last speaker ME must produce WAIT and 0 routes, got $decisionType and $routeCount routes.")
+            lastSpeaker == Speaker.OTHER &&
+                lastContent is MessageContent.Voice &&
+                decisionType == TacticalDecisionType.VOICE_SUMMARY_REQUIRED &&
+                routeCount == 0 ->
+                RealDeviceSmokeValidation("PASS", "none")
+            lastSpeaker == Speaker.OTHER &&
+                lastContent !is MessageContent.Voice &&
+                decisionType !in setOf(TacticalDecisionType.WAIT, TacticalDecisionType.CONTEXT_REQUIRED, TacticalDecisionType.VOICE_SUMMARY_REQUIRED) &&
+                routeCount == 5 ->
+                RealDeviceSmokeValidation("PASS", "none")
+            lastSpeaker == Speaker.OTHER ->
+                fail("last speaker OTHER must generate 5 routes or request voice summary, got $decisionType and $routeCount routes.")
+            else -> fail("last speaker is $lastSpeaker, so the result cannot be accepted as a high-confidence smoke pass.")
         }
     }
 

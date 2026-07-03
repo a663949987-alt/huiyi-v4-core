@@ -3,12 +3,12 @@
 ## 1. 基本信息
 
 - project: Huiyi v4 Core
-- versionName: 4.1.5
-- versionCode: 415
+- versionName: 4.1.7
+- versionCode: 417
 - branch: main
-- commitHash: d1e5c6a
-- generatedAt: 2026-07-03 10:12:54 +0800
-- taskName: Font Scale / Real Device Visual Calibration
+- commitHash: 17d10c3
+- generatedAt: 2026-07-03 10:41:52 +0800
+- taskName: v4.1.7 Real Device Review Validation Fix
 - review_freshness_result: PASS
 - mockchat_result: PASS
 - real_device_smoke_result: NOT_TESTED
@@ -17,20 +17,10 @@
 
 ## Current Round Evidence
 
-- v4.1.5_acceptance_summary: Font Scale / Real Device Visual Calibration
-- mockchat_fontscale_matrix: PASS, 120/120
-- mockchat_layout_matrix: PASS, 50/50
-- parser_threshold_mode: dynamic_screen_width_ratio
-- device_visual_config_reporting: added density, scaledDensity, fontScale, fontScaleEstimate, smallestScreenWidthDp, displaySizeCategory
-- candidate_vs_metadata_reporting: added candidateChatMessageCount and unknownSpeakerCount
-- unknown_diagnostics: added textBounds, parentBounds, rowBounds, bubbleBounds, ancestorBoundsChain, unknownReason
-- real_device_scenario_A: NOT_TESTED
-- real_device_disclaimer: 本轮 MockChat 大字体回归通过，但 Real Device Smoke 未执行，不代表真实聊天 App 已通过。
-
-- currentTaskName: Font Scale / Real Device Visual Calibration
-- currentVersion: 4.1.5
-- currentGeneratedAt: 2026-07-03 10:12:54 +0800
-- currentReports: outputs/mockchat-fontscale-matrix-report-for-gpt.md, outputs/real-device-current-screen-report-for-gpt.md, outputs/real-device-current-screen-report.json, outputs/real-device-smoke-report-for-gpt.md, outputs/v4.1.5-local-validation-report.md
+- currentTaskName: v4.1.7 Real Device Review Validation Fix
+- currentVersion: 4.1.7
+- currentGeneratedAt: 2026-07-03 10:41:52 +0800
+- currentReports: outputs/v4.1.7-real-device-review-validation-fix-report-for-gpt.md
 - currentSampleSources: emulator_mock_chat_accessibility
 - currentOverallResult: PARTIAL
 - review_freshness_result: PASS
@@ -40,50 +30,10 @@
 - mockChatMatrixStillPass: true
 - smokeDisclaimer: 本轮 Review Freshness 通过，但 Real Device Smoke 未执行，不代表真实聊天 App 已通过。
 
-### mockchat-fontscale-matrix-report-for-gpt.md
+### v4.1.7-real-device-review-validation-fix-report-for-gpt.md
 
-- sample_source: emulator_mock_chat_accessibility
-- totalProfiles: 6
-- totalScenarios: 120
-- passed: 120
-- failed: 0
-### real-device-current-screen-report-for-gpt.md
-
-- overall_result: NOT_TESTED
-- sample_source: NOT_TESTED
-- appPackage: NOT_TESTED
-- versionName: 4.1.5
-- metadataFilteredCount: NOT_TESTED
-- decisionType: NOT_TESTED
-- routeCount: NOT_TESTED
-- overlayShownInTargetApp: NOT_TESTED
-- mainActivityOpened: NOT_TESTED
-### real-device-current-screen-report.json
-
-- overall_result: NOT_TESTED
-- sample_source: NOT_TESTED
-- appPackage: NOT_TESTED
-- versionName: 4.1.5
-- metadataFilteredCount: NOT_TESTED
-- overlayShownInTargetApp: NOT_TESTED
-- mainActivityOpened: NOT_TESTED
-### real-device-smoke-report-for-gpt.md
-
-- overall_result: NOT_TESTED
-- sample_source: NOT_TESTED
-- appPackage: NOT_TESTED
-- versionName: 4.1.5
-- decisionType: NOT_TESTED
-- routeCount: NOT_TESTED
-- overlayShownInTargetApp: NOT_TESTED
-- mainActivityOpened: NOT_TESTED
-### v4.1.5-local-validation-report.md
-
-- overall_result: PARTIAL
-- versionName: 4.1.5
-- totalScenarios: 120
-- passed: 120
-- failed: 0
+- overall_result: PASS
+- versionName: 4.1.7
 
 ## Historical / Trace Reports
 
@@ -103,6 +53,13 @@ These reports are historical references only. Their FAIL or `sample_source=unkno
 - resultShownAsOverlay: true
 - overlayShownInTargetApp: true
 - mainActivityOpened: false
+### mockchat-fontscale-matrix-report-for-gpt.md
+
+- sample_source: emulator_mock_chat_accessibility
+- totalProfiles: 6
+- totalScenarios: 120
+- passed: 120
+- failed: 0
 ### mockchat-layout-matrix-report-for-gpt.md
 
 - totalProfiles: 5
@@ -113,6 +70,17 @@ These reports are historical references only. Their FAIL or `sample_source=unkno
 
 - sample_source: emulator_mock_chat_accessibility
 - appPackage: com.huiyi.mockchat
+### real-device-current-screen-report-for-gpt.md
+
+- overall_result: NOT_TESTED
+- sample_source: NOT_TESTED
+- appPackage: NOT_TESTED
+- versionName: 4.1.5
+- metadataFilteredCount: NOT_TESTED
+- decisionType: NOT_TESTED
+- routeCount: NOT_TESTED
+- overlayShownInTargetApp: NOT_TESTED
+- mainActivityOpened: NOT_TESTED
 ### v4-core-implementation-report-for-gpt.md
 
 # 会意 v4 Core 实现报告
@@ -168,21 +136,14 @@ These reports are historical references only. Their FAIL or `sample_source=unkno
 ### 新增文件
 
 ```
-outputs/mockchat-fontscale-matrix-report-for-gpt.md
 outputs/review/archive/
-outputs/v4.1.5-local-validation-report.md
+outputs/v4.1.7-real-device-review-validation-fix-report-for-gpt.md
 ```
 
 ### 修改文件
 
 ```
-outputs/real-device-current-screen-report-for-gpt.md
-outputs/real-device-current-screen-report.json
-outputs/real-device-smoke-report-for-gpt.md
-outputs/review/huiyi-v4-review-bundle-for-gpt.zip
-outputs/review/huiyi-v4-review-for-gpt.md
-outputs/review/manifest.json
-scripts/generate_review_bundle.py
+
 ```
 
 ### 删除文件
@@ -241,45 +202,9 @@ See Current Round Evidence and Historical / Trace Reports above.
 
 ## 8. 产物清单
 
-- path: outputs/mockchat-fontscale-matrix-report-for-gpt.md
+- path: outputs/v4.1.7-real-device-review-validation-fix-report-for-gpt.md
   type: report
-  sha256: 06eb777ac0ca95c33407210c8ed8ef5bbe8082bb694513077b32ef45c0c7d78d
-  是否建议发给 GPT: false
-  用途: Current round evidence.
-  isCurrentRound: true
-  evidenceRole: current
-  sample_source: emulator_mock_chat_accessibility
-  stale: false
-- path: outputs/real-device-current-screen-report-for-gpt.md
-  type: report
-  sha256: a3400b3ca114528324b77d6727500dc7df23a3b5c413f2ca83a175f604e03bbe
-  是否建议发给 GPT: false
-  用途: Current round evidence.
-  isCurrentRound: true
-  evidenceRole: current
-  sample_source: NOT_TESTED
-  stale: false
-- path: outputs/real-device-current-screen-report.json
-  type: json
-  sha256: cfb0ef04aa86c79605b7f48aafba8e99e940858e7ad0f9290c9f2d7aea9955a6
-  是否建议发给 GPT: false
-  用途: Current round evidence.
-  isCurrentRound: true
-  evidenceRole: current
-  sample_source: NOT_TESTED
-  stale: false
-- path: outputs/real-device-smoke-report-for-gpt.md
-  type: report
-  sha256: b7921c63e46cf5a51a6f9fe3a86717d0a46b8182d208c00a8621483d7d7a1a75
-  是否建议发给 GPT: false
-  用途: Current round evidence.
-  isCurrentRound: true
-  evidenceRole: current
-  sample_source: NOT_TESTED
-  stale: false
-- path: outputs/v4.1.5-local-validation-report.md
-  type: report
-  sha256: fac896c9a4094c637e544606e396ef0df40b2d1c15335da34a00ca9096272281
+  sha256: 918ea0d46a6e3acf64393dcf8855ad181d83ef52fbec6ee8ba91bf4daf5b7b50
   是否建议发给 GPT: false
   用途: Current round evidence.
   isCurrentRound: true
@@ -304,6 +229,15 @@ See Current Round Evidence and Historical / Trace Reports above.
   evidenceRole: historical
   sample_source: emulator_mock_chat_accessibility
   stale: false
+- path: outputs/mockchat-fontscale-matrix-report-for-gpt.md
+  type: report
+  sha256: 06eb777ac0ca95c33407210c8ed8ef5bbe8082bb694513077b32ef45c0c7d78d
+  是否建议发给 GPT: false
+  用途: Historical / trace evidence.
+  isCurrentRound: false
+  evidenceRole: historical
+  sample_source: emulator_mock_chat_accessibility
+  stale: false
 - path: outputs/mockchat-layout-matrix-report-for-gpt.md
   type: report
   sha256: 08915abc0eb2a6ee97891d51d16a86ba5498abef42bd54fc70c0c646c13d478b
@@ -321,6 +255,15 @@ See Current Round Evidence and Historical / Trace Reports above.
   isCurrentRound: false
   evidenceRole: historical
   sample_source: emulator_mock_chat_accessibility
+  stale: true
+- path: outputs/real-device-current-screen-report-for-gpt.md
+  type: report
+  sha256: a3400b3ca114528324b77d6727500dc7df23a3b5c413f2ca83a175f604e03bbe
+  是否建议发给 GPT: false
+  用途: Historical / trace evidence.
+  isCurrentRound: false
+  evidenceRole: historical
+  sample_source: NOT_TESTED
   stale: true
 - path: outputs/v4-core-implementation-report-for-gpt.md
   type: report

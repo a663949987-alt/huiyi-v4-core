@@ -1,15 +1,15 @@
 {
   "project": "Huiyi v4 Core",
-  "versionName": "4.1.5",
-  "versionCode": 415,
+  "versionName": "4.1.7",
+  "versionCode": 417,
   "branch": "main",
-  "commitHash": "d1e5c6a",
-  "generatedAt": "2026-07-03 10:12:54 +0800",
+  "commitHash": "17d10c3",
+  "generatedAt": "2026-07-03 10:41:52 +0800",
   "overallResult": "PARTIAL",
   "reviewFreshnessResult": "PASS",
   "mockchatResult": "PASS",
   "realDeviceSmokeResult": "NOT_TESTED",
-  "taskName": "Font Scale / Real Device Visual Calibration",
+  "taskName": "v4.1.7 Real Device Review Validation Fix",
   "sampleSources": [
     "emulator_mock_chat_accessibility"
   ],
@@ -19,7 +19,7 @@
     {
       "path": "outputs/review/huiyi-v4-review-for-gpt.md",
       "type": "review_markdown",
-      "sha256": "bbe3118a1f284616bf493843ef5d3bee66364e7b2375e1ecf529cd2dea4712b2",
+      "sha256": "7c14a779357e310a6dd2acf893794b08a30824b7a1ac74502262d3a0ebedd397",
       "sendToGpt": true,
       "description": "Default file for GPT review.",
       "generatedAt": null,
@@ -31,78 +31,14 @@
       "stale": false
     },
     {
-      "path": "outputs/mockchat-fontscale-matrix-report-for-gpt.md",
+      "path": "outputs/v4.1.7-real-device-review-validation-fix-report-for-gpt.md",
       "type": "report",
-      "sha256": "06eb777ac0ca95c33407210c8ed8ef5bbe8082bb694513077b32ef45c0c7d78d",
+      "sha256": "918ea0d46a6e3acf64393dcf8855ad181d83ef52fbec6ee8ba91bf4daf5b7b50",
       "sendToGpt": false,
       "description": "Current round evidence.",
-      "generatedAt": "1783094400000",
-      "taskName": "Font Scale / Real Device Visual Calibration",
-      "versionName": null,
-      "isCurrentRound": true,
-      "evidenceRole": "current",
-      "sample_source": [
-        "emulator_mock_chat_accessibility"
-      ],
-      "stale": false
-    },
-    {
-      "path": "outputs/real-device-current-screen-report-for-gpt.md",
-      "type": "report",
-      "sha256": "a3400b3ca114528324b77d6727500dc7df23a3b5c413f2ca83a175f604e03bbe",
-      "sendToGpt": false,
-      "description": "Current round evidence.",
-      "generatedAt": "2026-07-03 10:12:00 +0800",
-      "taskName": "Font Scale / Real Device Visual Calibration",
-      "versionName": "4.1.5",
-      "isCurrentRound": true,
-      "evidenceRole": "current",
-      "sample_source": [
-        "NOT_TESTED"
-      ],
-      "stale": false
-    },
-    {
-      "path": "outputs/real-device-current-screen-report.json",
-      "type": "json",
-      "sha256": "cfb0ef04aa86c79605b7f48aafba8e99e940858e7ad0f9290c9f2d7aea9955a6",
-      "sendToGpt": false,
-      "description": "Current round evidence.",
-      "generatedAt": "2026-07-03 10:12:00 +0800",
-      "taskName": "Font Scale / Real Device Visual Calibration",
-      "versionName": "4.1.5",
-      "isCurrentRound": true,
-      "evidenceRole": "current",
-      "sample_source": [
-        "NOT_TESTED"
-      ],
-      "stale": false
-    },
-    {
-      "path": "outputs/real-device-smoke-report-for-gpt.md",
-      "type": "report",
-      "sha256": "b7921c63e46cf5a51a6f9fe3a86717d0a46b8182d208c00a8621483d7d7a1a75",
-      "sendToGpt": false,
-      "description": "Current round evidence.",
-      "generatedAt": "2026-07-03 10:12:00 +0800",
-      "taskName": "Font Scale / Real Device Visual Calibration",
-      "versionName": "4.1.5",
-      "isCurrentRound": true,
-      "evidenceRole": "current",
-      "sample_source": [
-        "NOT_TESTED"
-      ],
-      "stale": false
-    },
-    {
-      "path": "outputs/v4.1.5-local-validation-report.md",
-      "type": "report",
-      "sha256": "fac896c9a4094c637e544606e396ef0df40b2d1c15335da34a00ca9096272281",
-      "sendToGpt": false,
-      "description": "Current round evidence.",
-      "generatedAt": "2026-07-03 10:12:00 +0800",
-      "taskName": "Font Scale / Real Device Visual Calibration",
-      "versionName": "4.1.5",
+      "generatedAt": "1783046438199",
+      "taskName": "v4.1.7 Real Device Review Validation Fix",
+      "versionName": "4.1.7",
       "isCurrentRound": true,
       "evidenceRole": "current",
       "sample_source": [],
@@ -129,6 +65,22 @@
       "sendToGpt": false,
       "description": "Historical / trace evidence.",
       "generatedAt": "1783008000000",
+      "taskName": null,
+      "versionName": null,
+      "isCurrentRound": false,
+      "evidenceRole": "historical",
+      "sample_source": [
+        "emulator_mock_chat_accessibility"
+      ],
+      "stale": false
+    },
+    {
+      "path": "outputs/mockchat-fontscale-matrix-report-for-gpt.md",
+      "type": "report",
+      "sha256": "06eb777ac0ca95c33407210c8ed8ef5bbe8082bb694513077b32ef45c0c7d78d",
+      "sendToGpt": false,
+      "description": "Historical / trace evidence.",
+      "generatedAt": "1783094400000",
       "taskName": null,
       "versionName": null,
       "isCurrentRound": false,
@@ -167,6 +119,22 @@
       "evidenceRole": "historical",
       "sample_source": [
         "emulator_mock_chat_accessibility"
+      ],
+      "stale": true
+    },
+    {
+      "path": "outputs/real-device-current-screen-report-for-gpt.md",
+      "type": "report",
+      "sha256": "a3400b3ca114528324b77d6727500dc7df23a3b5c413f2ca83a175f604e03bbe",
+      "sendToGpt": false,
+      "description": "Historical / trace evidence.",
+      "generatedAt": "2026-07-03 10:12:00 +0800",
+      "taskName": null,
+      "versionName": "4.1.5",
+      "isCurrentRound": false,
+      "evidenceRole": "historical",
+      "sample_source": [
+        "NOT_TESTED"
       ],
       "stale": true
     },

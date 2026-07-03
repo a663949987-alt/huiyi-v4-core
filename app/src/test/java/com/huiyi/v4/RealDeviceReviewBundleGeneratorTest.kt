@@ -70,4 +70,71 @@ class RealDeviceReviewBundleGeneratorTest {
         assertTrue(bundle.currentScreenMarkdown.contains("sample_source: real_device_accessibility"))
         assertTrue(bundle.smokeMarkdown.contains("overlayShownInTargetApp: true"))
     }
+
+    @Test
+    fun realDeviceOtherLastWithoutRoutesFailsSmokeValidation() {
+        val result = evidenceResult(
+            appPackage = "com.chat.real",
+            source = SampleSource.REAL_DEVICE_ACCESSIBILITY,
+            messages = listOf(
+                textNode("1", Speaker.ME, "hello", 1),
+                textNode("2", Speaker.OTHER, "are you there", 2)
+            ),
+            includeRoutes = false
+        ).copy(
+            overlayShownInTargetApp = true,
+            foregroundPackageWhenPanelShown = "com.chat.real",
+            huiyiActivityOpened = false,
+            userStayedInChatApp = true,
+            resultShownAsOverlay = true,
+            mainActivityOpened = false
+        )
+
+        val bundle = generator.build(
+            latestResult = result,
+            accessibilityState = HuiyiAccessibilityState(serviceConnected = true, rootAvailable = true),
+            generatedAt = 1,
+            versionName = "4.1.7",
+            versionCode = 417,
+            ownAppPackage = "com.huiyi.v4"
+        )
+
+        assertEquals("FAIL", bundle.realDeviceSmokeResult)
+        assertEquals("FAIL", bundle.overallResult)
+        assertTrue(bundle.failReason.contains("last speaker OTHER must generate 5 routes"))
+        assertTrue(bundle.reviewMarkdown.contains("real_device_smoke_result: FAIL"))
+        assertTrue(bundle.smokeMarkdown.contains("validationResult: FAIL"))
+    }
+
+    @Test
+    fun realDeviceMeLastWaitPassesSmokeValidation() {
+        val result = evidenceResult(
+            appPackage = "com.chat.real",
+            source = SampleSource.REAL_DEVICE_ACCESSIBILITY,
+            messages = listOf(
+                textNode("1", Speaker.OTHER, "are you there", 1),
+                textNode("2", Speaker.ME, "yes", 2)
+            ),
+            includeRoutes = false
+        ).copy(
+            overlayShownInTargetApp = true,
+            foregroundPackageWhenPanelShown = "com.chat.real",
+            huiyiActivityOpened = false,
+            userStayedInChatApp = true,
+            resultShownAsOverlay = true,
+            mainActivityOpened = false
+        )
+
+        val bundle = generator.build(
+            latestResult = result,
+            accessibilityState = HuiyiAccessibilityState(serviceConnected = true, rootAvailable = true),
+            generatedAt = 1,
+            versionName = "4.1.7",
+            versionCode = 417,
+            ownAppPackage = "com.huiyi.v4"
+        )
+
+        assertEquals("PASS", bundle.realDeviceSmokeResult)
+        assertEquals("PASS", bundle.overallResult)
+    }
 }

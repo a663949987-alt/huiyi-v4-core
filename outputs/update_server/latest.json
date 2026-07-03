@@ -1,9 +1,9 @@
 {
-    "versionName":  "4.1.6",
-    "versionCode":  416,
-    "apkUrl":  "huiyi-v4.1.6-debug.apk",
-    "releaseNotes":  "v4.1.6 LAN discovery fallback fix",
+    "versionName":  "4.1.7",
+    "versionCode":  417,
+    "apkUrl":  "huiyi-v4.1.7-debug.apk",
+    "releaseNotes":  "v4.1.7 real-device review result validation fix",
     "forceUpdate":  false,
-    "sha256":  "E55E2B871F9E78ABB654A6A3D5E4AE14368C064CF8F7A0CB6347A961D894BA39",
-    "createdAt":  1783045412067
+    "sha256":  "D6028FD8174F4CB04C9745581515902AC271999CB185CF866842E1EA8EC77402",
+    "createdAt":  1783046438199
 }
