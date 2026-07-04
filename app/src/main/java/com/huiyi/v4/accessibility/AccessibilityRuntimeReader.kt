@@ -11,8 +11,9 @@ object AccessibilityRuntimeReader {
     fun read(context: Context): AccessibilityRuntimeState {
         val service = HuiyiAccessibilityService.state.value
         val overlay = OverlayStateStore.state.value
+        val systemEnabled = isSystemAccessibilityEnabled(context) || service.serviceConnected
         return AccessibilityRuntimeState(
-            systemAccessibilityEnabled = isSystemAccessibilityEnabled(context),
+            systemAccessibilityEnabled = systemEnabled,
             serviceConnected = service.serviceConnected,
             rootAvailable = service.rootAvailable,
             currentPackage = service.currentPackage,
@@ -39,19 +40,11 @@ object AccessibilityRuntimeReader {
         packageName: String
     ): Boolean {
         if (enabledServices.isBlank()) return false
-        val serviceClass = HuiyiAccessibilityService::class.java.name
-        val relativeServiceClass = ".accessibility.HuiyiAccessibilityService"
-        val accepted = setOf(
-            "$packageName/$serviceClass",
-            "$packageName/$relativeServiceClass"
-        )
         return enabledServices
             .split(':')
             .map { it.trim() }
             .filter { it.isNotBlank() }
-            .any { flattened ->
-                accepted.any { acceptedName -> flattened.equals(acceptedName, ignoreCase = true) }
-            }
+            .any { flattened -> flattened.isHuiyiAccessibilityComponent(packageName) }
     }
 
     private fun isEnabledFromSecureSettings(context: Context): Boolean {
@@ -72,7 +65,26 @@ object AccessibilityRuntimeReader {
             .any { info ->
                 val serviceInfo = info.resolveInfo?.serviceInfo
                 serviceInfo?.packageName == expected.packageName &&
-                    serviceInfo.name == expected.className
+                    serviceInfo.name.orEmpty().isHuiyiAccessibilityClassName()
             }
+    }
+
+    private fun String.isHuiyiAccessibilityComponent(packageName: String): Boolean {
+        val normalized = trim()
+        val separator = normalized.indexOf('/')
+        if (separator < 0) return false
+        val pkg = normalized.substring(0, separator)
+        val className = normalized.substring(separator + 1)
+        return pkg == packageName && className.isHuiyiAccessibilityClassName()
+    }
+
+    private fun String.isHuiyiAccessibilityClassName(): Boolean {
+        val className = trim()
+        if (className.isBlank()) return false
+        val expected = HuiyiAccessibilityService::class.java.name
+        return className == expected ||
+            className == ".accessibility.HuiyiAccessibilityService" ||
+            className.endsWith(".accessibility.HuiyiAccessibilityService") ||
+            className.endsWith("HuiyiAccessibilityService")
     }
 }

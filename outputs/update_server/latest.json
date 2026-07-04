@@ -1,9 +1,9 @@
 {
-  "versionName": "4.1.44",
-  "versionCode": 463,
-  "apkUrl": "huiyi-v4.1.44-debug.apk",
-  "releaseNotes": "v4.1.44: cloud timeout routing fix; gpt-5.4 primary has short window and TIMEOUT escalates to gpt-5.5 before local fallback; includes v4.1.43 accessibility service reconnect guard",
-  "forceUpdate": false,
-  "sha256": "5FE79461D2389244641E5FCF531F02F72ADDF95EE92934B13C02BFCCA6D1232A",
-  "createdAt": 1783152022337
+    "versionName":  "4.1.45",
+    "versionCode":  464,
+    "apkUrl":  "huiyi-v4.1.45-debug.apk",
+    "releaseNotes":  "v4.1.45: fixes accessibility enabled-state detection; avoids showing accessibility disabled when system lists Huiyi service or service is already connected",
+    "forceUpdate":  false,
+    "sha256":  "0AC19EA8EA66F50C6BD1CCD520BF3FA0F24AB39EBFF83FDB511D58FACD609B67",
+    "createdAt":  1783154721240
 }
