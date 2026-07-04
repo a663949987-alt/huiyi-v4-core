@@ -1,20 +1,22 @@
 # GPT -> Codex Current Task
 
-taskStatus: DONE
-project: Huiyi v4 Core
-taskName: cloud_soft_timeout_pending_panel_fix
-versionName: 4.1.52
-versionCode: 471
+taskStatus: COMPLETED
+project: Huiyi v4
+taskName: split_passive_next_sentence_and_active_self_expression
+versionName: 4.1.53
+versionCode: 472
+createdBy: User
 userNeedsPhoneThisRound: true
-realDeviceRequiredThisRound: false
-cloudRealEndpointRequiredThisRound: false
+realDeviceRequiredThisRound: true
+
+## Goals
+- Split passive 下一句 and active 表达我 into two buttons/modules.
+- Keep 下一句 clean: quick replies, copy, 换一批, 表达我 entry.
+- Move 人物弧光 and persona feedback into 表达我 only.
+- Preserve LAST ME wait and passive cloud non-blocking local fallback.
 
 ## Result
-
-- softTimeoutPendingPanel: PASS
-- secondNextTapReusesPendingSession: PASS
-- secondNextTapStartsNewAnalysis: false
-- secondNextTapStartsNewApiCall: false
-- lateCloudResultCanStillUpgradePanel: true
+- currentOverallResult: LOCAL_TEST_PASS_LAN_APK_READY
 - unitTests: PASS
-- LAN APK: READY
+- assembleDebug: PASS
+- LAN update: outputs/update_server/huiyi-v4.1.53-debug.apk

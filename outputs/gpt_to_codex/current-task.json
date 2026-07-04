@@ -1,17 +1,16 @@
 {
-  "taskStatus": "DONE",
-  "project": "Huiyi v4 Core",
-  "taskName": "cloud_soft_timeout_pending_panel_fix",
-  "versionName": "4.1.52",
-  "versionCode": 471,
+  "taskStatus": "COMPLETED",
+  "project": "Huiyi v4",
+  "taskName": "split_passive_next_sentence_and_active_self_expression",
+  "versionName": "4.1.53",
+  "versionCode": 472,
+  "createdBy": "User",
   "userNeedsPhoneThisRound": true,
-  "realDeviceRequiredThisRound": false,
-  "cloudRealEndpointRequiredThisRound": false,
-  "softTimeoutPendingPanel": "PASS",
-  "secondNextTapReusesPendingSession": "PASS",
-  "secondNextTapStartsNewAnalysis": false,
-  "secondNextTapStartsNewApiCall": false,
-  "lateCloudResultCanStillUpgradePanel": true,
-  "unitTests": "PASS",
-  "lanApkReady": true
+  "realDeviceRequiredThisRound": true,
+  "currentOverallResult": "LOCAL_TEST_PASS_LAN_APK_READY",
+  "requiredReports": [
+    "outputs/gpt_review_inbox/passive-active-split-report-for-gpt.md",
+    "outputs/gpt_review_inbox/passive-active-split-report.json",
+    "outputs/codex_to_gpt/result-manifest.json"
+  ]
 }

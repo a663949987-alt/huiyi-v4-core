@@ -16,7 +16,7 @@ import com.huiyi.v4.runtime.NextSentenceClickAck
 class FloatingBubbleController(
     private val context: Context,
     private val onNextSentence: (NextSentenceClickAck) -> Unit,
-    private val onOneTapFeedback: () -> Unit
+    private val onExpressSelf: (NextSentenceClickAck) -> Unit
 ) {
     private val windowManager = context.getSystemService(Context.WINDOW_SERVICE) as WindowManager
     private var rootView: LinearLayout? = null
@@ -77,7 +77,10 @@ class FloatingBubbleController(
         }
     }
 
-    fun markLoadingAck(): NextSentenceClickAck {
+    fun markLoadingAck(
+        toastText: String = "会意正在看当前聊天…",
+        bubbleText: String = "会意正在看…"
+    ): NextSentenceClickAck {
         val clickAt = System.currentTimeMillis()
         val overlayBefore = OverlayStateStore.state.value
         rootView?.let { container ->
@@ -85,8 +88,8 @@ class FloatingBubbleController(
                 container.removeViews(1, container.childCount - 1)
             }
         }
-        bubbleButton?.text = "会意正在看…"
-        Toast.makeText(context, "会意正在看当前聊天…", Toast.LENGTH_SHORT).show()
+        bubbleButton?.text = bubbleText
+        Toast.makeText(context, toastText, Toast.LENGTH_SHORT).show()
         val ackAt = System.currentTimeMillis()
         return NextSentenceClickAck(
             clickReceivedAt = clickAt,
@@ -123,7 +126,7 @@ class FloatingBubbleController(
     }
 
     private fun addMenu(container: LinearLayout) {
-        listOf(NEXT, FEEDBACK, HIDE).forEach { label ->
+        listOf(NEXT, EXPRESS_SELF, HIDE).forEach { label ->
             val button = Button(context).apply {
                 text = label
                 importantForAccessibility = View.IMPORTANT_FOR_ACCESSIBILITY_NO
@@ -133,7 +136,15 @@ class FloatingBubbleController(
                             OverlayStateStore.markBubbleClick()
                             onNextSentence(markLoadingAck())
                         }
-                        FEEDBACK -> onOneTapFeedback()
+                        EXPRESS_SELF -> {
+                            OverlayStateStore.markBubbleClick()
+                            onExpressSelf(
+                                markLoadingAck(
+                                    toastText = "会意正在整理表达…",
+                                    bubbleText = "会意正在整理…"
+                                )
+                            )
+                        }
                         HIDE -> hide("user_hide")
                     }
                 }
@@ -144,7 +155,7 @@ class FloatingBubbleController(
 
     private companion object {
         const val NEXT = "下一句"
-        const val FEEDBACK = "这次不对，发给 GPT"
+        const val EXPRESS_SELF = "表达我"
         const val HIDE = "隐藏"
     }
 }

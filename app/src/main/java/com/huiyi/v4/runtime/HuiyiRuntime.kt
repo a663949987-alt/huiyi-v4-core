@@ -6,13 +6,17 @@ import android.util.Log
 import com.huiyi.v4.data.DatabaseProvider
 import com.huiyi.v4.data.HuiyiPersistenceRepository
 import com.huiyi.v4.domain.cloud.CloudProviderType
+import com.huiyi.v4.domain.cloud.CloudAnalysisTrace
 import com.huiyi.v4.domain.cloud.CloudRuntimeSettings
 import com.huiyi.v4.domain.capture.ManualContextCaptureSession
 import com.huiyi.v4.domain.capture.VisualDebugResult
 import com.huiyi.v4.domain.context.ContextAssembler
+import com.huiyi.v4.domain.model.InfluenceIntensity
 import com.huiyi.v4.domain.model.ReplyAttempt
 import com.huiyi.v4.domain.model.ReplyAttemptStatus
 import com.huiyi.v4.domain.model.ReplyRoute
+import com.huiyi.v4.domain.model.ReplyRouteType
+import com.huiyi.v4.domain.model.RiskLevel
 import com.huiyi.v4.domain.model.Speaker
 import com.huiyi.v4.domain.model.TacticalDecisionType
 import com.huiyi.v4.domain.model.UserAction
@@ -77,6 +81,7 @@ import java.util.UUID
 data class HuiyiRuntimeState(
     val demoState: HuiyiDemoState = sampleState(),
     val latestPipelineResult: CurrentScreenPipelineResult? = null,
+    val floatingPanelMode: FloatingPanelMode = FloatingPanelMode.NEXT_SENTENCE,
     val panelVisible: Boolean = false,
     val lastError: String? = null,
     val lastDebugExportPath: String? = null,
@@ -412,6 +417,7 @@ class HuiyiRuntime private constructor(
                 lastNextSentenceTrace = startedTrace,
                 lastError = null,
                 latestPipelineResult = null,
+                floatingPanelMode = FloatingPanelMode.NEXT_SENTENCE,
                 panelVisible = false,
                 nextSentenceUiState = if (clickAck.clickAckVisible) NextSentenceUiState.CLICK_ACK else NextSentenceUiState.LOADING_CAPTURE
             )
@@ -608,6 +614,7 @@ class HuiyiRuntime private constructor(
                             } else it.copy(
                                 demoState = it.demoState.copy(messages = messages),
                                 latestPipelineResult = resultWithVisualDebug,
+                                floatingPanelMode = FloatingPanelMode.NEXT_SENTENCE,
                                 panelVisible = true,
                                 lastError = null,
                                 nextSentenceUiState = NextSentenceUiState.RESULT,
@@ -635,6 +642,220 @@ class HuiyiRuntime private constructor(
         }
         return sessionId
     }
+
+    fun runExpressSelf(clickAck: NextSentenceClickAck = NextSentenceClickAck()): String {
+        val sessionId = UUID.randomUUID().toString()
+        val beforeRuntime = AccessibilityRuntimeReader.read(appContext)
+        val beforeOverlay = OverlayStateStore.state.value
+        val startedTrace = NextSentenceSessionTrace(
+            sessionId = sessionId,
+            startedAt = clickAck.clickReceivedAt,
+            stage = if (clickAck.clickAckVisible) NextSentenceStage.CLICK_ACK_SHOWN else NextSentenceStage.CLICK_RECEIVED,
+            clickReceivedAt = clickAck.clickReceivedAt,
+            clickAckShownAt = clickAck.clickAckShownAt,
+            clickAckLatencyMs = clickAck.clickAckLatencyMs,
+            clickAckVisible = clickAck.clickAckVisible,
+            runNextSentenceEntered = true,
+            sessionCreated = true,
+            terminalState = null,
+            panelShown = false,
+            panelVisibleBeforeClick = clickAck.panelVisibleBeforeClick,
+            panelVisibleAfterClick = clickAck.panelVisibleAfterClick,
+            bubbleVisibleBeforeClick = beforeOverlay.bubbleVisible,
+            bubbleVisibleAfterClick = clickAck.bubbleVisibleAfterClick,
+            bubbleAttachedAfterClick = clickAck.bubbleVisibleAfterClick,
+            systemAccessibilityEnabled = beforeRuntime.systemAccessibilityEnabled,
+            serviceConnected = beforeRuntime.serviceConnected,
+            activePackageBeforeClick = beforeRuntime.currentPackage,
+            activeWindowTitleAtClick = beforeRuntime.currentWindowTitle,
+            rootAvailableAtClick = beforeRuntime.rootAvailable
+        )
+        activeNextSentenceJob?.cancel()
+        sessionWatchdogJob?.cancel()
+        activeNextSentenceSessionId = sessionId
+        mutableState.update {
+            it.copy(
+                lastNextSentenceTrace = startedTrace,
+                lastError = null,
+                latestPipelineResult = null,
+                floatingPanelMode = FloatingPanelMode.EXPRESS_SELF,
+                panelVisible = false,
+                nextSentenceUiState = if (clickAck.clickAckVisible) NextSentenceUiState.CLICK_ACK else NextSentenceUiState.LOADING_CAPTURE
+            )
+        }
+        writeLatestSessionTraceReports(startedTrace)
+        activeNextSentenceJob = scope.launch {
+            val captureTrace = startedTrace.copy(stage = NextSentenceStage.CAPTURE_STARTING)
+            mutableState.update { state ->
+                if (state.lastNextSentenceTrace?.sessionId == sessionId) {
+                    state.copy(
+                        lastNextSentenceTrace = captureTrace,
+                        nextSentenceUiState = NextSentenceUiState.LOADING_CAPTURE
+                    )
+                } else {
+                    state
+                }
+            }
+            try {
+                val checkedTrace = waitForAccessibilityConnection(captureTrace)
+                val capture = withContext(Dispatchers.Default) { CurrentScreenCaptureUseCase().capture().getOrThrow() }
+                ensureActive()
+                val messages = capture.messages.ifEmpty { mutableState.value.demoState.messages }
+                val context = ContextAssembler().assemble(messages, userPersonaCorpus = currentPersona())
+                val lastSpeaker = LastSpeakerDecisionUseCase().decide(messages)
+                val baseDecision = TacticalDecisionEngine().decide(context)
+                val expressDecision = baseDecision.copy(
+                    decisionType = TacticalDecisionType.NORMAL_REPLY,
+                    bestMove = "主动表达自己的底色，但只露出一点，不把聊天变成自我汇报。",
+                    shouldUseUserStory = true,
+                    fallbackMove = "如果对方接不住，立刻回到接住她和低压力聊天。"
+                )
+                val generatedRoutes = ReplyRouteGenerator().generate(context, expressDecision)
+                val routes = expressSelfRoutes(generatedRoutes)
+                val endedAt = System.currentTimeMillis()
+                val result = CurrentScreenPipelineResult(
+                    captureResult = capture,
+                    context = context,
+                    lastSpeakerDecision = lastSpeaker,
+                    tacticalDecision = expressDecision,
+                    routes = routes,
+                    apiCalled = false,
+                    sessionId = sessionId,
+                    panelSessionId = sessionId,
+                    panelContentFromCurrentSession = true,
+                    staleRoutesClearedAtSessionStart = true,
+                    staleRoutesReused = false,
+                    routePanelShown = routes.isNotEmpty(),
+                    sessionTerminalState = "EXPRESS_SELF_PANEL",
+                    analysisStartedAt = startedTrace.startedAt,
+                    analysisEndedAt = endedAt,
+                    analysisDurationMs = endedAt - startedTrace.startedAt,
+                    decisionTypeFamily = "EXPRESS_SELF",
+                    cloudTrace = CloudAnalysisTrace(
+                        activeSessionId = sessionId,
+                        cloudRequestSessionId = null,
+                        cloudResponseSessionId = null,
+                        preAnalysisSnapshotId = capture.snapshot.capturedAt.toString(),
+                        chatPackage = capture.snapshot.appPackage.orEmpty(),
+                        chatWindowHash = capture.snapshot.windowTitle.orEmpty(),
+                        cloudAttempted = false,
+                        cloudSkippedReason = "EXPRESS_SELF_LOCAL_FALLBACK",
+                        decisionSource = "LOCAL_EXPRESS_SELF",
+                        panelRenderedSessionId = sessionId
+                    )
+                )
+                val successTrace = checkedTrace.copy(
+                    endedAt = endedAt,
+                    stage = NextSentenceStage.ROUTES_GENERATED,
+                    activePackageAtCaptureStart = capture.currentRootPackageAtCapture,
+                    activePackageAfterRootRetry = capture.snapshot.appPackage,
+                    rootAvailableFirstTry = capture.rootAvailableFirstTry,
+                    rootRetryCount = capture.rootRetryCount,
+                    rootAvailableAfterRetry = capture.rootAvailableAfterRetry,
+                    rootPackageName = capture.snapshot.appPackage,
+                    rootWindowTitle = capture.snapshot.windowTitle,
+                    parsedMessageCount = capture.messages.size,
+                    effectiveMessageCount = capture.messages.count { it.isEffectiveChatMessage && it.speaker != Speaker.SYSTEM },
+                    lastEffectiveSpeaker = lastSpeaker.lastSpeaker,
+                    decisionType = expressDecision.decisionType.name,
+                    routeCount = routes.size,
+                    apiCalled = false,
+                    panelAttached = true,
+                    panelRenderSuccess = true,
+                    terminalState = "EXPRESS_SELF_PANEL",
+                    panelShown = true,
+                    userFacingMessage = "表达我"
+                )
+                writeLatestSessionTraceReports(successTrace)
+                val flightRecord = NextSentenceFlightRecordFactory.fromSuccess(result, successTrace)
+                mutableState.update {
+                    if (it.lastNextSentenceTrace?.sessionId != sessionId ||
+                        activeNextSentenceSessionId != sessionId
+                    ) {
+                        it
+                    } else {
+                        it.copy(
+                            demoState = it.demoState.copy(messages = messages),
+                            latestPipelineResult = result,
+                            floatingPanelMode = FloatingPanelMode.EXPRESS_SELF,
+                            panelVisible = true,
+                            lastError = null,
+                            nextSentenceUiState = NextSentenceUiState.RESULT,
+                            lastNextSentenceTrace = successTrace,
+                            latestFlightRecord = flightRecord,
+                            recentFlightRecords = (it.recentFlightRecords + flightRecord).takeLast(10)
+                        )
+                    }
+                }
+            } catch (cancelled: CancellationException) {
+                Log.i(LOG_TAG, "express_self_discarded sessionId=${startedTrace.sessionId} activeSessionId=$activeNextSentenceSessionId reason=STALE_SESSION")
+            } catch (error: Throwable) {
+                val message = error.message?.takeIf { it.isNotBlank() }
+                    ?: userFacingMessageFor(NextSentenceErrorCode.NEXT_SENTENCE_TIMEOUT_NO_VISIBLE_RESULT)
+                val failedTrace = startedTrace.failed(NextSentenceErrorCode.NEXT_SENTENCE_TIMEOUT_NO_VISIBLE_RESULT, NextSentenceStage.CAPTURE_STARTING)
+                    .copy(
+                        endedAt = System.currentTimeMillis(),
+                        userFacingMessage = message,
+                        terminalState = "CONTROLLED_FAIL",
+                        panelShown = true
+                    )
+                val flightRecord = NextSentenceFlightRecordFactory.fromFailure(failedTrace)
+                mutableState.update {
+                    if (it.lastNextSentenceTrace?.sessionId != sessionId ||
+                        activeNextSentenceSessionId != sessionId
+                    ) {
+                        it
+                    } else {
+                        it.copy(
+                            latestPipelineResult = null,
+                            floatingPanelMode = FloatingPanelMode.EXPRESS_SELF,
+                            panelVisible = true,
+                            lastError = message,
+                            nextSentenceUiState = NextSentenceUiState.CONTROLLED_FAIL,
+                            lastNextSentenceTrace = failedTrace,
+                            latestFlightRecord = flightRecord,
+                            recentFlightRecords = (it.recentFlightRecords + flightRecord).takeLast(10)
+                        )
+                    }
+                }
+                writeLatestSessionTraceReports(failedTrace)
+            }
+        }
+        return sessionId
+    }
+
+    private fun expressSelfRoutes(routes: List<ReplyRoute>): List<ReplyRoute> {
+        val activeTypes = setOf(
+            ReplyRouteType.ARC_REVEAL,
+            ReplyRouteType.SELF_STORY,
+            ReplyRouteType.CO_CREATION,
+            ReplyRouteType.COOL_DOWN
+        )
+        val active = routes.filter { it.routeType in activeTypes }
+        val withArc = if (active.none { it.routeType == ReplyRouteType.ARC_REVEAL }) {
+            listOf(fallbackArcRevealRoute()) + active
+        } else {
+            active
+        }
+        return (withArc + routes)
+            .distinctBy { it.id }
+            .take(5)
+            .mapIndexed { index, route -> route.copy(recommended = index == 0) }
+    }
+
+    private fun fallbackArcRevealRoute(): ReplyRoute = ReplyRoute(
+        id = "express-self-arc-reveal",
+        name = "人物弧光",
+        routeType = ReplyRouteType.ARC_REVEAL,
+        tag = "ARC_REVEAL",
+        message = "我可能不是特别会讲漂亮话，但认真起来会把事情一点点做到位。",
+        intensity = InfluenceIntensity.MEDIUM,
+        riskLevel = RiskLevel.MEDIUM,
+        riskWarning = "不要讲成长篇自我证明，露出一点真实感就收住。",
+        expectedEffect = "让对方看到真实、稳定、有反差的一面。",
+        fallbackMove = "如果对方没有接住，就回到接住她的情绪，不继续展开自己。",
+        recommended = false
+    )
 
     private fun resumePendingCloudSessionIfAny(): String? {
         val currentState = mutableState.value
@@ -664,6 +885,7 @@ class HuiyiRuntime private constructor(
                 latest
             } else {
                 latest.copy(
+                    floatingPanelMode = FloatingPanelMode.NEXT_SENTENCE,
                     panelVisible = true,
                     lastError = null,
                     nextSentenceUiState = NextSentenceUiState.LOADING_CLOUD,

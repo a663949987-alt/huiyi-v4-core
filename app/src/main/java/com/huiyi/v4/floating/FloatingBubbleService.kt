@@ -53,8 +53,33 @@ class FloatingBubbleService : Service() {
                     runtime.showOverlayError(error)
                 }
             },
-            onOneTapFeedback = {
-                runtime.exportOneTapFeedback()
+            onExpressSelf = { clickAck ->
+                runCatching {
+                    scope.launch {
+                        try {
+                            Log.i(LOG_TAG, "express_self_click_ack latencyMs=${clickAck.clickAckLatencyMs} ackVisible=${clickAck.clickAckVisible}")
+                            resultPanelController?.hide()
+                            delay(if (clickAck.panelVisibleBeforeClick) 600L else 180L)
+                            val sessionId = runtime.runExpressSelf(clickAck)
+                            delay(700L)
+                            val state = runtime.state.value
+                            if (state.lastNextSentenceTrace?.sessionId == sessionId &&
+                                state.latestPipelineResult == null &&
+                                state.lastError == null
+                            ) {
+                                resultPanelController?.showLoading()
+                            }
+                        } catch (error: Throwable) {
+                            Log.e(LOG_TAG, "express_self_click_failed", error)
+                            OverlayStateStore.recordPipelineException(error)
+                            runtime.showOverlayError(error)
+                            controller?.markIdle()
+                        }
+                    }
+                }.onFailure { error ->
+                    OverlayStateStore.recordPipelineException(error)
+                    runtime.showOverlayError(error)
+                }
             }
         )
         controller?.show()

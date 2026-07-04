@@ -60,6 +60,7 @@ import com.huiyi.v4.domain.persona.CharacterArcPreferenceProfile
 import com.huiyi.v4.domain.persona.CharacterArcReviewItem
 import com.huiyi.v4.domain.persona.CharacterArcUserFeedback
 import com.huiyi.v4.floating.FloatingBubbleService
+import com.huiyi.v4.runtime.FloatingPanelMode
 import com.huiyi.v4.runtime.HuiyiRuntime
 import com.huiyi.v4.runtime.HuiyiRuntimeState
 import kotlinx.coroutines.delay
@@ -324,6 +325,7 @@ fun FloatingTacticalPanel(
 ) {
     val decision = state.latestPipelineResult?.tacticalDecision ?: state.demoState.decision
     val routes = state.latestPipelineResult?.routes ?: state.demoState.routes
+    val expressSelfMode = state.floatingPanelMode == FloatingPanelMode.EXPRESS_SELF
     LazyColumn(
         modifier = Modifier
             .fillMaxWidth()
@@ -372,7 +374,12 @@ fun FloatingTacticalPanel(
             }
         } else {
             items(routes) { route ->
-                ReplyRouteCard(runtime, route)
+                ReplyRouteCard(
+                    runtime = runtime,
+                    route = route,
+                    showCharacterArcDetails = expressSelfMode,
+                    showPersonaFeedback = expressSelfMode
+                )
             }
         }
         item {
@@ -385,7 +392,12 @@ fun FloatingTacticalPanel(
 }
 
 @Composable
-private fun ReplyRouteCard(runtime: HuiyiRuntime, route: ReplyRoute) {
+private fun ReplyRouteCard(
+    runtime: HuiyiRuntime,
+    route: ReplyRoute,
+    showCharacterArcDetails: Boolean,
+    showPersonaFeedback: Boolean
+) {
     val clipboard = LocalClipboardManager.current
     val context = LocalContext.current
     Card(modifier = Modifier.fillMaxWidth()) {
@@ -396,12 +408,21 @@ private fun ReplyRouteCard(runtime: HuiyiRuntime, route: ReplyRoute) {
                 if (route.recommended) AssistChip(onClick = {}, label = { Text("推荐") })
                 if (route.riskLevel != RiskLevel.LOW) AssistChip(onClick = {}, label = { Text("高风险") })
             }
-            Text(route.name)
+            val displayName = if (!showCharacterArcDetails &&
+                route.routeType == com.huiyi.v4.domain.model.ReplyRouteType.ARC_REVEAL
+            ) {
+                "稳住节奏"
+            } else {
+                route.name
+            }
+            Text(displayName)
+            if (showCharacterArcDetails) {
             Text("本轮动作：${route.panelNextAction}")
             route.panelPersonaFacet?.let { Text("这句话展示了你的哪一面：$it") }
             if (route.routeType == com.huiyi.v4.domain.model.ReplyRouteType.ARC_REVEAL) {
                 Text("路线标签：${route.panelRouteLabel}")
                 Text("不要说过头：${route.riskWarning ?: "不要把轻表达讲成长篇自证。"}")
+            }
             }
             Text(route.message)
             route.riskWarning?.let { Text("风险提示：$it") }
@@ -415,7 +436,9 @@ private fun ReplyRouteCard(runtime: HuiyiRuntime, route: ReplyRoute) {
             ) {
                 Text("复制")
             }
-            RouteFeedbackButtons(runtime, route)
+            if (showPersonaFeedback) {
+                RouteFeedbackButtons(runtime, route)
+            }
         }
     }
 }
