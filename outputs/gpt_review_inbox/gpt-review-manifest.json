@@ -5,7 +5,7 @@
   "uploadedFromPhone": true,
   "latestPhoneUploadAt": "2026-07-04T08:50:26.083070+00:00",
   "latestPhoneSessionId": "79c64d13-b2fb-4742-89cf-ed179a06f3b9",
-  "githubCommitHash": "PENDING",
+  "githubCommitHash": "8d29b2d08e3b779887930d6c518a61cf18132dca",
   "githubReviewPath": "outputs/gpt_review_inbox/phone/latest/",
   "realDeviceTested": true,
   "latestPhoneConclusion": {
