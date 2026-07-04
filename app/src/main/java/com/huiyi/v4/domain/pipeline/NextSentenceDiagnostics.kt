@@ -129,6 +129,10 @@ data class NextSentenceSessionTrace(
     val bubbleVisibleAfterFailure: Boolean = false,
     val systemAccessibilityEnabled: Boolean = false,
     val serviceConnected: Boolean = false,
+    val serviceReconnectAttempted: Boolean = false,
+    val serviceReconnectWaitMs: Long = 0L,
+    val serviceReconnectSucceeded: Boolean = false,
+    val accessibilityRuntimeCategory: String? = null,
     val permissionMissingMessageShown: Boolean = false,
     val activePackageBeforeClick: String? = null,
     val activePackageAtCaptureStart: String? = null,
@@ -204,7 +208,7 @@ class NextSentenceException(
 fun userFacingMessageFor(code: NextSentenceErrorCode): String {
     return when (code) {
         NextSentenceErrorCode.ACCESSIBILITY_SYSTEM_DISABLED -> "需要先开启会意无障碍服务。"
-        NextSentenceErrorCode.ACCESSIBILITY_SERVICE_NOT_CONNECTED -> "系统已开启无障碍，但会意服务还没连接，请回到聊天页稍等后重试。"
+        NextSentenceErrorCode.ACCESSIBILITY_SERVICE_NOT_CONNECTED -> "系统开关是开的，但会意服务还没真正连上。请回到聊天页等 2 秒再点；如果一直这样，把会意无障碍关掉再打开一次。"
         NextSentenceErrorCode.ROOT_UNAVAILABLE -> "当前窗口暂时不可读取，请回到聊天页再试一次。"
         NextSentenceErrorCode.ROOT_IS_OWN_OVERLAY -> "刚才焦点停在会意悬浮窗，已尝试使用聊天页快照。"
         NextSentenceErrorCode.ROOT_IS_SYSTEM_UI -> "当前焦点在系统界面，请回到聊天页再试一次。"

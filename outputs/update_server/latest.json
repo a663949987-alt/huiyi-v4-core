@@ -1,9 +1,12 @@
 {
-    "versionName":  "4.1.42",
-    "versionCode":  461,
-    "apkUrl":  "huiyi-v4.1.42-debug.apk",
-    "releaseNotes":  "v4.1.42: unified evidence package; event-triggered visual checkpoints; persisted light-listen timeline for future chat profile memory",
-    "forceUpdate":  false,
-    "sha256":  "395277887DA2CF910670D789A7B313743C12E5E8FF72EB421711F97C287527E9",
-    "createdAt":  1783142519989
+  "versionName": "4.1.44",
+  "versionCode": 463,
+  "apkUrl": "huiyi-v4.1.44-debug.apk",
+  "releaseNotes": "v4.1.44: cloud timeout routing fix; gpt-5.4 primary has short window and TIMEOUT escalates to gpt-5.5 before local fallback; includes v4.1.43 accessibility service reconnect guard",
+  "forceUpdate": false,
+  "sha256": "5FE79461D2389244641E5FCF531F02F72ADDF95EE92934B13C02BFCCA6D1232A",
+  "apkDeliveredOutOfBand": true,
+  "apkCommittedToPublicGithub": false,
+  "privateApkContainsRelayConfig": true,
+  "createdAt": 1783152022337
 }

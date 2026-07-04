@@ -3,6 +3,7 @@ package com.huiyi.v4.floating
 import android.content.ClipData
 import android.content.ClipboardManager
 import android.content.Context
+import android.content.Intent
 import android.graphics.PixelFormat
 import android.os.Build
 import android.provider.Settings
@@ -99,8 +100,24 @@ class FloatingResultPanelController(
         val container = panelContainer()
         container.addView(titleText(title))
         container.addView(text(body))
+        addAccessibilitySettingsButtonIfNeeded(container, body)
         addFooterButtons(container)
         attach(container, panelType = "controlled_fail")
+    }
+
+    private fun addAccessibilitySettingsButtonIfNeeded(container: LinearLayout, body: String) {
+        if (!body.contains("无障碍")) return
+        container.addView(Button(context).apply {
+            text = "打开无障碍设置"
+            setOnClickListener {
+                runCatching {
+                    context.startActivity(
+                        Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS)
+                            .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                    )
+                }
+            }
+        })
     }
 
     private fun addReplyChoices(container: LinearLayout, routes: List<ReplyRoute>) {

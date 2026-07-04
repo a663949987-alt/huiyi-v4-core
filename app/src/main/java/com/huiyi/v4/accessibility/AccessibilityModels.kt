@@ -73,7 +73,7 @@ enum class AccessibilityRuntimeCategory {
 fun accessibilityRuntimeMessage(state: AccessibilityRuntimeState): String {
     return when (state.category) {
         AccessibilityRuntimeCategory.DISABLED_IN_SYSTEM -> "无障碍未开启，请前往系统设置开启。"
-        AccessibilityRuntimeCategory.ENABLED_BUT_SERVICE_NOT_CONNECTED -> "系统无障碍已开启，但会意服务暂未连接。请返回聊天窗口等待几秒，或重新关闭/开启一次无障碍。"
+        AccessibilityRuntimeCategory.ENABLED_BUT_SERVICE_NOT_CONNECTED -> "系统开关是开的，但会意服务还没真正连上。请返回聊天窗口等 2 秒；如果一直这样，把会意无障碍关掉再打开一次。"
         AccessibilityRuntimeCategory.CONNECTED_BUT_ROOT_UNAVAILABLE -> "无障碍已开启，但当前窗口暂时不可读取。请确认你停留在聊天页面。"
         AccessibilityRuntimeCategory.CONNECTED_AND_READY -> "无障碍已开启，当前窗口可读取。"
         AccessibilityRuntimeCategory.UNKNOWN -> "无障碍状态未知。"

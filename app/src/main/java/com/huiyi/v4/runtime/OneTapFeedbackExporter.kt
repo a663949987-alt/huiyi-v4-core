@@ -66,6 +66,12 @@ data class NextSentenceFlightRecord(
     val usedFallbackSnapshot: Boolean,
     val fallbackSnapshotAgeMs: Long?,
     val staleSnapshotSuspected: Boolean,
+    val systemAccessibilityEnabled: Boolean = false,
+    val serviceConnected: Boolean = false,
+    val accessibilityRuntimeCategory: String = "UNKNOWN",
+    val serviceReconnectAttempted: Boolean = false,
+    val serviceReconnectWaitMs: Long = 0L,
+    val serviceReconnectSucceeded: Boolean = false,
     val previousSessionId: String,
     val panelSessionId: String,
     val panelContentFromCurrentSession: Boolean,
@@ -323,6 +329,12 @@ object NextSentenceFlightRecordFactory {
             usedFallbackSnapshot = capture?.usedFallbackSnapshot == true,
             fallbackSnapshotAgeMs = capture?.lastStableSnapshotAgeMs,
             staleSnapshotSuspected = capture?.usedFallbackSnapshot == true && (capture.lastStableSnapshotAgeMs ?: 0L) > 2000L,
+            systemAccessibilityEnabled = trace.systemAccessibilityEnabled,
+            serviceConnected = trace.serviceConnected,
+            accessibilityRuntimeCategory = trace.accessibilityRuntimeCategory ?: "UNKNOWN",
+            serviceReconnectAttempted = trace.serviceReconnectAttempted,
+            serviceReconnectWaitMs = trace.serviceReconnectWaitMs,
+            serviceReconnectSucceeded = trace.serviceReconnectSucceeded,
             previousSessionId = result.previousSessionId.orEmpty(),
             panelSessionId = result.panelSessionId.orEmpty(),
             panelContentFromCurrentSession = result.panelContentFromCurrentSession,
@@ -415,6 +427,12 @@ object NextSentenceFlightRecordFactory {
             usedFallbackSnapshot = trace.usedFallbackSnapshot,
             fallbackSnapshotAgeMs = trace.lastStableSnapshotAgeMs,
             staleSnapshotSuspected = trace.usedFallbackSnapshot && (trace.lastStableSnapshotAgeMs ?: 0L) > 2000L,
+            systemAccessibilityEnabled = trace.systemAccessibilityEnabled,
+            serviceConnected = trace.serviceConnected,
+            accessibilityRuntimeCategory = trace.accessibilityRuntimeCategory ?: "UNKNOWN",
+            serviceReconnectAttempted = trace.serviceReconnectAttempted,
+            serviceReconnectWaitMs = trace.serviceReconnectWaitMs,
+            serviceReconnectSucceeded = trace.serviceReconnectSucceeded,
             previousSessionId = "",
             panelSessionId = "",
             panelContentFromCurrentSession = false,
@@ -602,6 +620,12 @@ class OneTapFeedbackExporter(
         appendLine("- cloudNetworkFailureVisibleToUser: ${record.cloudNetworkFailureVisibleToUser}")
         appendLine("- cloudRequestActuallySent: ${record.cloudRequestActuallySent}")
         appendLine("- cloudFailureLikelyCause: ${record.cloudFailureLikelyCause}")
+        appendLine("- systemAccessibilityEnabled: ${record.systemAccessibilityEnabled}")
+        appendLine("- serviceConnected: ${record.serviceConnected}")
+        appendLine("- accessibilityRuntimeCategory: ${record.accessibilityRuntimeCategory}")
+        appendLine("- serviceReconnectAttempted: ${record.serviceReconnectAttempted}")
+        appendLine("- serviceReconnectWaitMs: ${record.serviceReconnectWaitMs}")
+        appendLine("- serviceReconnectSucceeded: ${record.serviceReconnectSucceeded}")
         appendLine("- messageStatusArtifactCount: ${markdownField(currentScreenMarkdown, "messageStatusArtifactCount") ?: "0"}")
         appendLine("- lastMeDeliveryStatus: ${markdownField(currentScreenMarkdown, "lastMeDeliveryStatus") ?: "NONE"}")
         appendLine("- lastMeReadStatus: ${markdownField(currentScreenMarkdown, "lastMeReadStatus") ?: "NONE"}")
@@ -690,6 +714,12 @@ class OneTapFeedbackExporter(
             "cloudNetworkFailureVisibleToUser": ${record.cloudNetworkFailureVisibleToUser},
             "cloudRequestActuallySent": ${record.cloudRequestActuallySent},
             "cloudFailureLikelyCause": "${escape(record.cloudFailureLikelyCause)}",
+            "systemAccessibilityEnabled": ${record.systemAccessibilityEnabled},
+            "serviceConnected": ${record.serviceConnected},
+            "accessibilityRuntimeCategory": "${escape(record.accessibilityRuntimeCategory)}",
+            "serviceReconnectAttempted": ${record.serviceReconnectAttempted},
+            "serviceReconnectWaitMs": ${record.serviceReconnectWaitMs},
+            "serviceReconnectSucceeded": ${record.serviceReconnectSucceeded},
             "loadingStillVisible": ${record.loadingStillVisible},
             "errorCode": "${record.errorCode ?: ""}",
             "failedStage": "${record.failedStage ?: ""}",
@@ -763,6 +793,12 @@ class OneTapFeedbackExporter(
         appendLine("- windowTitleAndDecisionContradiction: ${record.windowTitleAndDecisionContradiction}")
         appendLine("- reportConsistencyResult: ${record.reportConsistencyResult}")
         appendLine("- usedFallbackSnapshot: ${record.usedFallbackSnapshot}")
+        appendLine("- systemAccessibilityEnabled: ${record.systemAccessibilityEnabled}")
+        appendLine("- serviceConnected: ${record.serviceConnected}")
+        appendLine("- accessibilityRuntimeCategory: ${record.accessibilityRuntimeCategory}")
+        appendLine("- serviceReconnectAttempted: ${record.serviceReconnectAttempted}")
+        appendLine("- serviceReconnectWaitMs: ${record.serviceReconnectWaitMs}")
+        appendLine("- serviceReconnectSucceeded: ${record.serviceReconnectSucceeded}")
         appendLine("- staleRoutesReused: ${record.staleRoutesReused}")
         appendLine("- errorCode: ${record.errorCode ?: "none"}")
         appendLine("- userMarkedWrong: ${record.userFeedback.markedWrong}")
@@ -842,6 +878,12 @@ class OneTapFeedbackExporter(
           "cloudNetworkFailureVisibleToUser": ${record.cloudNetworkFailureVisibleToUser},
           "cloudRequestActuallySent": ${record.cloudRequestActuallySent},
           "cloudFailureLikelyCause": "${escape(record.cloudFailureLikelyCause)}",
+          "systemAccessibilityEnabled": ${record.systemAccessibilityEnabled},
+          "serviceConnected": ${record.serviceConnected},
+          "accessibilityRuntimeCategory": "${escape(record.accessibilityRuntimeCategory)}",
+          "serviceReconnectAttempted": ${record.serviceReconnectAttempted},
+          "serviceReconnectWaitMs": ${record.serviceReconnectWaitMs},
+          "serviceReconnectSucceeded": ${record.serviceReconnectSucceeded},
           "cloudFallbackUsed": ${record.cloudFallbackUsed},
           "decisionSource": "${record.decisionSource}",
           "loadingStillVisible": ${record.loadingStillVisible},
@@ -939,6 +981,12 @@ class OneTapFeedbackExporter(
         usedFallbackSnapshot = false,
         fallbackSnapshotAgeMs = null,
         staleSnapshotSuspected = false,
+        systemAccessibilityEnabled = false,
+        serviceConnected = false,
+        accessibilityRuntimeCategory = "UNKNOWN",
+        serviceReconnectAttempted = false,
+        serviceReconnectWaitMs = 0L,
+        serviceReconnectSucceeded = false,
         previousSessionId = "",
         panelSessionId = "",
         panelContentFromCurrentSession = false,

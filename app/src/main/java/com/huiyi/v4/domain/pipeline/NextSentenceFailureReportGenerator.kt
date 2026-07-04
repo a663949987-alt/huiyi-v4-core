@@ -21,6 +21,12 @@ class NextSentenceFailureReportGenerator {
             appendLine("- pipelineExceptionClass: ${trace.pipelineExceptionClass ?: trace.exceptionClass ?: "none"}")
             appendLine("- pipelineExceptionMessageRedacted: ${trace.pipelineExceptionMessageRedacted ?: trace.exceptionMessageRedacted ?: "none"}")
             appendLine("- likely cause: ${likelyCause(trace)}")
+            appendLine("- accessibilityRuntimeCategory: ${trace.accessibilityRuntimeCategory ?: "unknown"}")
+            appendLine("- systemAccessibilityEnabled: ${trace.systemAccessibilityEnabled}")
+            appendLine("- serviceConnected: ${trace.serviceConnected}")
+            appendLine("- serviceReconnectAttempted: ${trace.serviceReconnectAttempted}")
+            appendLine("- serviceReconnectWaitMs: ${trace.serviceReconnectWaitMs}")
+            appendLine("- serviceReconnectSucceeded: ${trace.serviceReconnectSucceeded}")
             appendLine()
             appendLine("## Window / root")
             appendLine("- before click package: ${trace.activePackageBeforeClick ?: "unknown"}")
@@ -114,6 +120,12 @@ class NextSentenceFailureReportGenerator {
             "screenshotExceptionMessageRedacted" to trace.screenshotExceptionMessageRedacted,
             "pipelineExceptionClass" to trace.pipelineExceptionClass,
             "pipelineExceptionMessageRedacted" to trace.pipelineExceptionMessageRedacted,
+            "accessibilityRuntimeCategory" to trace.accessibilityRuntimeCategory,
+            "systemAccessibilityEnabled" to trace.systemAccessibilityEnabled,
+            "serviceConnected" to trace.serviceConnected,
+            "serviceReconnectAttempted" to trace.serviceReconnectAttempted,
+            "serviceReconnectWaitMs" to trace.serviceReconnectWaitMs,
+            "serviceReconnectSucceeded" to trace.serviceReconnectSucceeded,
             "secondaryErrorCode" to trace.secondaryErrorCode?.name,
             "fallbackSnapshotAttempted" to trace.fallbackSnapshotAttempted,
             "fallbackSnapshotSuccess" to trace.fallbackSnapshotSuccess,
@@ -183,6 +195,7 @@ class NextSentenceFailureReportGenerator {
             NextSentenceErrorCode.ROOT_IS_OWN_OVERLAY,
             NextSentenceErrorCode.ROOT_UNAVAILABLE,
             NextSentenceErrorCode.ROOT_IS_SYSTEM_UI -> "优先确认 lastStableChatSnapshot 是否及时生成并被使用。"
+            NextSentenceErrorCode.ACCESSIBILITY_SERVICE_NOT_CONNECTED -> "新增短暂重连等待；若仍失败，用户需要在系统无障碍里关闭/重新开启会意服务。"
             NextSentenceErrorCode.CHAT_MESSAGE_PARSE_EMPTY -> "查看 parser-empty-diagnostics，补具体 App 的 row/bubble bounds 规则。"
             NextSentenceErrorCode.LAST_SPEAKER_UNKNOWN -> "查看 visual order 和 bounds，校准左右侧/头像/气泡规则。"
             NextSentenceErrorCode.SCREENSHOT_CAPABILITY_MISSING,

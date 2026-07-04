@@ -402,23 +402,27 @@ class CloudModelRoutingPolicy {
         if (visualEvidenceAttached) {
             escalationTimeoutMs(config)
         } else {
-            config.timeoutMs.coerceIn(1_000L, 24_000L)
+            config.timeoutMs.coerceIn(1_000L, 10_000L)
         }
 
     fun escalationTimeoutMs(config: CloudAnalysisConfig): Long =
-        config.timeoutMs.coerceIn(8_000L, 38_000L)
+        config.timeoutMs.coerceIn(8_000L, 32_000L)
 
-    fun shouldEscalateError(error: CloudAnalysisException): Boolean =
-        error.code in setOf(
+    fun shouldEscalateError(error: CloudAnalysisException): Boolean {
+        if (error.code == "TIMEOUT") return true
+        if (error.code == "NETWORK" && error.likelyCause == "TIMEOUT") return true
+        return error.code in setOf(
             "CLOUD_SCHEMA_INVALID",
             "CLOUD_CONTRACT_VIOLATION",
             "CLOUD_QUALITY_GATE_FAILED",
             "HTTP_400",
             "HTTP_404",
+            "HTTP_429",
             "HTTP_422",
             "HTTP_5XX",
             "SERVER_ERROR"
         )
+    }
 }
 
 interface CloudAnalysisService {

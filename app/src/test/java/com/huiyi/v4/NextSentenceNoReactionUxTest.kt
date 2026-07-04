@@ -1,6 +1,7 @@
 package com.huiyi.v4
 
 import com.huiyi.v4.domain.pipeline.NextSentenceErrorCode
+import com.huiyi.v4.domain.pipeline.NextSentenceFailureReportGenerator
 import com.huiyi.v4.domain.pipeline.NextSentenceSessionTrace
 import com.huiyi.v4.domain.pipeline.NextSentenceStage
 import com.huiyi.v4.domain.pipeline.userFacingMessageFor
@@ -96,6 +97,40 @@ class NextSentenceNoReactionUxTest {
         val message = userFacingMessageFor(NextSentenceErrorCode.UNKNOWN_EXCEPTION)
         assertTrue(message.contains("没有跑完"))
         assertFalse(message.contains("分析失败"))
+    }
+
+    @Test
+    fun AccessibilityServiceDisconnectedMessageExplainsSwitchIsOnButServiceNotConnected() {
+        val message = userFacingMessageFor(NextSentenceErrorCode.ACCESSIBILITY_SERVICE_NOT_CONNECTED)
+
+        assertTrue(message.contains("系统开关是开的"))
+        assertTrue(message.contains("会意服务还没真正连上"))
+        assertFalse(message.contains("分析失败"))
+    }
+
+    @Test
+    fun ServiceReconnectFieldsAreWrittenToFailureReportTest() {
+        val trace = NextSentenceSessionTrace(
+            sessionId = "s-reconnect",
+            startedAt = 1_000L,
+            systemAccessibilityEnabled = true,
+            serviceConnected = false,
+            serviceReconnectAttempted = true,
+            serviceReconnectWaitMs = 2_500L,
+            serviceReconnectSucceeded = false,
+            accessibilityRuntimeCategory = "ENABLED_BUT_SERVICE_NOT_CONNECTED"
+        ).failed(
+            NextSentenceErrorCode.ACCESSIBILITY_SERVICE_NOT_CONNECTED,
+            NextSentenceStage.ACCESSIBILITY_STATE_CHECKED,
+            now = 3_500L
+        )
+
+        val json = NextSentenceFailureReportGenerator().buildJson(trace)
+
+        assertTrue(json.contains("\"serviceReconnectAttempted\": true"))
+        assertTrue(json.contains("\"serviceReconnectWaitMs\": 2500"))
+        assertTrue(json.contains("\"serviceReconnectSucceeded\": false"))
+        assertTrue(json.contains("\"accessibilityRuntimeCategory\": \"ENABLED_BUT_SERVICE_NOT_CONNECTED\""))
     }
 
     @Test

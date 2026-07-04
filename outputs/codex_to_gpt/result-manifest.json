@@ -1,35 +1,37 @@
 {
-  "taskName": "persona_character_arc_reveal_hook",
-  "versionName": "4.1.42",
-  "versionCode": 461,
-  "currentOverallResult": "LOCAL_INTERFACE_PASS_NO_PHONE_REQUIRED",
-  "generatedAt": "2026-07-04T14:30:54+08:00",
-  "userNeedsPhoneThisRound": false,
-  "realDeviceSmokeResult": "NOT_REQUIRED_THIS_ROUND",
-  "unifiedEvidencePackage": true,
-  "currentScreenshotHighestAuthority": true,
-  "recentVisualCheckpoints": true,
-  "lightListenTimelinePersisted": true,
-  "lightChatStateStoreExists": true,
-  "sessionBindingPreserved": true,
-  "selfExpressionHook": true,
-  "characterArcCardExists": true,
-  "nextMoveTypeArcReveal": true,
-  "replyRouteTypeArcReveal": true,
-  "routeFamilyArcRevealParsed": true,
-  "resultPanelReservedFields": true,
-  "resultPanelArcRevealVisible": true,
-  "mockChatFixtureArcRevealPanelFields": true,
-  "fakePersonaGeneration": false,
-  "longTermRawChatStorage": false,
-  "autoSend": false,
-  "rawPrivateChatUploadedToGithub": false,
-  "rawScreenshotsPersistedToDb": false,
-  "unitTests": "TARGETED_PASS",
-  "assembleDebug": "PASS_PREVIOUS_V4_1_42",
-  "lanLatestJson": "http://192.168.31.243:8787/latest.json",
-  "lanApkUrl": "http://192.168.31.243:8787/huiyi-v4.1.42-debug.apk",
-  "apkSha256": "395277887DA2CF910670D789A7B313743C12E5E8FF72EB421711F97C287527E9",
+  "taskName": "cloud_timeout_escalation_and_github_delivery_sync",
+  "versionName": "4.1.44",
+  "versionCode": 463,
+  "currentOverallResult": "LOCAL_TEST_PASS_LAN_APK_READY",
+  "generatedAt": "2026-07-04T15:59:00+08:00",
+  "userNeedsPhoneThisRound": true,
+  "realDeviceSmokeResult": "LATEST_PHONE_4_1_43_ROUTE_PANEL_BUT_CLOUD_TIMEOUT",
+  "latestPhoneSessionId": "b789be05-8c26-40ce-a528-b7f168de2893",
+  "latestPhoneCloudErrorCode": "TIMEOUT",
+  "latestPhoneCloudTotalLatencyMs": 39063,
+  "fixSummary": {
+    "primaryModel": "gpt-5.4",
+    "primaryTimeoutMaxMs": 10000,
+    "timeoutEscalatesTo55": true,
+    "networkTimeoutEscalatesTo55": true,
+    "escalationModel": "gpt-5.5",
+    "escalationTimeoutMaxMs": 32000,
+    "localFallbackStillAvailable": true,
+    "accessibilityReconnectGuardRetained": true
+  },
+  "apkDelivery": {
+    "apkDeliveredOutOfBand": true,
+    "apkCommittedToPublicGithub": false,
+    "privateApkContainsRelayConfig": true,
+    "lanLatestJson": "http://192.168.31.243:8787/latest.json",
+    "lanApkUrl": "http://192.168.31.243:8787/huiyi-v4.1.44-debug.apk",
+    "apkSha256": "5FE79461D2389244641E5FCF531F02F72ADDF95EE92934B13C02BFCCA6D1232A"
+  },
+  "tests": {
+    "unitTests": "PASS",
+    "assembleDebug": "PASS",
+    "targetedCloudEscalationTests": "PASS"
+  },
   "files": [
     {
       "path": "outputs/gpt_review_inbox/README_FOR_GPT.md",
@@ -37,37 +39,17 @@
       "sendToGpt": true
     },
     {
-      "path": "outputs/gpt_review_inbox/character-arc-report-for-gpt.md",
-      "type": "markdown",
-      "sendToGpt": true
-    },
-    {
-      "path": "outputs/gpt_review_inbox/self-expression-engine-report-for-gpt.md",
-      "type": "markdown",
-      "sendToGpt": true
-    },
-    {
-      "path": "outputs/gpt_review_inbox/character-arc-report.json",
+      "path": "outputs/update_server/latest.json",
       "type": "json",
       "sendToGpt": true
     },
     {
-      "path": "outputs/gpt_review_inbox/light-listening-lite-report-for-gpt.md",
+      "path": "outputs/gpt_review_inbox/phone/latest/README_FOR_GPT.md",
       "type": "markdown",
       "sendToGpt": true
     },
     {
-      "path": "outputs/gpt_review_inbox/light-listening-lite-report.json",
-      "type": "json",
-      "sendToGpt": true
-    },
-    {
-      "path": "outputs/gpt_review_inbox/light-listen-evidence-report-for-gpt.md",
-      "type": "markdown",
-      "sendToGpt": true
-    },
-    {
-      "path": "outputs/gpt_review_inbox/light-listen-evidence-report.json",
+      "path": "outputs/gpt_review_inbox/phone/latest/latest-session/next-sentence-flight-record.json",
       "type": "json",
       "sendToGpt": true
     }

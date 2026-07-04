@@ -13,7 +13,7 @@ class AccessibilityRuntimeTextTest {
         val message = accessibilityRuntimeMessage(state(systemEnabled = true, serviceConnected = false, rootAvailable = false))
 
         assertFalse(message.contains("没有权限"))
-        assertTrue(message.contains("系统无障碍已开启，但会意服务暂未连接"))
+        assertTrue(message.contains("系统开关是开的，但会意服务还没真正连上"))
     }
 
     @Test

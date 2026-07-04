@@ -294,16 +294,26 @@ class HuiyiRuntime private constructor(
             }
             writeLatestSessionTraceReports(captureStartingTrace)
             launchSessionTerminalWatchdogV2(startedTrace, scenarioAtStart)
+            var traceForThisRun = captureStartingTrace
             try {
+                traceForThisRun = waitForAccessibilityConnection(captureStartingTrace)
+                mutableState.update { state ->
+                    if (state.lastNextSentenceTrace?.sessionId == sessionId) {
+                        state.copy(lastNextSentenceTrace = traceForThisRun)
+                    } else {
+                        state
+                    }
+                }
+                writeLatestSessionTraceReports(traceForThisRun)
                 val persona = currentPersona()
-                val result = pipeline.run(persona, sessionId = startedTrace.sessionId)
+                val result = pipeline.run(persona, sessionId = traceForThisRun.sessionId)
                 ensureActive()
                 result.fold(
                     onSuccess = { pipelineResult ->
-                        if (!isActiveNextSentenceSession(startedTrace.sessionId)) {
+                        if (!isActiveNextSentenceSession(traceForThisRun.sessionId)) {
                             Log.i(
                                 LOG_TAG,
-                                "next_sentence_discarded sessionId=${startedTrace.sessionId} " +
+                                "next_sentence_discarded sessionId=${traceForThisRun.sessionId} " +
                                     "activeSessionId=$activeNextSentenceSessionId reason=STALE_SESSION"
                             )
                             return@fold
@@ -312,7 +322,7 @@ class HuiyiRuntime private constructor(
                         if (preRenderState.latestPipelineResult != null || preRenderState.lastError != null) {
                             Log.i(
                                 LOG_TAG,
-                                "next_sentence_discarded sessionId=${startedTrace.sessionId} " +
+                                "next_sentence_discarded sessionId=${traceForThisRun.sessionId} " +
                                     "activeSessionId=$activeNextSentenceSessionId reason=PANEL_SESSION_MISMATCH"
                             )
                             return@fold
@@ -320,7 +330,7 @@ class HuiyiRuntime private constructor(
                         Log.i(
                             LOG_TAG,
                             "next_sentence_success package=${pipelineResult.captureResult?.snapshot?.appPackage} " +
-                                "sessionId=${startedTrace.sessionId} " +
+                                "sessionId=${traceForThisRun.sessionId} " +
                                 "activeSessionId=$activeNextSentenceSessionId " +
                                 "cloudRequestSessionId=${pipelineResult.cloudTrace.cloudRequestSessionId} " +
                                 "cloudResponseSessionId=${pipelineResult.cloudTrace.cloudResponseSessionId} " +
@@ -362,36 +372,36 @@ class HuiyiRuntime private constructor(
                         val terminalState = terminalStateFor(pipelineResult.tacticalDecision.decisionType)
                         val resultWithVisualDebug = pipelineResult.copy(
                             visualDebugResult = visualDebug,
-                            sessionId = startedTrace.sessionId,
+                            sessionId = traceForThisRun.sessionId,
                             previousSessionId = previousSessionId,
-                            panelSessionId = startedTrace.sessionId,
+                            panelSessionId = traceForThisRun.sessionId,
                             panelContentFromCurrentSession = true,
                             staleRoutesClearedAtSessionStart = true,
                             staleRoutesReused = false,
                             waitPanelShown = waitPanelShown,
                             routePanelShown = routePanelShown,
                             sessionTerminalState = terminalState,
-                            analysisStartedAt = startedTrace.startedAt,
+                            analysisStartedAt = traceForThisRun.startedAt,
                             analysisEndedAt = endedAt,
-                            analysisDurationMs = endedAt - startedTrace.startedAt,
+                            analysisDurationMs = endedAt - traceForThisRun.startedAt,
                             loadingStillVisibleAfterTimeout = false,
                             waitDecisionReached = pipelineResult.tacticalDecision.decisionType == TacticalDecisionType.WAIT,
                             waitPanelRenderAttempted = waitPanelShown,
                             waitPanelRenderSuccess = waitPanelShown,
                             decisionTypeFamily = decisionTypeFamily(pipelineResult.tacticalDecision.decisionType),
                             cloudTrace = pipelineResult.cloudTrace.withSessionBinding(
-                                activeSessionId = startedTrace.sessionId,
+                                activeSessionId = traceForThisRun.sessionId,
                                 preAnalysisSnapshotId = pipelineResult.cloudTrace.preAnalysisSnapshotId.orEmpty(),
                                 chatPackage = pipelineResult.cloudTrace.chatPackage.orEmpty(),
                                 chatWindowHash = pipelineResult.cloudTrace.chatWindowHash.orEmpty(),
                                 cloudRequestSessionId = pipelineResult.cloudTrace.cloudRequestSessionId,
                                 cloudResponseSessionId = pipelineResult.cloudTrace.cloudResponseSessionId,
-                                panelRenderedSessionId = startedTrace.sessionId,
+                                panelRenderedSessionId = traceForThisRun.sessionId,
                                 oneClickOneTerminalPanel = true
                             )
                         )
                         val capture = pipelineResult.captureResult
-                        val successTrace = startedTrace.copy(
+                        val successTrace = traceForThisRun.copy(
                             endedAt = endedAt,
                             stage = NextSentenceStage.ROUTES_GENERATED,
                             activePackageAtCaptureStart = capture?.currentRootPackageAtCapture,
@@ -435,6 +445,8 @@ class HuiyiRuntime private constructor(
                             secondaryErrorCode = visualDebug.screenshotErrorCode?.let { NextSentenceErrorCode.valueOf(it) },
                             panelAttached = true,
                             panelRenderSuccess = true,
+                            serviceConnected = true,
+                            serviceReconnectSucceeded = traceForThisRun.serviceReconnectAttempted || traceForThisRun.serviceReconnectSucceeded,
                             terminalState = terminalState,
                             panelShown = true,
                             userFacingMessage = if (pipelineResult.tacticalDecision.decisionType == TacticalDecisionType.WAIT) {
@@ -444,12 +456,12 @@ class HuiyiRuntime private constructor(
                         writeLatestSessionTraceReports(successTrace)
                         val flightRecord = NextSentenceFlightRecordFactory.fromSuccess(resultWithVisualDebug, successTrace)
                         mutableState.update {
-                            if (it.lastNextSentenceTrace?.sessionId != startedTrace.sessionId ||
-                                activeNextSentenceSessionId != startedTrace.sessionId
+                            if (it.lastNextSentenceTrace?.sessionId != traceForThisRun.sessionId ||
+                                activeNextSentenceSessionId != traceForThisRun.sessionId
                             ) {
                                 Log.i(
                                     LOG_TAG,
-                                    "next_sentence_discarded sessionId=${startedTrace.sessionId} " +
+                                    "next_sentence_discarded sessionId=${traceForThisRun.sessionId} " +
                                         "stateSessionId=${it.lastNextSentenceTrace?.sessionId} " +
                                         "activeSessionId=$activeNextSentenceSessionId reason=STALE_SESSION"
                                 )
@@ -469,7 +481,7 @@ class HuiyiRuntime private constructor(
                         }
                     },
                     onFailure = { error ->
-                        handleNextSentenceFailure(error, startedTrace)
+                        handleNextSentenceFailure(error, traceForThisRun)
                     }
                 )
             } catch (cancelled: CancellationException) {
@@ -479,10 +491,69 @@ class HuiyiRuntime private constructor(
                         "activeSessionId=$activeNextSentenceSessionId reason=STALE_SESSION"
                 )
             } catch (error: Throwable) {
-                handleNextSentenceFailure(error, startedTrace)
+                handleNextSentenceFailure(error, (error as? com.huiyi.v4.domain.pipeline.NextSentenceException)?.trace ?: traceForThisRun)
             }
         }
         return sessionId
+    }
+
+    private suspend fun waitForAccessibilityConnection(trace: NextSentenceSessionTrace): NextSentenceSessionTrace {
+        var runtime = AccessibilityRuntimeReader.read(appContext)
+        if (!runtime.systemAccessibilityEnabled) {
+            val checkedTrace = trace.copy(
+                stage = NextSentenceStage.ACCESSIBILITY_STATE_CHECKED,
+                systemAccessibilityEnabled = false,
+                serviceConnected = false,
+                rootAvailableAtClick = false,
+                accessibilityRuntimeCategory = runtime.category.name
+            )
+            throw com.huiyi.v4.domain.pipeline.NextSentenceException(
+                code = NextSentenceErrorCode.ACCESSIBILITY_SYSTEM_DISABLED,
+                failedStage = NextSentenceStage.ACCESSIBILITY_STATE_CHECKED,
+                trace = checkedTrace.failed(
+                    NextSentenceErrorCode.ACCESSIBILITY_SYSTEM_DISABLED,
+                    NextSentenceStage.ACCESSIBILITY_STATE_CHECKED
+                )
+            )
+        }
+
+        var waitedMs = 0L
+        var attemptedReconnect = false
+        if (!runtime.serviceConnected) {
+            attemptedReconnect = true
+            for (delayMs in ACCESSIBILITY_SERVICE_RECONNECT_DELAYS_MS) {
+                delay(delayMs)
+                waitedMs += delayMs
+                runtime = AccessibilityRuntimeReader.read(appContext)
+                if (runtime.serviceConnected) break
+            }
+        }
+
+        val checkedTrace = trace.copy(
+            stage = NextSentenceStage.ACCESSIBILITY_STATE_CHECKED,
+            systemAccessibilityEnabled = runtime.systemAccessibilityEnabled,
+            serviceConnected = runtime.serviceConnected,
+            rootAvailableAtClick = runtime.rootAvailable,
+            activePackageAtCaptureStart = runtime.currentPackage,
+            activeWindowTitleAtClick = trace.activeWindowTitleAtClick ?: runtime.currentWindowTitle,
+            serviceReconnectAttempted = attemptedReconnect,
+            serviceReconnectWaitMs = waitedMs,
+            serviceReconnectSucceeded = attemptedReconnect && runtime.serviceConnected,
+            accessibilityRuntimeCategory = runtime.category.name
+        )
+
+        if (!runtime.serviceConnected) {
+            throw com.huiyi.v4.domain.pipeline.NextSentenceException(
+                code = NextSentenceErrorCode.ACCESSIBILITY_SERVICE_NOT_CONNECTED,
+                failedStage = NextSentenceStage.ACCESSIBILITY_STATE_CHECKED,
+                trace = checkedTrace.failed(
+                    NextSentenceErrorCode.ACCESSIBILITY_SERVICE_NOT_CONNECTED,
+                    NextSentenceStage.ACCESSIBILITY_STATE_CHECKED
+                )
+            )
+        }
+
+        return checkedTrace
     }
 
     private fun isActiveNextSentenceSession(sessionId: String): Boolean =
@@ -771,6 +842,12 @@ class HuiyiRuntime private constructor(
         appendLine("- activePackageAtClick: ${trace.activePackageBeforeClick ?: "unknown"}")
         appendLine("- activeWindowTitleAtClick: ${trace.activeWindowTitleAtClick ?: "unknown"}")
         appendLine("- rootAvailableAtClick: ${trace.rootAvailableAtClick}")
+        appendLine("- systemAccessibilityEnabled: ${trace.systemAccessibilityEnabled}")
+        appendLine("- serviceConnected: ${trace.serviceConnected}")
+        appendLine("- accessibilityRuntimeCategory: ${trace.accessibilityRuntimeCategory ?: "unknown"}")
+        appendLine("- serviceReconnectAttempted: ${trace.serviceReconnectAttempted}")
+        appendLine("- serviceReconnectWaitMs: ${trace.serviceReconnectWaitMs}")
+        appendLine("- serviceReconnectSucceeded: ${trace.serviceReconnectSucceeded}")
         appendLine("- errorCode: ${trace.errorCode ?: NextSentenceErrorCode.NONE}")
         appendLine("- cloudAttempted: ${trace.apiCalled}")
         appendLine("- panelShown: ${trace.panelShown || trace.panelAttached}")
@@ -794,7 +871,13 @@ class HuiyiRuntime private constructor(
         "panelShown" to (trace.panelShown || trace.panelAttached),
         "activePackageAtClick" to trace.activePackageBeforeClick,
         "activeWindowTitleAtClick" to trace.activeWindowTitleAtClick,
-        "rootAvailableAtClick" to trace.rootAvailableAtClick
+        "rootAvailableAtClick" to trace.rootAvailableAtClick,
+        "systemAccessibilityEnabled" to trace.systemAccessibilityEnabled,
+        "serviceConnected" to trace.serviceConnected,
+        "accessibilityRuntimeCategory" to trace.accessibilityRuntimeCategory,
+        "serviceReconnectAttempted" to trace.serviceReconnectAttempted,
+        "serviceReconnectWaitMs" to trace.serviceReconnectWaitMs,
+        "serviceReconnectSucceeded" to trace.serviceReconnectSucceeded
     ).toSimpleJson()
 
     private fun buildNoReactionDiagnosticMarkdown(trace: NextSentenceSessionTrace): String = buildString {
@@ -817,6 +900,10 @@ class HuiyiRuntime private constructor(
         appendLine("- windowTitleAtClickRedacted: ${trace.activeWindowTitleAtClick?.redactPrivateText() ?: "unknown"}")
         appendLine("- accessibilityConnected: ${trace.serviceConnected}")
         appendLine("- rootAvailableAtClick: ${trace.rootAvailableAtClick}")
+        appendLine("- accessibilityRuntimeCategory: ${trace.accessibilityRuntimeCategory ?: "unknown"}")
+        appendLine("- serviceReconnectAttempted: ${trace.serviceReconnectAttempted}")
+        appendLine("- serviceReconnectWaitMs: ${trace.serviceReconnectWaitMs}")
+        appendLine("- serviceReconnectSucceeded: ${trace.serviceReconnectSucceeded}")
         appendLine("- exceptionClass: ${trace.exceptionClass ?: trace.pipelineExceptionClass ?: "none"}")
         appendLine("- exceptionMessageRedacted: ${trace.exceptionMessageRedacted ?: trace.pipelineExceptionMessageRedacted ?: "none"}")
     }
@@ -839,6 +926,10 @@ class HuiyiRuntime private constructor(
         "windowTitleAtClickRedacted" to trace.activeWindowTitleAtClick.orEmpty().redactPrivateText(),
         "accessibilityConnected" to trace.serviceConnected,
         "rootAvailableAtClick" to trace.rootAvailableAtClick,
+        "accessibilityRuntimeCategory" to trace.accessibilityRuntimeCategory,
+        "serviceReconnectAttempted" to trace.serviceReconnectAttempted,
+        "serviceReconnectWaitMs" to trace.serviceReconnectWaitMs,
+        "serviceReconnectSucceeded" to trace.serviceReconnectSucceeded,
         "exceptionClass" to (trace.exceptionClass ?: trace.pipelineExceptionClass),
         "exceptionMessageRedacted" to (trace.exceptionMessageRedacted ?: trace.pipelineExceptionMessageRedacted)
     ).toSimpleJson()
@@ -1561,6 +1652,7 @@ class HuiyiRuntime private constructor(
 
     companion object {
         private const val LOG_TAG = "HuiyiRuntime"
+        private val ACCESSIBILITY_SERVICE_RECONNECT_DELAYS_MS = longArrayOf(250L, 500L, 750L, 1_000L)
 
         @Volatile
         private var instance: HuiyiRuntime? = null
