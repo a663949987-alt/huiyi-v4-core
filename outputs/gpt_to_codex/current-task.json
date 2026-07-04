@@ -1,18 +1,25 @@
 {
   "taskStatus": "COMPLETED",
   "project": "Huiyi v4",
-  "taskName": "split_passive_next_sentence_and_active_self_expression",
-  "versionName": "4.1.54",
-  "versionCode": 473,
+  "taskName": "late_cloud_result_return_after_soft_timeout_fix",
+  "versionName": "4.1.56",
+  "versionCode": 475,
   "createdBy": "User",
   "userNeedsPhoneThisRound": true,
   "realDeviceRequiredThisRound": true,
-  "currentOverallResult": "LOCAL_TEST_PASS_LAN_APK_READY",
-  "lanUpdateShaMismatchFix": true,
-  "shaVerifiedTempDownload": true,
+  "currentOverallResult": "EMULATOR_LATE_CLOUD_PASS_LAN_APK_READY",
+  "latestPhoneObservedVersion": "4.1.52",
+  "observedCloudErrorCode": "SOFT_TIMEOUT_PENDING",
+  "emulatorLateCloudSmokeResult": "PASS",
+  "lateCloudSuccessAfterSoftTimeoutCanUpgradePanel": true,
+  "lateCloudFailureAfterSoftTimeoutReportsFallback": true,
+  "lateCloudResultNotDiscardedWhenPanelHidden": true,
+  "lateCloudResultNotDiscardedWhenForegroundPackageChangesButSnapshotMatches": true,
   "requiredReports": [
-    "outputs/gpt_review_inbox/passive-active-split-report-for-gpt.md",
-    "outputs/gpt_review_inbox/passive-active-split-report.json",
+    "outputs/gpt_review_inbox/late-cloud-result-report-for-gpt.md",
+    "outputs/gpt_review_inbox/late-cloud-result-report.json",
+    "outputs/gpt_review_inbox/emulator-late-cloud-smoke-report-for-gpt.md",
+    "outputs/gpt_review_inbox/emulator-late-cloud-smoke-report.json",
     "outputs/codex_to_gpt/result-manifest.json"
   ]
 }

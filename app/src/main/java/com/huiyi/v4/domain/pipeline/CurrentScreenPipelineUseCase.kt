@@ -419,7 +419,9 @@ class CurrentScreenPipelineUseCase(
                     context = context,
                     startedAt = startedAt
                 )
-                if (latePipelineResult.trace.cloudSuccess && latePipelineResult.routes.isNotEmpty()) {
+                if (latePipelineResult.trace.cloudAttempted &&
+                    latePipelineResult.trace.cloudErrorCode != "SOFT_TIMEOUT_PENDING"
+                ) {
                     lateCallback(
                         LateCloudPipelineResult(
                             sessionId = sessionId,

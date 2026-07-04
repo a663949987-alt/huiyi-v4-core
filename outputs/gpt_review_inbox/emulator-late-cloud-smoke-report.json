@@ -1,0 +1,46 @@
+{
+  "taskName": "late_cloud_result_return_after_soft_timeout_fix",
+  "versionName": "4.1.56",
+  "versionCode": 475,
+  "generatedAt": "2026-07-04T20:05:45+08:00",
+  "emulatorLateCloudSmokeResult": "PASS",
+  "emulatorDetected": true,
+  "emulatorSerial": "emulator-5554",
+  "avdName": "Huawei_nova_11_API_36",
+  "huiyiInstalled": true,
+  "mockchatInstalled": true,
+  "accessibilityEnabled": true,
+  "overlayPermissionGranted": true,
+  "lastOther": {
+    "scenario": "last_other",
+    "profile": "wechat_like",
+    "clickAck": true,
+    "initialLastSpeaker": "OTHER",
+    "initialCloudAttempted": true,
+    "initialCloudErrorCode": "SOFT_TIMEOUT_PENDING",
+    "initialDecisionSource": "LOCAL_FALLBACK",
+    "initialRouteCount": 5,
+    "lateCloudApplied": true,
+    "lateDecisionSource": "CLOUD",
+    "lateRouteCount": 5,
+    "previousDiscardReasonBeforeFix": "FOREGROUND_PACKAGE_CHANGED"
+  },
+  "lastMe": {
+    "scenario": "last_me",
+    "profile": "wechat_like",
+    "lastSpeaker": "ME",
+    "decision": "WAIT",
+    "routeCount": 0,
+    "cloudAttempted": false,
+    "decisionSource": "LOCAL_WAIT",
+    "result": "PASS"
+  },
+  "evidenceFiles": [
+    "outputs/gpt_review_inbox/emulator_cloud_smoke/v4156_last_other_after_15s_2_logcat.txt",
+    "outputs/gpt_review_inbox/emulator_cloud_smoke/v4156_last_other_after_95s_2_logcat.txt",
+    "outputs/gpt_review_inbox/emulator_cloud_smoke/v4156_current_screen.png",
+    "outputs/gpt_review_inbox/emulator_cloud_smoke/v4156_last_me_wait_final_logcat.txt",
+    "outputs/gpt_review_inbox/emulator_cloud_smoke/v4156_last_me_wait_final.png"
+  ],
+  "realDeviceSmokeResult": "NOT_TESTED_AFTER_FIX"
+}

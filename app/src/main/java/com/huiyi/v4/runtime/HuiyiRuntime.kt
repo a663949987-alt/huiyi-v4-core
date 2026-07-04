@@ -341,19 +341,6 @@ class HuiyiRuntime private constructor(
         if (current.panelSessionId != null && current.panelSessionId != lateResult.sessionId) {
             return "PANEL_SESSION_MISMATCH"
         }
-        val overlay = OverlayStateStore.state.value
-        if (!overlay.resultPanelVisible &&
-            (overlay.lastPanelDismissedAt ?: 0L) > (overlay.lastPanelShownAt ?: 0L)
-        ) {
-            return "PANEL_DISMISSED"
-        }
-        val foregroundPackage = HuiyiAccessibilityService.state.value.currentPackage
-        if (foregroundPackage != null &&
-            foregroundPackage != lateResult.chatPackage &&
-            foregroundPackage != appContext.packageName
-        ) {
-            return "FOREGROUND_PACKAGE_CHANGED"
-        }
         if (current.tacticalDecision.decisionType == TacticalDecisionType.PRE_ANALYSIS_CONTAMINATED ||
             current.tacticalDecision.decisionType == TacticalDecisionType.CHAT_WINDOW_NOT_FOUND
         ) {
@@ -371,6 +358,21 @@ class HuiyiRuntime private constructor(
         val currentWindowHash = currentTrace.chatWindowHash.orEmpty()
         if (currentWindowHash.isNotBlank() && currentWindowHash != lateResult.chatWindowHash) {
             return "CHAT_WINDOW_CHANGED"
+        }
+        val foregroundPackage = HuiyiAccessibilityService.state.value.currentPackage
+        if (foregroundPackage != null &&
+            foregroundPackage != lateResult.chatPackage &&
+            foregroundPackage != appContext.packageName
+        ) {
+            val stableSnapshotMatch = currentSnapshotId.isNotBlank() &&
+                currentSnapshotId == lateResult.preAnalysisSnapshotId
+            val stableWindowMatch = currentPackage.isNotBlank() &&
+                currentPackage == lateResult.chatPackage &&
+                currentWindowHash.isNotBlank() &&
+                currentWindowHash == lateResult.chatWindowHash
+            if (!stableSnapshotMatch && !stableWindowMatch) {
+                return "FOREGROUND_PACKAGE_CHANGED"
+            }
         }
         return null
     }

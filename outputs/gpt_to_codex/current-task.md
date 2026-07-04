@@ -2,23 +2,30 @@
 
 taskStatus: COMPLETED
 project: Huiyi v4
-taskName: split_passive_next_sentence_and_active_self_expression
-versionName: 4.1.54
-versionCode: 473
+taskName: late_cloud_result_return_after_soft_timeout_fix
+versionName: 4.1.56
+versionCode: 475
 createdBy: User
 userNeedsPhoneThisRound: true
 realDeviceRequiredThisRound: true
 
+## Problem
+- User observed relay token consumption but no cloud result returned to the phone.
+- Latest phone feedback was version 4.1.52.
+- The trace showed cloudAttempted=true, cloudErrorCode=SOFT_TIMEOUT_PENDING, and decisionSource=LOCAL_FALLBACK.
+- Emulator reproduced a late cloud result being discarded with reason FOREGROUND_PACKAGE_CHANGED.
+
 ## Goals
-- Split passive Next Sentence and active Express Self into two buttons/modules.
-- Keep Next Sentence clean: quick replies, copy, refresh routes, Express Self entry.
-- Move character arc and persona feedback into Express Self only.
-- Preserve LAST ME wait and passive cloud non-blocking local fallback.
-- Fix LAN SHA mismatch by publishing a fresh APK filename and SHA-verified temp download.
+- Keep late cloud success alive after soft timeout.
+- Surface late cloud failure or contract failure back to runtime/report.
+- Do not discard valid late cloud result just because the panel was hidden.
+- Do not discard valid late cloud result on foreground package drift when session, snapshot, package, and window hash still match.
+- Preserve stale-session, snapshot, package, window hash, and contamination safety guards.
 
 ## Result
-- currentOverallResult: LOCAL_TEST_PASS_LAN_APK_READY
+- currentOverallResult: EMULATOR_LATE_CLOUD_PASS_LAN_APK_READY
 - unitTests: PASS
 - assembleDebug: PASS
-- LAN update: outputs/update_server/huiyi-v4.1.54-debug.apk
-- LAN SHA mismatch fix: PASS
+- emulatorLateCloudSmokeResult: PASS
+- LAN update: outputs/update_server/huiyi-v4.1.56-debug.apk
+- apkSha256: A48E30DEF6FB77F80CFAF14C2871B81C84494A5B4497B9BCF07211FED458B4B3

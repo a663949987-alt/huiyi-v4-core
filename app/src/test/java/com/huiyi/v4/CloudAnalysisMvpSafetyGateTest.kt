@@ -190,6 +190,45 @@ class CloudAnalysisMvpSafetyGateTest {
         }
     }
 
+    @OptIn(ExperimentalCoroutinesApi::class)
+    @Test
+    fun LateCloudFailureAfterSoftTimeoutStillReportsFallbackToRuntimeTest() = runTest {
+        val cloud = DeferredCloudService()
+        val lateResults = mutableListOf<LateCloudPipelineResult>()
+        val lateScope = CoroutineScope(SupervisorJob() + Dispatchers.Unconfined)
+        try {
+            val pipelineRun = async {
+                pipeline(
+                    lastOtherMessages(),
+                    cloud,
+                    lateCloudScope = lateScope,
+                    lateCloudSoftTimeoutMs = 50L,
+                    onLateCloudResult = { lateResults += it }
+                ).run(emptyPersona(), sessionId = "late-failure-session").getOrThrow()
+            }
+
+            advanceTimeBy(60L)
+            val initialResult = pipelineRun.await()
+
+            assertEquals("SOFT_TIMEOUT_PENDING", initialResult.cloudTrace.cloudErrorCode)
+            assertEquals("PENDING", initialResult.cloudTrace.cloudContractValidationResult)
+            assertEquals(0, lateResults.size)
+
+            cloud.completeFailure(CloudAnalysisException("CLOUD_CONTRACT_VIOLATION"))
+            advanceUntilIdle()
+
+            assertEquals(1, lateResults.size)
+            assertEquals("late-failure-session", lateResults.single().sessionId)
+            assertEquals("LOCAL_FALLBACK", lateResults.single().trace.decisionSource)
+            assertTrue(lateResults.single().trace.cloudFallbackUsed)
+            assertEquals("CLOUD_CONTRACT_VIOLATION", lateResults.single().trace.cloudErrorCode)
+            assertEquals("FAIL", lateResults.single().trace.cloudContractValidationResult)
+            assertEquals(5, lateResults.single().routes.size)
+        } finally {
+            lateScope.cancel()
+        }
+    }
+
     @Test
     fun CloudSchemaInvalidFallsBackToLocalTest() = runTest {
         val result = pipeline(lastOtherMessages(), FakeCloudService(error = CloudAnalysisException("CLOUD_SCHEMA_INVALID"))).run(emptyPersona()).getOrThrow()
@@ -842,6 +881,10 @@ class CloudAnalysisMvpSafetyGateTest {
                     )
                 )
             )
+        }
+
+        fun completeFailure(error: Throwable) {
+            response.complete(Result.failure(error))
         }
     }
 

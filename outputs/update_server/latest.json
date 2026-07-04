@@ -1,9 +1,9 @@
 {
-    "versionName":  "4.1.54",
-    "versionCode":  473,
-    "apkUrl":  "huiyi-v4.1.54-debug.apk",
-    "releaseNotes":  "v4.1.54: republish LAN update with fresh APK filename and safer SHA-verified download",
+    "versionName":  "4.1.56",
+    "versionCode":  475,
+    "apkUrl":  "huiyi-v4.1.56-debug.apk",
+    "releaseNotes":  "v4.1.56: accept valid late cloud result after soft timeout even when foreground package changes",
     "forceUpdate":  false,
-    "sha256":  "F8F8BF3EE31C90E863738623E518E97A1C03D9A3D8B252722771E7FE58069982",
-    "createdAt":  1783163861042
+    "sha256":  "A48E30DEF6FB77F80CFAF14C2871B81C84494A5B4497B9BCF07211FED458B4B3",
+    "createdAt":  1783168011763
 }

@@ -1,36 +1,39 @@
 {
-  "taskName": "split_passive_next_sentence_and_active_self_expression",
-  "versionName": "4.1.54",
-  "versionCode": 473,
-  "currentOverallResult": "LOCAL_TEST_PASS_LAN_APK_READY",
-  "generatedAt": "2026-07-04T19:13:37+08:00",
+  "taskName": "late_cloud_result_return_after_soft_timeout_fix",
+  "versionName": "4.1.56",
+  "versionCode": 475,
+  "currentOverallResult": "EMULATOR_LATE_CLOUD_PASS_LAN_APK_READY",
+  "generatedAt": "2026-07-04T20:05:45+08:00",
   "userNeedsPhoneThisRound": true,
-  "realDeviceSmokeResult": "NOT_TESTED_AFTER_SPLIT",
-  "nextSentenceButtonExists": true,
-  "expressSelfButtonExists": true,
-  "nextSentencePanelClean": true,
-  "nextSentencePanelHasNoLikeMeFeedback": true,
-  "nextSentencePanelHasNoCharacterArcOverload": true,
-  "expressSelfPanelHasCharacterArc": true,
-  "expressSelfPanelHasPersonaFeedback": true,
-  "passiveCloudNonBlocking": true,
-  "localFallbackImmediate": true,
-  "lanUpdateShaMismatchFix": true,
-  "freshApkFilename": true,
-  "shaVerifiedTempDownload": true,
-  "serverDownloadVerified": true,
+  "realDeviceSmokeResult": "NOT_TESTED_AFTER_FIX",
+  "emulatorLateCloudSmokeResult": "PASS",
+  "latestPhoneObservedVersion": "4.1.52",
+  "observedCloudAttempted": true,
+  "observedCloudSuccess": false,
+  "observedCloudErrorCode": "SOFT_TIMEOUT_PENDING",
+  "observedCloudLatencyMs": 12008,
+  "observedCloudFinalModel": "gpt-5.4",
+  "lateCloudSuccessAfterSoftTimeoutCanUpgradePanel": true,
+  "lateCloudFailureAfterSoftTimeoutReportsFallback": true,
+  "lateCloudResultNotDiscardedWhenPanelHidden": true,
+  "lateCloudResultNotDiscardedWhenForegroundPackageChangesButSnapshotMatches": true,
+  "softTimeoutPendingStillUsesLocalFallback": true,
+  "lastOtherLateCloudAppliedOnEmulator": true,
+  "lastMeWaitPassedOnEmulator": true,
   "tests": {
     "unitTests": "PASS",
     "assembleDebug": "PASS",
-    "PassiveActiveSplitTest": "PASS"
+    "LateCloudFailureAfterSoftTimeoutStillReportsFallbackToRuntimeTest": "PASS",
+    "emulatorLateCloudSmoke": "PASS"
   },
   "apkDelivery": {
     "apkDeliveredOutOfBand": true,
     "apkCommittedToPublicGithub": false,
     "lanLatestJson": "http://192.168.31.243:8787/latest.json",
-    "lanApkUrl": "http://192.168.31.243:8787/huiyi-v4.1.54-debug.apk",
-    "localApkPath": "outputs/update_server/huiyi-v4.1.54-debug.apk",
-    "apkSha256": "F8F8BF3EE31C90E863738623E518E97A1C03D9A3D8B252722771E7FE58069982"
+    "lanApkUrl": "http://192.168.31.243:8787/huiyi-v4.1.56-debug.apk",
+    "localApkPath": "outputs/update_server/huiyi-v4.1.56-debug.apk",
+    "apkSha256": "A48E30DEF6FB77F80CFAF14C2871B81C84494A5B4497B9BCF07211FED458B4B3",
+    "serverDownloadVerified": true
   },
   "files": [
     {
@@ -39,12 +42,22 @@
       "sendToGpt": true
     },
     {
-      "path": "outputs/gpt_review_inbox/passive-active-split-report-for-gpt.md",
+      "path": "outputs/gpt_review_inbox/late-cloud-result-report-for-gpt.md",
       "type": "markdown",
       "sendToGpt": true
     },
     {
-      "path": "outputs/gpt_review_inbox/passive-active-split-report.json",
+      "path": "outputs/gpt_review_inbox/late-cloud-result-report.json",
+      "type": "json",
+      "sendToGpt": true
+    },
+    {
+      "path": "outputs/gpt_review_inbox/emulator-late-cloud-smoke-report-for-gpt.md",
+      "type": "markdown",
+      "sendToGpt": true
+    },
+    {
+      "path": "outputs/gpt_review_inbox/emulator-late-cloud-smoke-report.json",
       "type": "json",
       "sendToGpt": true
     },
