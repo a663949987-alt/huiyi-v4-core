@@ -217,25 +217,7 @@ class CurrentScreenPipelineUseCase(
         val service = cloudAnalysisService
         val config = service?.config ?: CloudAnalysisConfig(cloudEnabled = false)
         if (lastSpeaker.lastSpeaker == Speaker.ME) {
-            val visualEvidence = visualEvidenceForCloud(config, visualCloudAllowed)
-            if (visualEvidence == null || service == null) {
-                return CloudPipelineResult(lastMeWaitDecision(), emptyList(), CloudAnalysisTrace.skipped(config, "LAST_SPEAKER_ME_WAIT", "LOCAL_WAIT"))
-            }
-            return analyzeWithCloud(
-                service = service,
-                config = config,
-                sessionId = sessionId,
-                preAnalysisSnapshotId = preAnalysisSnapshotId,
-                chatPackage = chatPackage,
-                chatWindowHash = chatWindowHash,
-                capture = capture,
-                context = context,
-                lastSpeaker = lastSpeaker,
-                localDecision = localDecision,
-                localRoutes = emptyList(),
-                visualEvidence = visualEvidence,
-                recentVisualEvidence = recentVisualEvidence
-            )
+            return CloudPipelineResult(lastMeWaitDecision(), emptyList(), CloudAnalysisTrace.skipped(config, "LAST_SPEAKER_ME_WAIT", "LOCAL_WAIT"))
         }
         if (lastSpeaker.lastSpeaker == Speaker.UNKNOWN || lastSpeaker.unknownSpeaker) {
             val visualEvidence = visualEvidenceForCloud(config, visualCloudAllowed)

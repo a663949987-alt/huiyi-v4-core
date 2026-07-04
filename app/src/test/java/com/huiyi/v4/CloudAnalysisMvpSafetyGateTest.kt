@@ -65,6 +65,27 @@ class CloudAnalysisMvpSafetyGateTest {
     }
 
     @Test
+    fun LastMeSkipsCloudEvenWhenVisualEvidenceExistsTest() = runTest {
+        val cloud = FakeCloudService()
+        val result = pipeline(
+            lastMeMessages(),
+            cloud,
+            appPackage = "com.xiaoenai.app",
+            windowTitle = "xiaoenai",
+            visualEvidenceProvider = { fakeVisualEvidence() }
+        ).run(emptyPersona()).getOrThrow()
+
+        assertEquals(Speaker.ME, result.lastSpeakerDecision.lastSpeaker)
+        assertEquals(TacticalDecisionType.WAIT, result.tacticalDecision.decisionType)
+        assertEquals("LOCAL_WAIT", result.cloudTrace.decisionSource)
+        assertEquals("LAST_SPEAKER_ME_WAIT", result.cloudTrace.cloudSkippedReason)
+        assertFalse(result.cloudTrace.cloudAttempted)
+        assertFalse(result.cloudTrace.cloudFallbackUsed)
+        assertEquals(0, cloud.callCount)
+        assertTrue(result.routes.isEmpty())
+    }
+
+    @Test
     fun LastMeContextOrderingCannotOverrideWaitTest() = runTest {
         val messages = listOf(
             textNode("other-sequence-late", Speaker.OTHER, "need more context", 99),

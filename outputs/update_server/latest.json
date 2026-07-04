@@ -1,9 +1,9 @@
 {
-    "versionName":  "4.1.46",
-    "versionCode":  465,
-    "apkUrl":  "huiyi-v4.1.46-debug.apk",
-    "releaseNotes":  "v4.1.46: fixes cloud timeout visibility and prevents clean LAST_OTHER screens from ending with zero routes after relay failure",
+    "versionName":  "4.1.47",
+    "versionCode":  466,
+    "apkUrl":  "huiyi-v4.1.47-debug.apk",
+    "releaseNotes":  "v4.1.47: enforces LAST_ME local wait safety gate even when visual evidence is available; skips relay cloud for already-replied screens",
     "forceUpdate":  false,
-    "sha256":  "AC27995ECEDE1D5C10D07AE73219CB58D418FDD814236DF342315E0180B3F0AC",
-    "createdAt":  1783155530034
+    "sha256":  "ACFE2BA61C584DE733CEED79D1B121569A51FE7B453E0E2F5270288C7A1BC5D9",
+    "createdAt":  1783156773294
 }
