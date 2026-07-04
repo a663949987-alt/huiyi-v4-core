@@ -39,8 +39,8 @@ android {
         applicationId = "com.huiyi.v4"
         minSdk = 29
         targetSdk = 35
-        versionCode = 447
-        versionName = "4.1.28"
+        versionCode = 461
+        versionName = "4.1.42"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
 
@@ -55,7 +55,7 @@ android {
         buildConfigField("String", "HUIYI_CLOUD_ANALYSIS_CLIENT_ID", "\"${localProps.getProperty("huiyi.cloud.clientId", "huiyi-v4-dev")}\"")
         buildConfigField("String", "HUIYI_CLOUD_ANALYSIS_CLIENT_TOKEN", "\"\"")
         buildConfigField("String", "HUIYI_RELAY_BASE_URL", localConfig("huiyi.relay.baseUrl", "HUIYI_RELAY_BASE_URL").asBuildConfigString())
-        buildConfigField("String", "HUIYI_RELAY_MODEL", localConfig("huiyi.relay.model", "HUIYI_RELAY_MODEL", default = "gpt-5.5").asBuildConfigString())
+        buildConfigField("String", "HUIYI_RELAY_MODEL", localConfig("huiyi.relay.model", "HUIYI_RELAY_MODEL", default = "gpt-5.4").asBuildConfigString())
         buildConfigField("String", "HUIYI_RELAY_API_KEY", localConfig("huiyi.relay.apiKey", "HUIYI_RELAY_API_KEY").asBuildConfigString())
         buildConfigField("Long", "HUIYI_RELAY_TIMEOUT_MS", "${localConfig("huiyi.relay.timeoutMs", "HUIYI_RELAY_TIMEOUT_MS", default = "20000")}L")
         buildConfigField("Boolean", "HUIYI_RELAY_CONFIGURED_FOR_BUILD", (localConfig("huiyi.relay.baseUrl", "HUIYI_RELAY_BASE_URL").isNotBlank() && localConfig("huiyi.relay.apiKey", "HUIYI_RELAY_API_KEY").isNotBlank()).toString())

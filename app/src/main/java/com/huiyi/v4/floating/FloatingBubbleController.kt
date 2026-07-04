@@ -5,18 +5,22 @@ import android.graphics.PixelFormat
 import android.os.Build
 import android.provider.Settings
 import android.view.Gravity
+import android.view.View
 import android.view.WindowManager
 import android.widget.Button
 import android.widget.LinearLayout
+import android.widget.Toast
 import com.huiyi.v4.accessibility.HuiyiAccessibilityService
+import com.huiyi.v4.runtime.NextSentenceClickAck
 
 class FloatingBubbleController(
     private val context: Context,
-    private val onNextSentence: () -> Unit,
+    private val onNextSentence: (NextSentenceClickAck) -> Unit,
     private val onOneTapFeedback: () -> Unit
 ) {
     private val windowManager = context.getSystemService(Context.WINDOW_SERVICE) as WindowManager
     private var rootView: LinearLayout? = null
+    private var bubbleButton: Button? = null
 
     fun canDrawOverlays(): Boolean = Settings.canDrawOverlays(context)
 
@@ -25,9 +29,11 @@ class FloatingBubbleController(
         val container = LinearLayout(context).apply {
             orientation = LinearLayout.VERTICAL
             setPadding(8, 8, 8, 8)
+            importantForAccessibility = View.IMPORTANT_FOR_ACCESSIBILITY_NO_HIDE_DESCENDANTS
         }
         val bubble = Button(context).apply {
             text = "会意"
+            importantForAccessibility = View.IMPORTANT_FOR_ACCESSIBILITY_NO
             setOnClickListener {
                 val menuVisible = container.childCount > 1
                 if (menuVisible) {
@@ -37,11 +43,16 @@ class FloatingBubbleController(
                 }
             }
         }
+        bubbleButton = bubble
         container.addView(bubble)
         val params = WindowManager.LayoutParams(
             WindowManager.LayoutParams.WRAP_CONTENT,
             WindowManager.LayoutParams.WRAP_CONTENT,
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY else WindowManager.LayoutParams.TYPE_PHONE,
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY
+            } else {
+                WindowManager.LayoutParams.TYPE_PHONE
+            },
             WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE,
             PixelFormat.TRANSLUCENT
         ).apply {
@@ -66,6 +77,31 @@ class FloatingBubbleController(
         }
     }
 
+    fun markLoadingAck(): NextSentenceClickAck {
+        val clickAt = System.currentTimeMillis()
+        val overlayBefore = OverlayStateStore.state.value
+        rootView?.let { container ->
+            if (container.childCount > 1) {
+                container.removeViews(1, container.childCount - 1)
+            }
+        }
+        bubbleButton?.text = "会意正在看…"
+        Toast.makeText(context, "会意正在看当前聊天…", Toast.LENGTH_SHORT).show()
+        val ackAt = System.currentTimeMillis()
+        return NextSentenceClickAck(
+            clickReceivedAt = clickAt,
+            clickAckShownAt = ackAt,
+            clickAckVisible = true,
+            panelVisibleBeforeClick = overlayBefore.resultPanelVisible || overlayBefore.errorPanelVisible,
+            panelVisibleAfterClick = false,
+            bubbleVisibleAfterClick = rootView != null
+        )
+    }
+
+    fun markIdle() {
+        bubbleButton?.text = "会意"
+    }
+
     fun hide(reason: String = "user_hide") {
         rootView?.let {
             try {
@@ -82,25 +118,33 @@ class FloatingBubbleController(
             }
         }
         rootView = null
+        bubbleButton = null
         if (reason == "user_hide") OverlayStateStore.markUserHide() else OverlayStateStore.markBubbleVisible(false)
     }
 
     private fun addMenu(container: LinearLayout) {
-        listOf("下一句", "这次不对，发给 GPT", "隐藏").forEach { label ->
+        listOf(NEXT, FEEDBACK, HIDE).forEach { label ->
             val button = Button(context).apply {
                 text = label
+                importantForAccessibility = View.IMPORTANT_FOR_ACCESSIBILITY_NO
                 setOnClickListener {
                     when (label) {
-                        "下一句" -> {
+                        NEXT -> {
                             OverlayStateStore.markBubbleClick()
-                            onNextSentence()
+                            onNextSentence(markLoadingAck())
                         }
-                        "这次不对，发给 GPT" -> onOneTapFeedback()
-                        "隐藏" -> hide("user_hide")
+                        FEEDBACK -> onOneTapFeedback()
+                        HIDE -> hide("user_hide")
                     }
                 }
             }
             container.addView(button)
         }
+    }
+
+    private companion object {
+        const val NEXT = "下一句"
+        const val FEEDBACK = "这次不对，发给 GPT"
+        const val HIDE = "隐藏"
     }
 }

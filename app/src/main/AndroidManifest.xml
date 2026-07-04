@@ -39,7 +39,11 @@
 
         <service
             android:name=".floating.FloatingBubbleService"
-            android:exported="false" />
+            android:exported="true">
+            <intent-filter>
+                <action android:name="com.huiyi.v4.action.START_FLOATING_BUBBLE" />
+            </intent-filter>
+        </service>
 
         <provider
             android:name="androidx.core.content.FileProvider"

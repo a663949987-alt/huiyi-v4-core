@@ -13,6 +13,8 @@ class NextSentenceFailureReportGenerator {
             appendLine("- permission warning shown: ${trace.permissionMissingMessageShown}")
             appendLine()
             appendLine("## Failure stage")
+            appendLine("- sessionId: ${trace.sessionId}")
+            appendLine("- terminalState: ${trace.terminalState ?: "none"}")
             appendLine("- stage: ${trace.failedStage ?: trace.stage}")
             appendLine("- errorCode: ${trace.errorCode ?: NextSentenceErrorCode.NONE}")
             appendLine("- secondaryErrorCode: ${trace.secondaryErrorCode ?: "none"}")
@@ -62,6 +64,12 @@ class NextSentenceFailureReportGenerator {
             appendLine("- api called: ${trace.apiCalled}")
             appendLine()
             appendLine("## Overlay")
+            appendLine("- clickReceivedAt: ${trace.clickReceivedAt ?: "none"}")
+            appendLine("- clickAckShownAt: ${trace.clickAckShownAt ?: "none"}")
+            appendLine("- clickAckLatencyMs: ${trace.clickAckLatencyMs ?: "none"}")
+            appendLine("- clickAckVisible: ${trace.clickAckVisible}")
+            appendLine("- runNextSentenceEntered: ${trace.runNextSentenceEntered}")
+            appendLine("- sessionCreated: ${trace.sessionCreated}")
             appendLine("- bubble attached after click: ${trace.bubbleAttachedAfterClick}")
             appendLine("- bubble visible after failure: ${trace.bubbleVisibleAfterFailure}")
             appendLine("- panel attached: ${trace.panelAttached}")
@@ -77,6 +85,19 @@ class NextSentenceFailureReportGenerator {
             "versionName" to BuildConfig.VERSION_NAME,
             "versionCode" to BuildConfig.VERSION_CODE,
             "scenarioName" to "next_sentence_analysis_failure",
+            "clickReceived" to (trace.clickReceivedAt != null),
+            "clickReceivedAt" to trace.clickReceivedAt,
+            "clickAckShownAt" to trace.clickAckShownAt,
+            "clickAckLatencyMs" to trace.clickAckLatencyMs,
+            "clickAckVisible" to trace.clickAckVisible,
+            "runNextSentenceEntered" to trace.runNextSentenceEntered,
+            "sessionCreated" to trace.sessionCreated,
+            "terminalState" to trace.terminalState,
+            "panelShown" to trace.panelShown,
+            "panelVisibleBeforeClick" to trace.panelVisibleBeforeClick,
+            "panelVisibleAfterClick" to trace.panelVisibleAfterClick,
+            "activeWindowTitleAtClick" to trace.activeWindowTitleAtClick,
+            "rootAvailableAtClick" to trace.rootAvailableAtClick,
             "userVisibleMessage" to trace.userFacingMessage,
             "errorCode" to trace.errorCode?.name,
             "failedStage" to trace.failedStage?.name,

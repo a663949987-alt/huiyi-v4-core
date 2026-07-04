@@ -1,0 +1,44 @@
+{
+  "project": "Huiyi v4 Core",
+  "taskName": "unified_evidence_light_listen_timeline",
+  "versionName": "4.1.42",
+  "versionCode": 461,
+  "generatedAt": "2026-07-04T12:00:00+08:00",
+  "overallResult": "LOCAL_BUILD_PASS_PHONE_EXPERIENCE_REQUIRED",
+  "userNeedsPhoneThisRound": true,
+  "realDeviceSmokeResult": "NOT_TESTED_THIS_ROUND",
+  "features": {
+    "unifiedEvidencePackage": true,
+    "currentScreenshotHighestAuthority": true,
+    "recentVisualCheckpoints": true,
+    "lightListenBackfill": true,
+    "lightListenPersistedTimeline": true,
+    "roomMigration1To2": true,
+    "rawScreenshotsPersistedToDb": false
+  },
+  "evidenceAuthority": {
+    "currentScreenshot": "HIGHEST_CURRENT_SCREEN",
+    "recentVisualCheckpoints": "HIGH_CONTEXT_ONLY",
+    "lightListenBackfill": "AUXILIARY_TEXT_CONTEXT"
+  },
+  "validation": {
+    "unitTests": "PASS",
+    "assembleDebug": "PASS",
+    "lightListenMemoryTest": "PASS",
+    "lightListenPersistenceTest": "PASS",
+    "unifiedEvidencePayloadTest": "PASS"
+  },
+  "delivery": {
+    "lanLatestJson": "http://192.168.31.243:8787/latest.json",
+    "lanApkUrl": "http://192.168.31.243:8787/huiyi-v4.1.42-debug.apk",
+    "apkSha256": "395277887DA2CF910670D789A7B313743C12E5E8FF72EB421711F97C287527E9",
+    "apkCommittedToPublicGithub": false
+  },
+  "filesForGpt": [
+    "outputs/gpt_review_inbox/README_FOR_GPT.md",
+    "outputs/gpt_review_inbox/light-listen-evidence-report-for-gpt.md",
+    "outputs/gpt_review_inbox/light-listen-evidence-report.json",
+    "outputs/codex_to_gpt/result-manifest.json",
+    "outputs/codex_to_gpt/changed-files-for-gpt.md"
+  ]
+}

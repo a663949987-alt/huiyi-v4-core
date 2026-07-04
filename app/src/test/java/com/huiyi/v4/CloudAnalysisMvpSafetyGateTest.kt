@@ -6,6 +6,7 @@ import com.huiyi.v4.domain.cloud.CloudAnalysisException
 import com.huiyi.v4.domain.cloud.CloudAnalysisInput
 import com.huiyi.v4.domain.cloud.CloudAnalysisOutput
 import com.huiyi.v4.domain.cloud.CloudAnalysisService
+import com.huiyi.v4.domain.cloud.CloudVisualEvidence
 import com.huiyi.v4.domain.cloud.CloudTacticalResponseValidator
 import com.huiyi.v4.domain.cloud.CloudTacticalDecisionMapper
 import com.huiyi.v4.domain.context.ContextAssembler
@@ -235,6 +236,24 @@ class CloudAnalysisMvpSafetyGateTest {
     }
 
     @Test
+    fun CleanThirdPartyChatUsesVisualCloudInsteadOfUnsupportedSkipTest() = runTest {
+        val cloud = FakeCloudService()
+        val result = pipeline(
+            lastOtherMessages(),
+            cloud,
+            appPackage = "com.xiaoenai.app",
+            windowTitle = "小恩爱",
+            visualEvidenceProvider = { fakeVisualEvidence() }
+        ).run(emptyPersona()).getOrThrow()
+
+        assertTrue(result.cloudTrace.cloudAttempted)
+        assertTrue(result.cloudTrace.cloudSuccess)
+        assertEquals("CLOUD", result.cloudTrace.decisionSource)
+        assertEquals(1, cloud.callCount)
+        assertEquals(5, result.routes.size)
+    }
+
+    @Test
     fun ApiKeyNotPresentInApkOrRepoTest() {
         assertEquals("", BuildConfig.HUIYI_API_KEY)
         assertEquals("", BuildConfig.HUIYI_CLOUD_ANALYSIS_CLIENT_TOKEN)
@@ -263,8 +282,36 @@ class CloudAnalysisMvpSafetyGateTest {
         ).copy(
             cloudTrace = com.huiyi.v4.domain.cloud.CloudAnalysisTrace.success(
                 CloudAnalysisConfig(cloudEnabled = true, endpoint = "https://gateway.example"),
-                requestId = "cloud-req",
-                latencyMs = 123
+                CloudAnalysisOutput(
+                    sessionId = "s",
+                    preAnalysisSnapshotId = "snap",
+                    chatPackage = "com.bajiao.im.liaoqi",
+                    chatWindowHash = "hash",
+                    cloudRequestId = "cloud-req",
+                    decision = TacticalDecisionEngine().decide(
+                        ContextAssembler().assemble(
+                            currentScreenMessages = lastOtherMessages(),
+                            userPersonaCorpus = emptyPersona()
+                        )
+                    ),
+                    routes = ReplyRouteGenerator().generate(
+                        ContextAssembler().assemble(
+                            currentScreenMessages = lastOtherMessages(),
+                            userPersonaCorpus = emptyPersona()
+                        ),
+                        TacticalDecisionEngine().decide(
+                            ContextAssembler().assemble(
+                                currentScreenMessages = lastOtherMessages(),
+                                userPersonaCorpus = emptyPersona()
+                            )
+                        )
+                    ),
+                    latencyMs = 123,
+                    modelUsed = "gpt-5.4",
+                    primaryModel = "gpt-5.4",
+                    qualityGateResult = "PASS",
+                    qualityScore = 90
+                )
             ),
             apiCalled = true
         )
@@ -359,6 +406,28 @@ class CloudAnalysisMvpSafetyGateTest {
 
         assertEquals("CLOUD", result.cloudTrace.decisionSource)
         assertTrue(result.cloudTrace.cloudSuccess)
+    }
+
+    @Test
+    fun VisualCloudLastSpeakerMeReturnsWaitRoutesEmptyTest() {
+        val response = validCloudResponse()
+            .replace("\"schemaVersion\": 1,", "\"schemaVersion\": 1,\n  \"visualLastSpeaker\": \"ME\",\n  \"visualLastSpeakerConfidence\": 96,\n  \"visualSpeakerEvidence\": \"latest bubble is on the user side\",")
+
+        val output = CloudTacticalDecisionMapper().parseResponse(response, 10L, Speaker.OTHER)
+
+        assertEquals(TacticalDecisionType.WAIT, output.decision.decisionType)
+        assertEquals(0, output.routes.size)
+    }
+
+    @Test
+    fun VisualCloudLastSpeakerUnknownReturnsContextRequiredRoutesEmptyTest() {
+        val response = validCloudResponse()
+            .replace("\"schemaVersion\": 1,", "\"schemaVersion\": 1,\n  \"visualLastSpeaker\": \"UNKNOWN\",\n  \"visualLastSpeakerConfidence\": 41,\n  \"visualSpeakerEvidence\": \"latest bubble side is ambiguous\",")
+
+        val output = CloudTacticalDecisionMapper().parseResponse(response, 10L, Speaker.OTHER)
+
+        assertEquals(TacticalDecisionType.CONTEXT_REQUIRED, output.decision.decisionType)
+        assertEquals(0, output.routes.size)
     }
 
     @Test
@@ -554,10 +623,12 @@ class CloudAnalysisMvpSafetyGateTest {
         messages: List<com.huiyi.v4.domain.model.MessageNode>,
         cloud: CloudAnalysisService?,
         appPackage: String = "com.bajiao.im.liaoqi",
-        windowTitle: String = "chat"
+        windowTitle: String = "chat",
+        visualEvidenceProvider: (suspend () -> CloudVisualEvidence?)? = null
     ) = CurrentScreenPipelineUseCase(
         captureUseCase = FakeCaptureUseCase(messages, appPackage, windowTitle),
         cloudAnalysisService = cloud,
+        visualEvidenceProvider = visualEvidenceProvider,
         appVersionName = "test",
         appVersionCode = 1
     )
@@ -601,13 +672,32 @@ class CloudAnalysisMvpSafetyGateTest {
             error?.let { return Result.failure(it) }
             val routes: List<ReplyRoute> = ReplyRouteGenerator().generate(input.context, input.localDecision)
                 .mapIndexed { index, route -> route.copy(id = "cloud-$index", tag = "浜戠") }
-            return Result.success(CloudAnalysisOutput("cloud-req", input.localDecision, routes, 42))
+            return Result.success(
+                CloudAnalysisOutput(
+                    sessionId = input.sessionId,
+                    preAnalysisSnapshotId = input.preAnalysisSnapshotId,
+                    chatPackage = input.chatPackage,
+                    chatWindowHash = input.chatWindowHash,
+                    cloudRequestId = "cloud-req",
+                    decision = input.localDecision,
+                    routes = routes,
+                    latencyMs = 42
+                )
+            )
         }
     }
 
     private fun lastMeMessages() = listOf(
         textNode("other-1", Speaker.OTHER, "hello", 1),
         textNode("me-2", Speaker.ME, "ok", 2)
+    )
+
+    private fun fakeVisualEvidence() = CloudVisualEvidence(
+        imageBase64 = "ZmFrZQ==",
+        mimeType = "image/jpeg",
+        width = 360,
+        height = 760,
+        source = "unit_test"
     )
 
     private fun lastOtherMessages() = listOf(

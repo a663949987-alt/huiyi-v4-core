@@ -85,7 +85,7 @@ class LiaoqiRealParser(
                 else -> sideDecision.reason
             },
             parserName = "LiaoqiRealParser",
-            isEffectiveChatMessage = !isMetadata && speaker in setOf(Speaker.ME, Speaker.OTHER),
+            isEffectiveChatMessage = !isMetadata && speaker != Speaker.SYSTEM,
             metadataType = metadataType,
             rowBounds = rowBounds,
             textBounds = bubble.textBounds,
@@ -116,6 +116,10 @@ class LiaoqiRealParser(
         primaryBounds.forEach { bounds ->
             val side = bounds.edgeSide()
             if (side == "left" || side == "right") return SideDecision(side, "liaoqi_bubble_edge_$side")
+        }
+        if (primaryBounds.isNotEmpty()) {
+            val best = primaryBounds.first()
+            return SideDecision("unknown", "liaoqi_ambiguous_bubble_bounds ${best.unknownReason()}")
         }
 
         val textBounds = bubble.textBounds

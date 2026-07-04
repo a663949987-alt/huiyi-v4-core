@@ -65,4 +65,30 @@ class LiaoqiRealParserTest {
         assertEquals(Speaker.OTHER, node.speaker)
         assertTrue(node.possibleSpeakerConflict)
     }
+
+    @Test
+    fun ambiguousWideBubbleDoesNotFallBackToLeftTextInset() {
+        val node = LiaoqiRealParser(screenWidth = 1080).parse(
+            listOf(
+                VisualBubble(
+                    id = "wide",
+                    text = "long relationship paragraph",
+                    textBounds = VisualBounds(205, 1573, 748, 2205),
+                    parentBounds = VisualBounds(150, 1548, 896, 2230),
+                    rowBounds = VisualBounds(0, 1536, 1080, 2242),
+                    bubbleBounds = VisualBounds(150, 1548, 896, 2230),
+                    ancestorBoundsChain = listOf(
+                        VisualBounds(0, 0, 1080, 2412),
+                        VisualBounds(0, 1536, 1080, 2242),
+                        VisualBounds(150, 1548, 896, 2230)
+                    )
+                )
+            ),
+            MessageSource.ACCESSIBILITY_CURRENT_SCREEN
+        ).single()
+
+        assertEquals(Speaker.UNKNOWN, node.speaker)
+        assertTrue(node.isEffectiveChatMessage)
+        assertTrue(node.speakerReason.orEmpty().contains("liaoqi_ambiguous_bubble_bounds"))
+    }
 }

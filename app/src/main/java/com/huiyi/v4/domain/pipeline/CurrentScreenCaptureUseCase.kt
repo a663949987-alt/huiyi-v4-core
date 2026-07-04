@@ -89,9 +89,23 @@ open class CurrentScreenCaptureUseCase(
             fallbackSnapshotAttempted = true,
             fallbackSnapshotSuccess = false
         )
-        val snapshot = snapshotResult.getOrNull()
+        var snapshot = snapshotResult.getOrNull()
+        var appPackage = snapshot?.appPackage.orEmpty()
+        while (snapshot != null && (appPackage == ownPackage || appPackage == "com.android.systemui") && retryCount < 4) {
+            retryCount += 1
+            Thread.sleep(if (appPackage == ownPackage) 700L else 300L)
+            val settledSnapshot = service.captureCurrentScreen().getOrNull()
+            if (settledSnapshot != null) {
+                snapshot = settledSnapshot
+                appPackage = settledSnapshot.appPackage.orEmpty()
+            }
+        }
         if (snapshot == null) {
-            val fallbackCapture = fallback?.takeIf { fallbackAgeMs != null && fallbackAgeMs <= 5000L && it.normalizedMessages.isNotEmpty() }
+            val fallbackCapture = fallback?.takeIf {
+                fallbackAgeMs != null &&
+                    fallbackAgeMs <= STABLE_CHAT_SNAPSHOT_MAX_AGE_MS &&
+                    it.normalizedMessages.isNotEmpty()
+            }
             if (fallbackCapture != null) {
                 return Result.success(fromSnapshot(
                     snapshot = fallbackCapture.snapshot,
@@ -114,11 +128,12 @@ open class CurrentScreenCaptureUseCase(
                 )
             )
         }
-        val appPackage = snapshot.appPackage.orEmpty()
         val rootIsOwnOverlay = appPackage == ownPackage
         val rootIsSystemUi = appPackage == "com.android.systemui"
         val fallbackCapture = fallback?.takeIf {
-            fallbackAgeMs != null && fallbackAgeMs <= 5000L && it.normalizedMessages.isNotEmpty()
+            fallbackAgeMs != null &&
+                fallbackAgeMs <= STABLE_CHAT_SNAPSHOT_MAX_AGE_MS &&
+                it.normalizedMessages.isNotEmpty()
         }
         if ((rootIsOwnOverlay || rootIsSystemUi) && fallbackCapture != null) {
             return Result.success(fromSnapshot(
@@ -330,4 +345,8 @@ open class CurrentScreenCaptureUseCase(
         val parserName: String,
         val fallbackUsed: Boolean
     )
+
+    private companion object {
+        const val STABLE_CHAT_SNAPSHOT_MAX_AGE_MS = 60_000L
+    }
 }

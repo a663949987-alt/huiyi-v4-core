@@ -1,5 +1,6 @@
 package com.huiyi.v4
 
+import com.huiyi.v4.domain.context.ContextAssembler
 import com.huiyi.v4.domain.model.Speaker
 import com.huiyi.v4.domain.model.TacticalDecisionType
 import com.huiyi.v4.domain.pipeline.LastSpeakerDecisionUseCase
@@ -11,7 +12,6 @@ import com.huiyi.v4.domain.pipeline.NextSentenceStage
 import com.huiyi.v4.domain.pipeline.userFacingMessageFor
 import com.huiyi.v4.domain.tactical.ReplyRouteGenerator
 import com.huiyi.v4.domain.tactical.TacticalDecisionEngine
-import com.huiyi.v4.domain.context.ContextAssembler
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
@@ -20,10 +20,11 @@ import org.junit.Test
 class NextSentenceFailureDiagnosticsTest {
     @Test
     fun genericAnalysisFailedOnlyForUnknownExceptionTest() {
-        assertFalse(userFacingMessageFor(NextSentenceErrorCode.ROOT_UNAVAILABLE).contains("这次分析失败"))
-        assertFalse(userFacingMessageFor(NextSentenceErrorCode.CHAT_MESSAGE_PARSE_EMPTY).contains("这次分析失败"))
-        assertFalse(userFacingMessageFor(NextSentenceErrorCode.API_DISABLED).contains("这次分析失败"))
-        assertTrue(userFacingMessageFor(NextSentenceErrorCode.UNKNOWN_EXCEPTION).contains("这次分析失败"))
+        assertFalse(userFacingMessageFor(NextSentenceErrorCode.ROOT_UNAVAILABLE).contains("分析失败"))
+        assertFalse(userFacingMessageFor(NextSentenceErrorCode.CHAT_MESSAGE_PARSE_EMPTY).contains("分析失败"))
+        assertFalse(userFacingMessageFor(NextSentenceErrorCode.API_DISABLED).contains("分析失败"))
+        assertFalse(userFacingMessageFor(NextSentenceErrorCode.UNKNOWN_EXCEPTION).contains("分析失败"))
+        assertTrue(userFacingMessageFor(NextSentenceErrorCode.UNKNOWN_EXCEPTION).contains("没有跑完"))
     }
 
     @Test
@@ -113,7 +114,11 @@ class NextSentenceFailureDiagnosticsTest {
         val context = ContextAssembler().assemble(messages)
         val lastSpeaker = LastSpeakerDecisionUseCase().decide(messages)
         val decision = TacticalDecisionEngine().decide(context)
-        val routes = if (decision.decisionType == TacticalDecisionType.WAIT) emptyList() else ReplyRouteGenerator().generate(context, decision)
+        val routes = if (decision.decisionType == TacticalDecisionType.WAIT) {
+            emptyList()
+        } else {
+            ReplyRouteGenerator().generate(context, decision)
+        }
 
         assertEquals(Speaker.ME, lastSpeaker.lastSpeaker)
         assertEquals(TacticalDecisionType.WAIT, decision.decisionType)

@@ -18,6 +18,7 @@ class MetadataMessageFilter {
         }
         if (
             uiControls.contains(value) ||
+            looksLikeInputControl(value) ||
             scenarioRegex.matches(value) ||
             profileScenarioRegex.matches(value) ||
             huiyiOverlayKeywords.any { value.contains(it, ignoreCase = true) }
@@ -51,7 +52,22 @@ class MetadataMessageFilter {
         return value in headers || value.contains('\u3049')
     }
 
+    private fun looksLikeInputControl(value: String): Boolean {
+        val normalized = value.trim()
+        return inputControlFragments.any { normalized == it }
+    }
+
     private companion object {
+        val inputControlFragments = setOf(
+            "语音",
+            "输入框",
+            "表情",
+            "发送",
+            "璇煶",
+            "杈撳叆妗",
+            "琛ㄦ儏",
+            "鍙戦€"
+        )
         val timeRegex = Regex("""^\d{1,2}:\d{2}$""")
         val dateTimeRegex = Regex("""^(\u4eca\u5929|\u6628\u5929)?\s*\d{1,2}:\d{2}$|^\d{1,2}-\d{1,2}\s+\d{1,2}:\d{2}$|^\d{2}-\d{2}\s+\d{1,2}:\d{2}$""")
         val dateRegex = Regex("""^(\d{4}-)?\d{1,2}-\d{1,2}$""")

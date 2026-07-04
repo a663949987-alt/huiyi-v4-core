@@ -6,6 +6,7 @@ import com.huiyi.v4.domain.cloud.CloudAnalysisException
 import com.huiyi.v4.domain.cloud.CloudAnalysisInput
 import com.huiyi.v4.domain.cloud.CloudAnalysisService
 import com.huiyi.v4.domain.cloud.CloudAnalysisTrace
+import com.huiyi.v4.domain.cloud.CloudVisualEvidence
 import com.huiyi.v4.domain.context.ContextAssembler
 import com.huiyi.v4.domain.model.ChatSceneContext
 import com.huiyi.v4.domain.model.InfluenceIntensity
@@ -19,6 +20,7 @@ import com.huiyi.v4.domain.model.TacticalDecision
 import com.huiyi.v4.domain.model.TacticalDecisionType
 import com.huiyi.v4.domain.model.UserPersonaCorpus
 import com.huiyi.v4.domain.capture.VisualDebugResult
+import com.huiyi.v4.domain.review.ChatReviewMemoryBuilder
 import com.huiyi.v4.domain.tactical.ReplyRouteGenerator
 import com.huiyi.v4.domain.tactical.TacticalDecisionEngine
 
@@ -59,6 +61,8 @@ data class CurrentScreenPipelineResult(
     val waitPanelRenderAttempted: Boolean = false,
     val waitPanelRenderSuccess: Boolean = false,
     val decisionTypeFamily: String = "UNKNOWN",
+    val lightListenBackfillCount: Int = 0,
+    val lightListenUsed: Boolean = false,
     val cloudTrace: CloudAnalysisTrace = CloudAnalysisTrace()
 )
 
@@ -70,18 +74,39 @@ class CurrentScreenPipelineUseCase(
     private val routeGenerator: ReplyRouteGenerator = ReplyRouteGenerator(),
     private val persistenceRepository: HuiyiPersistenceRepository? = null,
     private val cloudAnalysisService: CloudAnalysisService? = null,
+    private val visualEvidenceProvider: (suspend () -> CloudVisualEvidence?)? = null,
+    private val recentVisualEvidenceProvider: ((CurrentScreenCaptureResult) -> List<CloudVisualEvidence>)? = null,
+    private val lightListenContextProvider: ((CurrentScreenCaptureResult) -> List<com.huiyi.v4.domain.model.MessageNode>)? = null,
     private val appVersionName: String = "",
     private val appVersionCode: Int = 0
 ) {
-    suspend fun run(userPersonaCorpus: UserPersonaCorpus): Result<CurrentScreenPipelineResult> {
+    suspend fun run(
+        userPersonaCorpus: UserPersonaCorpus,
+        sessionId: String = java.util.UUID.randomUUID().toString()
+    ): Result<CurrentScreenPipelineResult> {
         return captureUseCase.capture().mapCatching { capture ->
+            val preAnalysisSnapshotId = NextSentenceSnapshotIdentity.snapshotId(capture.snapshot)
+            val chatPackage = capture.snapshot.appPackage.orEmpty()
+            val chatWindowHash = NextSentenceSnapshotIdentity.chatWindowHash(capture.snapshot)
             val contamination = PreAnalysisContaminationGuard.inspect(capture)
             if (contamination.contaminated) {
-                return@mapCatching contaminatedResult(capture, contamination.reason)
+                return@mapCatching contaminatedResult(
+                    capture = capture,
+                    reason = contamination.reason,
+                    sessionId = sessionId,
+                    preAnalysisSnapshotId = preAnalysisSnapshotId,
+                    chatPackage = chatPackage,
+                    chatWindowHash = chatWindowHash
+                )
             }
             val lastSpeaker = lastSpeakerDecisionUseCase.decide(capture.messages)
+            val lightListenBackfill = lightListenContextProvider?.invoke(capture)
+                .orEmpty()
+                .filter { it.isEffectiveChatMessage && it.speaker in setOf(Speaker.ME, Speaker.OTHER) }
+            val recentVisualEvidence = recentVisualEvidenceProvider?.invoke(capture).orEmpty()
             val context = contextAssembler.assemble(
                 currentScreenMessages = capture.messages,
+                contextBackfillMessages = lightListenBackfill,
                 userPersonaCorpus = userPersonaCorpus
             )
             val unknownRatio = capture.messages.count { it.speaker == Speaker.UNKNOWN }
@@ -95,6 +120,9 @@ class CurrentScreenPipelineUseCase(
                 it is MessageContent.Image || it is MessageContent.Sticker
             }
             val isLiaoqiRealUse = capture.snapshot.appPackage == "com.bajiao.im.liaoqi"
+            val packageName = capture.snapshot.appPackage.orEmpty()
+            val visualCloudAllowed = packageName.isNotBlank() &&
+                packageName !in setOf("com.huiyi.v4", "com.android.systemui")
             val forceLastOtherRoutes = isLiaoqiRealUse && lastSpeaker.lastSpeaker == Speaker.OTHER
             val decision = when {
                 lastSpeaker.lastSpeaker == Speaker.ME -> lastMeWaitDecision()
@@ -123,14 +151,33 @@ class CurrentScreenPipelineUseCase(
             }
             val targetSupported = capture.snapshot.appPackage in setOf("com.bajiao.im.liaoqi", "com.huiyi.mockchat")
             val cloudResult = maybeAnalyzeWithCloud(
+                sessionId = sessionId,
+                preAnalysisSnapshotId = preAnalysisSnapshotId,
+                chatPackage = chatPackage,
+                chatWindowHash = chatWindowHash,
                 capture = capture,
                 context = context,
                 lastSpeaker = lastSpeaker,
                 localDecision = decision,
                 localRoutes = localRoutes,
-                targetSupported = targetSupported
+                targetSupported = targetSupported,
+                visualCloudAllowed = visualCloudAllowed,
+                recentVisualEvidence = recentVisualEvidence
             )
             val persistenceError = persistenceRepository?.saveScene(context)?.exceptionOrNull()?.message
+            val reviewError = persistenceRepository?.saveChatReviewDraft(
+                ChatReviewMemoryBuilder.build(
+                    context = context,
+                    appPackage = capture.snapshot.appPackage.orEmpty(),
+                    windowTitle = capture.snapshot.windowTitle.orEmpty(),
+                    decision = cloudResult.decision,
+                    routes = cloudResult.routes,
+                    cloudTrace = cloudResult.trace
+                )
+            )?.exceptionOrNull()?.message
+            val combinedPersistenceError = listOfNotNull(persistenceError, reviewError)
+                .takeIf { it.isNotEmpty() }
+                ?.joinToString("; ")
             CurrentScreenPipelineResult(
                 captureResult = capture,
                 context = context,
@@ -138,29 +185,98 @@ class CurrentScreenPipelineUseCase(
                 tacticalDecision = cloudResult.decision,
                 routes = cloudResult.routes,
                 apiCalled = cloudResult.trace.apiCalled,
-                persistenceError = persistenceError,
-                cloudTrace = cloudResult.trace
+                persistenceError = combinedPersistenceError,
+                sessionId = sessionId,
+                lightListenBackfillCount = lightListenBackfill.size,
+                lightListenUsed = lightListenBackfill.isNotEmpty(),
+                cloudTrace = cloudResult.trace.withSessionBinding(
+                    activeSessionId = sessionId,
+                    preAnalysisSnapshotId = preAnalysisSnapshotId,
+                    chatPackage = chatPackage,
+                    chatWindowHash = chatWindowHash,
+                    panelRenderedSessionId = sessionId
+                )
             )
         }
     }
 
     private suspend fun maybeAnalyzeWithCloud(
+        sessionId: String,
+        preAnalysisSnapshotId: String,
+        chatPackage: String,
+        chatWindowHash: String,
         capture: CurrentScreenCaptureResult,
         context: ChatSceneContext,
         lastSpeaker: LastSpeakerDecision,
         localDecision: TacticalDecision,
         localRoutes: List<ReplyRoute>,
-        targetSupported: Boolean
+        targetSupported: Boolean,
+        visualCloudAllowed: Boolean,
+        recentVisualEvidence: List<CloudVisualEvidence>
     ): CloudPipelineResult {
         val service = cloudAnalysisService
         val config = service?.config ?: CloudAnalysisConfig(cloudEnabled = false)
         if (lastSpeaker.lastSpeaker == Speaker.ME) {
-            return CloudPipelineResult(lastMeWaitDecision(), emptyList(), CloudAnalysisTrace.skipped(config, "LAST_SPEAKER_ME_WAIT", "LOCAL_WAIT"))
+            val visualEvidence = visualEvidenceForCloud(config, visualCloudAllowed)
+            if (visualEvidence == null || service == null) {
+                return CloudPipelineResult(lastMeWaitDecision(), emptyList(), CloudAnalysisTrace.skipped(config, "LAST_SPEAKER_ME_WAIT", "LOCAL_WAIT"))
+            }
+            return analyzeWithCloud(
+                service = service,
+                config = config,
+                sessionId = sessionId,
+                preAnalysisSnapshotId = preAnalysisSnapshotId,
+                chatPackage = chatPackage,
+                chatWindowHash = chatWindowHash,
+                capture = capture,
+                context = context,
+                lastSpeaker = lastSpeaker,
+                localDecision = localDecision,
+                localRoutes = emptyList(),
+                visualEvidence = visualEvidence,
+                recentVisualEvidence = recentVisualEvidence
+            )
         }
         if (lastSpeaker.lastSpeaker == Speaker.UNKNOWN || lastSpeaker.unknownSpeaker) {
-            return CloudPipelineResult(localDecision, localRoutes, CloudAnalysisTrace.skipped(config, "LAST_SPEAKER_UNKNOWN", "LOCAL_FALLBACK"))
+            val visualEvidence = visualEvidenceForCloud(config, visualCloudAllowed)
+            if (visualEvidence == null || service == null) {
+                return CloudPipelineResult(localDecision, localRoutes, CloudAnalysisTrace.skipped(config, "LAST_SPEAKER_UNKNOWN", "LOCAL_FALLBACK"))
+            }
+            return analyzeWithCloud(
+                service = service,
+                config = config,
+                sessionId = sessionId,
+                preAnalysisSnapshotId = preAnalysisSnapshotId,
+                chatPackage = chatPackage,
+                chatWindowHash = chatWindowHash,
+                capture = capture,
+                context = context,
+                lastSpeaker = lastSpeaker,
+                localDecision = localDecision,
+                localRoutes = localRoutes,
+                visualEvidence = visualEvidence,
+                recentVisualEvidence = recentVisualEvidence
+            )
         }
         if (!targetSupported) {
+            val visualEvidence = visualEvidenceForCloud(config, visualCloudAllowed)
+            if (visualEvidence != null && service != null) {
+                return analyzeWithCloud(
+                    service = service,
+                    config = config,
+                    sessionId = sessionId,
+                    preAnalysisSnapshotId = preAnalysisSnapshotId,
+                    chatPackage = chatPackage,
+                    chatWindowHash = chatWindowHash,
+                    capture = capture,
+                    context = context,
+                    lastSpeaker = lastSpeaker,
+                    localDecision = localDecision,
+                    localRoutes = localRoutes,
+                    visualEvidence = visualEvidence,
+                    recentVisualEvidence = recentVisualEvidence
+                )
+            }
             return CloudPipelineResult(localDecision, localRoutes, CloudAnalysisTrace.skipped(config, "UNSUPPORTED_APP", "LOCAL_FALLBACK"))
         }
         if (service == null || !config.cloudEnabled || !config.endpointConfigured) {
@@ -173,22 +289,95 @@ class CurrentScreenPipelineUseCase(
             return CloudPipelineResult(localDecision, localRoutes, CloudAnalysisTrace.skipped(config, "RELAY_API_KEY_INSECURE_STORAGE", "LOCAL_FALLBACK"))
         }
         if (lastSpeaker.lastSpeaker != Speaker.OTHER || localRoutes.size != 5) {
+            val visualEvidence = visualEvidenceForCloud(config, visualCloudAllowed)
+            if (visualEvidence != null) {
+                return analyzeWithCloud(
+                    service = service,
+                    config = config,
+                    sessionId = sessionId,
+                    preAnalysisSnapshotId = preAnalysisSnapshotId,
+                    chatPackage = chatPackage,
+                    chatWindowHash = chatWindowHash,
+                    capture = capture,
+                    context = context,
+                    lastSpeaker = lastSpeaker,
+                    localDecision = localDecision,
+                    localRoutes = localRoutes,
+                    visualEvidence = visualEvidence,
+                    recentVisualEvidence = recentVisualEvidence
+                )
+            }
             return CloudPipelineResult(localDecision, localRoutes, CloudAnalysisTrace.skipped(config, "LOCAL_CONTEXT_REQUIRED", "LOCAL_FALLBACK"))
         }
+        val visualEvidence = visualEvidenceForCloud(config, visualCloudAllowed)
+        return analyzeWithCloud(
+            service = service,
+            config = config,
+            sessionId = sessionId,
+            preAnalysisSnapshotId = preAnalysisSnapshotId,
+            chatPackage = chatPackage,
+            chatWindowHash = chatWindowHash,
+            capture = capture,
+            context = context,
+            lastSpeaker = lastSpeaker,
+            localDecision = localDecision,
+            localRoutes = localRoutes,
+            visualEvidence = visualEvidence,
+            recentVisualEvidence = recentVisualEvidence
+        )
+    }
+
+    private suspend fun visualEvidenceForCloud(config: CloudAnalysisConfig, allowed: Boolean): CloudVisualEvidence? {
+        if (!allowed || !config.configuredAndEnabled) return null
+        return visualEvidenceProvider?.invoke()
+    }
+
+    private suspend fun analyzeWithCloud(
+        service: CloudAnalysisService,
+        config: CloudAnalysisConfig,
+        sessionId: String,
+        preAnalysisSnapshotId: String,
+        chatPackage: String,
+        chatWindowHash: String,
+        capture: CurrentScreenCaptureResult,
+        context: ChatSceneContext,
+        lastSpeaker: LastSpeakerDecision,
+        localDecision: TacticalDecision,
+        localRoutes: List<ReplyRoute>,
+        visualEvidence: CloudVisualEvidence?,
+        recentVisualEvidence: List<CloudVisualEvidence>
+    ): CloudPipelineResult {
         val startedAt = System.currentTimeMillis()
         return service.analyze(
             CloudAnalysisInput(
-                sessionId = java.util.UUID.randomUUID().toString(),
+                sessionId = sessionId,
+                preAnalysisSnapshotId = preAnalysisSnapshotId,
+                chatPackage = chatPackage,
+                chatWindowHash = chatWindowHash,
                 appVersionName = appVersionName,
                 appVersionCode = appVersionCode,
                 capture = capture,
                 context = context,
                 lastSpeakerDecision = lastSpeaker,
-                localDecision = localDecision
+                localDecision = localDecision,
+                visualEvidence = visualEvidence,
+                recentVisualEvidence = recentVisualEvidence
             )
         ).fold(
             onSuccess = { output ->
-                CloudPipelineResult(output.decision, output.routes, CloudAnalysisTrace.success(config, output.cloudRequestId, output.latencyMs))
+                CloudPipelineResult(
+                    output.decision,
+                    output.routes,
+                    CloudAnalysisTrace.success(config, output)
+                        .withSessionBinding(
+                            activeSessionId = sessionId,
+                            preAnalysisSnapshotId = preAnalysisSnapshotId,
+                            chatPackage = chatPackage,
+                            chatWindowHash = chatWindowHash,
+                            cloudRequestSessionId = sessionId,
+                            cloudResponseSessionId = output.sessionId
+                        )
+                )
             },
             onFailure = { error ->
                 val code = (error as? CloudAnalysisException)?.code ?: "NETWORK"
@@ -209,6 +398,13 @@ class CurrentScreenPipelineUseCase(
                         validationResult = validationResult,
                         failureLikelyCause = likelyCause,
                         requestActuallySent = requestActuallySent
+                    ).withSessionBinding(
+                        activeSessionId = sessionId,
+                        preAnalysisSnapshotId = preAnalysisSnapshotId,
+                        chatPackage = chatPackage,
+                        chatWindowHash = chatWindowHash,
+                        cloudRequestSessionId = sessionId,
+                        cloudResponseSessionId = sessionId
                     )
                 )
             }
@@ -261,7 +457,11 @@ class CurrentScreenPipelineUseCase(
 
     private fun contaminatedResult(
         capture: CurrentScreenCaptureResult,
-        reason: String
+        reason: String,
+        sessionId: String,
+        preAnalysisSnapshotId: String,
+        chatPackage: String,
+        chatWindowHash: String
     ): CurrentScreenPipelineResult {
         val config = cloudAnalysisService?.config ?: CloudAnalysisConfig(cloudEnabled = false)
         val decision = TacticalDecision(
@@ -295,7 +495,18 @@ class CurrentScreenPipelineUseCase(
             tacticalDecision = decision,
             routes = emptyList(),
             apiCalled = false,
+            sessionId = sessionId,
+            sessionTerminalState = "CONTROLLED_FAIL",
+            routePanelShown = false,
+            waitPanelShown = false,
             cloudTrace = CloudAnalysisTrace.skipped(config, "PRE_ANALYSIS_CONTAMINATED", "CONTROLLED_FAIL")
+                .withSessionBinding(
+                    activeSessionId = sessionId,
+                    preAnalysisSnapshotId = preAnalysisSnapshotId,
+                    chatPackage = chatPackage,
+                    chatWindowHash = chatWindowHash,
+                    panelRenderedSessionId = sessionId
+                )
         )
     }
 }

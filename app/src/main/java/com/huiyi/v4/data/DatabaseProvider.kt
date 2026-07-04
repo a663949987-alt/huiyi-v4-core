@@ -13,7 +13,10 @@ object DatabaseProvider {
                 context.applicationContext,
                 HuiyiDatabase::class.java,
                 "huiyi-v4.db"
-            ).build().also { database = it }
+            )
+                .addMigrations(HuiyiDatabase.MIGRATION_1_2)
+                .build()
+                .also { database = it }
         }
     }
 }

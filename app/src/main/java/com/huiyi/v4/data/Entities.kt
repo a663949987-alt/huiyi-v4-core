@@ -1,6 +1,7 @@
 package com.huiyi.v4.data
 
 import androidx.room.Entity
+import androidx.room.Index
 import androidx.room.PrimaryKey
 
 @Entity(tableName = "message_nodes")
@@ -77,4 +78,26 @@ data class AppSettingEntity(
     @PrimaryKey val key: String,
     val value: String,
     val updatedAt: Long
+)
+
+@Entity(
+    tableName = "light_listen_messages",
+    indices = [Index(value = ["contactKey", "observedAt"])]
+)
+data class LightListenMessageEntity(
+    @PrimaryKey val id: String,
+    val contactKey: String,
+    val appPackage: String,
+    val windowTitle: String?,
+    val speaker: String,
+    val contentType: String,
+    val text: String?,
+    val source: String,
+    val observedAt: Long,
+    val localSequence: Long,
+    val confidence: Int,
+    val speakerConfidence: Int,
+    val contentConfidence: Int,
+    val cloudHistoryFormatJson: String?,
+    val createdAt: Long
 )

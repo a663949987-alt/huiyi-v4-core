@@ -12,6 +12,8 @@ import com.huiyi.v4.domain.cloud.CloudAnalysisRepository
 import com.huiyi.v4.domain.cloud.CloudAnalysisService
 import com.huiyi.v4.domain.cloud.CloudProviderType
 import com.huiyi.v4.domain.cloud.CloudRuntimeSettings
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 
 class RuntimeCloudSettingsRepository(
     private val prefs: SharedPreferences,
@@ -22,10 +24,10 @@ class RuntimeCloudSettingsRepository(
         val apiKeyConfigured = secureStorageAvailable && prefs.getString(KEY_API_KEY, "").orEmpty().isNotBlank()
         val buildConfigured = BuildConfig.HUIYI_RELAY_CONFIGURED_FOR_BUILD
         val effectiveBaseUrl = baseUrl.ifBlank { BuildConfig.HUIYI_RELAY_BASE_URL }
-        val effectiveModel = prefs.getString(KEY_MODEL, "gpt-5.5").orEmpty()
-            .ifBlank { BuildConfig.HUIYI_RELAY_MODEL.ifBlank { "gpt-5.5" } }
+        val effectiveModel = prefs.getString(KEY_MODEL, "gpt-5.4").orEmpty()
+            .ifBlank { BuildConfig.HUIYI_RELAY_MODEL.ifBlank { "gpt-5.4" } }
         val effectiveTimeoutMs = prefs.getLong(KEY_TIMEOUT_MS, BuildConfig.HUIYI_RELAY_TIMEOUT_MS)
-            .coerceIn(1000L, 30000L)
+            .coerceIn(1000L, REAL_USE_MAX_RELAY_TIMEOUT_MS)
         return CloudRuntimeSettings(
             cloudEnabled = (secureStorageAvailable && prefs.getBoolean(KEY_ENABLED, false)) || buildConfigured,
             providerType = prefs.getString(KEY_PROVIDER_TYPE, CloudProviderType.OPENAI_COMPATIBLE_RELAY).orEmpty()
@@ -58,8 +60,8 @@ class RuntimeCloudSettingsRepository(
             .putBoolean(KEY_ENABLED, safeCloudEnabled)
             .putString(KEY_PROVIDER_TYPE, providerType.ifBlank { CloudProviderType.OPENAI_COMPATIBLE_RELAY })
             .putString(KEY_BASE_URL, baseUrl.trim())
-            .putString(KEY_MODEL, model.trim().ifBlank { "gpt-5.5" })
-            .putLong(KEY_TIMEOUT_MS, timeoutMs.coerceIn(1000L, 30000L))
+            .putString(KEY_MODEL, model.trim().ifBlank { "gpt-5.4" })
+            .putLong(KEY_TIMEOUT_MS, timeoutMs.coerceIn(1000L, REAL_USE_MAX_RELAY_TIMEOUT_MS))
             .apply {
                 if (!secureStorageAvailable) {
                     remove(KEY_API_KEY)
@@ -97,6 +99,7 @@ class RuntimeCloudSettingsRepository(
         private const val KEY_MODEL = "relay_model"
         private const val KEY_TIMEOUT_MS = "relay_timeout_ms"
         private const val KEY_API_KEY = "relay_api_key"
+        private const val REAL_USE_MAX_RELAY_TIMEOUT_MS = 90_000L
 
         fun create(context: Context): RuntimeCloudSettingsRepository {
             return runCatching {
@@ -129,6 +132,8 @@ class RuntimeCloudAnalysisService(
 
     override suspend fun analyze(input: CloudAnalysisInput): Result<CloudAnalysisOutput> {
         val currentConfig = settingsRepository.currentConfig()
-        return CloudAnalysisRepository(currentConfig).analyze(input)
+        return withContext(Dispatchers.IO) {
+            CloudAnalysisRepository(currentConfig).analyze(input)
+        }
     }
 }

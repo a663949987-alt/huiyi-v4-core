@@ -7,6 +7,7 @@ import android.graphics.PixelFormat
 import android.os.Build
 import android.provider.Settings
 import android.view.Gravity
+import android.view.View
 import android.view.WindowManager
 import android.widget.Button
 import android.widget.LinearLayout
@@ -14,7 +15,11 @@ import android.widget.ScrollView
 import android.widget.TextView
 import android.widget.Toast
 import com.huiyi.v4.accessibility.HuiyiAccessibilityService
+import com.huiyi.v4.domain.model.ReplyRoute
+import com.huiyi.v4.domain.model.ReplyRouteType
+import com.huiyi.v4.domain.model.RiskLevel
 import com.huiyi.v4.domain.model.TacticalDecisionType
+import com.huiyi.v4.domain.pipeline.CurrentScreenPipelineResult
 import com.huiyi.v4.runtime.HuiyiRuntime
 import com.huiyi.v4.runtime.HuiyiRuntimeState
 
@@ -34,59 +39,38 @@ class FloatingResultPanelController(
         val result = state.latestPipelineResult
         if (state.lastError != null) {
             showSimplePanel(
-                title = "没读到当前聊天",
-                body = "请回到聊起聊天窗口，再点一次“下一句”。"
+                title = "这次没跑完",
+                body = state.lastError.ifBlank { "没读到聊天页，请点一下聊天窗口后再试。" }
             )
             return
         }
+
         val decision = result?.tacticalDecision ?: state.demoState.decision
         val routes = result?.routes ?: state.demoState.routes
         val container = panelContainer()
 
-        if (decision.decisionType == TacticalDecisionType.PRE_ANALYSIS_CONTAMINATED ||
-            decision.decisionType == TacticalDecisionType.CHAT_WINDOW_NOT_FOUND
-        ) {
-            container.addView(titleText("没读到聊天页"))
-            container.addView(text("没读到聊天页，请点一下聊起聊天窗口后再试。"))
-        } else if (decision.decisionType == TacticalDecisionType.WAIT) {
-            container.addView(titleText("先等对方"))
-            container.addView(text("你已经回过了，先等对方。"))
-        } else {
-            container.addView(titleText(resultTitle(state)))
-            cloudStatusLine(result)?.let { container.addView(text(it)) }
-            decision.coreInsight?.takeIf { it.isNotBlank() }?.let { container.addView(smallText("共创点：$it")) }
-            decision.userLikelyMistake?.takeIf { it.isNotBlank() }?.let { container.addView(smallText("容易犯的错：$it")) }
-            container.addView(smallText("强度：${decision.influenceProfile.intensity}"))
-            decision.influenceProfile.riskWarning?.let { container.addView(smallText("风险：$it")) }
-            decision.fallbackMove?.let { container.addView(smallText("撤退方案：$it")) }
-            if (routes.isEmpty()) {
-                container.addView(text("云端未就绪，已使用本地建议。请回到聊起聊天窗口再试一次。"))
-            } else {
-                routes.take(5).forEachIndexed { index, route ->
-                    container.addView(routeTitle("${index + 1}. ${route.name}"))
-                    container.addView(text(route.message))
-                    route.riskWarning?.let { container.addView(smallText("风险：$it")) }
-                    val copyButton = Button(context).apply {
-                        text = "复制"
-                        setOnClickListener {
-                            copy(route.message)
-                            runtime.createCopiedAttempt(route)
-                            Toast.makeText(context, "已复制", Toast.LENGTH_SHORT).show()
-                        }
-                    }
-                    container.addView(copyButton)
+        when {
+            decision.decisionType == TacticalDecisionType.PRE_ANALYSIS_CONTAMINATED ||
+                decision.decisionType == TacticalDecisionType.CHAT_WINDOW_NOT_FOUND -> {
+                container.addView(titleText("没读到聊天页"))
+                container.addView(text("没读到聊天页，请点一下聊天窗口后再试。"))
+            }
+            decision.decisionType == TacticalDecisionType.WAIT -> {
+                container.addView(titleText("先等对方"))
+                container.addView(text("你已经回过了，先等对方。"))
+            }
+            else -> {
+                container.addView(titleText("推荐回复"))
+                cloudStatusLine(result)?.let { container.addView(smallText(it)) }
+                if (routes.isEmpty()) {
+                    container.addView(text("这次还没拿到可用回复，请点一下聊天窗口后再试。"))
+                } else {
+                    addReplyChoices(container, routes)
                 }
             }
         }
 
-        container.addView(Button(context).apply {
-            text = "这次不对，发给 GPT"
-            setOnClickListener { runtime.exportOneTapFeedback() }
-        })
-        container.addView(Button(context).apply {
-            text = "隐藏"
-            setOnClickListener { hide() }
-        })
+        addFooterButtons(container)
         attach(container, panelType = decision.decisionType.name)
         runtime.markOverlayPanelShown()
     }
@@ -113,6 +97,72 @@ class FloatingResultPanelController(
         val container = panelContainer()
         container.addView(titleText(title))
         container.addView(text(body))
+        addFooterButtons(container)
+        attach(container, panelType = "controlled_fail")
+    }
+
+    private fun addReplyChoices(container: LinearLayout, routes: List<ReplyRoute>) {
+        routes.take(5).forEachIndexed { index, route ->
+            val label = strategyLabel(route, index)
+            container.addView(routeTitle(label))
+            container.addView(text(route.message))
+            container.addView(Button(context).apply {
+                text = "复制"
+                setOnClickListener {
+                    copy(route.message)
+                    runtime.createCopiedAttempt(route)
+                    Toast.makeText(context, "已复制", Toast.LENGTH_SHORT).show()
+                }
+            })
+        }
+    }
+
+    private fun strategyLabel(route: ReplyRoute, index: Int): String {
+        val prefix = if (index == 0 || route.recommended) "推荐" else "备选 ${index + 1}"
+        return "$prefix - ${strategyDirection(route, index)}"
+    }
+
+    private fun strategyDirection(route: ReplyRoute, index: Int): String {
+        val text = listOf(
+            route.name,
+            route.expectedEffect.orEmpty(),
+            route.fallbackMove.orEmpty(),
+            route.message
+        ).joinToString(" ")
+        return when {
+            route.riskLevel == RiskLevel.HIGH -> "高风险推进"
+            text.hasAny("接情绪", "情绪", "共情", "empathy") -> "接情绪"
+            text.hasAny("升温", "暧昧", "拉近", "推进关系", "warm", "flirt") -> "升温"
+            text.hasAny("轻松", "生活", "日常", "daily", "light") -> "轻松接话"
+            text.hasAny("轻问", "问一句", "问她", "问他", "question") -> "轻问一句"
+            text.hasAny("共同", "共创", "一起", "约", "推进", "co_creation") -> "共同推进"
+            text.hasAny("修复", "道歉", "缓和", "repair") -> "修复关系"
+            text.hasAny("撤退", "降压", "不追", "等", "withdraw", "fallback") -> "降压撤退"
+            route.riskLevel == RiskLevel.MEDIUM && route.routeType == ReplyRouteType.CO_CREATION -> "升温推进"
+            route.routeType == ReplyRouteType.EMPATHY -> "接情绪"
+            route.routeType == ReplyRouteType.WARM_UP -> "升温"
+            route.routeType == ReplyRouteType.CO_CREATION -> "共同推进"
+            route.routeType == ReplyRouteType.REPAIR -> "修复关系"
+            route.routeType == ReplyRouteType.COOL_DOWN -> "降压撤退"
+            route.routeType == ReplyRouteType.DIRECT -> "轻问一句"
+            else -> index.defaultStrategyDirection()
+        }
+    }
+
+    private fun Int.defaultStrategyDirection(): String = when (this) {
+        0 -> "接情绪"
+        1 -> "轻松接话"
+        2 -> "轻问一句"
+        3 -> "升温"
+        4 -> "降压撤退"
+        else -> "备选思路"
+    }
+
+    private fun String.hasAny(vararg keywords: String): Boolean {
+        return keywords.any { contains(it, ignoreCase = true) }
+    }
+
+    private fun addFooterButtons(container: LinearLayout) {
         container.addView(Button(context).apply {
             text = "这次不对，发给 GPT"
             setOnClickListener { runtime.exportOneTapFeedback() }
@@ -121,21 +171,28 @@ class FloatingResultPanelController(
             text = "隐藏"
             setOnClickListener { hide() }
         })
-        attach(container, panelType = "loading")
     }
 
     private fun panelContainer(): LinearLayout = LinearLayout(context).apply {
         orientation = LinearLayout.VERTICAL
         setPadding(22, 18, 22, 18)
         setBackgroundColor(0xF2FFFFFF.toInt())
+        importantForAccessibility = View.IMPORTANT_FOR_ACCESSIBILITY_NO_HIDE_DESCENDANTS
     }
 
     private fun attach(container: LinearLayout, panelType: String) {
-        val scroll = ScrollView(context).apply { addView(container) }
+        val scroll = ScrollView(context).apply {
+            importantForAccessibility = View.IMPORTANT_FOR_ACCESSIBILITY_NO_HIDE_DESCENDANTS
+            addView(container)
+        }
         val params = WindowManager.LayoutParams(
             (context.resources.displayMetrics.widthPixels * 0.92f).toInt(),
             WindowManager.LayoutParams.WRAP_CONTENT,
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY else WindowManager.LayoutParams.TYPE_PHONE,
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY
+            } else {
+                WindowManager.LayoutParams.TYPE_PHONE
+            },
             WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE,
             PixelFormat.TRANSLUCENT
         ).apply {
@@ -159,20 +216,15 @@ class FloatingResultPanelController(
         }
     }
 
-    private fun resultTitle(state: HuiyiRuntimeState): String {
-        val cloud = state.latestPipelineResult?.cloudTrace
-        return if (cloud?.decisionSource == "CLOUD") "会意云端分析" else "本地建议"
-    }
-
-    private fun cloudStatusLine(result: com.huiyi.v4.domain.pipeline.CurrentScreenPipelineResult?): String? {
+    private fun cloudStatusLine(result: CurrentScreenPipelineResult?): String? {
         val cloud = result?.cloudTrace ?: return null
-        if (cloud.cloudErrorCode == "NETWORK") return "云端连接失败，已使用本地建议。"
+        if (cloud.cloudErrorCode == "NETWORK") return "云端连接不稳，先给你本地备选。"
         return when {
-            cloud.decisionSource == "CLOUD" -> "云端已就绪。"
-            cloud.cloudFallbackUsed -> "云端暂不可用，已使用本地建议。"
+            cloud.decisionSource == "CLOUD" -> null
+            cloud.cloudFallbackUsed -> "云端暂不可用，先给你本地备选。"
             cloud.cloudSkippedReason == "CLOUD_NOT_CONFIGURED" ||
                 cloud.cloudSkippedReason == "RELAY_API_KEY_MISSING" ||
-                cloud.cloudSkippedReason == "RELAY_API_KEY_INSECURE_STORAGE" -> "云端未就绪，已使用本地建议。"
+                cloud.cloudSkippedReason == "RELAY_API_KEY_INSECURE_STORAGE" -> "云端未就绪，先给你本地备选。"
             else -> null
         }
     }

@@ -109,7 +109,16 @@ data class NextSentenceFlightRecord(
     val relayApiKeyConfigured: Boolean = false,
     val relayApiKeyStoredSecurely: Boolean = false,
     val relayApiKeyExposedInRepo: Boolean = false,
-    val relayApiKeyExposedInApk: Boolean = false
+    val relayApiKeyExposedInApk: Boolean = false,
+    val cloudPrimaryModel: String = "",
+    val cloudFinalModel: String = "",
+    val cloudEscalated: Boolean = false,
+    val cloudEscalationReason: String? = null,
+    val cloudQualityGateResult: String = "NOT_RUN",
+    val cloudQualityScore: Int? = null,
+    val cloudQualityIssues: List<String> = emptyList(),
+    val cloudPrimaryLatencyMs: Long? = null,
+    val cloudTotalLatencyMs: Long? = null
 ) {
     fun withFeedback(feedback: UserFeedbackMark): NextSentenceFlightRecord = copy(userFeedback = feedback)
 
@@ -344,7 +353,16 @@ object NextSentenceFlightRecordFactory {
             relayApiKeyConfigured = result.cloudTrace.relayApiKeyConfigured,
             relayApiKeyStoredSecurely = result.cloudTrace.relayApiKeyStoredSecurely,
             relayApiKeyExposedInRepo = result.cloudTrace.relayApiKeyExposedInRepo,
-            relayApiKeyExposedInApk = result.cloudTrace.relayApiKeyExposedInApk
+            relayApiKeyExposedInApk = result.cloudTrace.relayApiKeyExposedInApk,
+            cloudPrimaryModel = result.cloudTrace.cloudPrimaryModel,
+            cloudFinalModel = result.cloudTrace.cloudFinalModel,
+            cloudEscalated = result.cloudTrace.cloudEscalated,
+            cloudEscalationReason = result.cloudTrace.cloudEscalationReason,
+            cloudQualityGateResult = result.cloudTrace.cloudQualityGateResult,
+            cloudQualityScore = result.cloudTrace.cloudQualityScore,
+            cloudQualityIssues = result.cloudTrace.cloudQualityIssues,
+            cloudPrimaryLatencyMs = result.cloudTrace.cloudPrimaryLatencyMs,
+            cloudTotalLatencyMs = result.cloudTrace.cloudTotalLatencyMs
         ).withComputedConsistency()
     }
 
@@ -571,6 +589,15 @@ class OneTapFeedbackExporter(
         appendLine("- cloudContractValidationResult: ${record.cloudContractValidationResult}")
         appendLine("- cloudFallbackUsed: ${record.cloudFallbackUsed}")
         appendLine("- cloudLatencyMs: ${record.cloudLatencyMs ?: "null"}")
+        appendLine("- cloudPrimaryModel: ${record.cloudPrimaryModel.ifBlank { "unknown" }}")
+        appendLine("- cloudFinalModel: ${record.cloudFinalModel.ifBlank { "unknown" }}")
+        appendLine("- cloudEscalated: ${record.cloudEscalated}")
+        appendLine("- cloudEscalationReason: ${record.cloudEscalationReason ?: "none"}")
+        appendLine("- cloudQualityGateResult: ${record.cloudQualityGateResult}")
+        appendLine("- cloudQualityScore: ${record.cloudQualityScore ?: "null"}")
+        appendLine("- cloudQualityIssues: ${record.cloudQualityIssues.joinToString("|").ifBlank { "none" }}")
+        appendLine("- cloudPrimaryLatencyMs: ${record.cloudPrimaryLatencyMs ?: "null"}")
+        appendLine("- cloudTotalLatencyMs: ${record.cloudTotalLatencyMs ?: "null"}")
         appendLine("- cloudErrorCode: ${record.cloudErrorCode ?: "none"}")
         appendLine("- cloudNetworkFailureVisibleToUser: ${record.cloudNetworkFailureVisibleToUser}")
         appendLine("- cloudRequestActuallySent: ${record.cloudRequestActuallySent}")
@@ -650,6 +677,15 @@ class OneTapFeedbackExporter(
             "decisionSource": "${record.decisionSource}",
             "cloudFallbackUsed": ${record.cloudFallbackUsed},
             "cloudLatencyMs": ${record.cloudLatencyMs ?: "null"},
+            "cloudPrimaryModel": "${escape(record.cloudPrimaryModel)}",
+            "cloudFinalModel": "${escape(record.cloudFinalModel)}",
+            "cloudEscalated": ${record.cloudEscalated},
+            "cloudEscalationReason": ${record.cloudEscalationReason?.let { "\"${escape(it)}\"" } ?: "null"},
+            "cloudQualityGateResult": "${escape(record.cloudQualityGateResult)}",
+            "cloudQualityScore": ${record.cloudQualityScore ?: "null"},
+            "cloudQualityIssues": "${escape(record.cloudQualityIssues.joinToString("|"))}",
+            "cloudPrimaryLatencyMs": ${record.cloudPrimaryLatencyMs ?: "null"},
+            "cloudTotalLatencyMs": ${record.cloudTotalLatencyMs ?: "null"},
             "cloudErrorCode": "${record.cloudErrorCode ?: ""}",
             "cloudNetworkFailureVisibleToUser": ${record.cloudNetworkFailureVisibleToUser},
             "cloudRequestActuallySent": ${record.cloudRequestActuallySent},
@@ -793,6 +829,15 @@ class OneTapFeedbackExporter(
           "cloudRequestId": ${record.cloudRequestId?.let { "\"${escape(it)}\"" } ?: "null"},
           "cloudSuccess": ${record.cloudSuccess},
           "cloudLatencyMs": ${record.cloudLatencyMs ?: "null"},
+          "cloudPrimaryModel": "${escape(record.cloudPrimaryModel)}",
+          "cloudFinalModel": "${escape(record.cloudFinalModel)}",
+          "cloudEscalated": ${record.cloudEscalated},
+          "cloudEscalationReason": ${record.cloudEscalationReason?.let { "\"${escape(it)}\"" } ?: "null"},
+          "cloudQualityGateResult": "${escape(record.cloudQualityGateResult)}",
+          "cloudQualityScore": ${record.cloudQualityScore ?: "null"},
+          "cloudQualityIssues": "${escape(record.cloudQualityIssues.joinToString("|"))}",
+          "cloudPrimaryLatencyMs": ${record.cloudPrimaryLatencyMs ?: "null"},
+          "cloudTotalLatencyMs": ${record.cloudTotalLatencyMs ?: "null"},
           "cloudErrorCode": ${record.cloudErrorCode?.let { "\"${escape(it)}\"" } ?: "null"},
           "cloudNetworkFailureVisibleToUser": ${record.cloudNetworkFailureVisibleToUser},
           "cloudRequestActuallySent": ${record.cloudRequestActuallySent},

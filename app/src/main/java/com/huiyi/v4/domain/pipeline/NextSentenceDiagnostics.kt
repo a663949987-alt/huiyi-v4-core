@@ -58,13 +58,21 @@ enum class NextSentenceErrorCode {
     REPORT_WINDOW_TITLE_CONTAMINATED_BY_PANEL,
     SESSION_CANCELLED,
     SESSION_TIMEOUT,
+    NEXT_SENTENCE_TIMEOUT_NO_VISIBLE_RESULT,
     UNKNOWN_EXCEPTION
 }
 
 enum class NextSentenceStage {
     IDLE,
     CLICK_RECEIVED,
+    CLICK_ACK_SHOWN,
+    ACCESSIBILITY_STATE_CHECKING,
     ACCESSIBILITY_STATE_CHECKED,
+    CAPTURE_STARTING,
+    CAPTURED,
+    PARSING,
+    DECIDING,
+    CLOUD_STARTING,
     NODE_TREE_CAPTURE_STARTED,
     NODE_TREE_CAPTURE_RETRYING,
     NODE_TREE_CAPTURED,
@@ -82,6 +90,8 @@ enum class NextSentenceStage {
     ROUTES_GENERATED,
     PANEL_RENDERING,
     PANEL_RENDERED,
+    CONTROLLED_FAIL,
+    TIMEOUT,
     FAILED
 }
 
@@ -99,6 +109,18 @@ data class NextSentenceSessionTrace(
     val stage: NextSentenceStage = NextSentenceStage.IDLE,
     val failedStage: NextSentenceStage? = null,
     val errorCode: NextSentenceErrorCode? = null,
+    val clickReceivedAt: Long? = null,
+    val clickAckShownAt: Long? = null,
+    val clickAckLatencyMs: Long? = null,
+    val clickAckVisible: Boolean = false,
+    val runNextSentenceEntered: Boolean = false,
+    val sessionCreated: Boolean = false,
+    val terminalState: String? = null,
+    val panelShown: Boolean = false,
+    val panelVisibleBeforeClick: Boolean = false,
+    val panelVisibleAfterClick: Boolean = false,
+    val activeWindowTitleAtClick: String? = null,
+    val rootAvailableAtClick: Boolean = false,
     val exceptionClass: String? = null,
     val exceptionMessageRedacted: String? = null,
     val bubbleVisibleBeforeClick: Boolean = false,
@@ -215,7 +237,8 @@ fun userFacingMessageFor(code: NextSentenceErrorCode): String {
         NextSentenceErrorCode.PANEL_RENDER_FAILED -> "结果面板渲染失败，但悬浮球已恢复。"
         NextSentenceErrorCode.SESSION_TIMEOUT -> "这次分析超时，请回到聊天页再试一次。"
         NextSentenceErrorCode.SESSION_CANCELLED -> "本次分析已取消。"
-        NextSentenceErrorCode.UNKNOWN_EXCEPTION -> "这次分析失败，已保存诊断。"
+        NextSentenceErrorCode.NEXT_SENTENCE_TIMEOUT_NO_VISIBLE_RESULT -> "这次没有跑完，已保存诊断。"
+        NextSentenceErrorCode.UNKNOWN_EXCEPTION -> "这次没有跑完，已保存诊断。"
         NextSentenceErrorCode.NONE -> ""
         NextSentenceErrorCode.DECISION_EMPTY -> "分析结果为空，已保留诊断。"
         else -> "Next sentence diagnostics were saved."

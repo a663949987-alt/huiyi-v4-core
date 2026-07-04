@@ -5,9 +5,11 @@ import com.huiyi.v4.domain.cloud.CloudAnalysisClient
 import com.huiyi.v4.domain.cloud.CloudAnalysisConfig
 import com.huiyi.v4.domain.cloud.CloudAnalysisException
 import com.huiyi.v4.domain.cloud.CloudAnalysisRepository
+import com.huiyi.v4.domain.cloud.CloudVisualEvidence
 import com.huiyi.v4.domain.cloud.CloudProviderType
 import com.huiyi.v4.domain.cloud.CloudTacticalDecisionMapper
 import com.huiyi.v4.domain.cloud.RelayEndpointBuilder
+import com.huiyi.v4.domain.model.MessageSource
 import com.huiyi.v4.domain.model.Speaker
 import com.huiyi.v4.domain.model.TacticalDecisionType
 import com.huiyi.v4.domain.model.UserPersonaCorpus
@@ -86,6 +88,17 @@ class PreconfiguredCloudRealUseMvpTest {
         assertEquals("Receive the pressure without pushing.", output.decision.bestMove)
     }
 
+    @Test
+    fun NumericCloudSlotsAreMappedToStrategyRouteTypesTest() {
+        val output = CloudTacticalDecisionMapper().parseResponse(openAiCompletion(numericSlotCloudContract()), 12L, Speaker.OTHER)
+
+        assertEquals(com.huiyi.v4.domain.model.ReplyRouteType.EMPATHY, output.routes[0].routeType)
+        assertEquals(com.huiyi.v4.domain.model.ReplyRouteType.STABLE, output.routes[1].routeType)
+        assertEquals(com.huiyi.v4.domain.model.ReplyRouteType.DIRECT, output.routes[2].routeType)
+        assertEquals(com.huiyi.v4.domain.model.ReplyRouteType.WARM_UP, output.routes[3].routeType)
+        assertEquals(com.huiyi.v4.domain.model.ReplyRouteType.COOL_DOWN, output.routes[4].routeType)
+    }
+
     @Test(expected = CloudAnalysisException::class)
     fun RelayInvalidJsonFallsBackToLocalTest() {
         CloudTacticalDecisionMapper().parseResponse(openAiCompletion("not json"), 12L, Speaker.OTHER)
@@ -116,7 +129,147 @@ class PreconfiguredCloudRealUseMvpTest {
         assertEquals(1, client.callCount)
         assertEquals("https://relay.example/v1/chat/completions", client.lastEndpoint)
         assertTrue(client.lastBody.contains("\"messages\""))
+        assertTrue(client.lastBody.contains("\"model\":\"gpt-5.4\""))
         assertEquals("CLOUD", result.cloudTrace.decisionSource)
+        assertEquals("gpt-5.4", result.cloudTrace.cloudPrimaryModel)
+        assertEquals("gpt-5.4", result.cloudTrace.cloudFinalModel)
+        assertFalse(result.cloudTrace.cloudEscalated)
+        assertEquals("PASS", result.cloudTrace.cloudQualityGateResult)
+        assertEquals(5, result.routes.size)
+    }
+
+    @Test
+    fun LightListenBackfillIsIncludedInCloudPayloadWithoutChangingCurrentLastSpeakerTest() = runTest {
+        val client = RecordingCloudClient(openAiCompletion(validCloudContract()))
+        val backfill = listOf(
+            textNode("light-1", Speaker.OTHER, "Earlier context from light listen", -20)
+                .copy(source = MessageSource.ACCESSIBILITY_LIGHT_LISTEN),
+            textNode("light-2", Speaker.ME, "My earlier reply from light listen", -19)
+                .copy(source = MessageSource.ACCESSIBILITY_LIGHT_LISTEN)
+        )
+        val result = pipeline(
+            messages = listOf(
+                textNode("current-1", Speaker.ME, "Current screen me", 1),
+                textNode("current-2", Speaker.OTHER, "Current screen other", 2)
+            ),
+            repository = CloudAnalysisRepository(relayConfig(), client),
+            lightListenContextProvider = { backfill }
+        ).run(emptyPersona()).getOrThrow()
+
+        assertEquals(Speaker.OTHER, result.lastSpeakerDecision.lastSpeaker)
+        assertEquals(2, result.lightListenBackfillCount)
+        assertTrue(result.lightListenUsed)
+        assertTrue(client.lastBody.contains("Earlier context from light listen"))
+        assertTrue(client.lastBody.contains("ACCESSIBILITY_LIGHT_LISTEN"))
+        assertTrue(client.lastBody.contains("lastSpeakerStillBasedOnCurrentScreenOnly"))
+        assertTrue(client.lastBody.contains("lightListenBackfillCount"))
+    }
+
+    @Test
+    fun LowQualityPrimaryModelEscalatesTo55Test() = runTest {
+        val client = RecordingCloudClient(
+            openAiCompletion(aiLikeCloudContract()),
+            openAiCompletion(validCloudContract())
+        )
+        val result = pipeline(
+            messages = lastOtherMessages(),
+            repository = CloudAnalysisRepository(relayConfig(), client)
+        ).run(emptyPersona()).getOrThrow()
+
+        assertEquals(2, client.callCount)
+        assertTrue(client.bodies[0].contains("\"model\":\"gpt-5.4\""))
+        assertTrue(client.bodies[1].contains("\"model\":\"gpt-5.5\""))
+        assertEquals("CLOUD", result.cloudTrace.decisionSource)
+        assertTrue(result.cloudTrace.cloudEscalated)
+        assertEquals("gpt-5.4", result.cloudTrace.cloudPrimaryModel)
+        assertEquals("gpt-5.5", result.cloudTrace.cloudFinalModel)
+        assertEquals("QUALITY_GATE_AI_LIKE_PHRASE", result.cloudTrace.cloudEscalationReason)
+        assertEquals("PASS", result.cloudTrace.cloudQualityGateResult)
+        assertEquals(5, result.routes.size)
+    }
+
+    @Test
+    fun ContractInvalidPrimaryModelEscalatesTo55Test() = runTest {
+        val client = RecordingCloudClient(
+            "not json",
+            openAiCompletion(validCloudContract())
+        )
+        val result = pipeline(
+            messages = lastOtherMessages(),
+            repository = CloudAnalysisRepository(relayConfig(), client)
+        ).run(emptyPersona()).getOrThrow()
+
+        assertEquals(2, client.callCount)
+        assertTrue(client.bodies[0].contains("\"model\":\"gpt-5.4\""))
+        assertTrue(client.bodies[1].contains("\"model\":\"gpt-5.5\""))
+        assertTrue(result.cloudTrace.cloudEscalated)
+        assertEquals("CLOUD_SCHEMA_INVALID", result.cloudTrace.cloudEscalationReason)
+        assertEquals("gpt-5.5", result.cloudTrace.cloudFinalModel)
+        assertEquals(5, result.routes.size)
+    }
+
+    @Test
+    fun VisualEvidenceUses55PrimaryToAvoidFirstClick54VisionFailureTest() = runTest {
+        val client = RecordingCloudClient(openAiCompletion(validCloudContract()))
+        val result = pipeline(
+            messages = lastOtherMessages(),
+            repository = CloudAnalysisRepository(relayConfig(), client),
+            visualEvidenceProvider = { fakeVisualEvidence() }
+        ).run(emptyPersona()).getOrThrow()
+
+        assertEquals(1, client.callCount)
+        assertTrue(client.lastBody.contains("\"model\":\"gpt-5.5\""))
+        assertTrue(client.lastBody.contains("\"image_url\""))
+        assertEquals("CLOUD", result.cloudTrace.decisionSource)
+        assertEquals("gpt-5.5", result.cloudTrace.cloudPrimaryModel)
+        assertEquals("gpt-5.5", result.cloudTrace.cloudFinalModel)
+        assertFalse(result.cloudTrace.cloudEscalated)
+        assertEquals(5, result.routes.size)
+    }
+
+    @Test
+    fun UnifiedEvidencePackageSendsCurrentScreenshotAndRecentCheckpointsWithAuthorityLabelsTest() = runTest {
+        val client = RecordingCloudClient(openAiCompletion(validCloudContract()))
+        val result = pipeline(
+            messages = lastOtherMessages(),
+            repository = CloudAnalysisRepository(relayConfig(), client),
+            visualEvidenceProvider = { fakeVisualEvidence(role = "CURRENT_SCREENSHOT") },
+            recentVisualEvidenceProvider = {
+                listOf(
+                    fakeVisualEvidence(role = "RECENT_VISUAL_CHECKPOINT", source = "event_triggered_visual_checkpoint:one"),
+                    fakeVisualEvidence(role = "RECENT_VISUAL_CHECKPOINT", source = "event_triggered_visual_checkpoint:two")
+                )
+            }
+        ).run(emptyPersona()).getOrThrow()
+
+        assertEquals("CLOUD", result.cloudTrace.decisionSource)
+        assertTrue(client.lastBody.contains("huiyi-evidence-v1"))
+        assertTrue(client.lastBody.contains("CURRENT_SCREENSHOT"))
+        assertTrue(client.lastBody.contains("RECENT_VISUAL_CHECKPOINT_1"))
+        assertTrue(client.lastBody.contains("RECENT_VISUAL_CHECKPOINT_2"))
+        assertTrue(client.lastBody.contains("cannotOverrideCurrentScreenshot"))
+        assertEquals(3, Regex("data:image/png;base64").findAll(client.lastBody).count())
+        assertTrue(client.lastBody.contains("\"model\":\"gpt-5.5\""))
+    }
+
+    @Test
+    fun ModelUnavailablePrimaryEscalatesTo55BeforeLocalFallbackTest() = runTest {
+        val client = ScriptedCloudClient(
+            CloudAnalysisException("HTTP_404"),
+            openAiCompletion(validCloudContract())
+        )
+        val result = pipeline(
+            messages = lastOtherMessages(),
+            repository = CloudAnalysisRepository(relayConfig(), client)
+        ).run(emptyPersona()).getOrThrow()
+
+        assertEquals(2, client.callCount)
+        assertTrue(client.bodies[0].contains("\"model\":\"gpt-5.4\""))
+        assertTrue(client.bodies[1].contains("\"model\":\"gpt-5.5\""))
+        assertEquals("CLOUD", result.cloudTrace.decisionSource)
+        assertTrue(result.cloudTrace.cloudEscalated)
+        assertEquals("HTTP_404", result.cloudTrace.cloudEscalationReason)
+        assertEquals("gpt-5.5", result.cloudTrace.cloudFinalModel)
         assertEquals(5, result.routes.size)
     }
 
@@ -134,10 +287,16 @@ class PreconfiguredCloudRealUseMvpTest {
 
     private fun pipeline(
         messages: List<com.huiyi.v4.domain.model.MessageNode>,
-        repository: CloudAnalysisRepository
+        repository: CloudAnalysisRepository,
+        visualEvidenceProvider: (suspend () -> CloudVisualEvidence?)? = null,
+        recentVisualEvidenceProvider: ((CurrentScreenCaptureResult) -> List<CloudVisualEvidence>)? = null,
+        lightListenContextProvider: ((CurrentScreenCaptureResult) -> List<com.huiyi.v4.domain.model.MessageNode>)? = null
     ) = CurrentScreenPipelineUseCase(
         captureUseCase = FakeCaptureUseCase(messages),
         cloudAnalysisService = repository,
+        visualEvidenceProvider = visualEvidenceProvider,
+        recentVisualEvidenceProvider = recentVisualEvidenceProvider,
+        lightListenContextProvider = lightListenContextProvider,
         appVersionName = "4.1.28",
         appVersionCode = 447
     )
@@ -152,17 +311,47 @@ class PreconfiguredCloudRealUseMvpTest {
         relayApiKeyStoredSecurely = true
     )
 
-    private class RecordingCloudClient(private val response: String) : CloudAnalysisClient {
+    private class RecordingCloudClient(private vararg val responses: String) : CloudAnalysisClient {
         var callCount = 0
         var lastEndpoint = ""
         var lastBody = ""
+        val bodies = mutableListOf<String>()
         override fun postJson(endpoint: String, body: String, timeoutMs: Long, clientId: String, clientToken: String): String {
             callCount += 1
             lastEndpoint = endpoint
             lastBody = body
-            return response
+            bodies += body
+            return responses.getOrElse(callCount - 1) { responses.last() }
         }
     }
+
+    private class ScriptedCloudClient(private vararg val outcomes: Any) : CloudAnalysisClient {
+        var callCount = 0
+        val bodies = mutableListOf<String>()
+
+        override fun postJson(endpoint: String, body: String, timeoutMs: Long, clientId: String, clientToken: String): String {
+            callCount += 1
+            bodies += body
+            return when (val outcome = outcomes.getOrElse(callCount - 1) { outcomes.last() }) {
+                is Throwable -> throw outcome
+                is String -> outcome
+                else -> error("unsupported_outcome")
+            }
+        }
+    }
+
+    private fun fakeVisualEvidence(
+        role: String = "CURRENT_SCREENSHOT",
+        source: String = "unit_test"
+    ) = CloudVisualEvidence(
+        imageBase64 = "ZmFrZQ==",
+        mimeType = "image/png",
+        width = 360,
+        height = 760,
+        source = source,
+        capturedAt = 123L,
+        role = role
+    )
 
     private class FakeCaptureUseCase(
         private val messages: List<com.huiyi.v4.domain.model.MessageNode>
@@ -241,6 +430,20 @@ class PreconfiguredCloudRealUseMvpTest {
           ]
         }
     """.trimIndent()
+
+    private fun aiLikeCloudContract(): String = validCloudContract()
+        .replace(
+            "Sounds like today really took a lot out of you. Slow down first.",
+            "I understand your feelings and suggest you communicate clearly about this situation."
+        )
+
+    private fun numericSlotCloudContract(): String = validCloudContract()
+        .replace("\"slot\":\"stable\"", "\"slot\":\"1\"")
+        .replace("\"slot\":\"light\"", "\"slot\":\"2\"")
+        .replace("\"slot\":\"question\"", "\"slot\":\"3\"")
+        .replace("\"slot\":\"daily_life\"", "\"slot\":\"4\"")
+        .replace("\"slot\":\"warmer\"", "\"slot\":\"5\"")
+        .replace("\"why\":\"Warmer but still safe.\"", "\"why\":\"Option five.\"")
 
     private fun runGit(args: String): String {
         val command = listOf("git") + args.split(" ")

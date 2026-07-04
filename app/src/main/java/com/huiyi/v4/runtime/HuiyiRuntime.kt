@@ -2,6 +2,7 @@ package com.huiyi.v4.runtime
 
 import android.content.Context
 import android.content.Intent
+import android.util.Log
 import com.huiyi.v4.data.DatabaseProvider
 import com.huiyi.v4.data.HuiyiPersistenceRepository
 import com.huiyi.v4.domain.cloud.CloudProviderType
@@ -59,6 +60,8 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.withContext
 import java.io.File
 import java.util.UUID
@@ -88,8 +91,31 @@ data class HuiyiRuntimeState(
     val recentFlightRecords: List<NextSentenceFlightRecord> = emptyList(),
     val lanUpdateState: LanUpdateState = LanUpdateState(),
     val cloudSettings: CloudRuntimeSettings = CloudRuntimeSettings(),
-    val cloudSettingsTestStatus: String = "NOT_TESTED"
+    val cloudSettingsTestStatus: String = "NOT_TESTED",
+    val nextSentenceUiState: NextSentenceUiState = NextSentenceUiState.IDLE
 )
+
+enum class NextSentenceUiState {
+    IDLE,
+    CLICK_ACK,
+    LOADING_CAPTURE,
+    LOADING_CLOUD,
+    RESULT,
+    CONTROLLED_FAIL,
+    TIMEOUT
+}
+
+data class NextSentenceClickAck(
+    val clickReceivedAt: Long = System.currentTimeMillis(),
+    val clickAckShownAt: Long? = null,
+    val clickAckVisible: Boolean = false,
+    val panelVisibleBeforeClick: Boolean = false,
+    val panelVisibleAfterClick: Boolean = false,
+    val bubbleVisibleAfterClick: Boolean = true
+) {
+    val clickAckLatencyMs: Long?
+        get() = clickAckShownAt?.let { it - clickReceivedAt }
+}
 
 data class AccessibilityClickSample(
     val label: String,
@@ -110,10 +136,22 @@ class HuiyiRuntime private constructor(
         captureUseCase = CurrentScreenCaptureUseCase(),
         persistenceRepository = persistence,
         cloudAnalysisService = RuntimeCloudAnalysisService(cloudSettingsRepository),
+        visualEvidenceProvider = {
+            VisualCloudScreenshotCapture().capture(HuiyiAccessibilityService.instance)
+        },
+        recentVisualEvidenceProvider = { capture ->
+            HuiyiAccessibilityService.instance?.recentVisualCheckpointsFor(capture.snapshot).orEmpty()
+        },
+        lightListenContextProvider = { capture ->
+            HuiyiAccessibilityService.instance?.lightListenBackfillFor(capture.snapshot, capture.messages).orEmpty()
+        },
         appVersionName = BuildConfig.VERSION_NAME,
         appVersionCode = BuildConfig.VERSION_CODE
     )
     private var sessionWatchdogJob: Job? = null
+    private var activeNextSentenceJob: Job? = null
+    @Volatile
+    private var activeNextSentenceSessionId: String? = null
 
     private val mutableState = MutableStateFlow(HuiyiRuntimeState())
     val state: StateFlow<HuiyiRuntimeState> = mutableState
@@ -198,39 +236,108 @@ class HuiyiRuntime private constructor(
         mutableState.update { it.copy(demoState = it.demoState.togglePersona()) }
     }
 
-    fun runNextSentence() {
-        scope.launch {
+    fun runNextSentence(clickAck: NextSentenceClickAck = NextSentenceClickAck()): String {
+        val sessionId = UUID.randomUUID().toString()
+        val beforeRuntime = AccessibilityRuntimeReader.read(appContext)
+        val beforeOverlay = OverlayStateStore.state.value
+        val startedTrace = NextSentenceSessionTrace(
+            sessionId = sessionId,
+            startedAt = clickAck.clickReceivedAt,
+            stage = if (clickAck.clickAckVisible) NextSentenceStage.CLICK_ACK_SHOWN else NextSentenceStage.CLICK_RECEIVED,
+            clickReceivedAt = clickAck.clickReceivedAt,
+            clickAckShownAt = clickAck.clickAckShownAt,
+            clickAckLatencyMs = clickAck.clickAckLatencyMs,
+            clickAckVisible = clickAck.clickAckVisible,
+            runNextSentenceEntered = true,
+            sessionCreated = true,
+            terminalState = null,
+            panelShown = false,
+            panelVisibleBeforeClick = clickAck.panelVisibleBeforeClick,
+            panelVisibleAfterClick = clickAck.panelVisibleAfterClick,
+            bubbleVisibleBeforeClick = beforeOverlay.bubbleVisible,
+            bubbleVisibleAfterClick = clickAck.bubbleVisibleAfterClick,
+            bubbleAttachedAfterClick = clickAck.bubbleVisibleAfterClick,
+            systemAccessibilityEnabled = beforeRuntime.systemAccessibilityEnabled,
+            serviceConnected = beforeRuntime.serviceConnected,
+            activePackageBeforeClick = beforeRuntime.currentPackage,
+            activeWindowTitleAtClick = beforeRuntime.currentWindowTitle,
+            rootAvailableAtClick = beforeRuntime.rootAvailable
+        )
+        activeNextSentenceJob?.cancel()
+        sessionWatchdogJob?.cancel()
+        activeNextSentenceSessionId = sessionId
+        val previousSessionId = mutableState.value.lastNextSentenceTrace?.sessionId
+        val scenarioAtStart = mutableState.value.selectedRealDeviceScenario
+        mutableState.update {
+            it.copy(
+                lastNextSentenceTrace = startedTrace,
+                lastError = null,
+                latestPipelineResult = null,
+                panelVisible = false,
+                nextSentenceUiState = if (clickAck.clickAckVisible) NextSentenceUiState.CLICK_ACK else NextSentenceUiState.LOADING_CAPTURE
+            )
+        }
+        writeLatestSessionTraceReports(startedTrace)
+        activeNextSentenceJob = scope.launch {
             sampleClickState("beforeClick")
             launchClickFollowupSamples()
-            val beforeRuntime = AccessibilityRuntimeReader.read(appContext)
-            val beforeOverlay = OverlayStateStore.state.value
-            val startedTrace = NextSentenceSessionTrace(
-                sessionId = UUID.randomUUID().toString(),
-                startedAt = System.currentTimeMillis(),
-                stage = NextSentenceStage.CLICK_RECEIVED,
-                bubbleVisibleBeforeClick = beforeOverlay.bubbleVisible,
-                bubbleVisibleAfterClick = beforeOverlay.bubbleVisible,
-                bubbleAttachedAfterClick = beforeOverlay.bubbleVisible,
-                systemAccessibilityEnabled = beforeRuntime.systemAccessibilityEnabled,
-                serviceConnected = beforeRuntime.serviceConnected,
-                activePackageBeforeClick = beforeRuntime.currentPackage
-            )
-            val previousSessionId = mutableState.value.lastNextSentenceTrace?.sessionId
-            val scenarioAtStart = mutableState.value.selectedRealDeviceScenario
-            mutableState.update {
-                it.copy(
-                    lastNextSentenceTrace = startedTrace,
-                    lastError = null,
-                    latestPipelineResult = null,
-                    panelVisible = false
-                )
+            val captureStartingTrace = startedTrace.copy(stage = NextSentenceStage.CAPTURE_STARTING)
+            mutableState.update { state ->
+                if (state.lastNextSentenceTrace?.sessionId == sessionId) {
+                    state.copy(
+                        lastNextSentenceTrace = captureStartingTrace,
+                        nextSentenceUiState = NextSentenceUiState.LOADING_CAPTURE
+                    )
+                } else {
+                    state
+                }
             }
-            launchSessionTerminalWatchdog(startedTrace, scenarioAtStart)
+            writeLatestSessionTraceReports(captureStartingTrace)
+            launchSessionTerminalWatchdogV2(startedTrace, scenarioAtStart)
             try {
                 val persona = currentPersona()
-                val result = pipeline.run(persona)
+                val result = pipeline.run(persona, sessionId = startedTrace.sessionId)
+                ensureActive()
                 result.fold(
                     onSuccess = { pipelineResult ->
+                        if (!isActiveNextSentenceSession(startedTrace.sessionId)) {
+                            Log.i(
+                                LOG_TAG,
+                                "next_sentence_discarded sessionId=${startedTrace.sessionId} " +
+                                    "activeSessionId=$activeNextSentenceSessionId reason=STALE_SESSION"
+                            )
+                            return@fold
+                        }
+                        val preRenderState = mutableState.value
+                        if (preRenderState.latestPipelineResult != null || preRenderState.lastError != null) {
+                            Log.i(
+                                LOG_TAG,
+                                "next_sentence_discarded sessionId=${startedTrace.sessionId} " +
+                                    "activeSessionId=$activeNextSentenceSessionId reason=PANEL_SESSION_MISMATCH"
+                            )
+                            return@fold
+                        }
+                        Log.i(
+                            LOG_TAG,
+                            "next_sentence_success package=${pipelineResult.captureResult?.snapshot?.appPackage} " +
+                                "sessionId=${startedTrace.sessionId} " +
+                                "activeSessionId=$activeNextSentenceSessionId " +
+                                "cloudRequestSessionId=${pipelineResult.cloudTrace.cloudRequestSessionId} " +
+                                "cloudResponseSessionId=${pipelineResult.cloudTrace.cloudResponseSessionId} " +
+                                "preAnalysisSnapshotId=${pipelineResult.cloudTrace.preAnalysisSnapshotId} " +
+                                "chatPackage=${pipelineResult.cloudTrace.chatPackage} " +
+                                "chatWindowHash=${pipelineResult.cloudTrace.chatWindowHash} " +
+                                "captureSource=${pipelineResult.captureResult?.captureSource} " +
+                                "lastSpeaker=${pipelineResult.lastSpeakerDecision.lastSpeaker} " +
+                                "decision=${pipelineResult.tacticalDecision.decisionType} " +
+                                "routes=${pipelineResult.routes.size} " +
+                                "cloudAttempted=${pipelineResult.cloudTrace.cloudAttempted} " +
+                                "cloudSuccess=${pipelineResult.cloudTrace.cloudSuccess} " +
+                                "cloudErrorCode=${pipelineResult.cloudTrace.cloudErrorCode} " +
+                                "cloudValidation=${pipelineResult.cloudTrace.cloudContractValidationResult} " +
+                                "cloudLikelyCause=${pipelineResult.cloudTrace.cloudFailureLikelyCause} " +
+                                "decisionSource=${pipelineResult.cloudTrace.decisionSource}"
+                        )
                         val messages = pipelineResult.context?.currentScreenMessages ?: mutableState.value.demoState.messages
                         val scenario = mutableState.value.selectedRealDeviceScenario
                         val visualDebug = VisualDebugResult(
@@ -271,7 +378,17 @@ class HuiyiRuntime private constructor(
                             waitDecisionReached = pipelineResult.tacticalDecision.decisionType == TacticalDecisionType.WAIT,
                             waitPanelRenderAttempted = waitPanelShown,
                             waitPanelRenderSuccess = waitPanelShown,
-                            decisionTypeFamily = decisionTypeFamily(pipelineResult.tacticalDecision.decisionType)
+                            decisionTypeFamily = decisionTypeFamily(pipelineResult.tacticalDecision.decisionType),
+                            cloudTrace = pipelineResult.cloudTrace.withSessionBinding(
+                                activeSessionId = startedTrace.sessionId,
+                                preAnalysisSnapshotId = pipelineResult.cloudTrace.preAnalysisSnapshotId.orEmpty(),
+                                chatPackage = pipelineResult.cloudTrace.chatPackage.orEmpty(),
+                                chatWindowHash = pipelineResult.cloudTrace.chatWindowHash.orEmpty(),
+                                cloudRequestSessionId = pipelineResult.cloudTrace.cloudRequestSessionId,
+                                cloudResponseSessionId = pipelineResult.cloudTrace.cloudResponseSessionId,
+                                panelRenderedSessionId = startedTrace.sessionId,
+                                oneClickOneTerminalPanel = true
+                            )
                         )
                         val capture = pipelineResult.captureResult
                         val successTrace = startedTrace.copy(
@@ -318,17 +435,31 @@ class HuiyiRuntime private constructor(
                             secondaryErrorCode = visualDebug.screenshotErrorCode?.let { NextSentenceErrorCode.valueOf(it) },
                             panelAttached = true,
                             panelRenderSuccess = true,
+                            terminalState = terminalState,
+                            panelShown = true,
                             userFacingMessage = if (pipelineResult.tacticalDecision.decisionType == TacticalDecisionType.WAIT) {
                                 "你已经回过了，先等对方。"
                             } else null
                         )
+                        writeLatestSessionTraceReports(successTrace)
                         val flightRecord = NextSentenceFlightRecordFactory.fromSuccess(resultWithVisualDebug, successTrace)
                         mutableState.update {
-                            it.copy(
+                            if (it.lastNextSentenceTrace?.sessionId != startedTrace.sessionId ||
+                                activeNextSentenceSessionId != startedTrace.sessionId
+                            ) {
+                                Log.i(
+                                    LOG_TAG,
+                                    "next_sentence_discarded sessionId=${startedTrace.sessionId} " +
+                                        "stateSessionId=${it.lastNextSentenceTrace?.sessionId} " +
+                                        "activeSessionId=$activeNextSentenceSessionId reason=STALE_SESSION"
+                                )
+                                it
+                            } else it.copy(
                                 demoState = it.demoState.copy(messages = messages),
                                 latestPipelineResult = resultWithVisualDebug,
                                 panelVisible = true,
-                                lastError = pipelineResult.persistenceError,
+                                lastError = null,
+                                nextSentenceUiState = NextSentenceUiState.RESULT,
                                 lastVisualDebugOverlayPath = visualDebug.overlayImagePath,
                                 lastClickPipelineException = null,
                                 lastNextSentenceTrace = successTrace,
@@ -341,11 +472,22 @@ class HuiyiRuntime private constructor(
                         handleNextSentenceFailure(error, startedTrace)
                     }
                 )
+            } catch (cancelled: CancellationException) {
+                Log.i(
+                    LOG_TAG,
+                    "next_sentence_discarded sessionId=${startedTrace.sessionId} " +
+                        "activeSessionId=$activeNextSentenceSessionId reason=STALE_SESSION"
+                )
             } catch (error: Throwable) {
                 handleNextSentenceFailure(error, startedTrace)
             }
         }
+        return sessionId
     }
+
+    private fun isActiveNextSentenceSession(sessionId: String): Boolean =
+        activeNextSentenceSessionId == sessionId &&
+            mutableState.value.lastNextSentenceTrace?.sessionId == sessionId
 
     fun runLastMeAcceptanceTestAndExport() {
         setRealDeviceScenario(RealDeviceScenario.LAST_ME)
@@ -373,20 +515,84 @@ class HuiyiRuntime private constructor(
         }
     }
 
+    private fun launchSessionTerminalWatchdogV2(
+        trace: NextSentenceSessionTrace,
+        scenario: RealDeviceScenario
+    ) {
+        sessionWatchdogJob?.cancel()
+        sessionWatchdogJob = scope.launch {
+            delay(95_000L)
+            val state = mutableState.value
+            if (state.lastNextSentenceTrace?.sessionId != trace.sessionId ||
+                activeNextSentenceSessionId != trace.sessionId
+            ) return@launch
+            if (state.latestPipelineResult != null || state.lastError != null) return@launch
+            val code = if (scenario == RealDeviceScenario.LAST_ME) {
+                NextSentenceErrorCode.LAST_ME_ANALYSIS_STUCK
+            } else {
+                NextSentenceErrorCode.NEXT_SENTENCE_TIMEOUT_NO_VISIBLE_RESULT
+            }
+            val timeoutTrace = trace.failed(code, state.lastNextSentenceTrace?.stage ?: trace.stage)
+                .copy(
+                    endedAt = System.currentTimeMillis(),
+                    stage = NextSentenceStage.TIMEOUT,
+                    terminalState = "TIMEOUT_PANEL",
+                    panelShown = true,
+                    panelAttached = true,
+                    panelRenderSuccess = true,
+                    userFacingMessage = "这次没有跑完，已保存诊断。"
+                )
+            if (scenario == RealDeviceScenario.LAST_ME) {
+                writeScenarioAcceptanceBundle(
+                    scenario = RealDeviceScenario.LAST_ME,
+                    testIntent = RealDeviceTestIntent.USER_ASSERTED_LAST_ME,
+                    folderName = "last-me",
+                    filePrefix = "last-me-real-device-report",
+                    result = null,
+                    trace = timeoutTrace
+                )
+            }
+            val flightRecord = NextSentenceFlightRecordFactory.fromFailure(timeoutTrace)
+            mutableState.update {
+                if (it.lastNextSentenceTrace?.sessionId != trace.sessionId ||
+                    activeNextSentenceSessionId != trace.sessionId
+                ) {
+                    it
+                } else {
+                    it.copy(
+                        lastNextSentenceTrace = timeoutTrace,
+                        lastError = timeoutTrace.userFacingMessage,
+                        panelVisible = true,
+                        nextSentenceUiState = NextSentenceUiState.TIMEOUT,
+                        latestPipelineResult = null,
+                        latestFlightRecord = flightRecord,
+                        recentFlightRecords = (it.recentFlightRecords + flightRecord).takeLast(10)
+                    )
+                }
+            }
+            writeLatestSessionTraceReports(timeoutTrace)
+            if (activeNextSentenceSessionId == trace.sessionId) {
+                activeNextSentenceSessionId = null
+            }
+        }
+    }
+
     private fun launchSessionTerminalWatchdog(
         trace: NextSentenceSessionTrace,
         scenario: RealDeviceScenario
     ) {
         sessionWatchdogJob?.cancel()
         sessionWatchdogJob = scope.launch {
-            delay(6000L)
+            delay(8000L)
             val state = mutableState.value
-            if (state.lastNextSentenceTrace?.sessionId != trace.sessionId) return@launch
+            if (state.lastNextSentenceTrace?.sessionId != trace.sessionId ||
+                activeNextSentenceSessionId != trace.sessionId
+            ) return@launch
             if (state.latestPipelineResult != null || state.lastError != null) return@launch
             val code = if (scenario == RealDeviceScenario.LAST_ME) {
                 NextSentenceErrorCode.LAST_ME_ANALYSIS_STUCK
             } else {
-                NextSentenceErrorCode.SESSION_TIMEOUT_NO_TERMINAL_STATE
+                NextSentenceErrorCode.NEXT_SENTENCE_TIMEOUT_NO_VISIBLE_RESULT
             }
             val timeoutTrace = trace.failed(code, state.lastNextSentenceTrace?.stage ?: trace.stage)
                 .copy(
@@ -404,8 +610,13 @@ class HuiyiRuntime private constructor(
                 )
             }
             val flightRecord = NextSentenceFlightRecordFactory.fromFailure(timeoutTrace)
+            if (activeNextSentenceSessionId == trace.sessionId) {
+                activeNextSentenceSessionId = null
+            }
             mutableState.update {
-                it.copy(
+                if (it.lastNextSentenceTrace?.sessionId != trace.sessionId ||
+                    activeNextSentenceSessionId != trace.sessionId
+                ) it else it.copy(
                     lastNextSentenceTrace = timeoutTrace,
                     lastError = timeoutTrace.userFacingMessage,
                     panelVisible = true,
@@ -446,19 +657,40 @@ class HuiyiRuntime private constructor(
                 panelVisible = true,
                 latestPipelineResult = null,
                 lastError = next.trace.userFacingMessage ?: next.message,
+                nextSentenceUiState = NextSentenceUiState.CONTROLLED_FAIL,
                 lastClickPipelineException = "${error::class.java.name}: ${error.message}",
                 lastNextSentenceTrace = next.trace
             )
         }
+        writeLatestSessionTraceReports(next.trace.copy(panelShown = true, terminalState = "CONTROLLED_FAIL_PANEL"))
     }
 
     private fun handleNextSentenceFailure(error: Throwable, baseTrace: NextSentenceSessionTrace) {
+        if (!isActiveNextSentenceSession(baseTrace.sessionId)) {
+            Log.i(
+                LOG_TAG,
+                "next_sentence_discarded sessionId=${baseTrace.sessionId} " +
+                    "activeSessionId=$activeNextSentenceSessionId reason=STALE_SESSION"
+            )
+            return
+        }
         val next = error.toNextSentenceException(baseTrace, NextSentenceStage.NODE_TREE_CAPTURE_STARTED)
+        Log.w(
+            LOG_TAG,
+            "next_sentence_failure code=${next.code} stage=${next.failedStage} " +
+                "rootPackage=${next.trace.rootPackageName} activePackage=${next.trace.activePackageAtCaptureStart} " +
+                "lastStablePackage=${next.trace.lastStableSnapshotPackage} " +
+                "lastStableAgeMs=${next.trace.lastStableSnapshotAgeMs}"
+        )
         OverlayStateStore.recordPipelineException(error)
         val overlay = OverlayStateStore.state.value
         val runtime = AccessibilityRuntimeReader.read(appContext)
         val finalTrace = next.trace.copy(
             endedAt = System.currentTimeMillis(),
+            terminalState = "CONTROLLED_FAIL_PANEL",
+            panelShown = true,
+            panelAttached = true,
+            panelRenderSuccess = true,
             bubbleVisibleAfterClick = overlay.bubbleVisible,
             bubbleAttachedAfterClick = overlay.bubbleVisible,
             bubbleVisibleAfterFailure = overlay.bubbleVisible,
@@ -472,12 +704,16 @@ class HuiyiRuntime private constructor(
             userFacingMessage = next.trace.userFacingMessage ?: userFacingMessageFor(next.code)
         )
         val paths = writeLatestFailureReports(finalTrace)
+        writeLatestSessionTraceReports(finalTrace)
         val flightRecord = NextSentenceFlightRecordFactory.fromFailure(finalTrace)
         mutableState.update {
-            it.copy(
+            if (it.lastNextSentenceTrace?.sessionId != baseTrace.sessionId ||
+                activeNextSentenceSessionId != baseTrace.sessionId
+            ) it else it.copy(
                 panelVisible = true,
                 latestPipelineResult = null,
                 lastError = finalTrace.userFacingMessage,
+                nextSentenceUiState = NextSentenceUiState.CONTROLLED_FAIL,
                 lastClickPipelineException = "${error::class.java.name}: ${error.message}",
                 lastNextSentenceTrace = finalTrace,
                 latestNextSentenceFailureMarkdownPath = paths.first.absolutePath,
@@ -505,6 +741,125 @@ class HuiyiRuntime private constructor(
             .getOrElse { exporter.fallbackToPrivate("latest-next-sentence-failure.json", jsonText, subDirectory = "debug/review") }
         return markdown to json
     }
+
+    private fun writeLatestSessionTraceReports(trace: NextSentenceSessionTrace) {
+        val dir = File(appContext.filesDir, "debug/next_sentence").apply { mkdirs() }
+        File(dir, "latest-next-sentence-session-for-gpt.md")
+            .writeText(buildLatestSessionTraceMarkdown(trace), Charsets.UTF_8)
+        File(dir, "latest-next-sentence-session.json")
+            .writeText(buildLatestSessionTraceJson(trace), Charsets.UTF_8)
+        File(dir, "no-reaction-diagnostic-report-for-gpt.md")
+            .writeText(buildNoReactionDiagnosticMarkdown(trace), Charsets.UTF_8)
+        File(dir, "no-reaction-diagnostic-report.json")
+            .writeText(buildNoReactionDiagnosticJson(trace), Charsets.UTF_8)
+    }
+
+    private fun buildLatestSessionTraceMarkdown(trace: NextSentenceSessionTrace): String = buildString {
+        appendLine("# Latest Next Sentence Session")
+        appendLine()
+        appendLine("- versionName: ${BuildConfig.VERSION_NAME}")
+        appendLine("- versionCode: ${BuildConfig.VERSION_CODE}")
+        appendLine("- sessionId: ${trace.sessionId}")
+        appendLine("- stage: ${trace.stage}")
+        appendLine("- terminalState: ${trace.terminalState ?: "none"}")
+        appendLine("- clickReceivedAt: ${trace.clickReceivedAt ?: "none"}")
+        appendLine("- clickAckShownAt: ${trace.clickAckShownAt ?: "none"}")
+        appendLine("- clickAckLatencyMs: ${trace.clickAckLatencyMs ?: "none"}")
+        appendLine("- clickAckVisible: ${trace.clickAckVisible}")
+        appendLine("- runNextSentenceEntered: ${trace.runNextSentenceEntered}")
+        appendLine("- sessionCreated: ${trace.sessionCreated}")
+        appendLine("- activePackageAtClick: ${trace.activePackageBeforeClick ?: "unknown"}")
+        appendLine("- activeWindowTitleAtClick: ${trace.activeWindowTitleAtClick ?: "unknown"}")
+        appendLine("- rootAvailableAtClick: ${trace.rootAvailableAtClick}")
+        appendLine("- errorCode: ${trace.errorCode ?: NextSentenceErrorCode.NONE}")
+        appendLine("- cloudAttempted: ${trace.apiCalled}")
+        appendLine("- panelShown: ${trace.panelShown || trace.panelAttached}")
+        appendLine("- userFacingMessage: ${trace.userFacingMessage ?: "none"}")
+    }
+
+    private fun buildLatestSessionTraceJson(trace: NextSentenceSessionTrace): String = linkedMapOf<String, Any?>(
+        "versionName" to BuildConfig.VERSION_NAME,
+        "versionCode" to BuildConfig.VERSION_CODE,
+        "sessionId" to trace.sessionId,
+        "clickReceivedAt" to trace.clickReceivedAt,
+        "clickAckShownAt" to trace.clickAckShownAt,
+        "clickAckLatencyMs" to trace.clickAckLatencyMs,
+        "clickAckVisible" to trace.clickAckVisible,
+        "runNextSentenceEntered" to trace.runNextSentenceEntered,
+        "sessionCreated" to trace.sessionCreated,
+        "stage" to trace.stage.name,
+        "terminalState" to trace.terminalState,
+        "errorCode" to trace.errorCode?.name,
+        "cloudAttempted" to trace.apiCalled,
+        "panelShown" to (trace.panelShown || trace.panelAttached),
+        "activePackageAtClick" to trace.activePackageBeforeClick,
+        "activeWindowTitleAtClick" to trace.activeWindowTitleAtClick,
+        "rootAvailableAtClick" to trace.rootAvailableAtClick
+    ).toSimpleJson()
+
+    private fun buildNoReactionDiagnosticMarkdown(trace: NextSentenceSessionTrace): String = buildString {
+        appendLine("# No Reaction Diagnostic Report")
+        appendLine()
+        appendLine("- versionName: ${BuildConfig.VERSION_NAME}")
+        appendLine("- versionCode: ${BuildConfig.VERSION_CODE}")
+        appendLine("- scenarioName: real_device_next_sentence_no_reaction")
+        appendLine("- clickReceived: ${trace.clickReceivedAt != null}")
+        appendLine("- clickAckVisible: ${trace.clickAckVisible}")
+        appendLine("- runNextSentenceEntered: ${trace.runNextSentenceEntered}")
+        appendLine("- sessionCreated: ${trace.sessionCreated}")
+        appendLine("- latestSessionId: ${trace.sessionId}")
+        appendLine("- stage: ${trace.stage}")
+        appendLine("- terminalState: ${trace.terminalState ?: "none"}")
+        appendLine("- panelVisibleBeforeClick: ${trace.panelVisibleBeforeClick}")
+        appendLine("- panelVisibleAfterClick: ${trace.panelVisibleAfterClick}")
+        appendLine("- bubbleVisibleAfterClick: ${trace.bubbleVisibleAfterClick}")
+        appendLine("- activePackageAtClick: ${trace.activePackageBeforeClick ?: "unknown"}")
+        appendLine("- windowTitleAtClickRedacted: ${trace.activeWindowTitleAtClick?.redactPrivateText() ?: "unknown"}")
+        appendLine("- accessibilityConnected: ${trace.serviceConnected}")
+        appendLine("- rootAvailableAtClick: ${trace.rootAvailableAtClick}")
+        appendLine("- exceptionClass: ${trace.exceptionClass ?: trace.pipelineExceptionClass ?: "none"}")
+        appendLine("- exceptionMessageRedacted: ${trace.exceptionMessageRedacted ?: trace.pipelineExceptionMessageRedacted ?: "none"}")
+    }
+
+    private fun buildNoReactionDiagnosticJson(trace: NextSentenceSessionTrace): String = linkedMapOf<String, Any?>(
+        "versionName" to BuildConfig.VERSION_NAME,
+        "versionCode" to BuildConfig.VERSION_CODE,
+        "scenarioName" to "real_device_next_sentence_no_reaction",
+        "clickReceived" to (trace.clickReceivedAt != null),
+        "clickAckVisible" to trace.clickAckVisible,
+        "runNextSentenceEntered" to trace.runNextSentenceEntered,
+        "sessionCreated" to trace.sessionCreated,
+        "latestSessionId" to trace.sessionId,
+        "stage" to trace.stage.name,
+        "terminalState" to trace.terminalState,
+        "panelVisibleBeforeClick" to trace.panelVisibleBeforeClick,
+        "panelVisibleAfterClick" to trace.panelVisibleAfterClick,
+        "bubbleVisibleAfterClick" to trace.bubbleVisibleAfterClick,
+        "activePackageAtClick" to trace.activePackageBeforeClick.orEmpty(),
+        "windowTitleAtClickRedacted" to trace.activeWindowTitleAtClick.orEmpty().redactPrivateText(),
+        "accessibilityConnected" to trace.serviceConnected,
+        "rootAvailableAtClick" to trace.rootAvailableAtClick,
+        "exceptionClass" to (trace.exceptionClass ?: trace.pipelineExceptionClass),
+        "exceptionMessageRedacted" to (trace.exceptionMessageRedacted ?: trace.pipelineExceptionMessageRedacted)
+    ).toSimpleJson()
+
+    private fun Map<String, Any?>.toSimpleJson(): String =
+        entries.joinToString(prefix = "{\n", postfix = "\n}", separator = ",\n") { (key, value) ->
+            "  \"${jsonEscape(key)}\": ${jsonValue(value)}"
+        }
+
+    private fun jsonValue(value: Any?): String = when (value) {
+        null -> "null"
+        is Boolean -> value.toString()
+        is Number -> value.toString()
+        else -> "\"${jsonEscape(value.toString())}\""
+    }
+
+    private fun jsonEscape(value: String): String = value
+        .replace("\\", "\\\\")
+        .replace("\"", "\\\"")
+        .replace("\n", "\\n")
+        .replace("\r", "\\r")
 
     fun applyVoiceSummary(summary: String) {
         val old = mutableState.value
@@ -1205,6 +1560,8 @@ class HuiyiRuntime private constructor(
     private fun currentPersona(): UserPersonaCorpus = DefaultPersonaCorpus.soldier(mutableState.value.demoState.personaEnabled)
 
     companion object {
+        private const val LOG_TAG = "HuiyiRuntime"
+
         @Volatile
         private var instance: HuiyiRuntime? = null
 

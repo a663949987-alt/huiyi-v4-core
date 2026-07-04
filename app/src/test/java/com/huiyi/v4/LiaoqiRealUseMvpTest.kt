@@ -150,7 +150,18 @@ class LiaoqiRealUseMvpTest {
             error?.let { return Result.failure(it) }
             val routes: List<ReplyRoute> = ReplyRouteGenerator().generate(input.context, input.localDecision)
                 .mapIndexed { index, route -> route.copy(id = "cloud-$index", tag = "云端") }
-            return Result.success(CloudAnalysisOutput("cloud-req", input.localDecision, routes, 42))
+            return Result.success(
+                CloudAnalysisOutput(
+                    sessionId = input.sessionId,
+                    preAnalysisSnapshotId = input.preAnalysisSnapshotId,
+                    chatPackage = input.chatPackage,
+                    chatWindowHash = input.chatWindowHash,
+                    cloudRequestId = "cloud-req",
+                    decision = input.localDecision,
+                    routes = routes,
+                    latencyMs = 42
+                )
+            )
         }
     }
 

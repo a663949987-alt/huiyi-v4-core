@@ -1,9 +1,9 @@
 {
-    "versionName":  "4.1.25",
-    "versionCode":  444,
-    "apkUrl":  "huiyi-v4.1.25-debug.apk",
-    "releaseNotes":  "v4.1.25 delivery closure preconfigured cloud APK",
+    "versionName":  "4.1.42",
+    "versionCode":  461,
+    "apkUrl":  "huiyi-v4.1.42-debug.apk",
+    "releaseNotes":  "v4.1.42: unified evidence package; event-triggered visual checkpoints; persisted light-listen timeline for future chat profile memory",
     "forceUpdate":  false,
-    "sha256":  "AD92676E76589353BEEE632D30B0302B25CFE402DFD1BC71F33E93B9F6ECC945",
-    "createdAt":  1783084641170
+    "sha256":  "395277887DA2CF910670D789A7B313743C12E5E8FF72EB421711F97C287527E9",
+    "createdAt":  1783142519989
 }

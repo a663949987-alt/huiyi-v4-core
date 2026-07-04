@@ -42,7 +42,11 @@ class GenericVisualBubbleParser(
                 ?: bubble.avatarBounds
             val rawText = bubble.text.orEmpty()
             val actualText = rawText.actualReplyText()
-            val metadataType = metadataFilter.classify(actualText)
+            val metadataType = if (bubble.isBottomInputControl(actualText)) {
+                MetadataType.UI_CONTROL
+            } else {
+                metadataFilter.classify(actualText)
+            }
             val isMetadata = metadataType != MetadataType.NONE
             val deliveryStatus = deliveryStatusFor(metadataType, actualText)
             val sideDecision = inferSide(bubble)
@@ -217,6 +221,16 @@ class GenericVisualBubbleParser(
     private fun VisualBubble.visualLeft(): Int = listOfNotNull(textBounds, bubbleBounds, rowBounds, parentBounds, avatarBounds)
         .minOfOrNull { it.left } ?: Int.MAX_VALUE
 
+    private fun VisualBubble.isBottomInputControl(text: String): Boolean {
+        val value = text.trim()
+        if (value.isBlank()) return false
+        val looksLikeControl = bottomInputControlTexts.any { value == it || value.contains(it) }
+        if (!looksLikeControl) return false
+        val lowerScreenTop = (screenWidth * 1.65f).toInt()
+        val bounds = listOfNotNull(textBounds, bubbleBounds, rowBounds, parentBounds, contentBounds)
+        return bounds.any { it.top >= lowerScreenTop }
+    }
+
     private fun inferSide(bubble: VisualBubble): SideDecision {
         val candidateBounds = listOfNotNull(
             bubble.bubbleBounds,
@@ -276,4 +290,17 @@ class GenericVisualBubbleParser(
         val side: String,
         val reason: String
     )
+
+    private companion object {
+        val bottomInputControlTexts = setOf(
+            "语音",
+            "输入框",
+            "表情",
+            "发送",
+            "璇煶",
+            "杈撳叆妗",
+            "琛ㄦ儏",
+            "鍙戦€"
+        )
+    }
 }

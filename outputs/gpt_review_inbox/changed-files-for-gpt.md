@@ -1,36 +1,27 @@
-# Changed Files for GPT
+# Changed Files For GPT
 
-- app/build.gradle.kts
+## Current Review Scope
+
+- taskName: unified_evidence_light_listen_timeline
+- versionName: 4.1.42
+- versionCode: 461
+
+## Key Files
+
+- app/src/main/java/com/huiyi/v4/accessibility/HuiyiAccessibilityService.kt
+- app/src/main/java/com/huiyi/v4/domain/context/LightListenMemory.kt
 - app/src/main/java/com/huiyi/v4/domain/cloud/CloudAnalysis.kt
-- app/src/main/java/com/huiyi/v4/domain/modelprovider/OpenAICompatibleProvider.kt
 - app/src/main/java/com/huiyi/v4/domain/pipeline/CurrentScreenPipelineUseCase.kt
-- app/src/main/java/com/huiyi/v4/floating/FloatingResultPanelController.kt
 - app/src/main/java/com/huiyi/v4/runtime/HuiyiRuntime.kt
-- app/src/main/java/com/huiyi/v4/runtime/RuntimeCloudSettingsRepository.kt
-- app/src/main/java/com/huiyi/v4/ui/HuiyiRoot.kt
-- app/src/test/java/com/huiyi/v4/CloudAnalysisMvpSafetyGateTest.kt
-- outputs/codex_to_gpt/README_FOR_GPT.md
-- outputs/codex_to_gpt/changed-files-for-gpt.md
-- outputs/codex_to_gpt/result-manifest.json
+- app/src/main/java/com/huiyi/v4/data/HuiyiDatabase.kt
+- app/src/main/java/com/huiyi/v4/data/HuiyiPersistenceRepository.kt
+- app/src/test/java/com/huiyi/v4/LightListenMemoryTest.kt
+- app/src/test/java/com/huiyi/v4/LightListenPersistenceTest.kt
+- app/src/test/java/com/huiyi/v4/PreconfiguredCloudRealUseMvpTest.kt
+
+## Reports
+
 - outputs/gpt_review_inbox/README_FOR_GPT.md
-- outputs/gpt_review_inbox/changed-files-for-gpt.md
-- outputs/gpt_review_inbox/gpt-review-manifest.json
-- outputs/gpt_review_inbox/manifest.json
-- outputs/gpt_review_inbox/phone/latest/README_FOR_GPT.md
-- outputs/gpt_review_inbox/phone/latest/current-screen/real-device-current-screen-report-for-gpt.md
-- outputs/gpt_review_inbox/phone/latest/current-screen/real-device-current-screen-report.json
-- outputs/gpt_review_inbox/phone/latest/latest-session/next-sentence-flight-record-for-gpt.md
-- outputs/gpt_review_inbox/phone/latest/latest-session/next-sentence-flight-record.json
-- outputs/gpt_review_inbox/phone/latest/metadata/app-build-info.json
-- outputs/gpt_review_inbox/phone/latest/metadata/file-list.txt
-- outputs/gpt_review_inbox/phone/latest/metadata/privacy-scan.json
-- outputs/gpt_review_inbox/phone/latest/one-tap-feedback-manifest.json
-- outputs/gpt_to_codex/current-task.json
-- outputs/gpt_to_codex/current-task.md
-- outputs/huiyi-gpt-review-inbox.zip
-- outputs/review/huiyi-v4-review-bundle-for-gpt.zip
-- outputs/review/huiyi-v4-review-for-gpt.md
-- outputs/review/manifest.json
-- outputs/update_server/latest.json
-- outputs/gpt_review_inbox/cloud-runtime-config-report-for-gpt.md
-- outputs/gpt_review_inbox/cloud-runtime-config-report.json
+- outputs/gpt_review_inbox/light-listen-evidence-report-for-gpt.md
+- outputs/gpt_review_inbox/light-listen-evidence-report.json
+- outputs/codex_to_gpt/result-manifest.json

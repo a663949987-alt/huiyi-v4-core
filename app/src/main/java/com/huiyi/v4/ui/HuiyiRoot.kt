@@ -62,6 +62,7 @@ import kotlinx.coroutines.delay
 
 private enum class TabPage(val title: String) {
     Home("首页"),
+    Review("聊天复盘"),
     Persona("我的底色"),
     Settings("设置"),
     Developer("开发者")
@@ -117,7 +118,7 @@ fun HuiyiRoot() {
         topBar = { TopAppBar(title = { Text("会意 v4.1") }) },
         bottomBar = {
             NavigationBar {
-                listOf(TabPage.Home, TabPage.Persona, TabPage.Settings).forEach { page ->
+                listOf(TabPage.Home, TabPage.Review, TabPage.Persona, TabPage.Settings).forEach { page ->
                     NavigationBarItem(
                         selected = tab == page,
                         onClick = { tab = page },
@@ -142,6 +143,7 @@ fun HuiyiRoot() {
                     onPersona = { tab = TabPage.Persona },
                     onSettings = { tab = TabPage.Settings }
                 )
+                TabPage.Review -> ChatReviewPage()
                 TabPage.Persona -> MyPersonaPage(runtimeState.demoState, onToggle = runtime::togglePersona)
                 TabPage.Settings -> SettingsPage(
                     accessibilityLabel = accessibilityLabel,
@@ -442,6 +444,27 @@ private fun ContextRequiredCard(reason: String) {
             Text("上下文还不够")
             Text(reason)
             Text("本轮先不自动滚动，可点击“补读上一屏”占位。")
+        }
+    }
+}
+
+@Composable
+private fun ChatReviewPage() {
+    LazyColumn(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(16.dp),
+        verticalArrangement = Arrangement.spacedBy(12.dp)
+    ) {
+        item {
+            Text("聊天复盘")
+            Card(Modifier.fillMaxWidth()) {
+                Column(Modifier.padding(14.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                    Text("下一句的共创点、易错点、雷区和撤退方案会在后台按聊天对象归档。")
+                    Text("这个模块后续会按对象展示：特点、爱好、雷区、互动节奏和历史复盘。")
+                    Text("当前版本先启用后台记忆种子，不在聊天悬浮窗里打扰用户。")
+                }
+            }
         }
     }
 }
