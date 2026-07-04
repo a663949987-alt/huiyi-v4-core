@@ -31,7 +31,7 @@ Please start with:
 - SelfExpressionOpportunity and NextMoveType are reserved for future persona/self-expression work.
 - CharacterArcCard and ARC_REVEAL are added as an authentic gradual reveal hook.
 - routeFamily=ARC_REVEAL is parsed from cloud output.
-- Result panel reserved fields exist for nextAction, personaFacet, and routeLabel.
+- Result panel displays ARC_REVEAL with nextAction, personaFacet, routeLabel, and overdoRisk copy.
 - Long-term raw chat storage: false.
 - Auto send: false.
 - Raw private chat uploaded to GitHub: false.

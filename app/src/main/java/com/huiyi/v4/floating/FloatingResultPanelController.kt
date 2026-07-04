@@ -19,6 +19,7 @@ import com.huiyi.v4.domain.model.ReplyRoute
 import com.huiyi.v4.domain.model.ReplyRouteType
 import com.huiyi.v4.domain.model.RiskLevel
 import com.huiyi.v4.domain.model.TacticalDecisionType
+import com.huiyi.v4.domain.panel.RoutePanelDisplayText
 import com.huiyi.v4.domain.pipeline.CurrentScreenPipelineResult
 import com.huiyi.v4.runtime.HuiyiRuntime
 import com.huiyi.v4.runtime.HuiyiRuntimeState
@@ -61,6 +62,7 @@ class FloatingResultPanelController(
             }
             else -> {
                 container.addView(titleText("推荐回复"))
+                RoutePanelDisplayText.topActionLine(routes)?.let { container.addView(smallText(it)) }
                 cloudStatusLine(result)?.let { container.addView(smallText(it)) }
                 if (routes.isEmpty()) {
                     container.addView(text("这次还没拿到可用回复，请点一下聊天窗口后再试。"))
@@ -103,8 +105,11 @@ class FloatingResultPanelController(
 
     private fun addReplyChoices(container: LinearLayout, routes: List<ReplyRoute>) {
         routes.take(5).forEachIndexed { index, route ->
-            val label = strategyLabel(route, index)
+            val label = RoutePanelDisplayText.routeHeader(route, index)
             container.addView(routeTitle(label))
+            RoutePanelDisplayText.detailLines(route).forEach { line ->
+                container.addView(smallText(line))
+            }
             container.addView(text(route.message))
             container.addView(Button(context).apply {
                 text = "复制"

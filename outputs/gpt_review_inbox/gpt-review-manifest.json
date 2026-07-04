@@ -15,6 +15,8 @@
   "replyRouteTypeArcReveal": true,
   "routeFamilyArcRevealParsed": true,
   "resultPanelReservedFields": true,
+  "resultPanelArcRevealVisible": true,
+  "mockChatFixtureArcRevealPanelFields": true,
   "fakePersonaGeneration": false,
   "longTermRawChatStorage": false,
   "autoSend": false,

@@ -388,6 +388,12 @@ private fun ReplyRouteCard(runtime: HuiyiRuntime, route: ReplyRoute) {
                 if (route.riskLevel != RiskLevel.LOW) AssistChip(onClick = {}, label = { Text("高风险") })
             }
             Text(route.name)
+            Text("本轮动作：${route.panelNextAction}")
+            route.panelPersonaFacet?.let { Text("这句话展示了你的哪一面：$it") }
+            if (route.routeType == com.huiyi.v4.domain.model.ReplyRouteType.ARC_REVEAL) {
+                Text("路线标签：${route.panelRouteLabel}")
+                Text("不要说过头：${route.riskWarning ?: "不要把轻表达讲成长篇自证。"}")
+            }
             Text(route.message)
             route.riskWarning?.let { Text("风险提示：$it") }
             route.fallbackMove?.let { Text("撤退方案：$it") }

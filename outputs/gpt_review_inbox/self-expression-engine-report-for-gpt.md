@@ -26,7 +26,7 @@
 
 ## Result Panel Reserved Fields
 
-`ReplyRoute` now exposes lightweight display fields for the later result panel experience:
+`ReplyRoute` exposes lightweight display fields and the floating result panel now renders them:
 
 - panelNextAction
   - 接住她
@@ -42,7 +42,14 @@
 - panelRouteLabel
   - ARC_REVEAL route label: 人物弧光
 
-This is a field-level reservation only. The current overlay UI structure was not rewritten.
+Floating panel behavior:
+
+- If routeFamily=ARC_REVEAL, route label shows: 人物弧光
+- It shows: 本轮动作：让她看见你
+- It shows: 这句话展示了你的哪一面
+- It shows: 不要说过头
+- If the route set contains ARC_REVEAL, panel top shows: 本轮动作：让她看见你
+- The panel structure was not rewritten.
 
 ## Character Arc Intent
 
@@ -88,7 +95,8 @@ Covered:
 - ReplyRouteType.ARC_REVEAL exposed
 - planning / reality / stability / future topic triggers local ARC_REVEAL route
 - cloud routeFamily=ARC_REVEAL maps correctly
-- result panel reserved fields exist for ARC_REVEAL
+- result panel visible text exists for ARC_REVEAL
+- MockChat-style visual bubble fixture exposes ARC_REVEAL panel fields
 
 ## Safety
 
@@ -102,4 +110,4 @@ Covered:
 
 ## Result
 
-Self-expression engine minimum capability is ready as a small interface hook. The next product step can decide how much of `panelNextAction`, `panelPersonaFacet`, and `panelRouteLabel` should be shown in the overlay.
+Self-expression engine minimum capability is ready as a small interface hook. The result panel now has visible ARC_REVEAL copy for the immediate product experience without rewriting Light Listening or session flow.

@@ -4,9 +4,13 @@ import com.huiyi.v4.domain.cloud.CloudTacticalDecisionMapper
 import com.huiyi.v4.domain.context.ContextAssembler
 import com.huiyi.v4.domain.context.LightChatStateStore
 import com.huiyi.v4.domain.context.NextMoveType
+import com.huiyi.v4.domain.capture.GenericVisualBubbleParser
+import com.huiyi.v4.domain.capture.VisualBubble
 import com.huiyi.v4.domain.model.CharacterArcCard
 import com.huiyi.v4.domain.model.ReplyRouteType
 import com.huiyi.v4.domain.model.Speaker
+import com.huiyi.v4.domain.model.VisualBounds
+import com.huiyi.v4.domain.panel.RoutePanelDisplayText
 import com.huiyi.v4.domain.tactical.ReplyRouteGenerator
 import com.huiyi.v4.domain.tactical.TacticalDecisionEngine
 import org.junit.Assert.assertEquals
@@ -63,6 +67,39 @@ class CharacterArcRevealTest {
         assertEquals("让她看见你", arcRoute.panelNextAction)
         assertEquals("人物弧光", arcRoute.panelRouteLabel)
         assertTrue(arcRoute.panelPersonaFacet.orEmpty().contains("真实"))
+        assertEquals("本轮动作：让她看见你", RoutePanelDisplayText.topActionLine(routes))
+        assertTrue(RoutePanelDisplayText.routeHeader(arcRoute, routes.indexOf(arcRoute)).contains("人物弧光"))
+        assertTrue(RoutePanelDisplayText.detailLines(arcRoute).any { it.contains("这句话展示了你的哪一面") })
+        assertTrue(RoutePanelDisplayText.detailLines(arcRoute).any { it.contains("不要说过头") })
+    }
+
+    @Test
+    fun MockChatPlanningFixtureShowsVisibleArcRevealPanelFieldsTest() {
+        val messages = GenericVisualBubbleParser(screenWidth = 1080).parse(
+            listOf(
+                VisualBubble(
+                    id = "me-1",
+                    text = "我在听",
+                    bubbleBounds = VisualBounds(690, 420, 1020, 500),
+                    rowBounds = VisualBounds(0, 400, 1080, 520)
+                ),
+                VisualBubble(
+                    id = "other-1",
+                    text = "我觉得现实一点也挺重要的，以后还是要看规划和责任感。",
+                    bubbleBounds = VisualBounds(60, 540, 760, 650),
+                    rowBounds = VisualBounds(0, 520, 1080, 670)
+                )
+            )
+        )
+        val context = ContextAssembler().assemble(messages)
+        val decision = TacticalDecisionEngine().decide(context)
+        val routes = ReplyRouteGenerator().generate(context, decision)
+        val arcRoute = routes.firstOrNull { it.routeFamily == "ARC_REVEAL" }
+
+        assertTrue("MockChat planning fixture should expose ARC_REVEAL", arcRoute != null)
+        assertEquals("本轮动作：让她看见你", RoutePanelDisplayText.topActionLine(routes))
+        assertEquals("人物弧光", arcRoute?.panelRouteLabel)
+        assertTrue(RoutePanelDisplayText.detailLines(arcRoute!!).joinToString("\n").contains("不要说过头"))
     }
 
     @Test

@@ -15,7 +15,8 @@
 - Added CharacterArcCard to the persona model.
 - Added NextMoveType.ARC_REVEAL.
 - Added ReplyRouteType.ARC_REVEAL and routeFamily accessor.
-- Added result panel reserved fields: panelNextAction, panelPersonaFacet, panelRouteLabel.
+- Added result panel display fields: panelNextAction, panelPersonaFacet, panelRouteLabel.
+- Floating result panel displays ARC_REVEAL as 人物弧光 with 本轮动作 / 哪一面 / 不要说过头.
 - Local fallback routes can include ARC_REVEAL when lastSpeaker=OTHER and the topic touches reality, planning, stability, past experience, responsibility, or future.
 - Cloud route parser now maps routeFamily=ARC_REVEAL to ReplyRouteType.ARC_REVEAL.
 - Added CharacterArcRevealTest.
