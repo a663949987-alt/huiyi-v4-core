@@ -1,46 +1,43 @@
-﻿{
-    "taskName":  "cloud_priority_latency_tuning",
-    "versionName":  "4.1.31",
-    "versionCode":  450,
-    "currentOverallResult":  "CLOUD_PRIORITY_EMULATOR_PASS_PHONE_REQUIRED",
-    "generatedAt":  "2026-07-04T10:05:43.3690867+08:00",
-    "userNeedsPhoneThisRound":  true,
-    "realDeviceSmokeResult":  "NOT_TESTED",
-    "emulatorSmoke":  "PASS",
-    "cloudPriorityEnabled":  true,
-    "lastOtherCloudWaitMaxMs":  90000,
-    "pcRelayGpt55LatencyMs":  18996,
-    "pcRelayGpt54LatencyMs":  14681,
-    "androidMockchatGpt55ApproxLatencyMs":  56181,
-    "apkPath":  "outputs/huiyi-v4.1.31-debug.apk",
-    "lanLatestJson":  "http://192.168.31.243:8787/latest.json",
-    "lanApkUrl":  "http://192.168.31.243:8787/huiyi-v4.1.31-debug.apk",
-    "apkSha256":  "82EE100187231B7508CA8BD4AF96AB52FFBEE0FD1F91C8DF2BBEE5B671FC8514",
-    "files":  [
-                  {
-                      "path":  "outputs/gpt_review_inbox/README_FOR_GPT.md",
-                      "sendToGpt":  true,
-                      "type":  "markdown"
-                  },
-                  {
-                      "path":  "outputs/gpt_review_inbox/cloud-priority-latency-report-for-gpt.md",
-                      "sendToGpt":  true,
-                      "type":  "markdown"
-                  },
-                  {
-                      "path":  "outputs/gpt_review_inbox/cloud-priority-latency-report.json",
-                      "sendToGpt":  true,
-                      "type":  "json"
-                  },
-                  {
-                      "path":  "outputs/codex_to_gpt/result-manifest.json",
-                      "sendToGpt":  true,
-                      "type":  "json"
-                  },
-                  {
-                      "path":  "outputs/huiyi-v4.1.31-debug.apk",
-                      "sendToGpt":  false,
-                      "type":  "apk_private"
-                  }
-              ]
+{
+  "taskName": "character_arc_planner_state_compressor",
+  "versionName": "4.1.56",
+  "versionCode": 475,
+  "currentOverallResult": "LOCAL_UNIT_PASS_NO_PHONE_REQUIRED",
+  "generatedAt": "2026-07-04T22:36:13+08:00",
+  "userNeedsPhoneThisRound": false,
+  "realDeviceSmokeResult": "NOT_REQUIRED",
+  "conversationStateCompressorImplemented": true,
+  "arcProgressStateImplemented": true,
+  "characterArcPlannerImplemented": true,
+  "lightChatStateStorePreserved": true,
+  "parserRewritten": false,
+  "sessionIsolationChanged": false,
+  "cloudCallbackChanged": false,
+  "passiveNextSentenceChanged": false,
+  "expressSelfOnly": true,
+  "longTermRawChatStorage": false,
+  "autoSend": false,
+  "rawPrivateChatUploadedToGithub": false,
+  "files": [
+    {
+      "path": "outputs/gpt_review_inbox/README_FOR_GPT.md",
+      "sendToGpt": true,
+      "type": "markdown"
+    },
+    {
+      "path": "outputs/gpt_review_inbox/character-arc-planner-report-for-gpt.md",
+      "sendToGpt": true,
+      "type": "markdown"
+    },
+    {
+      "path": "outputs/gpt_review_inbox/character-arc-planner-report.json",
+      "sendToGpt": true,
+      "type": "json"
+    },
+    {
+      "path": "outputs/codex_to_gpt/result-manifest.json",
+      "sendToGpt": true,
+      "type": "json"
+    }
+  ]
 }

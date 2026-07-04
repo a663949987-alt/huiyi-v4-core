@@ -1,36 +1,24 @@
 {
   "project": "huiyi-v4",
-  "taskName": "late_cloud_result_return_after_soft_timeout_fix",
+  "taskName": "character_arc_planner_state_compressor",
   "versionName": "4.1.56",
   "versionCode": 475,
-  "currentOverallResult": "EMULATOR_LATE_CLOUD_PASS_LAN_APK_READY",
-  "generatedAt": "2026-07-04T20:05:45+08:00",
-  "userNeedsPhoneThisRound": true,
-  "realDeviceSmokeResult": "NOT_TESTED_AFTER_FIX",
-  "emulatorLateCloudSmokeResult": "PASS",
-  "latestPhoneObservedVersion": "4.1.52",
-  "observedCloudAttempted": true,
-  "observedCloudSuccess": false,
-  "observedCloudErrorCode": "SOFT_TIMEOUT_PENDING",
-  "observedCloudLatencyMs": 12008,
-  "observedCloudFinalModel": "gpt-5.4",
-  "lateCloudSuccessAfterSoftTimeoutCanUpgradePanel": true,
-  "lateCloudFailureAfterSoftTimeoutReportsFallback": true,
-  "lateCloudResultNotDiscardedWhenPanelHidden": true,
-  "lateCloudResultNotDiscardedWhenForegroundPackageChangesButSnapshotMatches": true,
-  "softTimeoutPendingStillUsesLocalFallback": true,
-  "lastOtherLateCloudAppliedOnEmulator": true,
-  "lastMeWaitPassedOnEmulator": true,
-  "lanUpdatePublished": true,
-  "serverDownloadVerified": true,
-  "apkDelivery": {
-    "apkDeliveredOutOfBand": true,
-    "apkCommittedToPublicGithub": false,
-    "localLanApkPath": "outputs/update_server/huiyi-v4.1.56-debug.apk",
-    "lanLatestJson": "http://192.168.31.243:8787/latest.json",
-    "lanApkUrl": "http://192.168.31.243:8787/huiyi-v4.1.56-debug.apk",
-    "apkSha256": "A48E30DEF6FB77F80CFAF14C2871B81C84494A5B4497B9BCF07211FED458B4B3"
-  },
+  "currentOverallResult": "LOCAL_UNIT_PASS_NO_PHONE_REQUIRED",
+  "generatedAt": "2026-07-04T22:36:13+08:00",
+  "userNeedsPhoneThisRound": false,
+  "realDeviceSmokeResult": "NOT_REQUIRED",
+  "conversationStateCompressorImplemented": true,
+  "arcProgressStateImplemented": true,
+  "characterArcPlannerImplemented": true,
+  "lightChatStateStorePreserved": true,
+  "parserRewritten": false,
+  "sessionIsolationChanged": false,
+  "cloudCallbackChanged": false,
+  "passiveNextSentenceChanged": false,
+  "expressSelfOnly": true,
+  "longTermRawChatStorage": false,
+  "autoSend": false,
+  "rawPrivateChatUploadedToGithub": false,
   "files": [
     {
       "path": "outputs/gpt_review_inbox/README_FOR_GPT.md",
@@ -38,32 +26,17 @@
       "sendToGpt": true
     },
     {
-      "path": "outputs/gpt_review_inbox/late-cloud-result-report-for-gpt.md",
+      "path": "outputs/gpt_review_inbox/character-arc-planner-report-for-gpt.md",
       "type": "markdown",
       "sendToGpt": true
     },
     {
-      "path": "outputs/gpt_review_inbox/late-cloud-result-report.json",
-      "type": "json",
-      "sendToGpt": true
-    },
-    {
-      "path": "outputs/gpt_review_inbox/emulator-late-cloud-smoke-report-for-gpt.md",
-      "type": "markdown",
-      "sendToGpt": true
-    },
-    {
-      "path": "outputs/gpt_review_inbox/emulator-late-cloud-smoke-report.json",
+      "path": "outputs/gpt_review_inbox/character-arc-planner-report.json",
       "type": "json",
       "sendToGpt": true
     },
     {
       "path": "outputs/codex_to_gpt/result-manifest.json",
-      "type": "json",
-      "sendToGpt": true
-    },
-    {
-      "path": "outputs/update_server/latest.json",
       "type": "json",
       "sendToGpt": true
     }

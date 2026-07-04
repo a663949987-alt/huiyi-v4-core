@@ -1,0 +1,43 @@
+{
+  "project": "Huiyi v4 Core",
+  "taskName": "character_arc_planner_state_compressor",
+  "versionName": "4.1.56",
+  "versionCode": 475,
+  "generatedAt": "2026-07-04T22:36:13+08:00",
+  "currentOverallResult": "LOCAL_UNIT_PASS_NO_PHONE_REQUIRED",
+  "userNeedsPhoneThisRound": false,
+  "realDeviceSmokeResult": "NOT_REQUIRED",
+  "lightChatStateStorePreserved": true,
+  "parserRewritten": false,
+  "sessionIsolationChanged": false,
+  "cloudCallbackChanged": false,
+  "passiveNextSentenceChanged": false,
+  "expressSelfOnly": true,
+  "conversationStateCompressorImplemented": true,
+  "arcProgressStateImplemented": true,
+  "characterArcPlannerImplemented": true,
+  "inputs": [
+    "recent 6-12 LightMessage summaries",
+    "lastUserMessage",
+    "lastOtherMessage",
+    "currentTopics",
+    "SelfPersonaCorpus/UserPersonaCorpus",
+    "CharacterArcCards"
+  ],
+  "outputs": [
+    "seenPersonaFacets",
+    "unseenPersonaFacets",
+    "recentlyExpressedFacets",
+    "currentExpressionWindow",
+    "suggestedArcCard",
+    "suggestedDepth",
+    "overdoRisk"
+  ],
+  "longTermRawChatStorage": false,
+  "autoSend": false,
+  "rawPrivateChatUploadedToGithub": false,
+  "tests": {
+    "CharacterArcPlannerTest": "PASS",
+    "PassiveActiveSplitTest": "PASS"
+  }
+}

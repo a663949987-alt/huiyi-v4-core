@@ -10,7 +10,10 @@ import com.huiyi.v4.domain.cloud.CloudAnalysisTrace
 import com.huiyi.v4.domain.cloud.CloudRuntimeSettings
 import com.huiyi.v4.domain.capture.ManualContextCaptureSession
 import com.huiyi.v4.domain.capture.VisualDebugResult
+import com.huiyi.v4.domain.context.ArcRevealDepth
+import com.huiyi.v4.domain.context.CharacterArcPlanner
 import com.huiyi.v4.domain.context.ContextAssembler
+import com.huiyi.v4.domain.context.LightChatStateStore
 import com.huiyi.v4.domain.model.InfluenceIntensity
 import com.huiyi.v4.domain.model.ReplyAttempt
 import com.huiyi.v4.domain.model.ReplyAttemptStatus
@@ -703,7 +706,8 @@ class HuiyiRuntime private constructor(
                 val capture = withContext(Dispatchers.Default) { CurrentScreenCaptureUseCase().capture().getOrThrow() }
                 ensureActive()
                 val messages = capture.messages.ifEmpty { mutableState.value.demoState.messages }
-                val context = ContextAssembler().assemble(messages, userPersonaCorpus = currentPersona())
+                val persona = currentPersona()
+                val context = ContextAssembler().assemble(messages, userPersonaCorpus = persona)
                 val lastSpeaker = LastSpeakerDecisionUseCase().decide(messages)
                 val baseDecision = TacticalDecisionEngine().decide(context)
                 val expressDecision = baseDecision.copy(
@@ -713,7 +717,45 @@ class HuiyiRuntime private constructor(
                     fallbackMove = "如果对方接不住，立刻回到接住她和低压力聊天。"
                 )
                 val generatedRoutes = ReplyRouteGenerator().generate(context, expressDecision)
-                val routes = expressSelfRoutes(generatedRoutes)
+                val lightSnapshot = LightChatStateStore().buildStableSnapshot(
+                    appPackage = capture.snapshot.appPackage,
+                    windowTitle = capture.snapshot.windowTitle,
+                    messages = messages,
+                    capturedAt = capture.snapshot.capturedAt,
+                    characterArcCards = persona.characterArcCards
+                )
+                val arcProgress = CharacterArcPlanner().plan(
+                    recentMessages = lightSnapshot.recentEffectiveMessages,
+                    lastUserMessage = lightSnapshot.lastUserMessage,
+                    lastOtherMessage = lightSnapshot.lastOtherMessage,
+                    currentTopics = emptyList(),
+                    personaCorpus = persona,
+                    characterArcCards = persona.characterArcCards
+                )
+                val plannedArcRoute = arcProgress.suggestedArcCard
+                    ?.takeIf { arcProgress.currentExpressionWindow.exists }
+                    ?.let { card ->
+                        ReplyRoute(
+                            id = "express-self-planned-arc-reveal",
+                            name = "\u4eba\u7269\u5f27\u5149",
+                            routeType = ReplyRouteType.ARC_REVEAL,
+                            tag = "ARC_REVEAL",
+                            message = card.safeRevealLine,
+                            intensity = if (arcProgress.suggestedDepth == ArcRevealDepth.LOW) {
+                                InfluenceIntensity.LOW
+                            } else {
+                                InfluenceIntensity.MEDIUM
+                            },
+                            riskLevel = RiskLevel.MEDIUM,
+                            riskWarning = arcProgress.overdoRisk,
+                            expectedEffect = card.hiddenDepth,
+                            fallbackMove = card.overdoRisk,
+                            recommended = false
+                        )
+                    }
+                val routes = expressSelfRoutes(
+                    routes = if (plannedArcRoute != null) listOf(plannedArcRoute) + generatedRoutes else generatedRoutes
+                )
                 val endedAt = System.currentTimeMillis()
                 val result = CurrentScreenPipelineResult(
                     captureResult = capture,
