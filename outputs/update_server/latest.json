@@ -5,8 +5,5 @@
   "releaseNotes": "v4.1.44: cloud timeout routing fix; gpt-5.4 primary has short window and TIMEOUT escalates to gpt-5.5 before local fallback; includes v4.1.43 accessibility service reconnect guard",
   "forceUpdate": false,
   "sha256": "5FE79461D2389244641E5FCF531F02F72ADDF95EE92934B13C02BFCCA6D1232A",
-  "apkDeliveredOutOfBand": true,
-  "apkCommittedToPublicGithub": false,
-  "privateApkContainsRelayConfig": true,
   "createdAt": 1783152022337
 }
