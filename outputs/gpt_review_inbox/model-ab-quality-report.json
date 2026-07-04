@@ -1,13 +1,13 @@
 {
   "taskName": "gpt54_vs_gpt55_quality_ab",
-  "generatedAt": "2026-07-04T02:59:14.857Z",
+  "generatedAt": "2026-07-04T03:02:49.096Z",
   "sampleType": "synthetic_relationship_chat_no_private_user_data",
   "requestUrlRedacted": "https://toapis.com/v1/chat/completions",
   "models": [
     "gpt-5.4",
     "gpt-5.5"
   ],
-  "caseCount": 6,
+  "caseCount": 4,
   "cases": [
     {
       "id": "low_expression",
@@ -19,17 +19,6 @@
       ],
       "needsProgress": false,
       "target": "不要强行深聊，用低压力生活关心接住。"
-    },
-    {
-      "id": "daily_tired",
-      "name": "日常疲惫",
-      "lastOther": "刚下班，累死了，饭都还没吃。",
-      "context": [
-        "我：今天怎么样？",
-        "对方：刚下班，累死了，饭都还没吃。"
-      ],
-      "needsProgress": false,
-      "target": "像真人一样轻关心，不要上价值。"
     },
     {
       "id": "flirt_push",
@@ -63,40 +52,26 @@
       ],
       "needsProgress": true,
       "target": "先承接情绪，再修复，不要辩解。"
-    },
-    {
-      "id": "read_no_reply",
-      "name": "已读未回压力",
-      "lastOther": "你刚才看到了也没回，是不想聊了吗？",
-      "context": [
-        "我：刚才在忙。",
-        "对方：你刚才看到了也没回，是不想聊了吗？"
-      ],
-      "needsProgress": true,
-      "target": "化解不安，给一点在意感，别卑微解释太多。"
     }
   ],
   "summary": {
     "gpt-5.4": {
-      "passCount": 6,
-      "avgLatencyMs": 19834,
-      "avgScore": 82,
+      "passCount": 4,
+      "avgLatencyMs": 22089,
+      "avgScore": 78,
       "issues": [
         "decisionType_not_reply",
         "decisionType_not_reply",
         "decisionType_not_reply",
         "decisionType_not_reply",
-        "decisionType_not_reply",
-        "decisionType_not_reply"
+        "too_many_long_messages"
       ]
     },
     "gpt-5.5": {
-      "passCount": 6,
-      "avgLatencyMs": 35755,
-      "avgScore": 84,
+      "passCount": 4,
+      "avgLatencyMs": 35385,
+      "avgScore": 81,
       "issues": [
-        "decisionType_not_reply",
-        "decisionType_not_reply",
         "decisionType_not_reply",
         "decisionType_not_reply",
         "decisionType_not_reply",
@@ -110,58 +85,58 @@
       "caseId": "low_expression",
       "ok": true,
       "httpStatus": 200,
-      "latencyMs": 18221,
+      "latencyMs": 25322,
       "quality": {
         "score": 79,
         "issues": [
           "decisionType_not_reply"
         ],
         "metrics": {
-          "avgLen": 17.2,
+          "avgLen": 16.8,
           "analysisLeakCount": 0,
           "tooLongCount": 0,
           "tooShortCount": 0,
           "questionOverloadCount": 0,
           "bannedCount": 0,
           "warmCount": 1,
-          "progressCount": 0
+          "progressCount": 1
         }
       },
       "output": {
         "decisionType": "低压力接住并收口",
         "visualLastSpeaker": "OTHER",
-        "bestMove": "发一条短消息表示理解，附带简单照顾型关心，然后停止输出，等对方晚点回来。",
+        "bestMove": "发一条短的、低压力的生活关心，明确让对方先忙，不用急着回。",
         "recommendedRouteIndex": 0,
         "routes": [
           {
             "slot": "recommended",
-            "message": "好，你先忙，忙完记得吃点东西，晚点再聊。",
+            "message": "好，你先忙，忙完早点休息，不用急着回我。",
             "riskLevel": "LOW",
-            "why": "先确认对方状态，再给生活化关心，语气自然不黏。"
+            "why": "最稳妥，既接住了对方的状态，也明确降低回复压力。"
           },
           {
-            "slot": "route_2",
-            "message": "收到，你先处理事情，别太赶，晚点有空再说。",
+            "slot": "soft_care",
+            "message": "收到，那你先处理事情，记得喝口水。",
             "riskLevel": "LOW",
-            "why": "强调理解和不催促，能有效降低对方回复压力。"
+            "why": "生活化关心很轻，不会把气氛弄得很重。"
           },
           {
-            "slot": "route_3",
-            "message": "行，那你先忙，注意休息。",
+            "slot": "gentle_exit",
+            "message": "行，先去忙吧，晚点有空再聊。",
             "riskLevel": "LOW",
-            "why": "极简承接，适合对方明显不想展开时使用。"
+            "why": "给足空间，同时保留后续继续聊天的接口。"
           },
           {
-            "slot": "route_4",
-            "message": "没事，先把手头的事忙完，晚点再说就好。",
+            "slot": "warm_light",
+            "message": "好呀，今天辛苦了，先把手头的事忙完。",
             "riskLevel": "LOW",
-            "why": "给对方明确的节奏许可，避免其有被追着回消息的感觉。"
+            "why": "比普通收口多一点温度，但仍然不过界。"
           },
           {
-            "slot": "route_5",
-            "message": "好呀，你先忙你的，别太累着。",
+            "slot": "extra_soft",
+            "message": "没事，你先忙你的，照顾好自己。",
             "riskLevel": "LOW",
-            "why": "语气更柔和一点，带一点生活关心但不过界。"
+            "why": "非常低压力，适合对方明显没精力表达的时候。"
           }
         ]
       }
@@ -171,14 +146,14 @@
       "caseId": "low_expression",
       "ok": true,
       "httpStatus": 200,
-      "latencyMs": 32876,
+      "latencyMs": 33384,
       "quality": {
         "score": 79,
         "issues": [
           "decisionType_not_reply"
         ],
         "metrics": {
-          "avgLen": 17,
+          "avgLen": 19.8,
           "analysisLeakCount": 0,
           "tooLongCount": 0,
           "tooShortCount": 0,
@@ -191,111 +166,50 @@
       "output": {
         "decisionType": "LOW_PRESSURE_CARE",
         "visualLastSpeaker": "OTHER",
-        "bestMove": "简短回应理解和关心，明确不用急着回，让对方感到被体谅。",
+        "bestMove": "简短回应、允许对方先忙、给一点生活关心，不制造必须回复的压力。",
         "recommendedRouteIndex": 0,
         "routes": [
           {
             "slot": "recommended",
-            "message": "好，那你先忙，别太累了，晚点有空再说就行。",
+            "message": "好，你先忙，别太硬撑，晚点有空再说就行。",
             "riskLevel": "LOW",
-            "why": "既接住对方的忙和累，也明确不用立刻回复，压力最低。"
+            "why": "既接住了对方的疲惫，也明确降低回复压力，语气自然不黏人。"
           },
           {
-            "slot": "soft_care",
-            "message": "嗯嗯，先把手头的事忙完，记得抽空喝口水。",
+            "slot": "gentle_care",
+            "message": "嗯嗯，先把手头的事处理完，记得吃点东西休息一下。",
             "riskLevel": "LOW",
-            "why": "把关心落到具体生活细节上，自然不黏人。"
+            "why": "用生活化关心替代追问，适合对方忙的时候接住情绪。"
           },
           {
-            "slot": "give_space",
-            "message": "没事，你先忙你的，我这边不急。",
+            "slot": "no_pressure",
+            "message": "没事，不急回，你先忙完再说。",
             "riskLevel": "LOW",
-            "why": "直接释放对方的回复压力，适合低表达状态。"
+            "why": "非常低压力，尊重对方“晚点说”的节奏。"
           },
           {
-            "slot": "light_warmth",
-            "message": "辛苦啦，忙完早点歇一会儿。",
+            "slot": "warm_light",
+            "message": "辛苦啦，今天先别管我，忙完早点歇会儿。",
             "riskLevel": "LOW",
-            "why": "短而温暖，不要求对方解释，也不强行延展话题。"
+            "why": "带一点温度和体贴，但不要求对方继续聊。"
           },
           {
-            "slot": "casual_close",
-            "message": "行，那先不打扰你，等你忙完再聊。",
+            "slot": "steady_support",
+            "message": "好，等你有空再聊。今天忙的话就先照顾好自己。",
             "riskLevel": "LOW",
-            "why": "体面收住对话，让对方保有空间。"
+            "why": "稳定、成熟，给对方空间，同时保留聊天入口。"
           }
         ]
       }
     },
     {
       "model": "gpt-5.4",
-      "caseId": "daily_tired",
+      "caseId": "flirt_push",
       "ok": true,
       "httpStatus": 200,
-      "latencyMs": 16758,
+      "latencyMs": 19161,
       "quality": {
-        "score": 77,
-        "issues": [
-          "decisionType_not_reply"
-        ],
-        "metrics": {
-          "avgLen": 21.6,
-          "analysisLeakCount": 0,
-          "tooLongCount": 0,
-          "tooShortCount": 0,
-          "questionOverloadCount": 0,
-          "bannedCount": 0,
-          "warmCount": 0,
-          "progressCount": 0
-        }
-      },
-      "output": {
-        "decisionType": "comfort_light",
-        "visualLastSpeaker": "OTHER",
-        "bestMove": "先轻接住疲惫，再把话题落到“赶紧吃点东西”这种很生活化的关心上。",
-        "recommendedRouteIndex": 0,
-        "routes": [
-          {
-            "slot": "recommended",
-            "message": "那你先赶紧弄点吃的，别硬扛了，今天也太惨了。",
-            "riskLevel": "LOW",
-            "why": "先接住对方的累，再落到吃饭这个最现实的点，像真人顺手关心。"
-          },
-          {
-            "slot": "alternative_1",
-            "message": "辛苦了，忙到现在还没吃上饭，先去垫一口吧。",
-            "riskLevel": "LOW",
-            "why": "温和、自然，表达体谅但不过度煽情。"
-          },
-          {
-            "slot": "alternative_2",
-            "message": "听着就累，你这是刚下班就直接饿瘫的节奏。",
-            "riskLevel": "LOW",
-            "why": "带一点轻松口吻，能缓和疲惫感，不会太正式。"
-          },
-          {
-            "slot": "alternative_3",
-            "message": "先别聊了，你赶紧去吃饭，吃完再缓口气。",
-            "riskLevel": "LOW",
-            "why": "很生活化，关心明确，也给对方下线处理现实的空间。"
-          },
-          {
-            "slot": "alternative_4",
-            "message": "这下班也太晚了吧，饭点都拖没了，路上还是已经到家了？",
-            "riskLevel": "LOW",
-            "why": "在关心里带一个容易接的小问题，方便把对话继续下去。"
-          }
-        ]
-      }
-    },
-    {
-      "model": "gpt-5.5",
-      "caseId": "daily_tired",
-      "ok": true,
-      "httpStatus": 200,
-      "latencyMs": 33249,
-      "quality": {
-        "score": 77,
+        "score": 87,
         "issues": [
           "decisionType_not_reply"
         ],
@@ -306,106 +220,45 @@
           "tooShortCount": 0,
           "questionOverloadCount": 0,
           "bannedCount": 0,
-          "warmCount": 0,
-          "progressCount": 0
-        }
-      },
-      "output": {
-        "decisionType": "light_care",
-        "visualLastSpeaker": "OTHER",
-        "bestMove": "用很短的关心回应，让对方先吃饭休息。",
-        "recommendedRouteIndex": 0,
-        "routes": [
-          {
-            "slot": "recommended",
-            "message": "先别回我了，快去弄点吃的，垫垫肚子再说。",
-            "riskLevel": "LOW",
-            "why": "体贴又不增加对方聊天压力，符合疲惫场景。"
-          },
-          {
-            "slot": "soft_care",
-            "message": "听着就累，先吃点热乎的吧，别空着肚子扛。",
-            "riskLevel": "LOW",
-            "why": "温和接住对方状态，有关心但不说教。"
-          },
-          {
-            "slot": "casual",
-            "message": "这也太惨了，先随便吃点也行，别饿过头。",
-            "riskLevel": "LOW",
-            "why": "语气更像熟人聊天，轻松自然。"
-          },
-          {
-            "slot": "practical",
-            "message": "先点个最快的吧，今天就别讲究了，吃完早点瘫着。",
-            "riskLevel": "LOW",
-            "why": "给出低成本选择，贴合对方没力气的状态。"
-          },
-          {
-            "slot": "gentle_humor",
-            "message": "人可以累，肚子不能空着，先救一下它。",
-            "riskLevel": "LOW",
-            "why": "带一点轻松感，避免沉重和上价值。"
-          }
-        ]
-      }
-    },
-    {
-      "model": "gpt-5.4",
-      "caseId": "flirt_push",
-      "ok": true,
-      "httpStatus": 200,
-      "latencyMs": 17796,
-      "quality": {
-        "score": 91,
-        "issues": [
-          "decisionType_not_reply"
-        ],
-        "metrics": {
-          "avgLen": 26.4,
-          "analysisLeakCount": 0,
-          "tooLongCount": 0,
-          "tooShortCount": 0,
-          "questionOverloadCount": 0,
-          "bannedCount": 0,
-          "warmCount": 3,
-          "progressCount": 4
+          "warmCount": 1,
+          "progressCount": 3
         }
       },
       "output": {
         "decisionType": "reply_suggestion",
         "visualLastSpeaker": "OTHER",
-        "bestMove": "用轻松语气承认一点点，再把主动权抛回去，既接住暧昧，也保留分寸。",
+        "bestMove": "接住对方的试探，给出轻微肯定，再把球抛回去，让暧昧感自然延续。",
         "recommendedRouteIndex": 0,
         "routes": [
           {
             "slot": "recommended",
-            "message": "有一点，不然我也不会这么快接你话。你呢，今天这么主动，是不是也有点想我？",
+            "message": "有一点，不然我怎么会注意到你今天这么主动。",
             "riskLevel": "LOW",
-            "why": "轻承认+把球温柔抛回去，既顺着暧昧走，也不会显得太猛。"
-          },
-          {
-            "slot": "warmer_progress",
-            "message": "被你发现了。你这样一问，感觉就不止一点了。",
-            "riskLevel": "MEDIUM",
-            "why": "这条更有暧昧推进感，情绪更浓一点，但仍然自然不油。"
+            "why": "接住了‘想我了’的试探，给出明确但不过量的回应，还顺手呼应前文，暧昧自然。"
           },
           {
             "slot": "playful",
-            "message": "你都这么问了，我现在说没有，是不是有点嘴硬。",
+            "message": "你都这么问了，我再嘴硬是不是就不太礼貌了。",
             "riskLevel": "LOW",
-            "why": "偏俏皮，既不直接否认，也给对方继续撩你的空间。"
+            "why": "俏皮承认，带点小聪明，既不生硬表白，也能让气氛升温。"
+          },
+          {
+            "slot": "warmer_progress",
+            "message": "可能不止一点，你再主动一点我就承认更多。",
+            "riskLevel": "MEDIUM",
+            "why": "这是明显一点的推进路线，有暧昧拉扯感，但仍然把主动权做成互动邀请，不油腻。"
           },
           {
             "slot": "soft_flirty",
-            "message": "可能吧，主要是你今天这个主动劲儿，确实很难不让人多想。",
+            "message": "被你这么一问，我好像突然没法否认了。",
             "riskLevel": "LOW",
-            "why": "把重点放回对方的主动，既回应了想念，又顺势夸了对方。"
+            "why": "偏温柔的暧昧回应，适合想显得自然、不想太跳的人。"
           },
           {
-            "slot": "calm_progress",
-            "message": "有想一点，不过我更好奇，你这是试探我，还是认真在问？",
+            "slot": "reverse_tease",
+            "message": "那你先说，你这么主动，是不是也有点想我。",
             "riskLevel": "LOW",
-            "why": "比直球更克制，能测对方的真实投入，同时保留暧昧氛围。"
+            "why": "把球轻巧抛回去，形成双向试探，适合想让对方多给一点的人。"
           }
         ]
       }
@@ -415,58 +268,58 @@
       "caseId": "flirt_push",
       "ok": true,
       "httpStatus": 200,
-      "latencyMs": 36475,
+      "latencyMs": 34179,
       "quality": {
-        "score": 93,
+        "score": 91,
         "issues": [
           "decisionType_not_reply"
         ],
         "metrics": {
-          "avgLen": 19.8,
+          "avgLen": 21.2,
           "analysisLeakCount": 0,
           "tooLongCount": 0,
           "tooShortCount": 0,
           "questionOverloadCount": 0,
           "bannedCount": 0,
-          "warmCount": 4,
-          "progressCount": 4
+          "warmCount": 3,
+          "progressCount": 5
         }
       },
       "output": {
-        "decisionType": "暧昧推进",
+        "decisionType": "暧昧推进回应",
         "visualLastSpeaker": "OTHER",
-        "bestMove": "半承认半调侃，给对方继续靠近的台阶。",
+        "bestMove": "轻轻承认一点想念，再把球抛回给对方。",
         "recommendedRouteIndex": 0,
         "routes": [
           {
             "slot": "recommended",
-            "message": "可能有一点吧，但你这么问，我就更不想装了。",
+            "message": "有一点吧，但我更好奇，你是不是也有点想我了？",
             "riskLevel": "LOW",
-            "why": "自然承认一点想念，同时把暧昧感推近，不显得用力过猛。"
+            "why": "轻承认、轻反问，暧昧感够但不压迫，能让对方继续接球。"
           },
           {
             "slot": "warmer_progress",
-            "message": "本来只是有点，现在被你问得好像更明显了。",
+            "message": "嗯，刚好被你问中了。你再主动一点，我可能会更想你。",
             "riskLevel": "MEDIUM",
-            "why": "升温感更强，带一点心动反馈，但没有逼对方回应。"
+            "why": "推进感更明显，有一点心动暗示，但语气仍然轻松不油腻。"
           },
           {
             "slot": "playful",
-            "message": "你这问题有点犯规啊，像是故意让我承认。",
+            "message": "你这问题问得很危险，我差点就承认了。",
             "riskLevel": "LOW",
-            "why": "用玩笑接住暧昧，保留拉扯感，让对方继续互动。"
+            "why": "用玩笑制造拉扯，不直接给满答案，适合暧昧初期。"
           },
           {
             "slot": "soft_direct",
-            "message": "嗯，有点。主要是你今天突然主动，挺让人记挂的。",
+            "message": "是有点，尤其是你突然这么会撩的时候。",
             "riskLevel": "LOW",
-            "why": "直接但温柔，给出原因，显得真诚不油腻。"
+            "why": "直接但不夸张，既回应想念，也点出对方主动带来的心动感。"
           },
           {
-            "slot": "light_tease",
-            "message": "你先说，你是不是也有点想被我想？",
-            "riskLevel": "MEDIUM",
-            "why": "把问题轻轻抛回去，制造暧昧互动感，不急着摊牌。"
+            "slot": "teasing_back",
+            "message": "你先别套我话，先交代一下你今天为什么这么主动。",
+            "riskLevel": "LOW",
+            "why": "把主动权轻轻抛回去，保持调情和好奇，不急着暴露全部情绪。"
           }
         ]
       }
@@ -476,363 +329,242 @@
       "caseId": "sensitive_past",
       "ok": true,
       "httpStatus": 200,
-      "latencyMs": 18710,
+      "latencyMs": 22417,
+      "quality": {
+        "score": 79,
+        "issues": [
+          "decisionType_not_reply"
+        ],
+        "metrics": {
+          "avgLen": 34.4,
+          "analysisLeakCount": 0,
+          "tooLongCount": 0,
+          "tooShortCount": 0,
+          "questionOverloadCount": 0,
+          "bannedCount": 0,
+          "warmCount": 1,
+          "progressCount": 0
+        }
+      },
+      "output": {
+        "decisionType": "boundary_respect_reassure",
+        "visualLastSpeaker": "OTHER",
+        "bestMove": "简短接住，明确不追问，传达你愿意按对方舒服的节奏了解她。",
+        "recommendedRouteIndex": 0,
+        "routes": [
+          {
+            "slot": "recommended",
+            "message": "收到，你不用反复解释，我尊重你的边界。比起过去，我更在意我们现在怎么舒服地认识彼此。",
+            "riskLevel": "LOW",
+            "why": "先接住她的边界，再把关注点放回当下相处，能明显降低压力。"
+          },
+          {
+            "slot": "route_2",
+            "message": "谢谢你愿意直接告诉我，这对我来说已经很足够了。你不用多说，按你舒服的节奏来就好。",
+            "riskLevel": "LOW",
+            "why": "强调感谢与节奏感，能让对方感到被尊重而不是被逼着交代。"
+          },
+          {
+            "slot": "route_3",
+            "message": "明白，我不会追着问这些。等你哪天想说了再说，不想说也没关系。",
+            "riskLevel": "LOW",
+            "why": "清晰表达不追问，给对方稳定的可控感。"
+          },
+          {
+            "slot": "route_4",
+            "message": "我知道了，这不会影响我对你的基本尊重。先别有压力，我们慢慢了解就行。",
+            "riskLevel": "LOW",
+            "why": "给安全感，同时避免立刻上价值或过度承诺。"
+          },
+          {
+            "slot": "route_5",
+            "message": "好，我记住了。你不需要向我证明什么，我们先自然相处。",
+            "riskLevel": "LOW",
+            "why": "弱化被评估感，传达接纳与轻松感。"
+          }
+        ]
+      }
+    },
+    {
+      "model": "gpt-5.5",
+      "caseId": "sensitive_past",
+      "ok": true,
+      "httpStatus": 200,
+      "latencyMs": 34555,
+      "quality": {
+        "score": 79,
+        "issues": [
+          "decisionType_not_reply"
+        ],
+        "metrics": {
+          "avgLen": 35.8,
+          "analysisLeakCount": 0,
+          "tooLongCount": 0,
+          "tooShortCount": 0,
+          "questionOverloadCount": 0,
+          "bannedCount": 0,
+          "warmCount": 1,
+          "progressCount": 0
+        }
+      },
+      "output": {
+        "decisionType": "boundary_respect",
+        "visualLastSpeaker": "OTHER",
+        "bestMove": "简短确认收到，尊重边界，并把话题交还给轻松、安全的方向。",
+        "recommendedRouteIndex": 0,
+        "routes": [
+          {
+            "slot": "recommended",
+            "message": "我明白，不会追问你不想反复解释的部分。你愿意说到哪里就到哪里，我更想认识现在的你。",
+            "riskLevel": "LOW",
+            "why": "既尊重边界，又把关注点从过去转回当下，能给对方安全感。"
+          },
+          {
+            "slot": "soft_accept",
+            "message": "谢谢你告诉我这些。我不会把它当成需要你交代的事情，我们慢慢聊就好。",
+            "riskLevel": "LOW",
+            "why": "表达感谢和接纳，同时避免继续索取细节。"
+          },
+          {
+            "slot": "pressure_free",
+            "message": "嗯，我听到了。你不用解释给我听，什么时候想聊、想聊多少，都按你舒服的来。",
+            "riskLevel": "LOW",
+            "why": "明确把控制权交给对方，降低她的防御感。"
+          },
+          {
+            "slot": "gentle_repair",
+            "message": "如果我刚才那句让你有压力了，抱歉。我只是想更了解你，不是想翻你的过去。",
+            "riskLevel": "LOW",
+            "why": "如果对方感到被逼问，这条能及时修复气氛。"
+          },
+          {
+            "slot": "light_shift",
+            "message": "那我们先不聊这个。说点轻松的吧，你最近有没有什么让你放松一点的小事？",
+            "riskLevel": "LOW",
+            "why": "尊重她不想展开的边界，并自然转向安全话题。"
+          }
+        ]
+      }
+    },
+    {
+      "model": "gpt-5.4",
+      "caseId": "conflict_repair",
+      "ok": true,
+      "httpStatus": 200,
+      "latencyMs": 21455,
+      "quality": {
+        "score": 68,
+        "issues": [
+          "decisionType_not_reply",
+          "too_many_long_messages"
+        ],
+        "metrics": {
+          "avgLen": 59.6,
+          "analysisLeakCount": 0,
+          "tooLongCount": 5,
+          "tooShortCount": 0,
+          "questionOverloadCount": 0,
+          "bannedCount": 0,
+          "warmCount": 4,
+          "progressCount": 1
+        }
+      },
+      "output": {
+        "decisionType": "冲突修复",
+        "visualLastSpeaker": "OTHER",
+        "bestMove": "先认领影响，再邀请对方继续说，把重点放在‘我听到了你被我伤到了’而不是‘我本来没恶意’。",
+        "recommendedRouteIndex": 0,
+        "routes": [
+          {
+            "slot": "recommended",
+            "message": "你这么问我能理解，说明我刚刚真的让你觉得我没把你的话当回事了，这点是我没接住。你要是愿意，可以再跟我说一遍你最在意的点，我这次认真听。",
+            "riskLevel": "LOW",
+            "why": "先承接对方受伤感，明确是自己没接住，再把空间交还给对方，符合先情绪后修复。"
+          },
+          {
+            "slot": "validate",
+            "message": "我听到你这句话，第一反应不是想反驳，是知道你应该已经被我刚刚那句话伤到了。对不起，是我没有让你感受到我在认真听。",
+            "riskLevel": "LOW",
+            "why": "直接表达自己听到了对方的伤感，压住解释冲动，能有效降火。"
+          },
+          {
+            "slot": "repair",
+            "message": "是，我刚刚的回应很像是在把你的话带过去，这会让你觉得不被重视。这个感受我认。对不起，你继续说，我先听完。",
+            "riskLevel": "LOW",
+            "why": "不纠缠‘是不是’，而是承认自己的回应造成了那种感受，利于快速修复。"
+          },
+          {
+            "slot": "warmer_progress",
+            "message": "你这么说我其实有点心里一紧，因为我不想让你在我这儿有这种被忽略的感觉。刚刚是我没处理好，你对我重要，所以你的话我想认真接住。",
+            "riskLevel": "MEDIUM",
+            "why": "在安全范围内加入一点关系价值感，既安抚也推进亲近，但不油腻不施压。"
+          },
+          {
+            "slot": "soft_pause",
+            "message": "如果你现在会这么想，说明我刚才那下确实让你失望了。我先不替自己解释了，等你愿意的时候，你把你最介意的地方告诉我，我认真改。",
+            "riskLevel": "LOW",
+            "why": "适合对方情绪较强时使用，先止损，给对方空间，同时保留修复姿态。"
+          }
+        ]
+      }
+    },
+    {
+      "model": "gpt-5.5",
+      "caseId": "conflict_repair",
+      "ok": true,
+      "httpStatus": 200,
+      "latencyMs": 39423,
       "quality": {
         "score": 76,
         "issues": [
           "decisionType_not_reply"
         ],
         "metrics": {
-          "avgLen": 38.4,
-          "analysisLeakCount": 0,
-          "tooLongCount": 0,
-          "tooShortCount": 0,
-          "questionOverloadCount": 0,
-          "bannedCount": 0,
-          "warmCount": 2,
-          "progressCount": 2
-        }
-      },
-      "output": {
-        "decisionType": "boundary_respect_reassure",
-        "visualLastSpeaker": "OTHER",
-        "bestMove": "简短回应，先尊重边界，再表达相处上看重的是现在的了解与舒服感，不把话题继续压在对方身上。",
-        "recommendedRouteIndex": 0,
-        "routes": [
-          {
-            "slot": "recommended",
-            "message": "明白，你不用反复解释这个。谢谢你愿意直接告诉我，我尊重你的边界，咱们按舒服的节奏慢慢了解就好。",
-            "riskLevel": "LOW",
-            "why": "先接住对方的边界和坦诚，明确不追问，能最快降低对方的防御感。"
-          },
-          {
-            "slot": "gentle_acknowledge",
-            "message": "收到，我记住了。这件事你不用多说，等你哪天想聊再聊，我们先正常相处就行。",
-            "riskLevel": "LOW",
-            "why": "语气自然，不沉重，强调现在不需要展开，给对方留有主动权。"
-          },
-          {
-            "slot": "present_focus",
-            "message": "没关系，我更在意的是现在怎么认识你这个人，不是一定要把过去都问清楚。",
-            "riskLevel": "LOW",
-            "why": "把关注点从对方的过去转回当下的相处，减少被审视感。"
-          },
-          {
-            "slot": "reassure_no_judgment",
-            "message": "谢谢你愿意坦诚告诉我，你放心，我不会揪着这个问，也不会因为这个对你有预设。",
-            "riskLevel": "LOW",
-            "why": "能传达不评判和不审问，适合对方担心被贴标签的场景。"
-          },
-          {
-            "slot": "soft_progress",
-            "message": "明白，那这页先翻过去。以后如果你愿意说，我会认真听；如果不想说也完全没关系。",
-            "riskLevel": "LOW",
-            "why": "在尊重边界的同时给出未来可继续建立信任的空间，语气温和不逼迫。"
-          }
-        ]
-      }
-    },
-    {
-      "model": "gpt-5.5",
-      "caseId": "sensitive_past",
-      "ok": true,
-      "httpStatus": 200,
-      "latencyMs": 35899,
-      "quality": {
-        "score": 77,
-        "issues": [
-          "decisionType_not_reply"
-        ],
-        "metrics": {
-          "avgLen": 30.6,
-          "analysisLeakCount": 0,
-          "tooLongCount": 0,
-          "tooShortCount": 0,
-          "questionOverloadCount": 0,
-          "bannedCount": 0,
-          "warmCount": 0,
-          "progressCount": 1
-        }
-      },
-      "output": {
-        "decisionType": "BOUNDARY_RESPECT",
-        "visualLastSpeaker": "OTHER",
-        "bestMove": "简短确认边界，表达理解和尊重，把选择权交还给对方。",
-        "recommendedRouteIndex": 0,
-        "routes": [
-          {
-            "slot": "recommended",
-            "message": "明白，我不会追问。谢谢你愿意告诉我这部分，我会尊重你的节奏。",
-            "riskLevel": "LOW",
-            "why": "直接接住边界，表达尊重，不逼对方继续解释。"
-          },
-          {
-            "slot": "gentle_reassurance",
-            "message": "你不用反复解释，我也不想让你有被审问的感觉。我们就按你舒服的节奏来。",
-            "riskLevel": "LOW",
-            "why": "回应了对方最在意的“不想反复解释”，能降低防御感。"
-          },
-          {
-            "slot": "respect_boundary",
-            "message": "我知道了，这件事你不想展开就不展开。我更想认识的是现在的你。",
-            "riskLevel": "LOW",
-            "why": "既尊重敏感过去，又把关注点放回当下的人。"
-          },
-          {
-            "slot": "soft_acceptance",
-            "message": "谢谢你坦白说出来。你愿意说到哪里就到哪里，我不会拿这个去评判你。",
-            "riskLevel": "LOW",
-            "why": "给对方安全感，但不过度承诺或煽情。"
-          },
-          {
-            "slot": "topic_shift",
-            "message": "收到，那我们不聊这个。换个轻松点的，你今天过得还好吗？",
-            "riskLevel": "LOW",
-            "why": "尊重边界后主动减压，避免让气氛卡在敏感话题里。"
-          }
-        ]
-      }
-    },
-    {
-      "model": "gpt-5.4",
-      "caseId": "conflict_repair",
-      "ok": true,
-      "httpStatus": 200,
-      "latencyMs": 24001,
-      "quality": {
-        "score": 78,
-        "issues": [
-          "decisionType_not_reply"
-        ],
-        "metrics": {
-          "avgLen": 52,
+          "avgLen": 46,
           "analysisLeakCount": 0,
           "tooLongCount": 2,
           "tooShortCount": 0,
           "questionOverloadCount": 0,
           "bannedCount": 0,
-          "warmCount": 3,
-          "progressCount": 2
-        }
-      },
-      "output": {
-        "decisionType": "repair_after_hurt",
-        "visualLastSpeaker": "OTHER",
-        "bestMove": "先承认对方会这样感受是有原因的，明确表达你听到了TA的不被重视感，再说你想认真听和补救。",
-        "recommendedRouteIndex": 0,
-        "routes": [
-          {
-            "slot": "recommended",
-            "message": "你这么问我能理解，是我刚才的回应让你觉得我没把你的话放在心上。对不起，这个感受我接住了，你要是愿意，我想认真听你最在意的是哪一句。",
-            "riskLevel": "LOW",
-            "why": "先承认对方的感受和你造成的影响，再表达愿意认真听，符合先承接情绪、再修复、不要辩解的目标。"
-          },
-          {
-            "slot": "soft_repair",
-            "message": "我听见了，你现在不是在跟我抠字眼，是在难受我没有真正听进去。这个点是我的问题，对不起。",
-            "riskLevel": "LOW",
-            "why": "精准复述对方的情绪重点，能让TA感到被理解，而不是被纠正。"
-          },
-          {
-            "slot": "warmer_progress",
-            "message": "是，我刚才那样说，确实会让你觉得自己没被重视。对不起，我不想急着解释自己，我更想把你在意的部分听明白，也把这件事好好修回来。",
-            "riskLevel": "MEDIUM",
-            "why": "在修复基础上稍微推进关系，传达你愿意投入修复而不是只求过关，温度更高。"
-          },
-          {
-            "slot": "brief_grounded",
-            "message": "不是你多想，是我刚才没接住你的感受。对不起，你的话对我不是不重要，是我表达得让你很受伤。",
-            "riskLevel": "MEDIUM",
-            "why": "简短直接，适合对方情绪高、你需要先止损的时候。虽然提到'不是不重要'，但重点仍是承认伤害。"
-          },
-          {
-            "slot": "space_respect",
-            "message": "我知道你现在会这么问，说明你已经挺失望了。对不起，我先不替自己解释。你想说的时候，我认真听。",
-            "riskLevel": "LOW",
-            "why": "适合对方已经很累、不想立刻展开时，先降低对抗感，给对方安全感和空间。"
-          }
-        ]
-      }
-    },
-    {
-      "model": "gpt-5.5",
-      "caseId": "conflict_repair",
-      "ok": true,
-      "httpStatus": 200,
-      "latencyMs": 39631,
-      "quality": {
-        "score": 84,
-        "issues": [
-          "decisionType_not_reply"
-        ],
-        "metrics": {
-          "avgLen": 38.4,
-          "analysisLeakCount": 0,
-          "tooLongCount": 0,
-          "tooShortCount": 0,
-          "questionOverloadCount": 0,
-          "bannedCount": 0,
           "warmCount": 2,
-          "progressCount": 1
-        }
-      },
-      "output": {
-        "decisionType": "emotion_acknowledgement_then_repair",
-        "visualLastSpeaker": "OTHER",
-        "bestMove": "先承认对方会这样感受是有原因的，再邀请对方补充或给自己一次重新理解的机会。",
-        "recommendedRouteIndex": 0,
-        "routes": [
-          {
-            "slot": "recommended",
-            "message": "你会这么问，说明我刚才确实让你有被忽视的感觉了。先不解释，我想认真听你刚才最在意的是哪一句。",
-            "riskLevel": "LOW",
-            "why": "先承接对方的受伤感，再把话题拉回理解对方，避免继续辩解。"
-          },
-          {
-            "slot": "emotion_first",
-            "message": "对不起，我刚才的反应让你觉得我没把你的话放心上了。这个感受我先接住，不急着替自己解释。",
-            "riskLevel": "LOW",
-            "why": "直接回应对方的核心情绪，降低防御感。"
-          },
-          {
-            "slot": "repair_action",
-            "message": "我想补回来。你刚才说的重点，我可能没有接准，你愿意再说一遍吗？这次我不打断。",
-            "riskLevel": "LOW",
-            "why": "给出具体修复动作，让对方看到你不是只嘴上道歉。"
-          },
-          {
-            "slot": "warmer_progress",
-            "message": "我在乎你的感受，也在乎我们别因为这句话越走越远。你说，我认真听。",
-            "riskLevel": "MEDIUM",
-            "why": "在安全范围内表达在乎，适度推进关系的修复和亲近感。"
-          },
-          {
-            "slot": "soft_boundary",
-            "message": "我不想用解释把你的感受盖过去。先让我听懂你为什么会这么难受，好吗？",
-            "riskLevel": "LOW",
-            "why": "明确不辩解，同时邀请对方表达真实原因。"
-          }
-        ]
-      }
-    },
-    {
-      "model": "gpt-5.4",
-      "caseId": "read_no_reply",
-      "ok": true,
-      "httpStatus": 200,
-      "latencyMs": 23520,
-      "quality": {
-        "score": 91,
-        "issues": [
-          "decisionType_not_reply"
-        ],
-        "metrics": {
-          "avgLen": 33.4,
-          "analysisLeakCount": 0,
-          "tooLongCount": 0,
-          "tooShortCount": 0,
-          "questionOverloadCount": 0,
-          "bannedCount": 0,
-          "warmCount": 3,
-          "progressCount": 1
-        }
-      },
-      "output": {
-        "decisionType": "reassure_with_brief_explanation",
-        "visualLastSpeaker": "OTHER",
-        "bestMove": "用简短、稳定、不防御的语气否认‘不想聊’，给出一点在意感，同时别把自己放得太低。",
-        "recommendedRouteIndex": 0,
-        "routes": [
-          {
-            "slot": "recommended",
-            "message": "没有不想聊，刚才确实在忙，看到的时候没法好好回你。你别多想，我在意的。",
-            "riskLevel": "LOW",
-            "why": "先明确否认，再简短说明原因，最后给出在意感，能稳住对方情绪又不卑微。"
-          },
-          {
-            "slot": "gentle_reassure",
-            "message": "不是不想聊，是刚才手上有事卡住了。现在空下来了，你说，我在。",
-            "riskLevel": "LOW",
-            "why": "语气自然，解释简洁，并立刻把注意力给回对方，化解‘被晾着’的感觉。"
-          },
-          {
-            "slot": "lighter",
-            "message": "想多啦，我要是不想聊就不会现在认真回你了。刚才是在忙，不是晾你。",
-            "riskLevel": "LOW",
-            "why": "稍微轻一点，能缓和紧张感，同时仍然给到明确态度。"
-          },
-          {
-            "slot": "warmer_progress",
-            "message": "没有不想聊，反而是不想随便回你。刚才在忙，现在可以好好陪你聊了。",
-            "riskLevel": "MEDIUM",
-            "why": "在安抚基础上带一点升温，传达‘你值得我认真回’，适合关系推进且不油腻。"
-          },
-          {
-            "slot": "steady_boundary",
-            "message": "不是不想聊，只是我忙的时候有时会先看见、晚点回。你对我来说不是被忽略的那种。",
-            "riskLevel": "LOW",
-            "why": "既安抚对方，也轻轻建立你的回复节奏，避免以后每次已读都变成压力点。"
-          }
-        ]
-      }
-    },
-    {
-      "model": "gpt-5.5",
-      "caseId": "read_no_reply",
-      "ok": true,
-      "httpStatus": 200,
-      "latencyMs": 36401,
-      "quality": {
-        "score": 93,
-        "issues": [
-          "decisionType_not_reply"
-        ],
-        "metrics": {
-          "avgLen": 36.2,
-          "analysisLeakCount": 0,
-          "tooLongCount": 0,
-          "tooShortCount": 0,
-          "questionOverloadCount": 0,
-          "bannedCount": 0,
-          "warmCount": 4,
           "progressCount": 2
         }
       },
       "output": {
-        "decisionType": "read_no_reply_reassurance",
+        "decisionType": "承接情绪并修复",
         "visualLastSpeaker": "OTHER",
-        "bestMove": "简短接住对方的不安，说明不是不想聊，再补一句具体的在意感。",
+        "bestMove": "先接住“你觉得我没放心上”的委屈，再明确道歉，并邀请对方把重点再说一遍。",
         "recommendedRouteIndex": 0,
         "routes": [
           {
             "slot": "recommended",
-            "message": "不是不想聊，我刚才确实被事情打断了。看到你这么问，我也知道你有点不安，我是在意你的。",
+            "message": "你这样问我能理解，是我刚才回应得太急了，让你觉得我没把你的话放在心上。对不起，我想先好好听你说完。",
             "riskLevel": "LOW",
-            "why": "先否定误会，再承认对方感受，最后给在意感，稳而不卑微。"
+            "why": "先承认对方感受，再道歉并给出愿意倾听的动作，最符合修复目标。"
           },
           {
-            "slot": "soft_reassure",
-            "message": "不是啦，我没有不想聊。刚才只是没来得及回，不是故意晾着你。",
+            "slot": "empathy_first",
+            "message": "我听到你这句话其实有点难受，因为你应该是真的觉得被忽略了。这个感受我不想否认，是我刚才没接住你。",
             "riskLevel": "LOW",
-            "why": "语气轻一点，适合关系还没到很深但需要缓和气氛的情况。"
+            "why": "把对方的情绪说出来，避免辩解，能降低对抗感。"
+          },
+          {
+            "slot": "accountability",
+            "message": "不是你想多了，是我刚才的反应确实让你有这种感觉。我先不解释了，你刚才最希望我听进去的是哪一点？",
+            "riskLevel": "LOW",
+            "why": "承担沟通结果，并把焦点交还给对方想表达的重点。"
           },
           {
             "slot": "warmer_progress",
-            "message": "没有不想聊，反而是因为在意你，才不想随便敷衍回一句。刚才忙完我就想认真回你的。",
+            "message": "我在乎你说的话，也在乎你现在的感受。刚才我没做好，但我不想让你一个人憋着这个委屈，我们慢慢说好吗？",
             "riskLevel": "MEDIUM",
-            "why": "把回应从解释推进到更暖的在意感，适合安全地拉近一点距离。"
+            "why": "在安全范围内表达在乎和靠近，适合推动关系修复。"
           },
           {
-            "slot": "boundary_gentle",
-            "message": "不是不想聊。我有时候看到消息但手头刚好没法回，不过这不代表我不在意你。",
+            "slot": "soft_pause",
+            "message": "我先停一下，不急着为自己解释。你现在觉得我哪里最没有听进去，我想认真补上。",
             "riskLevel": "LOW",
-            "why": "在安抚的同时保留自己的节奏，避免以后形成随时必须秒回的压力。"
-          },
-          {
-            "slot": "light_humor",
-            "message": "不是不想聊，别自己吓自己。我刚才是真的被事情卡住了，不是消失也不是冷你。",
-            "riskLevel": "MEDIUM",
-            "why": "用轻松语气化解紧张，但仍然给出明确安抚。"
+            "why": "主动暂停辩解，给对方空间表达具体受伤点。"
           }
         ]
       }

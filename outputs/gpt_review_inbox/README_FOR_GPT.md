@@ -1,89 +1,28 @@
 # Huiyi v4 GPT Review Inbox
 
-## Current Task
+## Source
+- phoneBundleIncluded: true
+- oneTapFeedbackIncluded: true
+- uploadedFromPhone: true
+- latestPhoneUploadAt: 2026-07-04T07:29:07.987934+00:00
+- latestPhoneSessionId: 046618c7-fb2e-41ce-b5dd-1d4581a13291
+- githubCommitHash: PENDING
+- githubReviewPath: outputs/gpt_review_inbox/phone/latest/
+- realDeviceTested: true
 
-- taskName: persona_character_arc_reveal_hook
-- versionName: 4.1.42
-- versionCode: 461
-- currentOverallResult: LOCAL_INTERFACE_PASS_NO_PHONE_REQUIRED
-- userNeedsPhoneThisRound: false
-- realDeviceSmokeResult: NOT_REQUIRED_THIS_ROUND
-- gptShouldReview: true
+## Latest Phone Conclusion
+- terminalState: CONTROLLED_FAIL
+- appPackage: unknown
+- actualLastSpeaker: UNKNOWN
+- decisionType: ERROR
+- routeCount: 0
+- waitPanelShown: False
+- routePanelShown: False
+- errorCode: ACCESSIBILITY_SERVICE_NOT_CONNECTED
+- userMarkedWrong: True
+- userCorrectionLastSpeaker: NONE
 
-## What Changed
-
-- Added CharacterArcCard to the persona model.
-- Added NextMoveType.ARC_REVEAL.
-- Added ReplyRouteType.ARC_REVEAL and routeFamily accessor.
-- Added result panel display fields: panelNextAction, panelPersonaFacet, panelRouteLabel.
-- Floating result panel displays ARC_REVEAL as 人物弧光 with 本轮动作 / 哪一面 / 不要说过头.
-- Local fallback routes can include ARC_REVEAL when lastSpeaker=OTHER and the topic touches reality, planning, stability, past experience, responsibility, or future.
-- Cloud route parser now maps routeFamily=ARC_REVEAL to ReplyRouteType.ARC_REVEAL.
-- Added CharacterArcRevealTest.
-- Added Light Listening Lite freeze report.
-- Added a small read-only `LightChatStateStore` facade.
-- Added `SelfExpressionOpportunity` and `NextMoveType` hook for future persona/self-expression work.
-- Added `LightChatStateStoreTest`.
-- Added unified evidence package for cloud analysis.
-- Current screenshot is marked as highest authority for current visible last speaker.
-- Recent visual checkpoints are event-triggered screenshots used only for previous context.
-- Light-listen backfill is marked as auxiliary text context and cannot override current screenshot.
-- Light-listen messages are persisted locally in a timeline table for future chat profile memory.
-- Room database migrated from version 1 to 2 without destructive migration.
-
-## Important Rules
-
-- CURRENT_SCREENSHOT decides the current visible last speaker.
-- RECENT_VISUAL_CHECKPOINT images are context only.
-- ACCESSIBILITY_LIGHT_LISTEN text may contain parser errors and is context only.
-- Light-listen content is persisted locally by contact key and time order.
-- Raw visual checkpoint images are kept only in short-term memory, not stored in the database.
-- LightChatStateStore is read-only and does not replace parser/session/cloud callback logic.
-- Character Arc is an authenticity hook, not fake persona generation.
-- Long-term raw chat storage: false.
-- Auto send: false.
-- Raw private chat uploaded to GitHub: false.
-- Private relay API key is not included in reports or GitHub.
-
-## Main Files For GPT
-
-1. outputs/gpt_review_inbox/character-arc-report-for-gpt.md
-2. outputs/gpt_review_inbox/self-expression-engine-report-for-gpt.md
-3. outputs/gpt_review_inbox/character-arc-report.json
-4. outputs/gpt_review_inbox/light-listening-lite-report-for-gpt.md
-5. outputs/gpt_review_inbox/light-listening-lite-report.json
-6. outputs/gpt_review_inbox/light-listen-evidence-report-for-gpt.md
-7. outputs/gpt_review_inbox/light-listen-evidence-report.json
-8. outputs/codex_to_gpt/result-manifest.json
-9. outputs/codex_to_gpt/changed-files-for-gpt.md
-
-## Build And Delivery
-
-- new APK generated this round: false
-- local APK: outputs/huiyi-v4.1.42-debug.apk
-- LAN latest: http://192.168.31.243:8787/latest.json
-- LAN APK: http://192.168.31.243:8787/huiyi-v4.1.42-debug.apk
-- apkSha256: 395277887DA2CF910670D789A7B313743C12E5E8FF72EB421711F97C287527E9
-- apkCommittedToPublicGithub: false
-
-## Validation
-
-- CharacterArcRevealTest: PASS
-- LightChatStateStoreTest: PASS
-- LightListenMemoryTest: PASS
-- LightListenPersistenceTest: PASS
-- full unitTests from previous v4.1.42 evidence pass: PASS
-- assembleDebug from previous v4.1.42 evidence pass: PASS
-- relayTextSmoke: PASS
-- phoneSmokeThisRound: NOT_REQUIRED
-
-## Next Discussion
-
-Please review the Character Arc boundary before adding deeper chat profile generation:
-
-- current screenshot as visual truth
-- recent screenshots as visual context
-- light-listen text as auxiliary context
-- persisted history format as future profile input
-- self-expression hook as read-only persona entry point
-- ARC_REVEAL as authentic gradual reveal, not fake persona construction
+## GPT Should Inspect
+1. outputs/gpt_review_inbox/phone/latest/README_FOR_GPT.md
+2. outputs/gpt_review_inbox/phone/latest/one-tap-feedback-manifest.json
+3. outputs/gpt_review_inbox/phone/latest/latest-session/next-sentence-flight-record.json
