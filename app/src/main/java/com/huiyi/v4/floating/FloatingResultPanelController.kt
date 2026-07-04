@@ -131,6 +131,8 @@ class FloatingResultPanelController(
         ).joinToString(" ")
         return when {
             route.riskLevel == RiskLevel.HIGH -> "高风险推进"
+            route.routeType == ReplyRouteType.ARC_REVEAL -> "人物弧光"
+            text.hasAny("ARC_REVEAL", "人物弧光", "底色反差", "真实底色") -> "人物弧光"
             text.hasAny("接情绪", "情绪", "共情", "empathy") -> "接情绪"
             text.hasAny("升温", "暧昧", "拉近", "推进关系", "warm", "flirt") -> "升温"
             text.hasAny("轻松", "生活", "日常", "daily", "light") -> "轻松接话"

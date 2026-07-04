@@ -3,6 +3,11 @@
 ## Core
 
 - app/src/main/java/com/huiyi/v4/domain/context/LightChatStateStore.kt
+- app/src/main/java/com/huiyi/v4/domain/model/PersonaModels.kt
+- app/src/main/java/com/huiyi/v4/domain/model/CoreModels.kt
+- app/src/main/java/com/huiyi/v4/domain/tactical/ReplyRouteGenerator.kt
+- app/src/main/java/com/huiyi/v4/domain/cloud/CloudAnalysis.kt
+- app/src/main/java/com/huiyi/v4/floating/FloatingResultPanelController.kt
 - app/src/main/java/com/huiyi/v4/accessibility/HuiyiAccessibilityService.kt
 - app/src/main/java/com/huiyi/v4/domain/context/LightListenMemory.kt
 - app/src/main/java/com/huiyi/v4/domain/cloud/CloudAnalysis.kt
@@ -19,6 +24,7 @@
 
 ## Tests
 
+- app/src/test/java/com/huiyi/v4/CharacterArcRevealTest.kt
 - app/src/test/java/com/huiyi/v4/LightChatStateStoreTest.kt
 - app/src/test/java/com/huiyi/v4/LightListenMemoryTest.kt
 - app/src/test/java/com/huiyi/v4/LightListenPersistenceTest.kt
@@ -27,6 +33,8 @@
 ## Outputs
 
 - outputs/gpt_review_inbox/README_FOR_GPT.md
+- outputs/gpt_review_inbox/character-arc-report-for-gpt.md
+- outputs/gpt_review_inbox/character-arc-report.json
 - outputs/gpt_review_inbox/light-listening-lite-report-for-gpt.md
 - outputs/gpt_review_inbox/light-listening-lite-report.json
 - outputs/gpt_review_inbox/light-listen-evidence-report-for-gpt.md

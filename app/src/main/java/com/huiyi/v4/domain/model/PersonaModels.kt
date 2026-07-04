@@ -13,7 +13,8 @@ data class UserPersonaCorpus(
     val identityCards: List<IdentityCard>,
     val storyCards: List<StoryCard>,
     val styleRules: List<StyleRule>,
-    val riskRules: List<RiskRule>
+    val riskRules: List<RiskRule>,
+    val characterArcCards: List<CharacterArcCard> = emptyList()
 )
 
 data class IdentityCard(
@@ -44,6 +45,16 @@ data class RiskRule(
     val id: String,
     val title: String,
     val description: String
+)
+
+data class CharacterArcCard(
+    val surfaceImpression: String,
+    val hiddenDepth: String,
+    val contrastTension: String,
+    val revealTrigger: String,
+    val safeRevealLine: String,
+    val overdoRisk: String,
+    val relatedPersonaCardIds: List<String>
 )
 
 data class UserStorySelection(

@@ -1,5 +1,5 @@
 {
-  "taskName": "light_listening_lite_freeze_acceptance",
+  "taskName": "persona_character_arc_reveal_hook",
   "versionName": "4.1.42",
   "versionCode": 461,
   "currentOverallResult": "LOCAL_INTERFACE_PASS_NO_PHONE_REQUIRED",
@@ -13,6 +13,11 @@
   "lightChatStateStoreExists": true,
   "sessionBindingPreserved": true,
   "selfExpressionHook": true,
+  "characterArcCardExists": true,
+  "nextMoveTypeArcReveal": true,
+  "replyRouteTypeArcReveal": true,
+  "routeFamilyArcRevealParsed": true,
+  "fakePersonaGeneration": false,
   "longTermRawChatStorage": false,
   "autoSend": false,
   "rawPrivateChatUploadedToGithub": false,
@@ -26,6 +31,16 @@
     {
       "path": "outputs/gpt_review_inbox/README_FOR_GPT.md",
       "type": "markdown",
+      "sendToGpt": true
+    },
+    {
+      "path": "outputs/gpt_review_inbox/character-arc-report-for-gpt.md",
+      "type": "markdown",
+      "sendToGpt": true
+    },
+    {
+      "path": "outputs/gpt_review_inbox/character-arc-report.json",
+      "type": "json",
       "sendToGpt": true
     },
     {

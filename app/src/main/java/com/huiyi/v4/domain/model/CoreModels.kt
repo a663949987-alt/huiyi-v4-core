@@ -297,7 +297,9 @@ data class ReplyRoute(
     val expectedEffect: String?,
     val fallbackMove: String?,
     val recommended: Boolean
-)
+) {
+    val routeFamily: String get() = routeType.name
+}
 
 enum class ReplyRouteType {
     STABLE,
@@ -306,6 +308,7 @@ enum class ReplyRouteType {
     COOL_DOWN,
     WARM_UP,
     SELF_STORY,
+    ARC_REVEAL,
     REPAIR,
     WAIT,
     DIRECT

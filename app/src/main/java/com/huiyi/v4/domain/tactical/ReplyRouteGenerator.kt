@@ -5,6 +5,7 @@ import com.huiyi.v4.domain.model.InfluenceIntensity
 import com.huiyi.v4.domain.model.ReplyRoute
 import com.huiyi.v4.domain.model.ReplyRouteType
 import com.huiyi.v4.domain.model.RiskLevel
+import com.huiyi.v4.domain.model.Speaker
 import com.huiyi.v4.domain.model.TacticalDecision
 import com.huiyi.v4.domain.model.TacticalDecisionType
 
@@ -27,7 +28,12 @@ class ReplyRouteGenerator {
         } else {
             base
         }
-        return withStory.take(5).mapIndexed { index, route -> route.copy(recommended = index == 0) }
+        val withArcReveal = if (shouldAddArcReveal(context) && withStory.none { it.routeType == ReplyRouteType.ARC_REVEAL }) {
+            (withStory.take(2) + arcRevealRoute() + withStory.drop(2)).take(5)
+        } else {
+            withStory
+        }
+        return withArcReveal.take(5).mapIndexed { index, route -> route.copy(recommended = index == 0) }
     }
 
     private fun normalRoutes() = listOf(
@@ -96,6 +102,23 @@ class ReplyRouteGenerator {
         fallbackMove = "如果她收住，立刻改成具体关心。"
     )
 
+    private fun arcRevealRoute() = route(
+        name = "人物弧光",
+        type = ReplyRouteType.ARC_REVEAL,
+        tag = "ARC_REVEAL",
+        message = "我可能表达不算花，但认真起来会把事一点点做到位。",
+        riskLevel = RiskLevel.MEDIUM,
+        riskWarning = "这条是在露一点真实底色，不要讲成长篇自证，也不要抢走对方的主线。",
+        fallbackMove = "如果对方反应一般，马上回到接住她的话题，不继续展开自己。"
+    )
+
+    private fun shouldAddArcReveal(context: ChatSceneContext): Boolean {
+        val last = context.lastMessage ?: return false
+        if (last.speaker != Speaker.OTHER) return false
+        val text = context.effectiveMessages.takeLast(6).joinToString(" ") { it.normalizedText.orEmpty() }
+        return arcRevealTopics.any { text.contains(it, ignoreCase = true) }
+    }
+
     private fun route(
         name: String,
         type: ReplyRouteType,
@@ -117,4 +140,27 @@ class ReplyRouteGenerator {
         fallbackMove = fallbackMove,
         recommended = false
     )
+
+    private companion object {
+        val arcRevealTopics = listOf(
+            "reality",
+            "planning",
+            "plan",
+            "stable",
+            "stability",
+            "past",
+            "experience",
+            "responsibility",
+            "future",
+            "现实",
+            "规划",
+            "稳定",
+            "过去",
+            "经历",
+            "责任",
+            "责任感",
+            "未来",
+            "以后"
+        )
+    }
 }

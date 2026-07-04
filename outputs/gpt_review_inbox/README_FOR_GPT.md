@@ -2,7 +2,7 @@
 
 ## Current Task
 
-- taskName: light_listening_lite_freeze_acceptance
+- taskName: persona_character_arc_reveal_hook
 - versionName: 4.1.42
 - versionCode: 461
 - currentOverallResult: LOCAL_INTERFACE_PASS_NO_PHONE_REQUIRED
@@ -12,6 +12,12 @@
 
 ## What Changed
 
+- Added CharacterArcCard to the persona model.
+- Added NextMoveType.ARC_REVEAL.
+- Added ReplyRouteType.ARC_REVEAL and routeFamily accessor.
+- Local fallback routes can include ARC_REVEAL when lastSpeaker=OTHER and the topic touches reality, planning, stability, past experience, responsibility, or future.
+- Cloud route parser now maps routeFamily=ARC_REVEAL to ReplyRouteType.ARC_REVEAL.
+- Added CharacterArcRevealTest.
 - Added Light Listening Lite freeze report.
 - Added a small read-only `LightChatStateStore` facade.
 - Added `SelfExpressionOpportunity` and `NextMoveType` hook for future persona/self-expression work.
@@ -31,6 +37,7 @@
 - Light-listen content is persisted locally by contact key and time order.
 - Raw visual checkpoint images are kept only in short-term memory, not stored in the database.
 - LightChatStateStore is read-only and does not replace parser/session/cloud callback logic.
+- Character Arc is an authenticity hook, not fake persona generation.
 - Long-term raw chat storage: false.
 - Auto send: false.
 - Raw private chat uploaded to GitHub: false.
@@ -38,12 +45,14 @@
 
 ## Main Files For GPT
 
-1. outputs/gpt_review_inbox/light-listening-lite-report-for-gpt.md
-2. outputs/gpt_review_inbox/light-listening-lite-report.json
-3. outputs/gpt_review_inbox/light-listen-evidence-report-for-gpt.md
-4. outputs/gpt_review_inbox/light-listen-evidence-report.json
-5. outputs/codex_to_gpt/result-manifest.json
-6. outputs/codex_to_gpt/changed-files-for-gpt.md
+1. outputs/gpt_review_inbox/character-arc-report-for-gpt.md
+2. outputs/gpt_review_inbox/character-arc-report.json
+3. outputs/gpt_review_inbox/light-listening-lite-report-for-gpt.md
+4. outputs/gpt_review_inbox/light-listening-lite-report.json
+5. outputs/gpt_review_inbox/light-listen-evidence-report-for-gpt.md
+6. outputs/gpt_review_inbox/light-listen-evidence-report.json
+7. outputs/codex_to_gpt/result-manifest.json
+8. outputs/codex_to_gpt/changed-files-for-gpt.md
 
 ## Build And Delivery
 
@@ -56,6 +65,7 @@
 
 ## Validation
 
+- CharacterArcRevealTest: PASS
 - LightChatStateStoreTest: PASS
 - LightListenMemoryTest: PASS
 - LightListenPersistenceTest: PASS
@@ -66,10 +76,11 @@
 
 ## Next Discussion
 
-Please review the Lite freeze boundary before adding deeper chat profile generation:
+Please review the Character Arc boundary before adding deeper chat profile generation:
 
 - current screenshot as visual truth
 - recent screenshots as visual context
 - light-listen text as auxiliary context
 - persisted history format as future profile input
 - self-expression hook as read-only persona entry point
+- ARC_REVEAL as authentic gradual reveal, not fake persona construction

@@ -658,6 +658,9 @@ class CloudTacticalDecisionMapper(
             fallbackMove,
             routes exactly 5 items.
             Each route must have slot, message, why, riskLevel=LOW|MEDIUM|HIGH, fallbackMove.
+            routeFamily is optional. Allowed values include EMPATHY, STABLE, CO_CREATION, WARM_UP, COOL_DOWN, DIRECT, ARC_REVEAL.
+            If the other person talks about reality, planning, stability, past experience, responsibility, or future, and the user's authentic contrast/depth can be safely shown, include at least one routeFamily=ARC_REVEAL route.
+            ARC_REVEAL must reveal a real, grounded contrast in the user; it must not invent a fake persona or over-explain.
             Every required string except riskWarning must be non-empty.
             The 5 route messages must be unique, safe, low-pressure, and must not auto-send anything.
             route.message is shown directly to the user as copyable chat text.
@@ -919,6 +922,7 @@ class CloudTacticalDecisionMapper(
         val risk = obj.string("riskLevel").toRisk()
         val routeName = obj.string("slot").ifBlank { obj.string("name").ifBlank { "route-${index + 1}" } }
         val routeTypeText = listOf(
+            obj.string("routeFamily"),
             obj.string("routeType"),
             routeName,
             obj.string("why"),
@@ -998,6 +1002,7 @@ class CloudTacticalDecisionMapper(
     private fun String.toRisk(): RiskLevel = runCatching { RiskLevel.valueOf(ifBlank { "LOW" }) }.getOrDefault(RiskLevel.LOW)
     private fun String.toIntensity(): InfluenceIntensity = runCatching { InfluenceIntensity.valueOf(ifBlank { "LOW" }) }.getOrDefault(InfluenceIntensity.LOW)
     private fun String.toRouteType(index: Int = -1): ReplyRouteType = when {
+        contains("ARC_REVEAL", ignoreCase = true) || contains("character_arc", ignoreCase = true) || contains("人物弧光") || contains("底色反差") -> ReplyRouteType.ARC_REVEAL
         contains("接情绪") || contains("情绪") || contains("empathy", ignoreCase = true) -> ReplyRouteType.EMPATHY
         contains("升温") || contains("暧昧") || contains("warm", ignoreCase = true) || contains("flirt", ignoreCase = true) -> ReplyRouteType.WARM_UP
         contains("轻松") || contains("生活") || contains("light", ignoreCase = true) || contains("daily", ignoreCase = true) -> ReplyRouteType.STABLE
@@ -1008,6 +1013,7 @@ class CloudTacticalDecisionMapper(
         uppercase() == "CO_CREATION" -> ReplyRouteType.CO_CREATION
         uppercase() == "EMPATHY" -> ReplyRouteType.EMPATHY
         uppercase() == "WARM_UP" -> ReplyRouteType.WARM_UP
+        uppercase() == "ARC_REVEAL" -> ReplyRouteType.ARC_REVEAL
         uppercase() == "WITHDRAW" -> ReplyRouteType.COOL_DOWN
         uppercase() == "LIGHT" -> ReplyRouteType.STABLE
         uppercase() == "REPAIR" -> ReplyRouteType.REPAIR
@@ -1036,6 +1042,7 @@ class CloudTacticalDecisionMapper(
         "CO_CREATION" -> ReplyRouteType.CO_CREATION
         "EMPATHY" -> ReplyRouteType.EMPATHY
         "WARM_UP" -> ReplyRouteType.WARM_UP
+        "ARC_REVEAL" -> ReplyRouteType.ARC_REVEAL
         "WITHDRAW" -> ReplyRouteType.COOL_DOWN
         "LIGHT" -> ReplyRouteType.STABLE
         "REPAIR" -> ReplyRouteType.REPAIR

@@ -1,6 +1,6 @@
 {
   "project": "Huiyi v4 Core",
-  "taskName": "light_listening_lite_freeze_acceptance",
+  "taskName": "persona_character_arc_reveal_hook",
   "versionName": "4.1.42",
   "versionCode": 461,
   "currentOverallResult": "LOCAL_INTERFACE_PASS_NO_PHONE_REQUIRED",
@@ -10,6 +10,11 @@
   "lightChatStateStoreExists": true,
   "sessionBindingPreserved": true,
   "selfExpressionHook": true,
+  "characterArcCardExists": true,
+  "nextMoveTypeArcReveal": true,
+  "replyRouteTypeArcReveal": true,
+  "routeFamilyArcRevealParsed": true,
+  "fakePersonaGeneration": false,
   "longTermRawChatStorage": false,
   "autoSend": false,
   "rawPrivateChatUploadedToGithub": false,
@@ -19,6 +24,8 @@
   "apkSha256": "395277887DA2CF910670D789A7B313743C12E5E8FF72EB421711F97C287527E9",
   "sendToGpt": [
     "outputs/gpt_review_inbox/README_FOR_GPT.md",
+    "outputs/gpt_review_inbox/character-arc-report-for-gpt.md",
+    "outputs/gpt_review_inbox/character-arc-report.json",
     "outputs/gpt_review_inbox/light-listening-lite-report-for-gpt.md",
     "outputs/gpt_review_inbox/light-listening-lite-report.json",
     "outputs/gpt_review_inbox/light-listen-evidence-report-for-gpt.md",

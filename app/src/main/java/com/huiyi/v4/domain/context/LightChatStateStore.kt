@@ -1,6 +1,7 @@
 package com.huiyi.v4.domain.context
 
 import com.huiyi.v4.domain.model.InfluenceIntensity
+import com.huiyi.v4.domain.model.CharacterArcCard
 import com.huiyi.v4.domain.model.MessageContent
 import com.huiyi.v4.domain.model.MessageDeliveryStatus
 import com.huiyi.v4.domain.model.MessageNode
@@ -13,6 +14,7 @@ enum class NextMoveType {
     RECEIVE_OTHER,
     EXPRESS_SELF,
     CO_CREATE_MEANING,
+    ARC_REVEAL,
     LIGHTEN_MOOD,
     WITHDRAW
 }
@@ -23,7 +25,9 @@ data class SelfExpressionOpportunity(
     val matchedPersonaCardIds: List<String>,
     val reason: String?,
     val suggestedIntensity: InfluenceIntensity,
-    val risk: RiskLevel
+    val risk: RiskLevel,
+    val characterArcCard: CharacterArcCard? = null,
+    val routeFamily: String? = null
 )
 
 data class LightChatMessageSummary(
@@ -86,7 +90,8 @@ class LightChatStateStore(
         preAnalysisSnapshotId: String? = null,
         panelSessionId: String? = null,
         chatWindowHash: String? = null,
-        matchedPersonaCardIds: List<String> = emptyList()
+        matchedPersonaCardIds: List<String> = emptyList(),
+        characterArcCards: List<CharacterArcCard> = emptyList()
     ): LightChatStableSnapshot {
         val effective = messages
             .filter { it.isEffectiveChatMessage && (it.speaker == Speaker.ME || it.speaker == Speaker.OTHER) }
@@ -114,14 +119,16 @@ class LightChatStateStore(
             ),
             selfExpressionOpportunity = selfExpressionOpportunityFor(
                 lastEffective = lastEffective,
-                matchedPersonaCardIds = matchedPersonaCardIds
+                matchedPersonaCardIds = matchedPersonaCardIds,
+                characterArcCards = characterArcCards
             )
         )
     }
 
     private fun selfExpressionOpportunityFor(
         lastEffective: MessageNode?,
-        matchedPersonaCardIds: List<String>
+        matchedPersonaCardIds: List<String>,
+        characterArcCards: List<CharacterArcCard>
     ): SelfExpressionOpportunity {
         if (lastEffective?.speaker != Speaker.OTHER) {
             return SelfExpressionOpportunity(
@@ -147,6 +154,20 @@ class LightChatStateStore(
             )
         }
 
+        val characterArcCard = characterArcCards.firstOrNull()
+        if (characterArcCard != null && matchedTopic in arcRevealTopics) {
+            return SelfExpressionOpportunity(
+                exists = true,
+                type = NextMoveType.ARC_REVEAL,
+                matchedPersonaCardIds = characterArcCard.relatedPersonaCardIds,
+                reason = "character_arc_reveal_trigger:$matchedTopic",
+                suggestedIntensity = InfluenceIntensity.MEDIUM,
+                risk = RiskLevel.MEDIUM,
+                characterArcCard = characterArcCard,
+                routeFamily = "ARC_REVEAL"
+            )
+        }
+
         val type = if (matchedTopic in coCreationTopics) {
             NextMoveType.CO_CREATE_MEANING
         } else {
@@ -158,7 +179,8 @@ class LightChatStateStore(
             matchedPersonaCardIds = matchedPersonaCardIds,
             reason = "last_other_mentions_$matchedTopic",
             suggestedIntensity = InfluenceIntensity.MEDIUM,
-            risk = RiskLevel.LOW
+            risk = RiskLevel.LOW,
+            routeFamily = type.name
         )
     }
 
@@ -229,7 +251,28 @@ class LightChatStateStore(
             "\u672a\u6765",
             "\u4ee5\u540e",
             "\u5b89\u6392",
-            "\u957f\u671f"
+            "\u957f\u671f",
+            "\u8fc7\u53bb",
+            "\u7ecf\u5386",
+            "\u8d23\u4efb",
+            "\u8d23\u4efb\u611f"
+        )
+        val arcRevealTopics = setOf(
+            "reality",
+            "stable",
+            "stability",
+            "future",
+            "plan",
+            "planning",
+            "\u73b0\u5b9e",
+            "\u89c4\u5212",
+            "\u7a33\u5b9a",
+            "\u672a\u6765",
+            "\u4ee5\u540e",
+            "\u8fc7\u53bb",
+            "\u7ecf\u5386",
+            "\u8d23\u4efb",
+            "\u8d23\u4efb\u611f"
         )
         val coCreationTopics = setOf(
             "planning",
