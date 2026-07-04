@@ -1,54 +1,28 @@
-﻿# GPT Review Inbox - Huiyi v4.1.28
+# Huiyi v4 GPT Review Inbox
 
-- project: Huiyi v4 Core
-- taskName: emulator_mockchat_cloud_smoke
-- versionName: 4.1.28
-- versionCode: 447
-- generatedAt: 2026-07-04T08:21:04.9748141+08:00
-- currentOverallResult: EMULATOR_CLOUD_SMOKE_PASS
-- userNeedsPhoneThisRound: false
-- realDeviceRequiredThisRound: false
-- cloudRealEndpointRequiredThisRound: true
-- cloudReadyForUserPhone: YES_AFTER_EMULATOR_SMOKE
+## Source
+- phoneBundleIncluded: true
+- oneTapFeedbackIncluded: true
+- uploadedFromPhone: true
+- latestPhoneUploadAt: 2026-07-04T00:32:44.474398+00:00
+- latestPhoneSessionId: f837d2b7-25c0-4e8f-ba8d-8f876a072e6a
+- githubCommitHash: PENDING
+- githubReviewPath: outputs/gpt_review_inbox/phone/latest/
+- realDeviceTested: true
 
-## Results
+## Latest Phone Conclusion
+- terminalState: CONTROLLED_FAIL
+- appPackage: com.bajiao.im.liaoqi
+- actualLastSpeaker: UNKNOWN
+- decisionType: PRE_ANALYSIS_CONTAMINATED
+- routeCount: 0
+- waitPanelShown: False
+- routePanelShown: False
+- errorCode: 
+- userMarkedWrong: True
+- userCorrectionLastSpeaker: NONE
 
-- relayCliSmokeResult: PASS
-- relayHttpStatus: 200
-- relayResponseReceived: True
-- choicesMessageContentPresent: True
-- relayResponseParsed: True
-- contractValidationResult: PASS
-- relayRouteCount: 5
-- emulatorCloudSmokeResult: PASS
-- emulatorDetected: True
-- emulatorSerial: emulator-5554
-- huiyiInstalled: True
-- mockchatInstalled: True
-- accessibilityEnabled: True
-- overlayPermissionGranted: True
-- lastOtherCloudResult: PASS
-- lastOtherDecisionSource: CLOUD
-- lastOtherCloudSuccess: True
-- lastOtherRouteCount: 5
-- lastMeWaitResult: PASS
-- realDeviceSmokeResult: NOT_TESTED
-
-## Emulator Evidence
-
-- lastOtherScreenshot: outputs/gpt_review_inbox/emulator_cloud_smoke/last_other_after_contract_prompt.png
-- lastOtherLogcat: outputs/gpt_review_inbox/emulator_cloud_smoke/last_other_after_contract_prompt_logcat.txt
-- lastMeScreenshot: outputs/gpt_review_inbox/emulator_cloud_smoke/last_me_wait_after.png
-- lastMeLogcat: outputs/gpt_review_inbox/emulator_cloud_smoke/last_me_wait_logcat.txt
-
-## User Gate
-
-- userNeedsPhoneThisRound: false
-- reason: Codex has run the requested emulator MockChat cloud smoke locally. Physical phone smoke remains NOT_TESTED and should only be requested if GPT wants a real-device check after reviewing this evidence.
-
-## Reports
-
-- relayCloudSmokeReport: outputs/gpt_review_inbox/relay-cloud-smoke-report-for-gpt.md
-- emulatorCloudSmokeReport: outputs/gpt_review_inbox/emulator-cloud-smoke-report-for-gpt.md
-- emulatorCloudSmokeJson: outputs/gpt_review_inbox/emulator-cloud-smoke-report.json
-- manifest: outputs/codex_to_gpt/result-manifest.json
+## GPT Should Inspect
+1. outputs/gpt_review_inbox/phone/latest/README_FOR_GPT.md
+2. outputs/gpt_review_inbox/phone/latest/one-tap-feedback-manifest.json
+3. outputs/gpt_review_inbox/phone/latest/latest-session/next-sentence-flight-record.json

@@ -1,51 +1,24 @@
-﻿{
-    "project":  "Huiyi v4 Core",
-    "taskName":  "relay_cloud_smoke_before_user_phone",
-    "versionName":  "4.1.28",
-    "versionCode":  447,
-    "generatedAt":  "2026-07-03T22:55:18.8191398+08:00",
-    "currentOverallResult":  "RELAY_CLI_PASS_PROVIDER_TEST_PASS_EMULATOR_NOT_RUN",
-    "relayCliSmokeResult":  "PASS",
-    "providerParsingTests":  "PASS",
-    "androidNetworkDiagnosis":  "PASS",
-    "emulatorCloudSmokeResult":  "NOT_RUN_NO_EMULATOR",
-    "cloudReadyForUserPhone":  "YES",
-    "userNeedsPhoneThisRound":  false,
-    "realDeviceRequiredThisRound":  false,
-    "cloudRealEndpointRequiredThisRound":  true,
-    "apiKeyLeaked":  false,
-    "apkCommittedToPublicGithub":  false,
-    "privateApkContainsRelayConfig":  true,
-    "files":  [
-                  {
-                      "path":  "outputs/gpt_review_inbox/README_FOR_GPT.md",
-                      "description":  "Main GPT entry",
-                      "sendToGpt":  true,
-                      "type":  "review_entry"
-                  },
-                  {
-                      "path":  "outputs/gpt_review_inbox/relay-cloud-smoke-report-for-gpt.md",
-                      "description":  "Real relay GPT 5.5 smoke report",
-                      "sendToGpt":  true,
-                      "type":  "relay_smoke_report"
-                  },
-                  {
-                      "path":  "outputs/gpt_review_inbox/relay-cloud-smoke-report.json",
-                      "description":  "Machine-readable relay smoke",
-                      "sendToGpt":  true,
-                      "type":  "relay_smoke_json"
-                  },
-                  {
-                      "path":  "outputs/gpt_review_inbox/emulator-cloud-smoke-report-for-gpt.md",
-                      "description":  "Emulator cloud smoke state",
-                      "sendToGpt":  true,
-                      "type":  "emulator_smoke_report"
-                  },
-                  {
-                      "path":  "outputs/codex_to_gpt/result-manifest.json",
-                      "description":  "Codex result manifest",
-                      "sendToGpt":  true,
-                      "type":  "manifest"
-                  }
-              ]
+{
+  "project": "huiyi-v4",
+  "phoneBundleIncluded": true,
+  "oneTapFeedbackIncluded": true,
+  "uploadedFromPhone": true,
+  "latestPhoneUploadAt": "2026-07-04T00:32:44.474398+00:00",
+  "latestPhoneSessionId": "f837d2b7-25c0-4e8f-ba8d-8f876a072e6a",
+  "githubCommitHash": "PENDING",
+  "githubReviewPath": "outputs/gpt_review_inbox/phone/latest/",
+  "realDeviceTested": true,
+  "latestPhoneConclusion": {
+    "sessionId": "f837d2b7-25c0-4e8f-ba8d-8f876a072e6a",
+    "terminalState": "CONTROLLED_FAIL",
+    "appPackage": "com.bajiao.im.liaoqi",
+    "actualLastSpeaker": "UNKNOWN",
+    "decisionType": "PRE_ANALYSIS_CONTAMINATED",
+    "routeCount": 0,
+    "waitPanelShown": false,
+    "routePanelShown": false,
+    "errorCode": "",
+    "userMarkedWrong": true,
+    "userCorrectionLastSpeaker": "NONE"
+  }
 }
