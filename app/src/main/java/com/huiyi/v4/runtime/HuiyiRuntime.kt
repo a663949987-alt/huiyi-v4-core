@@ -17,6 +17,13 @@ import com.huiyi.v4.domain.model.Speaker
 import com.huiyi.v4.domain.model.TacticalDecisionType
 import com.huiyi.v4.domain.model.UserAction
 import com.huiyi.v4.domain.model.UserPersonaCorpus
+import com.huiyi.v4.domain.persona.CharacterArcActiveSampler
+import com.huiyi.v4.domain.persona.CharacterArcCandidate
+import com.huiyi.v4.domain.persona.CharacterArcPreferenceProfile
+import com.huiyi.v4.domain.persona.CharacterArcPreferenceRecord
+import com.huiyi.v4.domain.persona.CharacterArcPreferenceStore
+import com.huiyi.v4.domain.persona.CharacterArcReviewItem
+import com.huiyi.v4.domain.persona.CharacterArcUserFeedback
 import com.huiyi.v4.domain.persona.DefaultPersonaCorpus
 import com.huiyi.v4.domain.pipeline.CurrentScreenCaptureUseCase
 import com.huiyi.v4.domain.pipeline.CurrentScreenPipelineResult
@@ -93,7 +100,8 @@ data class HuiyiRuntimeState(
     val lanUpdateState: LanUpdateState = LanUpdateState(),
     val cloudSettings: CloudRuntimeSettings = CloudRuntimeSettings(),
     val cloudSettingsTestStatus: String = "NOT_TESTED",
-    val nextSentenceUiState: NextSentenceUiState = NextSentenceUiState.IDLE
+    val nextSentenceUiState: NextSentenceUiState = NextSentenceUiState.IDLE,
+    val characterArcPreferenceProfile: CharacterArcPreferenceProfile = CharacterArcPreferenceProfile()
 )
 
 enum class NextSentenceUiState {
@@ -133,6 +141,9 @@ class HuiyiRuntime private constructor(
     private val updateManager = LanUpdateManager(appContext)
     private val prefs = appContext.getSharedPreferences("huiyi-runtime", Context.MODE_PRIVATE)
     private val cloudSettingsRepository = RuntimeCloudSettingsRepository.create(appContext)
+    private val characterArcPreferenceStore = CharacterArcPreferenceStore(
+        File(appContext.filesDir, "character_arc/preferences.jsonl")
+    )
     private val pipeline = CurrentScreenPipelineUseCase(
         captureUseCase = CurrentScreenCaptureUseCase(),
         persistenceRepository = persistence,
@@ -165,7 +176,8 @@ class HuiyiRuntime private constructor(
         mutableState.update {
             it.copy(
                 lanUpdateState = it.lanUpdateState.copy(updateUrl = initialUrl),
-                cloudSettings = cloudSettingsRepository.load()
+                cloudSettings = cloudSettingsRepository.load(),
+                characterArcPreferenceProfile = characterArcPreferenceStore.buildProfile()
             )
         }
     }
@@ -1113,6 +1125,49 @@ class HuiyiRuntime private constructor(
         scope.launch {
             val error = persistence.saveReplyAttempt(attempt).exceptionOrNull()?.message
             mutableState.update { it.copy(lastError = error) }
+        }
+    }
+
+    fun soloCharacterArcReviewItems(limit: Int = 20): List<CharacterArcReviewItem> {
+        return CharacterArcActiveSampler().selectForInitialReview(reviewLimit = limit.coerceIn(1, 20))
+    }
+
+    fun recordCharacterArcRouteFeedback(route: ReplyRoute, feedback: CharacterArcUserFeedback) {
+        scope.launch {
+            val result = withContext(Dispatchers.IO) {
+                characterArcPreferenceStore.recordFeedback(
+                    CharacterArcPreferenceRecord.fromRoute(route, feedback)
+                )
+            }
+            refreshCharacterArcPreferenceProfile(result.exceptionOrNull()?.message)
+        }
+    }
+
+    fun recordSoloCharacterArcFeedback(
+        item: CharacterArcReviewItem,
+        candidate: CharacterArcCandidate?,
+        feedback: CharacterArcUserFeedback,
+        note: String?
+    ) {
+        scope.launch {
+            val result = withContext(Dispatchers.IO) {
+                characterArcPreferenceStore.recordFeedback(
+                    CharacterArcPreferenceRecord.fromSoloReview(item, candidate, feedback, note)
+                )
+            }
+            refreshCharacterArcPreferenceProfile(result.exceptionOrNull()?.message)
+        }
+    }
+
+    private suspend fun refreshCharacterArcPreferenceProfile(error: String?) {
+        val profile = withContext(Dispatchers.IO) {
+            characterArcPreferenceStore.buildProfile()
+        }
+        mutableState.update {
+            it.copy(
+                characterArcPreferenceProfile = profile,
+                lastError = error
+            )
         }
     }
 

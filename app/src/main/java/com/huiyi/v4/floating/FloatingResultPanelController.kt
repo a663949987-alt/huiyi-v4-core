@@ -22,6 +22,7 @@ import com.huiyi.v4.domain.model.RiskLevel
 import com.huiyi.v4.domain.model.TacticalDecisionType
 import com.huiyi.v4.domain.panel.RoutePanelDisplayText
 import com.huiyi.v4.domain.pipeline.CurrentScreenPipelineResult
+import com.huiyi.v4.domain.persona.CharacterArcUserFeedback
 import com.huiyi.v4.runtime.HuiyiRuntime
 import com.huiyi.v4.runtime.HuiyiRuntimeState
 
@@ -141,6 +142,31 @@ class FloatingResultPanelController(
                     Toast.makeText(context, "已复制", Toast.LENGTH_SHORT).show()
                 }
             })
+            addRouteFeedbackButtons(container, route)
+        }
+    }
+
+    private fun addRouteFeedbackButtons(container: LinearLayout, route: ReplyRoute) {
+        val feedbacks = listOf(
+            "像我" to CharacterArcUserFeedback.LIKE_ME,
+            "不像我" to CharacterArcUserFeedback.NOT_LIKE_ME,
+            "太油" to CharacterArcUserFeedback.TOO_OILY,
+            "太重" to CharacterArcUserFeedback.TOO_HEAVY,
+            "太空" to CharacterArcUserFeedback.TOO_EMPTY,
+            "可发" to CharacterArcUserFeedback.SENDABLE
+        )
+        feedbacks.chunked(3).forEach { group ->
+            val row = LinearLayout(context).apply { orientation = LinearLayout.HORIZONTAL }
+            group.forEach { (label, feedback) ->
+                row.addView(Button(context).apply {
+                    text = label
+                    setOnClickListener {
+                        runtime.recordCharacterArcRouteFeedback(route, feedback)
+                        Toast.makeText(context, "已记住：$label", Toast.LENGTH_SHORT).show()
+                    }
+                }, LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f))
+            }
+            container.addView(row)
         }
     }
 

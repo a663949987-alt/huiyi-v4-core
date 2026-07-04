@@ -1,9 +1,9 @@
 {
-    "versionName":  "4.1.50",
-    "versionCode":  469,
-    "apkUrl":  "huiyi-v4.1.50-debug.apk",
-    "releaseNotes":  "v4.1.50: cloud soft-timeout keeps relay request alive and refreshes the panel only for the same active chat session",
+    "versionName":  "4.1.51",
+    "versionCode":  470,
+    "apkUrl":  "huiyi-v4.1.51-debug.apk",
+    "releaseNotes":  "v4.1.51: solo character arc validation loop with auto judge, active sampler, blind SoloReviewLab, and lightweight route feedback",
     "forceUpdate":  false,
-    "sha256":  "0017E1DA90E3EA97382E3CCD41820669D9B1D537E236B8D30C8A69538CEF0028",
-    "createdAt":  1783158849183
+    "sha256":  "D6064AC146E39E939FD640DEE1DF29268B6460911C391D52C0BF3B990FBB58B4",
+    "createdAt":  1783160051008
 }

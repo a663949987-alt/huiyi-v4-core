@@ -1,24 +1,60 @@
 {
   "project": "huiyi-v4",
-  "phoneBundleIncluded": true,
-  "oneTapFeedbackIncluded": true,
-  "uploadedFromPhone": true,
-  "latestPhoneUploadAt": "2026-07-04T10:06:24.935543+00:00",
-  "latestPhoneSessionId": "52523304-dd69-4528-8e1c-aa1b7f35c383",
-  "githubCommitHash": "5d3f30d9d9ef2cbb0351822717cad3b0e28c57d4",
-  "githubReviewPath": "outputs/gpt_review_inbox/phone/latest/",
-  "realDeviceTested": true,
-  "latestPhoneConclusion": {
-    "sessionId": "52523304-dd69-4528-8e1c-aa1b7f35c383",
-    "terminalState": "CONTEXT_REQUIRED_PANEL",
-    "appPackage": "com.bajiao.im.liaoqi",
-    "actualLastSpeaker": "UNKNOWN",
-    "decisionType": "CONTEXT_REQUIRED",
-    "routeCount": 0,
-    "waitPanelShown": false,
-    "routePanelShown": false,
-    "errorCode": "",
-    "userMarkedWrong": true,
-    "userCorrectionLastSpeaker": "NONE"
-  }
+  "taskName": "solo_character_arc_validation_loop",
+  "versionName": "4.1.51",
+  "versionCode": 470,
+  "currentOverallResult": "LOCAL_TEST_PASS_LAN_APK_READY",
+  "generatedAt": "2026-07-04T18:15:00+08:00",
+  "userNeedsPhoneThisRound": true,
+  "realDeviceSmokeResult": "NOT_TESTED_NOT_REQUIRED",
+  "unitTests": "PASS",
+  "assembleDebug": "PASS",
+  "soloValidation": {
+    "autoJudgedScenarioCount": 60,
+    "candidateCount": 180,
+    "userReviewNeededCount": 20,
+    "firstRoundReviewLimit": 20,
+    "dailyReviewLimit": 5,
+    "soloReviewLabImplemented": true,
+    "resultPanelFeedbackButtons": true,
+    "preferenceProfileGenerated": true,
+    "longTermRawPrivateChatSaved": false,
+    "rawPrivateChatUploadedToGithub": false,
+    "autoSend": false
+  },
+  "apkDelivery": {
+    "apkDeliveredOutOfBand": true,
+    "apkCommittedToPublicGithub": false,
+    "lanLatestJson": "http://192.168.31.243:8787/latest.json",
+    "lanApkUrl": "http://192.168.31.243:8787/huiyi-v4.1.51-debug.apk",
+    "localApkPath": "outputs/update_server/huiyi-v4.1.51-debug.apk",
+    "apkSha256": "D6064AC146E39E939FD640DEE1DF29268B6460911C391D52C0BF3B990FBB58B4"
+  },
+  "files": [
+    {
+      "path": "outputs/gpt_review_inbox/README_FOR_GPT.md",
+      "type": "markdown",
+      "sendToGpt": true
+    },
+    {
+      "path": "outputs/gpt_review_inbox/character-arc-solo-validation-report-for-gpt.md",
+      "type": "markdown",
+      "sendToGpt": true
+    },
+    {
+      "path": "outputs/gpt_review_inbox/character-arc-solo-validation-report.json",
+      "type": "json",
+      "sendToGpt": true
+    },
+    {
+      "path": "outputs/codex_to_gpt/result-manifest.json",
+      "type": "json",
+      "sendToGpt": true
+    },
+    {
+      "path": "outputs/codex_to_gpt/changed-files-for-gpt.md",
+      "type": "markdown",
+      "sendToGpt": true
+    }
+  ]
 }

@@ -55,6 +55,10 @@ import com.huiyi.v4.domain.model.RiskLevel
 import com.huiyi.v4.domain.model.Speaker
 import com.huiyi.v4.domain.model.TacticalDecisionType
 import com.huiyi.v4.domain.pipeline.RealDeviceScenario
+import com.huiyi.v4.domain.persona.CharacterArcCandidate
+import com.huiyi.v4.domain.persona.CharacterArcPreferenceProfile
+import com.huiyi.v4.domain.persona.CharacterArcReviewItem
+import com.huiyi.v4.domain.persona.CharacterArcUserFeedback
 import com.huiyi.v4.floating.FloatingBubbleService
 import com.huiyi.v4.runtime.HuiyiRuntime
 import com.huiyi.v4.runtime.HuiyiRuntimeState
@@ -144,7 +148,12 @@ fun HuiyiRoot() {
                     onSettings = { tab = TabPage.Settings }
                 )
                 TabPage.Review -> ChatReviewPage()
-                TabPage.Persona -> MyPersonaPage(runtimeState.demoState, onToggle = runtime::togglePersona)
+                TabPage.Persona -> MyPersonaPage(
+                    runtime = runtime,
+                    state = runtimeState.demoState,
+                    preferenceProfile = runtimeState.characterArcPreferenceProfile,
+                    onToggle = runtime::togglePersona
+                )
                 TabPage.Settings -> SettingsPage(
                     accessibilityLabel = accessibilityLabel,
                     overlayLabel = if (Settings.canDrawOverlays(context)) "已授权" else "未授权",
@@ -406,6 +415,36 @@ private fun ReplyRouteCard(runtime: HuiyiRuntime, route: ReplyRoute) {
             ) {
                 Text("复制")
             }
+            RouteFeedbackButtons(runtime, route)
+        }
+    }
+}
+
+@Composable
+private fun RouteFeedbackButtons(runtime: HuiyiRuntime, route: ReplyRoute) {
+    val context = LocalContext.current
+    val feedbacks = listOf(
+        "像我" to CharacterArcUserFeedback.LIKE_ME,
+        "不像我" to CharacterArcUserFeedback.NOT_LIKE_ME,
+        "太油" to CharacterArcUserFeedback.TOO_OILY,
+        "太重" to CharacterArcUserFeedback.TOO_HEAVY,
+        "太空" to CharacterArcUserFeedback.TOO_EMPTY,
+        "可发" to CharacterArcUserFeedback.SENDABLE
+    )
+    Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
+        feedbacks.chunked(3).forEach { rowItems ->
+            Row(horizontalArrangement = Arrangement.spacedBy(6.dp), modifier = Modifier.fillMaxWidth()) {
+                rowItems.forEach { (label, feedback) ->
+                    AssistChip(
+                        onClick = {
+                            runtime.recordCharacterArcRouteFeedback(route, feedback)
+                            Toast.makeText(context, "已记住：$label", Toast.LENGTH_SHORT).show()
+                        },
+                        label = { Text(label) },
+                        modifier = Modifier.weight(1f)
+                    )
+                }
+            }
         }
     }
 }
@@ -476,7 +515,12 @@ private fun ChatReviewPage() {
 }
 
 @Composable
-private fun MyPersonaPage(state: HuiyiDemoState, onToggle: () -> Unit) {
+private fun MyPersonaPage(
+    runtime: HuiyiRuntime,
+    state: HuiyiDemoState,
+    preferenceProfile: CharacterArcPreferenceProfile,
+    onToggle: () -> Unit
+) {
     val corpus = state.persona
     LazyColumn(
         modifier = Modifier
@@ -491,6 +535,9 @@ private fun MyPersonaPage(state: HuiyiDemoState, onToggle: () -> Unit) {
             Button(onClick = onToggle, modifier = Modifier.fillMaxWidth()) {
                 Text(if (corpus.enabled) "关闭" else "启用")
             }
+        }
+        item {
+            SoloReviewLab(runtime, preferenceProfile)
         }
         items(corpus.identityCards) { card ->
             Card(Modifier.fillMaxWidth()) {
@@ -509,6 +556,110 @@ private fun MyPersonaPage(state: HuiyiDemoState, onToggle: () -> Unit) {
                     Text(story.title)
                     Text(story.expression)
                     Text("风险：${story.risk}")
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun SoloReviewLab(
+    runtime: HuiyiRuntime,
+    preferenceProfile: CharacterArcPreferenceProfile
+) {
+    val reviewItems = remember { runtime.soloCharacterArcReviewItems(20) }
+    var index by remember { mutableIntStateOf(0) }
+    var note by remember { mutableStateOf("") }
+    val item = reviewItems.getOrNull(index)
+    Column(verticalArrangement = Arrangement.spacedBy(10.dp), modifier = Modifier.fillMaxWidth()) {
+        Text("单人弧光盲选")
+        Text("第一轮最多 20 题；候选类型已隐藏，只按你的真实感觉点。")
+        Text("已记录反馈：${preferenceProfile.feedbackCount}")
+        Text("舒适强度：${preferenceProfile.preferredIntensity}")
+        if (item == null) {
+            Text("本轮盲选已完成。之后真实使用时，顺手点路线旁边的“像我 / 太油 / 太重”就行。")
+        } else {
+            Text("第 ${index + 1} / ${reviewItems.size} 题")
+            Text("场景：${item.scenario.scenario}")
+            Text("对方说：${item.scenario.otherSays}")
+            item.blindCandidates.take(3).forEachIndexed { candidateIndex, candidate ->
+                SoloReviewCandidateCard(
+                    runtime = runtime,
+                    item = item,
+                    candidate = candidate,
+                    label = listOf("A", "B", "C").getOrElse(candidateIndex) { "选项" },
+                    note = note,
+                    onAnswered = {
+                        note = ""
+                        index = (index + 1).coerceAtMost(reviewItems.size)
+                    }
+                )
+            }
+            OutlinedTextField(
+                value = note,
+                onValueChange = { note = it },
+                modifier = Modifier.fillMaxWidth(),
+                label = { Text("可选备注") },
+                placeholder = { Text("比如：这句像我，但有点重") }
+            )
+            OutlinedButton(
+                onClick = {
+                    runtime.recordSoloCharacterArcFeedback(
+                        item = item,
+                        candidate = null,
+                        feedback = CharacterArcUserFeedback.ALL_BAD,
+                        note = note
+                    )
+                    note = ""
+                    index = (index + 1).coerceAtMost(reviewItems.size)
+                },
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Text("都不行")
+            }
+        }
+    }
+}
+
+@Composable
+private fun SoloReviewCandidateCard(
+    runtime: HuiyiRuntime,
+    item: CharacterArcReviewItem,
+    candidate: CharacterArcCandidate,
+    label: String,
+    note: String,
+    onAnswered: () -> Unit
+) {
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        colors = CardDefaults.cardColors()
+    ) {
+        Column(Modifier.padding(12.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+            Text("候选 $label")
+            Text(candidate.text)
+            listOf(
+                listOf(
+                    "最像我" to CharacterArcUserFeedback.LIKE_ME,
+                    "最自然" to CharacterArcUserFeedback.MOST_NATURAL,
+                    "最想继续聊" to CharacterArcUserFeedback.WANT_CONTINUE
+                ),
+                listOf(
+                    "太油" to CharacterArcUserFeedback.TOO_OILY,
+                    "太重" to CharacterArcUserFeedback.TOO_HEAVY,
+                    "太像汇报" to CharacterArcUserFeedback.TOO_REPORT
+                )
+            ).forEach { rowItems ->
+                Row(horizontalArrangement = Arrangement.spacedBy(6.dp), modifier = Modifier.fillMaxWidth()) {
+                    rowItems.forEach { (buttonLabel, feedback) ->
+                        AssistChip(
+                            onClick = {
+                                runtime.recordSoloCharacterArcFeedback(item, candidate, feedback, note)
+                                onAnswered()
+                            },
+                            label = { Text(buttonLabel) },
+                            modifier = Modifier.weight(1f)
+                        )
+                    }
                 }
             }
         }
