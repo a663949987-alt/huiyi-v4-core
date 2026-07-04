@@ -2,6 +2,7 @@
 
 ## Core
 
+- app/src/main/java/com/huiyi/v4/domain/context/LightChatStateStore.kt
 - app/src/main/java/com/huiyi/v4/accessibility/HuiyiAccessibilityService.kt
 - app/src/main/java/com/huiyi/v4/domain/context/LightListenMemory.kt
 - app/src/main/java/com/huiyi/v4/domain/cloud/CloudAnalysis.kt
@@ -18,6 +19,7 @@
 
 ## Tests
 
+- app/src/test/java/com/huiyi/v4/LightChatStateStoreTest.kt
 - app/src/test/java/com/huiyi/v4/LightListenMemoryTest.kt
 - app/src/test/java/com/huiyi/v4/LightListenPersistenceTest.kt
 - app/src/test/java/com/huiyi/v4/PreconfiguredCloudRealUseMvpTest.kt
@@ -25,6 +27,8 @@
 ## Outputs
 
 - outputs/gpt_review_inbox/README_FOR_GPT.md
+- outputs/gpt_review_inbox/light-listening-lite-report-for-gpt.md
+- outputs/gpt_review_inbox/light-listening-lite-report.json
 - outputs/gpt_review_inbox/light-listen-evidence-report-for-gpt.md
 - outputs/gpt_review_inbox/light-listen-evidence-report.json
 - outputs/gpt_review_inbox/gpt-review-manifest.json

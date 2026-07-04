@@ -1,0 +1,128 @@
+{
+  "project": "Huiyi v4 Core",
+  "taskName": "light_listening_lite_freeze_acceptance",
+  "versionName": "4.1.42",
+  "versionCode": 461,
+  "generatedAt": "2026-07-04T14:30:54+08:00",
+  "overallResult": "LOCAL_INTERFACE_PASS_NO_PHONE_REQUIRED",
+  "userNeedsPhoneThisRound": false,
+  "realDeviceRequiredThisRound": false,
+  "lightChatStateStore": {
+    "exists": true,
+    "file": "app/src/main/java/com/huiyi/v4/domain/context/LightChatStateStore.kt",
+    "readOnlyFacade": true,
+    "runtimePipelineReplacement": false,
+    "parserRewrite": false
+  },
+  "stableChatSnapshotFields": [
+    "appPackage",
+    "windowTitle",
+    "chatKey",
+    "capturedAt",
+    "recentEffectiveMessages",
+    "lastUserMessage",
+    "lastOtherMessage",
+    "messageStatusMetadata",
+    "sessionBinding",
+    "selfExpressionOpportunity",
+    "safetyFlags"
+  ],
+  "nextSentenceSessionBindingFields": [
+    "nextSentenceSessionId",
+    "preAnalysisSnapshotId",
+    "panelSessionId",
+    "chatPackage",
+    "chatWindowHash"
+  ],
+  "recentEffectiveMessageSummary": {
+    "minCount": 6,
+    "maxCount": 12,
+    "fields": [
+      "id",
+      "speaker",
+      "text",
+      "contentType",
+      "source",
+      "localSequence",
+      "createdAt",
+      "messageStatus"
+    ]
+  },
+  "lastUserMessage": {
+    "fieldExists": true
+  },
+  "lastOtherMessage": {
+    "fieldExists": true
+  },
+  "messageStatusMetadata": {
+    "fieldExists": true,
+    "fields": [
+      "metadataType",
+      "deliveryStatus",
+      "readStatus",
+      "attachedToMessageId",
+      "reason"
+    ]
+  },
+  "selfExpressionOpportunity": {
+    "fieldExists": true,
+    "fields": [
+      "exists",
+      "type",
+      "matchedPersonaCardIds",
+      "reason",
+      "suggestedIntensity",
+      "risk"
+    ],
+    "reservedOnlyThisRound": true,
+    "allowedWhenLastSpeakerOtherAndTopicMentions": [
+      "planning",
+      "reality",
+      "stability",
+      "future"
+    ]
+  },
+  "nextMoveType": [
+    "WAIT",
+    "RECEIVE_OTHER",
+    "EXPRESS_SELF",
+    "CO_CREATE_MEANING",
+    "LIGHTEN_MOOD",
+    "WITHDRAW"
+  ],
+  "safety": {
+    "longTermRawChatStorage": false,
+    "autoSend": false,
+    "rawPrivateChatUploadedToGithub": false,
+    "rawPrivateChatInReport": false,
+    "rawScreenshotsPersistedToDb": false,
+    "completeConversationHistoryCollection": false
+  },
+  "interfacesPreserved": {
+    "parser": true,
+    "sessionIsolation": true,
+    "cloudCallbackDiscard": true,
+    "oneTapFeedbackBinding": true,
+    "nextSentenceSessionStateMachine": true
+  },
+  "tests": {
+    "added": [
+      "LightChatStateStoreTest"
+    ],
+    "preserved": [
+      "LightListenMemoryTest",
+      "LightListenPersistenceTest",
+      "NextSentenceSessionIsolationTest"
+    ],
+    "executedCommand": ".\\gradlew.bat :app:testDebugUnitTest --tests \"com.huiyi.v4.LightChatStateStoreTest\" --tests \"com.huiyi.v4.LightListenMemoryTest\" --tests \"com.huiyi.v4.LightListenPersistenceTest\"",
+    "result": "PASS"
+  },
+  "acceptance": {
+    "lightListeningLiteReport": "GENERATED",
+    "longTermRawChatStorage": false,
+    "autoSend": false,
+    "rawPrivateChatInGithub": false,
+    "sessionBindingPreserved": "PASS",
+    "selfExpressionHook": "PASS"
+  }
+}

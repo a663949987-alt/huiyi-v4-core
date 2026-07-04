@@ -1,18 +1,24 @@
 {
-  "taskName": "unified_evidence_light_listen_timeline",
+  "taskName": "light_listening_lite_freeze_acceptance",
   "versionName": "4.1.42",
   "versionCode": 461,
-  "currentOverallResult": "LOCAL_BUILD_PASS_PHONE_EXPERIENCE_REQUIRED",
-  "generatedAt": "2026-07-04T12:00:00+08:00",
-  "userNeedsPhoneThisRound": true,
-  "realDeviceSmokeResult": "NOT_TESTED_THIS_ROUND",
+  "currentOverallResult": "LOCAL_INTERFACE_PASS_NO_PHONE_REQUIRED",
+  "generatedAt": "2026-07-04T14:30:54+08:00",
+  "userNeedsPhoneThisRound": false,
+  "realDeviceSmokeResult": "NOT_REQUIRED_THIS_ROUND",
   "unifiedEvidencePackage": true,
   "currentScreenshotHighestAuthority": true,
   "recentVisualCheckpoints": true,
   "lightListenTimelinePersisted": true,
+  "lightChatStateStoreExists": true,
+  "sessionBindingPreserved": true,
+  "selfExpressionHook": true,
+  "longTermRawChatStorage": false,
+  "autoSend": false,
+  "rawPrivateChatUploadedToGithub": false,
   "rawScreenshotsPersistedToDb": false,
-  "unitTests": "PASS",
-  "assembleDebug": "PASS",
+  "unitTests": "TARGETED_PASS",
+  "assembleDebug": "PASS_PREVIOUS_V4_1_42",
   "lanLatestJson": "http://192.168.31.243:8787/latest.json",
   "lanApkUrl": "http://192.168.31.243:8787/huiyi-v4.1.42-debug.apk",
   "apkSha256": "395277887DA2CF910670D789A7B313743C12E5E8FF72EB421711F97C287527E9",
@@ -20,6 +26,16 @@
     {
       "path": "outputs/gpt_review_inbox/README_FOR_GPT.md",
       "type": "markdown",
+      "sendToGpt": true
+    },
+    {
+      "path": "outputs/gpt_review_inbox/light-listening-lite-report-for-gpt.md",
+      "type": "markdown",
+      "sendToGpt": true
+    },
+    {
+      "path": "outputs/gpt_review_inbox/light-listening-lite-report.json",
+      "type": "json",
       "sendToGpt": true
     },
     {
