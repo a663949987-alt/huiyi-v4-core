@@ -1,9 +1,9 @@
 {
-    "versionName":  "4.1.53",
-    "versionCode":  472,
-    "apkUrl":  "huiyi-v4.1.53-debug.apk",
-    "releaseNotes":  "v4.1.53: split passive Next Sentence and active Express Self panels; Next Sentence stays clean with immediate local suggestions",
+    "versionName":  "4.1.54",
+    "versionCode":  473,
+    "apkUrl":  "huiyi-v4.1.54-debug.apk",
+    "releaseNotes":  "v4.1.54: republish LAN update with fresh APK filename and safer SHA-verified download",
     "forceUpdate":  false,
-    "sha256":  "8BC220D995A303C4A96E6F2DBFB5CDD5A0AB7DDDCCD30A1090C36E2E3674DC6B",
-    "createdAt":  1783162252572
+    "sha256":  "F8F8BF3EE31C90E863738623E518E97A1C03D9A3D8B252722771E7FE58069982",
+    "createdAt":  1783163861042
 }

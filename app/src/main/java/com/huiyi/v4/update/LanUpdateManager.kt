@@ -31,7 +31,7 @@ class LanUpdateManager(
 ) {
     private val client = OkHttpClient.Builder()
         .connectTimeout(15, TimeUnit.SECONDS)
-        .readTimeout(60, TimeUnit.SECONDS)
+        .readTimeout(180, TimeUnit.SECONDS)
         .build()
 
     suspend fun check(updateUrl: String): Result<Pair<UpdateManifest, String>> = withContext(Dispatchers.IO) {
@@ -71,20 +71,28 @@ class LanUpdateManager(
     suspend fun download(updateUrl: String, manifest: UpdateManifest): Result<File> = withContext(Dispatchers.IO) {
         runCatching {
             val apkUrl = resolveApkUrl(updateUrl, manifest.apkUrl)
-            val request = Request.Builder().url(apkUrl).build()
+            val request = Request.Builder()
+                .url(apkUrl)
+                .header("Cache-Control", "no-cache")
+                .build()
             val dir = File(context.cacheDir, "lan_update").apply { mkdirs() }
-            val file = File(dir, "huiyi-update-${manifest.versionCode}.apk")
+            val shaSuffix = manifest.sha256.take(8).ifBlank { "nosha" }
+            val file = File(dir, "huiyi-update-${manifest.versionCode}-$shaSuffix.apk")
+            val tempFile = File(dir, "${file.name}.download")
+            if (tempFile.exists()) tempFile.delete()
             client.newCall(request).execute().use { response ->
                 if (!response.isSuccessful) error("下载失败：HTTP ${response.code}")
                 val body = response.body ?: error("APK 响应为空")
-                file.outputStream().use { out -> body.byteStream().copyTo(out) }
+                tempFile.outputStream().use { out -> body.byteStream().copyTo(out) }
             }
             if (manifest.sha256.isNotBlank()) {
-                val actual = sha256(file)
+                val actual = sha256(tempFile)
                 check(actual.equals(manifest.sha256, ignoreCase = true)) {
                     "SHA-256 不匹配：$actual"
                 }
             }
+            if (file.exists()) file.delete()
+            check(tempFile.renameTo(file)) { "APK save failed" }
             file
         }
     }

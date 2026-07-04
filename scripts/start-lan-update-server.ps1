@@ -14,7 +14,7 @@ if (-not (Test-Path -LiteralPath $Root)) {
 
 function Write-Response($stream, [int]$status, [string]$contentType, [byte[]]$body) {
     $statusText = if ($status -eq 200) { "OK" } elseif ($status -eq 403) { "Forbidden" } else { "Not Found" }
-    $header = "HTTP/1.1 $status $statusText`r`nContent-Type: $contentType`r`nContent-Length: $($body.Length)`r`nConnection: close`r`nAccess-Control-Allow-Origin: *`r`n`r`n"
+    $header = "HTTP/1.1 $status $statusText`r`nContent-Type: $contentType`r`nContent-Length: $($body.Length)`r`nConnection: close`r`nCache-Control: no-store, no-cache, must-revalidate`r`nPragma: no-cache`r`nAccess-Control-Allow-Origin: *`r`n`r`n"
     $headerBytes = [System.Text.Encoding]::ASCII.GetBytes($header)
     $stream.Write($headerBytes, 0, $headerBytes.Length)
     $stream.Write($body, 0, $body.Length)

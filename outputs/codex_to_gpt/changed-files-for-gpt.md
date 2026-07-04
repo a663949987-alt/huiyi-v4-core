@@ -7,6 +7,8 @@
 - app/src/main/java/com/huiyi/v4/runtime/FloatingPanelMode.kt
 - app/src/main/java/com/huiyi/v4/runtime/HuiyiRuntime.kt
 - app/src/main/java/com/huiyi/v4/ui/HuiyiRoot.kt
+- app/src/main/java/com/huiyi/v4/update/LanUpdateManager.kt
+- scripts/start-lan-update-server.ps1
 
 ## Tests
 - app/src/test/java/com/huiyi/v4/PassiveActiveSplitTest.kt
