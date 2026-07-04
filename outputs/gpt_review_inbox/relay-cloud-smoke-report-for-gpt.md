@@ -3,7 +3,7 @@
 - taskName: relay_cloud_smoke_before_user_phone
 - versionName: 4.1.28
 - versionCode: 447
-- generatedAt: 2026-07-04T12:08:10.4797887+08:00
+- generatedAt: 2026-07-04T17:32:53.4513345+08:00
 - relaySmokeAttempted: True
 - relaySmokeResult: PASS
 - baseUrlConfigured: True
@@ -17,7 +17,7 @@
 - responseParsed: True
 - contractValidationResult: PASS
 - routeCount: 5
-- latencyMs: 13758
+- latencyMs: 40477
 - errorClass: 
 - errorMessageRedacted: 
 - likelyCause: NONE
