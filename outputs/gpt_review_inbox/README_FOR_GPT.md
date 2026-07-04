@@ -6,7 +6,7 @@
 - uploadedFromPhone: true
 - latestPhoneUploadAt: 2026-07-04T09:17:09.080111+00:00
 - latestPhoneSessionId: 4124f276-d227-4567-a9e5-cdd76c769875
-- githubCommitHash: PENDING
+- githubCommitHash: cf91babdcf12fb436eeca0910027f30ce9f55dca
 - githubReviewPath: outputs/gpt_review_inbox/phone/latest/
 - realDeviceTested: true
 
