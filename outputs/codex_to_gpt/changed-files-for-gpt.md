@@ -34,6 +34,7 @@
 
 - outputs/gpt_review_inbox/README_FOR_GPT.md
 - outputs/gpt_review_inbox/character-arc-report-for-gpt.md
+- outputs/gpt_review_inbox/self-expression-engine-report-for-gpt.md
 - outputs/gpt_review_inbox/character-arc-report.json
 - outputs/gpt_review_inbox/light-listening-lite-report-for-gpt.md
 - outputs/gpt_review_inbox/light-listening-lite-report.json

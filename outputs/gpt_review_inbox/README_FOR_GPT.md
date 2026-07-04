@@ -15,6 +15,7 @@
 - Added CharacterArcCard to the persona model.
 - Added NextMoveType.ARC_REVEAL.
 - Added ReplyRouteType.ARC_REVEAL and routeFamily accessor.
+- Added result panel reserved fields: panelNextAction, panelPersonaFacet, panelRouteLabel.
 - Local fallback routes can include ARC_REVEAL when lastSpeaker=OTHER and the topic touches reality, planning, stability, past experience, responsibility, or future.
 - Cloud route parser now maps routeFamily=ARC_REVEAL to ReplyRouteType.ARC_REVEAL.
 - Added CharacterArcRevealTest.
@@ -46,13 +47,14 @@
 ## Main Files For GPT
 
 1. outputs/gpt_review_inbox/character-arc-report-for-gpt.md
-2. outputs/gpt_review_inbox/character-arc-report.json
-3. outputs/gpt_review_inbox/light-listening-lite-report-for-gpt.md
-4. outputs/gpt_review_inbox/light-listening-lite-report.json
-5. outputs/gpt_review_inbox/light-listen-evidence-report-for-gpt.md
-6. outputs/gpt_review_inbox/light-listen-evidence-report.json
-7. outputs/codex_to_gpt/result-manifest.json
-8. outputs/codex_to_gpt/changed-files-for-gpt.md
+2. outputs/gpt_review_inbox/self-expression-engine-report-for-gpt.md
+3. outputs/gpt_review_inbox/character-arc-report.json
+4. outputs/gpt_review_inbox/light-listening-lite-report-for-gpt.md
+5. outputs/gpt_review_inbox/light-listening-lite-report.json
+6. outputs/gpt_review_inbox/light-listen-evidence-report-for-gpt.md
+7. outputs/gpt_review_inbox/light-listen-evidence-report.json
+8. outputs/codex_to_gpt/result-manifest.json
+9. outputs/codex_to_gpt/changed-files-for-gpt.md
 
 ## Build And Delivery
 

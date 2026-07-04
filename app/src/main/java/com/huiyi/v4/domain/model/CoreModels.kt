@@ -299,6 +299,42 @@ data class ReplyRoute(
     val recommended: Boolean
 ) {
     val routeFamily: String get() = routeType.name
+    val panelNextAction: String get() = when (routeType) {
+        ReplyRouteType.EMPATHY -> "接住她"
+        ReplyRouteType.SELF_STORY,
+        ReplyRouteType.ARC_REVEAL -> "让她看见你"
+        ReplyRouteType.CO_CREATION -> "共创"
+        ReplyRouteType.COOL_DOWN,
+        ReplyRouteType.WAIT -> "撤退"
+        ReplyRouteType.WARM_UP,
+        ReplyRouteType.STABLE,
+        ReplyRouteType.REPAIR,
+        ReplyRouteType.DIRECT -> "表达我"
+    }
+    val panelPersonaFacet: String? get() = when (routeType) {
+        ReplyRouteType.ARC_REVEAL -> "真实、立体、有反差、能把事做到位的一面"
+        ReplyRouteType.SELF_STORY -> "经历背后的责任感"
+        ReplyRouteType.EMPATHY -> "愿意先接住对方的一面"
+        ReplyRouteType.CO_CREATION -> "愿意一起定义关系节奏的一面"
+        ReplyRouteType.WARM_UP -> "有温度和主动性的一面"
+        ReplyRouteType.STABLE -> "稳定、低压、可持续的一面"
+        ReplyRouteType.REPAIR -> "能修正和照顾关系的一面"
+        ReplyRouteType.DIRECT -> "清楚表达和认真确认的一面"
+        ReplyRouteType.COOL_DOWN,
+        ReplyRouteType.WAIT -> null
+    }
+    val panelRouteLabel: String get() = when (routeType) {
+        ReplyRouteType.ARC_REVEAL -> "人物弧光"
+        ReplyRouteType.EMPATHY -> "接情绪"
+        ReplyRouteType.CO_CREATION -> "共创"
+        ReplyRouteType.WARM_UP -> "升温"
+        ReplyRouteType.COOL_DOWN -> "撤退"
+        ReplyRouteType.WAIT -> "等待"
+        ReplyRouteType.SELF_STORY -> "我的底色"
+        ReplyRouteType.REPAIR -> "修复"
+        ReplyRouteType.DIRECT -> "轻问"
+        ReplyRouteType.STABLE -> "稳住"
+    }
 }
 
 enum class ReplyRouteType {

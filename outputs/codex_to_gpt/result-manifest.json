@@ -17,6 +17,7 @@
   "nextMoveTypeArcReveal": true,
   "replyRouteTypeArcReveal": true,
   "routeFamilyArcRevealParsed": true,
+  "resultPanelReservedFields": true,
   "fakePersonaGeneration": false,
   "longTermRawChatStorage": false,
   "autoSend": false,
@@ -35,6 +36,11 @@
     },
     {
       "path": "outputs/gpt_review_inbox/character-arc-report-for-gpt.md",
+      "type": "markdown",
+      "sendToGpt": true
+    },
+    {
+      "path": "outputs/gpt_review_inbox/self-expression-engine-report-for-gpt.md",
       "type": "markdown",
       "sendToGpt": true
     },

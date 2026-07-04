@@ -59,6 +59,10 @@ class CharacterArcRevealTest {
         assertEquals(5, routes.size)
         assertTrue(routes.any { it.routeType == ReplyRouteType.ARC_REVEAL })
         assertTrue(routes.any { it.routeFamily == "ARC_REVEAL" })
+        val arcRoute = routes.first { it.routeType == ReplyRouteType.ARC_REVEAL }
+        assertEquals("让她看见你", arcRoute.panelNextAction)
+        assertEquals("人物弧光", arcRoute.panelRouteLabel)
+        assertTrue(arcRoute.panelPersonaFacet.orEmpty().contains("真实"))
     }
 
     @Test

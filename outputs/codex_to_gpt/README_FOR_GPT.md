@@ -14,11 +14,12 @@ Please start with:
 
 1. outputs/gpt_review_inbox/README_FOR_GPT.md
 2. outputs/gpt_review_inbox/character-arc-report-for-gpt.md
-3. outputs/gpt_review_inbox/character-arc-report.json
-4. outputs/gpt_review_inbox/light-listening-lite-report-for-gpt.md
-5. outputs/gpt_review_inbox/light-listening-lite-report.json
-6. outputs/gpt_review_inbox/light-listen-evidence-report-for-gpt.md
-7. outputs/gpt_review_inbox/light-listen-evidence-report.json
+3. outputs/gpt_review_inbox/self-expression-engine-report-for-gpt.md
+4. outputs/gpt_review_inbox/character-arc-report.json
+5. outputs/gpt_review_inbox/light-listening-lite-report-for-gpt.md
+6. outputs/gpt_review_inbox/light-listening-lite-report.json
+7. outputs/gpt_review_inbox/light-listen-evidence-report-for-gpt.md
+8. outputs/gpt_review_inbox/light-listen-evidence-report.json
 
 ## Current Design
 
@@ -30,6 +31,7 @@ Please start with:
 - SelfExpressionOpportunity and NextMoveType are reserved for future persona/self-expression work.
 - CharacterArcCard and ARC_REVEAL are added as an authentic gradual reveal hook.
 - routeFamily=ARC_REVEAL is parsed from cloud output.
+- Result panel reserved fields exist for nextAction, personaFacet, and routeLabel.
 - Long-term raw chat storage: false.
 - Auto send: false.
 - Raw private chat uploaded to GitHub: false.
