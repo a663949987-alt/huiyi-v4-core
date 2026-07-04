@@ -4,21 +4,21 @@
 - phoneBundleIncluded: true
 - oneTapFeedbackIncluded: true
 - uploadedFromPhone: true
-- latestPhoneUploadAt: 2026-07-04T07:29:07.987934+00:00
-- latestPhoneSessionId: 046618c7-fb2e-41ce-b5dd-1d4581a13291
-- githubCommitHash: d39cd332fa5814e062ad3f31198e7fe61334661f
+- latestPhoneUploadAt: 2026-07-04T07:53:28.719015+00:00
+- latestPhoneSessionId: b789be05-8c26-40ce-a528-b7f168de2893
+- githubCommitHash: PENDING
 - githubReviewPath: outputs/gpt_review_inbox/phone/latest/
 - realDeviceTested: true
 
 ## Latest Phone Conclusion
-- terminalState: CONTROLLED_FAIL
-- appPackage: unknown
-- actualLastSpeaker: UNKNOWN
-- decisionType: ERROR
-- routeCount: 0
+- terminalState: ROUTE_PANEL
+- appPackage: com.bajiao.im.liaoqi
+- actualLastSpeaker: OTHER
+- decisionType: NORMAL_REPLY
+- routeCount: 5
 - waitPanelShown: False
-- routePanelShown: False
-- errorCode: ACCESSIBILITY_SERVICE_NOT_CONNECTED
+- routePanelShown: True
+- errorCode: 
 - userMarkedWrong: True
 - userCorrectionLastSpeaker: NONE
 
