@@ -380,24 +380,36 @@ class CurrentScreenPipelineUseCase(
                 )
             },
             onFailure = { error ->
-                val code = (error as? CloudAnalysisException)?.code ?: "NETWORK"
-                val likelyCause = (error as? CloudAnalysisException)?.likelyCause ?: "UNKNOWN"
-                val requestActuallySent = (error as? CloudAnalysisException)?.requestActuallySent ?: true
+                val cloudError = error as? CloudAnalysisException
+                val code = cloudError?.code ?: "NETWORK"
+                val likelyCause = cloudError?.likelyCause ?: "UNKNOWN"
+                val requestActuallySent = cloudError?.requestActuallySent ?: true
                 val validationResult = if (code in setOf("CLOUD_SCHEMA_INVALID", "CLOUD_CONTRACT_VIOLATION", "SCHEMA_INVALID")) {
                     "FAIL"
                 } else {
                     "NOT_RUN"
                 }
+                val fallbackDecision = cloudFailureFallbackDecision(lastSpeaker, localDecision, localRoutes, code)
+                val fallbackRoutes = if (fallbackDecision === localDecision) {
+                    localRoutes
+                } else {
+                    routeGenerator.generate(context, fallbackDecision)
+                }
                 CloudPipelineResult(
-                    localDecision,
-                    localRoutes,
+                    fallbackDecision,
+                    fallbackRoutes,
                     CloudAnalysisTrace.fallback(
                         config = config,
                         errorCode = code,
                         latencyMs = System.currentTimeMillis() - startedAt,
                         validationResult = validationResult,
                         failureLikelyCause = likelyCause,
-                        requestActuallySent = requestActuallySent
+                        requestActuallySent = requestActuallySent,
+                        primaryModel = cloudError?.primaryModel ?: config.model,
+                        finalModel = cloudError?.finalModel ?: config.model,
+                        escalated = cloudError?.escalated ?: false,
+                        escalationReason = cloudError?.escalationReason,
+                        primaryLatencyMs = cloudError?.primaryLatencyMs
                     ).withSessionBinding(
                         activeSessionId = sessionId,
                         preAnalysisSnapshotId = preAnalysisSnapshotId,
@@ -408,6 +420,38 @@ class CurrentScreenPipelineUseCase(
                     )
                 )
             }
+        )
+    }
+
+    private fun cloudFailureFallbackDecision(
+        lastSpeaker: LastSpeakerDecision,
+        localDecision: TacticalDecision,
+        localRoutes: List<ReplyRoute>,
+        errorCode: String
+    ): TacticalDecision {
+        if (localRoutes.isNotEmpty()) return localDecision
+        if (lastSpeaker.lastSpeaker != Speaker.OTHER || lastSpeaker.unknownSpeaker) return localDecision
+        return TacticalDecision(
+            decisionType = TacticalDecisionType.NORMAL_REPLY,
+            situation = if (errorCode == "TIMEOUT") {
+                "Cloud timed out; using local fallback."
+            } else {
+                "Cloud unavailable; using local fallback."
+            },
+            coreInsight = "A clean LAST_OTHER screen must not end with zero routes after cloud failure.",
+            userLikelyMistake = "Waiting indefinitely for cloud or closing the panel because no result appears.",
+            bestMove = "Give a short low-pressure reply first.",
+            avoidMoves = listOf("do not keep loading", "do not show analysis failed", "do not route ME or UNKNOWN"),
+            coCreationOpportunity = null,
+            shouldUseUserStory = false,
+            selectedStoryCardIds = emptyList(),
+            influenceProfile = InfluenceProfile(
+                intensity = InfluenceIntensity.LOW,
+                riskLevel = RiskLevel.LOW,
+                riskWarning = if (errorCode == "TIMEOUT") "cloud_timeout_local_fallback" else "cloud_unavailable_local_fallback",
+                fallbackMove = "Retry cloud later."
+            ),
+            fallbackMove = "Retry cloud later."
         )
     }
 

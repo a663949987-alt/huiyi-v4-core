@@ -295,6 +295,29 @@ class PreconfiguredCloudRealUseMvpTest {
     }
 
     @Test
+    fun TimeoutPrimaryAndEscalationFailureStillReports55AttemptTest() = runTest {
+        val client = ScriptedCloudClient(
+            CloudAnalysisException("TIMEOUT"),
+            CloudAnalysisException("TIMEOUT")
+        )
+        val result = pipeline(
+            messages = lastOtherMessages(),
+            repository = CloudAnalysisRepository(relayConfig(), client)
+        ).run(emptyPersona()).getOrThrow()
+
+        assertEquals(2, client.callCount)
+        assertEquals("LOCAL_FALLBACK", result.cloudTrace.decisionSource)
+        assertTrue(result.cloudTrace.cloudFallbackUsed)
+        assertEquals("TIMEOUT", result.cloudTrace.cloudErrorCode)
+        assertTrue(result.cloudTrace.cloudNetworkFailureVisibleToUser)
+        assertTrue(result.cloudTrace.cloudEscalated)
+        assertEquals("TIMEOUT", result.cloudTrace.cloudEscalationReason)
+        assertEquals("gpt-5.4", result.cloudTrace.cloudPrimaryModel)
+        assertEquals("gpt-5.5", result.cloudTrace.cloudFinalModel)
+        assertEquals(5, result.routes.size)
+    }
+
+    @Test
     fun CloudFailureShowsLocalFallbackNotAnalysisFailedTest() = runTest {
         val result = pipeline(
             messages = lastOtherMessages(),

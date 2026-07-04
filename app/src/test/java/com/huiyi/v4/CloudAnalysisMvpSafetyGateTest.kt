@@ -254,6 +254,45 @@ class CloudAnalysisMvpSafetyGateTest {
     }
 
     @Test
+    fun CleanThirdPartyLastOtherCloudTimeoutDoesNotEndWithZeroRoutesTest() = runTest {
+        val cloud = FakeCloudService(error = CloudAnalysisException("TIMEOUT"))
+        val result = pipeline(
+            listOf(textNode("other-1", Speaker.OTHER, "我没有工作", 1)),
+            cloud,
+            appPackage = "com.xiaoenai.app",
+            windowTitle = "小恩爱",
+            visualEvidenceProvider = { fakeVisualEvidence() }
+        ).run(emptyPersona()).getOrThrow()
+
+        assertEquals(Speaker.OTHER, result.lastSpeakerDecision.lastSpeaker)
+        assertEquals("LOCAL_FALLBACK", result.cloudTrace.decisionSource)
+        assertTrue(result.cloudTrace.cloudAttempted)
+        assertTrue(result.cloudTrace.cloudFallbackUsed)
+        assertEquals("TIMEOUT", result.cloudTrace.cloudErrorCode)
+        assertTrue(result.cloudTrace.cloudNetworkFailureVisibleToUser)
+        assertEquals(TacticalDecisionType.NORMAL_REPLY, result.tacticalDecision.decisionType)
+        assertEquals(5, result.routes.size)
+        assertEquals(1, cloud.callCount)
+    }
+
+    @Test
+    fun CleanThirdPartyContextRequiredLocalStateStillAttemptsVisualCloudTest() = runTest {
+        val cloud = FakeCloudService()
+        val result = pipeline(
+            listOf(textNode("other-1", Speaker.OTHER, "我没有工作", 1)),
+            cloud,
+            appPackage = "com.xiaoenai.app",
+            windowTitle = "小恩爱",
+            visualEvidenceProvider = { fakeVisualEvidence() }
+        ).run(emptyPersona()).getOrThrow()
+
+        assertEquals(Speaker.OTHER, result.lastSpeakerDecision.lastSpeaker)
+        assertTrue(result.cloudTrace.cloudAttempted)
+        assertEquals("CLOUD", result.cloudTrace.decisionSource)
+        assertEquals(5, result.routes.size)
+    }
+
+    @Test
     fun ApiKeyNotPresentInApkOrRepoTest() {
         assertEquals("", BuildConfig.HUIYI_API_KEY)
         assertEquals("", BuildConfig.HUIYI_CLOUD_ANALYSIS_CLIENT_TOKEN)

@@ -222,9 +222,13 @@ data class CloudAnalysisTrace(
             relayBaseUrlConfigured = config.endpointConfigured,
             relayApiKeyConfigured = config.relayApiKeyConfigured,
             relayApiKeyStoredSecurely = config.relayApiKeyStoredSecurely,
-            cloudNetworkFailureVisibleToUser = errorCode == "NETWORK",
+            cloudNetworkFailureVisibleToUser = errorCode == "NETWORK" || errorCode == "TIMEOUT",
             cloudRequestActuallySent = requestActuallySent,
-            cloudFailureLikelyCause = if (errorCode == "NETWORK") failureLikelyCause else "NONE",
+            cloudFailureLikelyCause = when {
+                errorCode == "TIMEOUT" -> "TIMEOUT"
+                errorCode == "NETWORK" -> failureLikelyCause
+                else -> "NONE"
+            },
             cloudPrimaryModel = primaryModel,
             cloudFinalModel = finalModel,
             cloudEscalated = escalated,
@@ -488,18 +492,30 @@ class CloudAnalysisRepository(
             model = primaryModel,
             timeoutMs = modelRoutingPolicy.primaryTimeoutMs(config, visualEvidenceAttached)
         )
+        val primaryStartedAt = System.currentTimeMillis()
         val primaryOutput = try {
             callModel(input, primaryConfig, primaryModel = primaryModel, totalStartedAt = totalStartedAt)
         } catch (error: CloudAnalysisException) {
+            val primaryLatencyMs = System.currentTimeMillis() - primaryStartedAt
             if (escalationModel != null && modelRoutingPolicy.shouldEscalateError(error)) {
-                return@runCatching callEscalationModel(
-                    input = input,
-                    primaryModel = primaryModel,
-                    escalationModel = escalationModel,
-                    reason = error.code,
-                    totalStartedAt = totalStartedAt,
-                    primaryLatencyMs = null
-                )
+                return@runCatching try {
+                    callEscalationModel(
+                        input = input,
+                        primaryModel = primaryModel,
+                        escalationModel = escalationModel,
+                        reason = error.code,
+                        totalStartedAt = totalStartedAt,
+                        primaryLatencyMs = primaryLatencyMs
+                    )
+                } catch (escalationError: CloudAnalysisException) {
+                    throw escalationError.withRoutingTrace(
+                        primaryModel = primaryModel,
+                        finalModel = escalationModel,
+                        escalated = true,
+                        escalationReason = error.code,
+                        primaryLatencyMs = primaryLatencyMs
+                    )
+                }
             }
             throw error
         }
@@ -546,7 +562,16 @@ class CloudAnalysisRepository(
             totalStartedAt = totalStartedAt
         )
         val quality = qualityGate.assess(output)
-        if (!quality.passed) throw CloudAnalysisException("CLOUD_QUALITY_GATE_FAILED")
+        if (!quality.passed) {
+            throw CloudAnalysisException(
+                code = "CLOUD_QUALITY_GATE_FAILED",
+                primaryModel = primaryModel,
+                finalModel = escalationModel,
+                escalated = true,
+                escalationReason = reason,
+                primaryLatencyMs = primaryLatencyMs
+            )
+        }
         return output.copy(
             primaryModel = primaryModel,
             escalatedFromModel = primaryModel,
@@ -623,13 +648,36 @@ class CloudAnalysisRepository(
             throw CloudAnalysisException(error.message?.substringBefore(":") ?: "SERVER_ERROR", error)
         }
     }
+
+    private fun CloudAnalysisException.withRoutingTrace(
+        primaryModel: String,
+        finalModel: String,
+        escalated: Boolean,
+        escalationReason: String,
+        primaryLatencyMs: Long?
+    ): CloudAnalysisException = CloudAnalysisException(
+        code = code,
+        cause = this,
+        likelyCause = likelyCause,
+        requestActuallySent = requestActuallySent,
+        primaryModel = primaryModel,
+        finalModel = finalModel,
+        escalated = escalated,
+        escalationReason = escalationReason,
+        primaryLatencyMs = primaryLatencyMs
+    )
 }
 
 class CloudAnalysisException(
     val code: String,
     cause: Throwable? = null,
     val likelyCause: String = "UNKNOWN",
-    val requestActuallySent: Boolean = true
+    val requestActuallySent: Boolean = true,
+    val primaryModel: String? = null,
+    val finalModel: String? = null,
+    val escalated: Boolean = false,
+    val escalationReason: String? = null,
+    val primaryLatencyMs: Long? = null
 ) : RuntimeException(code, cause)
 
 class CloudTacticalDecisionMapper(

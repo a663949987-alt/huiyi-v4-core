@@ -1,9 +1,9 @@
 {
-    "versionName":  "4.1.45",
-    "versionCode":  464,
-    "apkUrl":  "huiyi-v4.1.45-debug.apk",
-    "releaseNotes":  "v4.1.45: fixes accessibility enabled-state detection; avoids showing accessibility disabled when system lists Huiyi service or service is already connected",
+    "versionName":  "4.1.46",
+    "versionCode":  465,
+    "apkUrl":  "huiyi-v4.1.46-debug.apk",
+    "releaseNotes":  "v4.1.46: fixes cloud timeout visibility and prevents clean LAST_OTHER screens from ending with zero routes after relay failure",
     "forceUpdate":  false,
-    "sha256":  "0AC19EA8EA66F50C6BD1CCD520BF3FA0F24AB39EBFF83FDB511D58FACD609B67",
-    "createdAt":  1783154721240
+    "sha256":  "AC27995ECEDE1D5C10D07AE73219CB58D418FDD814236DF342315E0180B3F0AC",
+    "createdAt":  1783155530034
 }
