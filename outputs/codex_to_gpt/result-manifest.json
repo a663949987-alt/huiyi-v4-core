@@ -1,36 +1,30 @@
 {
-  "taskName": "cloud_timeout_escalation_and_github_delivery_sync",
-  "versionName": "4.1.44",
-  "versionCode": 463,
+  "taskName": "cloud_late_result_dynamic_refresh",
+  "versionName": "4.1.50",
+  "versionCode": 469,
   "currentOverallResult": "LOCAL_TEST_PASS_LAN_APK_READY",
-  "generatedAt": "2026-07-04T15:59:00+08:00",
+  "generatedAt": "2026-07-04T17:54:15+08:00",
   "userNeedsPhoneThisRound": true,
-  "realDeviceSmokeResult": "LATEST_PHONE_4_1_43_ROUTE_PANEL_BUT_CLOUD_TIMEOUT",
-  "latestPhoneSessionId": "b789be05-8c26-40ce-a528-b7f168de2893",
-  "latestPhoneCloudErrorCode": "TIMEOUT",
-  "latestPhoneCloudTotalLatencyMs": 39063,
-  "fixSummary": {
-    "primaryModel": "gpt-5.4",
-    "primaryTimeoutMaxMs": 10000,
-    "timeoutEscalatesTo55": true,
-    "networkTimeoutEscalatesTo55": true,
-    "escalationModel": "gpt-5.5",
-    "escalationTimeoutMaxMs": 32000,
-    "localFallbackStillAvailable": true,
-    "accessibilityReconnectGuardRetained": true
+  "realDeviceSmokeResult": "NOT_TESTED_AFTER_FIX",
+  "cloudLateResultRefresh": {
+    "softTimeoutShowsLocalFallback": true,
+    "cloudRequestContinuesAfterSoftTimeout": true,
+    "lateCloudSuccessRefreshesSameSessionPanel": true,
+    "staleLateCloudDiscarded": true,
+    "contaminatedPanelNotUpgraded": true,
+    "manuallyDismissedPanelNotReopened": true
   },
   "apkDelivery": {
     "apkDeliveredOutOfBand": true,
     "apkCommittedToPublicGithub": false,
     "privateApkContainsRelayConfig": true,
     "lanLatestJson": "http://192.168.31.243:8787/latest.json",
-    "lanApkUrl": "http://192.168.31.243:8787/huiyi-v4.1.44-debug.apk",
-    "apkSha256": "5FE79461D2389244641E5FCF531F02F72ADDF95EE92934B13C02BFCCA6D1232A"
+    "lanApkUrl": "http://192.168.31.243:8787/huiyi-v4.1.50-debug.apk",
+    "apkSha256": "0017E1DA90E3EA97382E3CCD41820669D9B1D537E236B8D30C8A69538CEF0028"
   },
   "tests": {
     "unitTests": "PASS",
-    "assembleDebug": "PASS",
-    "targetedCloudEscalationTests": "PASS"
+    "assembleDebug": "PASS"
   },
   "files": [
     {
@@ -39,17 +33,17 @@
       "sendToGpt": true
     },
     {
-      "path": "outputs/update_server/latest.json",
-      "type": "json",
-      "sendToGpt": true
-    },
-    {
-      "path": "outputs/gpt_review_inbox/phone/latest/README_FOR_GPT.md",
+      "path": "outputs/gpt_review_inbox/cloud-late-result-refresh-report-for-gpt.md",
       "type": "markdown",
       "sendToGpt": true
     },
     {
-      "path": "outputs/gpt_review_inbox/phone/latest/latest-session/next-sentence-flight-record.json",
+      "path": "outputs/gpt_review_inbox/cloud-late-result-refresh-report.json",
+      "type": "json",
+      "sendToGpt": true
+    },
+    {
+      "path": "outputs/update_server/latest.json",
       "type": "json",
       "sendToGpt": true
     }

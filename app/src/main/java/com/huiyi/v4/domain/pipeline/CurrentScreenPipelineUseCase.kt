@@ -4,6 +4,7 @@ import com.huiyi.v4.data.HuiyiPersistenceRepository
 import com.huiyi.v4.domain.cloud.CloudAnalysisConfig
 import com.huiyi.v4.domain.cloud.CloudAnalysisException
 import com.huiyi.v4.domain.cloud.CloudAnalysisInput
+import com.huiyi.v4.domain.cloud.CloudAnalysisOutput
 import com.huiyi.v4.domain.cloud.CloudAnalysisService
 import com.huiyi.v4.domain.cloud.CloudAnalysisTrace
 import com.huiyi.v4.domain.cloud.CloudVisualEvidence
@@ -23,6 +24,13 @@ import com.huiyi.v4.domain.capture.VisualDebugResult
 import com.huiyi.v4.domain.review.ChatReviewMemoryBuilder
 import com.huiyi.v4.domain.tactical.ReplyRouteGenerator
 import com.huiyi.v4.domain.tactical.TacticalDecisionEngine
+import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.CompletableDeferred
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withTimeoutOrNull
+
+private const val DEFAULT_LATE_CLOUD_SOFT_TIMEOUT_MS = 12_000L
 
 data class CurrentScreenPipelineResult(
     val captureResult: CurrentScreenCaptureResult?,
@@ -66,6 +74,16 @@ data class CurrentScreenPipelineResult(
     val cloudTrace: CloudAnalysisTrace = CloudAnalysisTrace()
 )
 
+data class LateCloudPipelineResult(
+    val sessionId: String,
+    val preAnalysisSnapshotId: String,
+    val chatPackage: String,
+    val chatWindowHash: String,
+    val decision: TacticalDecision,
+    val routes: List<ReplyRoute>,
+    val trace: CloudAnalysisTrace
+)
+
 class CurrentScreenPipelineUseCase(
     private val captureUseCase: CurrentScreenCaptureUseCase,
     private val contextAssembler: ContextAssembler = ContextAssembler(),
@@ -78,7 +96,10 @@ class CurrentScreenPipelineUseCase(
     private val recentVisualEvidenceProvider: ((CurrentScreenCaptureResult) -> List<CloudVisualEvidence>)? = null,
     private val lightListenContextProvider: ((CurrentScreenCaptureResult) -> List<com.huiyi.v4.domain.model.MessageNode>)? = null,
     private val appVersionName: String = "",
-    private val appVersionCode: Int = 0
+    private val appVersionCode: Int = 0,
+    private val lateCloudScope: CoroutineScope? = null,
+    private val lateCloudSoftTimeoutMs: Long = DEFAULT_LATE_CLOUD_SOFT_TIMEOUT_MS,
+    private val onLateCloudResult: ((LateCloudPipelineResult) -> Unit)? = null
 ) {
     suspend fun run(
         userPersonaCorpus: UserPersonaCorpus,
@@ -330,22 +351,130 @@ class CurrentScreenPipelineUseCase(
         recentVisualEvidence: List<CloudVisualEvidence>
     ): CloudPipelineResult {
         val startedAt = System.currentTimeMillis()
-        return service.analyze(
-            CloudAnalysisInput(
+        val input = CloudAnalysisInput(
+            sessionId = sessionId,
+            preAnalysisSnapshotId = preAnalysisSnapshotId,
+            chatPackage = chatPackage,
+            chatWindowHash = chatWindowHash,
+            appVersionName = appVersionName,
+            appVersionCode = appVersionCode,
+            capture = capture,
+            context = context,
+            lastSpeakerDecision = lastSpeaker,
+            localDecision = localDecision,
+            visualEvidence = visualEvidence,
+            recentVisualEvidence = recentVisualEvidence
+        )
+        val lateScope = lateCloudScope
+        val lateCallback = onLateCloudResult
+        if (lateScope != null && lateCallback != null && lateCloudSoftTimeoutMs > 0L) {
+            val cloudResponse = CompletableDeferred<Result<CloudAnalysisOutput>>()
+            lateScope.launch {
+                val serviceResult = try {
+                    service.analyze(input)
+                } catch (error: CancellationException) {
+                    cloudResponse.cancel(error)
+                    return@launch
+                } catch (error: Throwable) {
+                    Result.failure(error)
+                }
+                cloudResponse.complete(serviceResult)
+            }
+            val earlyResult = withTimeoutOrNull(lateCloudSoftTimeoutMs) {
+                cloudResponse.await()
+            }
+            if (earlyResult != null) {
+                return cloudPipelineResultFromServiceResult(
+                    serviceResult = earlyResult,
+                    config = config,
+                    sessionId = sessionId,
+                    preAnalysisSnapshotId = preAnalysisSnapshotId,
+                    chatPackage = chatPackage,
+                    chatWindowHash = chatWindowHash,
+                    lastSpeaker = lastSpeaker,
+                    localDecision = localDecision,
+                    localRoutes = localRoutes,
+                    context = context,
+                    startedAt = startedAt
+                )
+            }
+            lateScope.launch {
+                val lateResult = try {
+                    cloudResponse.await()
+                } catch (error: CancellationException) {
+                    return@launch
+                } catch (error: Throwable) {
+                    Result.failure(error)
+                }
+                val latePipelineResult = cloudPipelineResultFromServiceResult(
+                    serviceResult = lateResult,
+                    config = config,
+                    sessionId = sessionId,
+                    preAnalysisSnapshotId = preAnalysisSnapshotId,
+                    chatPackage = chatPackage,
+                    chatWindowHash = chatWindowHash,
+                    lastSpeaker = lastSpeaker,
+                    localDecision = localDecision,
+                    localRoutes = localRoutes,
+                    context = context,
+                    startedAt = startedAt
+                )
+                if (latePipelineResult.trace.cloudSuccess && latePipelineResult.routes.isNotEmpty()) {
+                    lateCallback(
+                        LateCloudPipelineResult(
+                            sessionId = sessionId,
+                            preAnalysisSnapshotId = preAnalysisSnapshotId,
+                            chatPackage = chatPackage,
+                            chatWindowHash = chatWindowHash,
+                            decision = latePipelineResult.decision,
+                            routes = latePipelineResult.routes,
+                            trace = latePipelineResult.trace
+                        )
+                    )
+                }
+            }
+            return softTimeoutPendingResult(
+                config = config,
                 sessionId = sessionId,
                 preAnalysisSnapshotId = preAnalysisSnapshotId,
                 chatPackage = chatPackage,
                 chatWindowHash = chatWindowHash,
-                appVersionName = appVersionName,
-                appVersionCode = appVersionCode,
-                capture = capture,
-                context = context,
-                lastSpeakerDecision = lastSpeaker,
+                lastSpeaker = lastSpeaker,
                 localDecision = localDecision,
-                visualEvidence = visualEvidence,
-                recentVisualEvidence = recentVisualEvidence
+                localRoutes = localRoutes,
+                context = context,
+                startedAt = startedAt
             )
-        ).fold(
+        }
+        return cloudPipelineResultFromServiceResult(
+            serviceResult = service.analyze(input),
+            config = config,
+            sessionId = sessionId,
+            preAnalysisSnapshotId = preAnalysisSnapshotId,
+            chatPackage = chatPackage,
+            chatWindowHash = chatWindowHash,
+            lastSpeaker = lastSpeaker,
+            localDecision = localDecision,
+            localRoutes = localRoutes,
+            context = context,
+            startedAt = startedAt
+        )
+    }
+
+    private fun cloudPipelineResultFromServiceResult(
+        serviceResult: Result<CloudAnalysisOutput>,
+        config: CloudAnalysisConfig,
+        sessionId: String,
+        preAnalysisSnapshotId: String,
+        chatPackage: String,
+        chatWindowHash: String,
+        lastSpeaker: LastSpeakerDecision,
+        localDecision: TacticalDecision,
+        localRoutes: List<ReplyRoute>,
+        context: ChatSceneContext,
+        startedAt: Long
+    ): CloudPipelineResult {
+        return serviceResult.fold(
             onSuccess = { output ->
                 CloudPipelineResult(
                     output.decision,
@@ -402,6 +531,52 @@ class CurrentScreenPipelineUseCase(
                     )
                 )
             }
+        )
+    }
+
+    private fun softTimeoutPendingResult(
+        config: CloudAnalysisConfig,
+        sessionId: String,
+        preAnalysisSnapshotId: String,
+        chatPackage: String,
+        chatWindowHash: String,
+        lastSpeaker: LastSpeakerDecision,
+        localDecision: TacticalDecision,
+        localRoutes: List<ReplyRoute>,
+        context: ChatSceneContext,
+        startedAt: Long
+    ): CloudPipelineResult {
+        val fallbackDecision = cloudFailureFallbackDecision(lastSpeaker, localDecision, localRoutes, "SOFT_TIMEOUT_PENDING")
+        val fallbackRoutes = if (fallbackDecision === localDecision) {
+            localRoutes
+        } else {
+            routeGenerator.generate(context, fallbackDecision)
+        }
+        return CloudPipelineResult(
+            fallbackDecision,
+            fallbackRoutes,
+            CloudAnalysisTrace.fallback(
+                config = config,
+                errorCode = "SOFT_TIMEOUT_PENDING",
+                latencyMs = System.currentTimeMillis() - startedAt,
+                validationResult = "PENDING",
+                failureLikelyCause = "PENDING",
+                requestActuallySent = true,
+                primaryModel = config.model,
+                finalModel = config.model
+            ).copy(
+                modelCalled = true,
+                apiCalled = true,
+                cloudNetworkFailureVisibleToUser = false,
+                cloudFailureLikelyCause = "PENDING"
+            ).withSessionBinding(
+                activeSessionId = sessionId,
+                preAnalysisSnapshotId = preAnalysisSnapshotId,
+                chatPackage = chatPackage,
+                chatWindowHash = chatWindowHash,
+                cloudRequestSessionId = sessionId,
+                cloudResponseSessionId = null
+            )
         )
     }
 

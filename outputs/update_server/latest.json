@@ -1,9 +1,9 @@
 {
-    "versionName":  "4.1.49",
-    "versionCode":  468,
-    "apkUrl":  "huiyi-v4.1.49-debug.apk",
-    "releaseNotes":  "v4.1.49: respects 90s relay timeout for visual cloud analysis and reports the actual attempted model on timeout",
+    "versionName":  "4.1.50",
+    "versionCode":  469,
+    "apkUrl":  "huiyi-v4.1.50-debug.apk",
+    "releaseNotes":  "v4.1.50: cloud soft-timeout keeps relay request alive and refreshes the panel only for the same active chat session",
     "forceUpdate":  false,
-    "sha256":  "9B648243126232C32E7096E15D0BE14E7ABA7E33E182D38CF3FF6A9839BF5C7F",
-    "createdAt":  1783157784933
+    "sha256":  "0017E1DA90E3EA97382E3CCD41820669D9B1D537E236B8D30C8A69538CEF0028",
+    "createdAt":  1783158849183
 }

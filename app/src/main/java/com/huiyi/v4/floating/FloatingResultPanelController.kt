@@ -62,7 +62,12 @@ class FloatingResultPanelController(
                 container.addView(text("你已经回过了，先等对方。"))
             }
             else -> {
-                container.addView(titleText("推荐回复"))
+                val title = if (result?.cloudTrace?.decisionSource == "CLOUD") {
+                    "会意云端分析"
+                } else {
+                    "推荐回复"
+                }
+                container.addView(titleText(title))
                 RoutePanelDisplayText.topActionLine(routes)?.let { container.addView(smallText(it)) }
                 cloudStatusLine(result)?.let { container.addView(smallText(it)) }
                 if (routes.isEmpty()) {
@@ -242,6 +247,7 @@ class FloatingResultPanelController(
 
     private fun cloudStatusLine(result: CurrentScreenPipelineResult?): String? {
         val cloud = result?.cloudTrace ?: return null
+        if (cloud.cloudErrorCode == "SOFT_TIMEOUT_PENDING") return "云端还在后台等，回来会自动刷新。"
         if (cloud.cloudErrorCode == "NETWORK") return "云端连接不稳，先给你本地备选。"
         return when {
             cloud.decisionSource == "CLOUD" -> null

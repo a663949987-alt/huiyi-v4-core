@@ -20,11 +20,21 @@ import com.huiyi.v4.domain.model.UserPersonaCorpus
 import com.huiyi.v4.domain.pipeline.CurrentScreenCaptureResult
 import com.huiyi.v4.domain.pipeline.CurrentScreenCaptureUseCase
 import com.huiyi.v4.domain.pipeline.CurrentScreenPipelineUseCase
+import com.huiyi.v4.domain.pipeline.LateCloudPipelineResult
 import com.huiyi.v4.domain.pipeline.NextSentenceSessionTrace
 import com.huiyi.v4.domain.pipeline.SampleSource
 import com.huiyi.v4.domain.tactical.ReplyRouteGenerator
 import com.huiyi.v4.domain.tactical.TacticalDecisionEngine
 import com.huiyi.v4.runtime.NextSentenceFlightRecordFactory
+import kotlinx.coroutines.CompletableDeferred
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.async
+import kotlinx.coroutines.cancel
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.test.advanceTimeBy
+import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.jsonObject
@@ -136,6 +146,48 @@ class CloudAnalysisMvpSafetyGateTest {
         assertEquals("TIMEOUT", result.cloudTrace.cloudErrorCode)
         assertEquals(5, result.routes.size)
         assertFalse(result.apiCalled)
+    }
+
+    @OptIn(ExperimentalCoroutinesApi::class)
+    @Test
+    fun LateCloudResultContinuesAfterSoftTimeoutAndCanUpgradePanelTest() = runTest {
+        val cloud = DeferredCloudService()
+        val lateResults = mutableListOf<LateCloudPipelineResult>()
+        val lateScope = CoroutineScope(SupervisorJob() + Dispatchers.Unconfined)
+        try {
+            val pipelineRun = async {
+                pipeline(
+                    lastOtherMessages(),
+                    cloud,
+                    lateCloudScope = lateScope,
+                    lateCloudSoftTimeoutMs = 50L,
+                    onLateCloudResult = { lateResults += it }
+                ).run(emptyPersona(), sessionId = "late-session").getOrThrow()
+            }
+
+            advanceTimeBy(60L)
+            val initialResult = pipelineRun.await()
+
+            assertEquals("LOCAL_FALLBACK", initialResult.cloudTrace.decisionSource)
+            assertEquals("SOFT_TIMEOUT_PENDING", initialResult.cloudTrace.cloudErrorCode)
+            assertEquals("PENDING", initialResult.cloudTrace.cloudContractValidationResult)
+            assertTrue(initialResult.cloudTrace.cloudRequestActuallySent)
+            assertTrue(initialResult.cloudTrace.apiCalled)
+            assertEquals(5, initialResult.routes.size)
+            assertEquals(0, lateResults.size)
+
+            cloud.completeSuccess()
+            advanceUntilIdle()
+
+            assertEquals(1, lateResults.size)
+            assertEquals("late-session", lateResults.single().sessionId)
+            assertEquals("CLOUD", lateResults.single().trace.decisionSource)
+            assertTrue(lateResults.single().trace.cloudSuccess)
+            assertEquals(5, lateResults.single().routes.size)
+            assertEquals("late-cloud-0", lateResults.single().routes.first().id)
+        } finally {
+            lateScope.cancel()
+        }
     }
 
     @Test
@@ -684,13 +736,19 @@ class CloudAnalysisMvpSafetyGateTest {
         cloud: CloudAnalysisService?,
         appPackage: String = "com.bajiao.im.liaoqi",
         windowTitle: String = "chat",
-        visualEvidenceProvider: (suspend () -> CloudVisualEvidence?)? = null
+        visualEvidenceProvider: (suspend () -> CloudVisualEvidence?)? = null,
+        lateCloudScope: CoroutineScope? = null,
+        lateCloudSoftTimeoutMs: Long = 12_000L,
+        onLateCloudResult: ((LateCloudPipelineResult) -> Unit)? = null
     ) = CurrentScreenPipelineUseCase(
         captureUseCase = FakeCaptureUseCase(messages, appPackage, windowTitle),
         cloudAnalysisService = cloud,
         visualEvidenceProvider = visualEvidenceProvider,
         appVersionName = "test",
-        appVersionCode = 1
+        appVersionCode = 1,
+        lateCloudScope = lateCloudScope,
+        lateCloudSoftTimeoutMs = lateCloudSoftTimeoutMs,
+        onLateCloudResult = onLateCloudResult
     )
 
     private class FakeCaptureUseCase(
@@ -742,6 +800,46 @@ class CloudAnalysisMvpSafetyGateTest {
                     decision = input.localDecision,
                     routes = routes,
                     latencyMs = 42
+                )
+            )
+        }
+    }
+
+    private class DeferredCloudService(
+        override val config: CloudAnalysisConfig = CloudAnalysisConfig(
+            cloudEnabled = true,
+            endpoint = "https://gateway.example/v1/huiyi/next-sentence/analyze",
+            apiKey = "placeholder",
+            relayApiKeyStoredSecurely = true
+        )
+    ) : CloudAnalysisService {
+        private val response = CompletableDeferred<Result<CloudAnalysisOutput>>()
+        private lateinit var latestInput: CloudAnalysisInput
+        var callCount = 0
+
+        override suspend fun analyze(input: CloudAnalysisInput): Result<CloudAnalysisOutput> {
+            callCount += 1
+            latestInput = input
+            return response.await()
+        }
+
+        fun completeSuccess() {
+            val routes = ReplyRouteGenerator().generate(latestInput.context, latestInput.localDecision)
+                .mapIndexed { index, route -> route.copy(id = "late-cloud-$index", tag = "云端") }
+            response.complete(
+                Result.success(
+                    CloudAnalysisOutput(
+                        sessionId = latestInput.sessionId,
+                        preAnalysisSnapshotId = latestInput.preAnalysisSnapshotId,
+                        chatPackage = latestInput.chatPackage,
+                        chatWindowHash = latestInput.chatWindowHash,
+                        cloudRequestId = "late-cloud-req",
+                        decision = latestInput.localDecision,
+                        routes = routes,
+                        latencyMs = 5000,
+                        modelUsed = "gpt-5.5",
+                        primaryModel = "gpt-5.5"
+                    )
                 )
             )
         }

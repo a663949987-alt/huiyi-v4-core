@@ -22,6 +22,7 @@ import com.huiyi.v4.domain.pipeline.CurrentScreenCaptureUseCase
 import com.huiyi.v4.domain.pipeline.CurrentScreenPipelineResult
 import com.huiyi.v4.domain.pipeline.CurrentScreenPipelineUseCase
 import com.huiyi.v4.domain.pipeline.EvidencePackReportGenerator
+import com.huiyi.v4.domain.pipeline.LateCloudPipelineResult
 import com.huiyi.v4.domain.pipeline.LastSpeakerDecisionUseCase
 import com.huiyi.v4.domain.pipeline.LastSpeakerAcceptanceReportGenerator
 import com.huiyi.v4.domain.pipeline.NextSentenceCaptureSource
@@ -146,7 +147,9 @@ class HuiyiRuntime private constructor(
             HuiyiAccessibilityService.instance?.lightListenBackfillFor(capture.snapshot, capture.messages).orEmpty()
         },
         appVersionName = BuildConfig.VERSION_NAME,
-        appVersionCode = BuildConfig.VERSION_CODE
+        appVersionCode = BuildConfig.VERSION_CODE,
+        lateCloudScope = scope,
+        onLateCloudResult = { lateResult -> handleLateCloudResult(lateResult) }
     )
     private var sessionWatchdogJob: Job? = null
     private var activeNextSentenceJob: Job? = null
@@ -230,6 +233,129 @@ class HuiyiRuntime private constructor(
                 )
             )
         }
+    }
+
+    private fun handleLateCloudResult(lateResult: LateCloudPipelineResult) {
+        scope.launch {
+            val state = mutableState.value
+            val current = state.latestPipelineResult
+            val trace = state.lastNextSentenceTrace
+            lateCloudDiscardReason(lateResult, current, trace)?.let { reason ->
+                Log.i(
+                    LOG_TAG,
+                    "late_cloud_result_discarded sessionId=${lateResult.sessionId} " +
+                        "activeSessionId=$activeNextSentenceSessionId reason=$reason"
+                )
+                return@launch
+            }
+            if (current == null || trace == null) return@launch
+            val endedAt = System.currentTimeMillis()
+            val terminalState = terminalStateFor(lateResult.decision.decisionType)
+            val updatedCloudTrace = lateResult.trace.withSessionBinding(
+                activeSessionId = lateResult.sessionId,
+                preAnalysisSnapshotId = lateResult.preAnalysisSnapshotId,
+                chatPackage = lateResult.chatPackage,
+                chatWindowHash = lateResult.chatWindowHash,
+                cloudRequestSessionId = lateResult.trace.cloudRequestSessionId ?: lateResult.sessionId,
+                cloudResponseSessionId = lateResult.trace.cloudResponseSessionId ?: lateResult.sessionId,
+                panelRenderedSessionId = lateResult.sessionId,
+                oneClickOneTerminalPanel = true
+            )
+            val upgradedResult = current.copy(
+                tacticalDecision = lateResult.decision,
+                routes = lateResult.routes,
+                apiCalled = updatedCloudTrace.apiCalled,
+                waitPanelShown = false,
+                routePanelShown = lateResult.routes.isNotEmpty(),
+                sessionTerminalState = terminalState,
+                analysisEndedAt = endedAt,
+                analysisDurationMs = if (current.analysisStartedAt > 0L) {
+                    endedAt - current.analysisStartedAt
+                } else {
+                    current.analysisDurationMs
+                },
+                cloudTrace = updatedCloudTrace
+            )
+            val updatedTrace = trace.copy(
+                endedAt = endedAt,
+                stage = NextSentenceStage.ROUTES_GENERATED,
+                decisionType = lateResult.decision.decisionType.name,
+                routeCount = lateResult.routes.size,
+                apiCalled = updatedCloudTrace.apiCalled,
+                terminalState = terminalState,
+                panelShown = true,
+                panelAttached = true,
+                panelRenderSuccess = true,
+                userFacingMessage = null
+            )
+            writeLatestSessionTraceReports(updatedTrace)
+            val flightRecord = NextSentenceFlightRecordFactory.fromSuccess(upgradedResult, updatedTrace)
+            mutableState.update { latest ->
+                val latestCurrent = latest.latestPipelineResult
+                lateCloudDiscardReason(lateResult, latestCurrent, latest.lastNextSentenceTrace)?.let {
+                    latest
+                } ?: latest.copy(
+                    latestPipelineResult = upgradedResult,
+                    panelVisible = true,
+                    lastError = null,
+                    nextSentenceUiState = NextSentenceUiState.RESULT,
+                    lastNextSentenceTrace = updatedTrace,
+                    latestFlightRecord = flightRecord,
+                    recentFlightRecords = (latest.recentFlightRecords + flightRecord).takeLast(10)
+                )
+            }
+            Log.i(
+                LOG_TAG,
+                "late_cloud_result_applied sessionId=${lateResult.sessionId} " +
+                    "decisionSource=${updatedCloudTrace.decisionSource} routes=${lateResult.routes.size}"
+            )
+        }
+    }
+
+    private fun lateCloudDiscardReason(
+        lateResult: LateCloudPipelineResult,
+        current: CurrentScreenPipelineResult?,
+        trace: NextSentenceSessionTrace?
+    ): String? {
+        if (activeNextSentenceSessionId != lateResult.sessionId) return "STALE_SESSION"
+        if (trace?.sessionId != lateResult.sessionId) return "TRACE_SESSION_MISMATCH"
+        if (current == null) return "NO_PANEL_TO_UPGRADE"
+        if (current.sessionId != lateResult.sessionId) return "PIPELINE_SESSION_MISMATCH"
+        if (current.panelSessionId != null && current.panelSessionId != lateResult.sessionId) {
+            return "PANEL_SESSION_MISMATCH"
+        }
+        val overlay = OverlayStateStore.state.value
+        if (!overlay.resultPanelVisible &&
+            (overlay.lastPanelDismissedAt ?: 0L) > (overlay.lastPanelShownAt ?: 0L)
+        ) {
+            return "PANEL_DISMISSED"
+        }
+        val foregroundPackage = HuiyiAccessibilityService.state.value.currentPackage
+        if (foregroundPackage != null &&
+            foregroundPackage != lateResult.chatPackage &&
+            foregroundPackage != appContext.packageName
+        ) {
+            return "FOREGROUND_PACKAGE_CHANGED"
+        }
+        if (current.tacticalDecision.decisionType == TacticalDecisionType.PRE_ANALYSIS_CONTAMINATED ||
+            current.tacticalDecision.decisionType == TacticalDecisionType.CHAT_WINDOW_NOT_FOUND
+        ) {
+            return "PRE_ANALYSIS_CONTAMINATED"
+        }
+        val currentTrace = current.cloudTrace
+        val currentSnapshotId = currentTrace.preAnalysisSnapshotId.orEmpty()
+        if (currentSnapshotId.isNotBlank() && currentSnapshotId != lateResult.preAnalysisSnapshotId) {
+            return "SNAPSHOT_CHANGED"
+        }
+        val currentPackage = currentTrace.chatPackage.orEmpty()
+        if (currentPackage.isNotBlank() && currentPackage != lateResult.chatPackage) {
+            return "CHAT_PACKAGE_CHANGED"
+        }
+        val currentWindowHash = currentTrace.chatWindowHash.orEmpty()
+        if (currentWindowHash.isNotBlank() && currentWindowHash != lateResult.chatWindowHash) {
+            return "CHAT_WINDOW_CHANGED"
+        }
+        return null
     }
 
     fun togglePersona() {
