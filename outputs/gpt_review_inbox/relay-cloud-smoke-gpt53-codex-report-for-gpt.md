@@ -3,7 +3,7 @@
 - taskName: relay_cloud_smoke_before_user_phone
 - versionName: 4.1.28
 - versionCode: 447
-- generatedAt: 2026-07-04T10:11:26.7527212+08:00
+- generatedAt: 2026-07-04T10:11:12.1050710+08:00
 - relaySmokeAttempted: True
 - relaySmokeResult: FAIL
 - baseUrlConfigured: True
@@ -17,7 +17,7 @@
 - responseParsed: False
 - contractValidationResult: NOT_RUN
 - routeCount: 0
-- latencyMs: 785
+- latencyMs: 726
 - errorClass: System.Net.WebException
 - errorMessageRedacted: The remote server returned an error: (503) Server Unavailable.
 - likelyCause: HTTP_5XX

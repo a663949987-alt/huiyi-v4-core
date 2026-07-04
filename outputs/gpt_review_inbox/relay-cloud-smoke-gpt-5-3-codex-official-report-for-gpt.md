@@ -3,7 +3,7 @@
 - taskName: relay_cloud_smoke_before_user_phone
 - versionName: 4.1.28
 - versionCode: 447
-- generatedAt: 2026-07-04T10:11:26.7527212+08:00
+- generatedAt: 2026-07-04T10:11:25.5888930+08:00
 - relaySmokeAttempted: True
 - relaySmokeResult: FAIL
 - baseUrlConfigured: True
@@ -11,16 +11,16 @@
 - apiKeyConfigured: True
 - apiKeyLeaked: False
 - requestUrlRedacted: https://toapis.com/v1/chat/completions
-- httpStatus: 503
+- httpStatus: 400
 - responseReceived: True
 - choicesMessageContentPresent: False
 - responseParsed: False
 - contractValidationResult: NOT_RUN
 - routeCount: 0
-- latencyMs: 785
+- latencyMs: 697
 - errorClass: System.Net.WebException
-- errorMessageRedacted: The remote server returned an error: (503) Server Unavailable.
-- likelyCause: HTTP_5XX
+- errorMessageRedacted: The remote server returned an error: (400) Bad Request.
+- likelyCause: UNKNOWN
 - cloudRequestActuallySent: True
 - androidInternetPermissionDeclared: True
 - finalRequestUrlRedacted: https://toapis.com/v1/chat/completions
@@ -30,4 +30,4 @@
 - tlsFailureSuspected: False
 - dnsFailureSuspected: False
 - networkExceptionClass: System.Net.WebException
-- networkExceptionMessageRedacted: The remote server returned an error: (503) Server Unavailable.
+- networkExceptionMessageRedacted: The remote server returned an error: (400) Bad Request.

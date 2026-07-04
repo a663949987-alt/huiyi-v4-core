@@ -1,64 +1,46 @@
 ﻿{
-    "project":  "Huiyi v4 Core",
-    "taskName":  "emulator_mockchat_cloud_smoke",
-    "versionName":  "4.1.28",
-    "versionCode":  447,
-    "generatedAt":  "2026-07-04T08:21:04.9748141+08:00",
-    "currentOverallResult":  "EMULATOR_CLOUD_SMOKE_PASS",
-    "relayCliSmokeResult":  "PASS",
-    "emulatorCloudSmokeResult":  "PASS",
-    "emulatorDetected":  true,
-    "emulatorSerial":  "emulator-5554",
-    "huiyiInstalled":  true,
-    "mockchatInstalled":  true,
-    "accessibilityEnabled":  true,
-    "overlayPermissionGranted":  true,
-    "lastOtherCloudResult":  "PASS",
-    "lastMeWaitResult":  "PASS",
+    "taskName":  "cloud_priority_latency_tuning",
+    "versionName":  "4.1.31",
+    "versionCode":  450,
+    "currentOverallResult":  "CLOUD_PRIORITY_EMULATOR_PASS_PHONE_REQUIRED",
+    "generatedAt":  "2026-07-04T10:05:43.3690867+08:00",
+    "userNeedsPhoneThisRound":  true,
     "realDeviceSmokeResult":  "NOT_TESTED",
-    "cloudReadyForUserPhone":  "YES_AFTER_EMULATOR_SMOKE",
-    "userNeedsPhoneThisRound":  false,
-    "realDeviceRequiredThisRound":  false,
-    "cloudRealEndpointRequiredThisRound":  true,
-    "apiKeyLeaked":  false,
-    "apkCommittedToPublicGithub":  false,
-    "privateApkContainsRelayConfig":  true,
+    "emulatorSmoke":  "PASS",
+    "cloudPriorityEnabled":  true,
+    "lastOtherCloudWaitMaxMs":  90000,
+    "pcRelayGpt55LatencyMs":  18996,
+    "pcRelayGpt54LatencyMs":  14681,
+    "androidMockchatGpt55ApproxLatencyMs":  56181,
+    "apkPath":  "outputs/huiyi-v4.1.31-debug.apk",
+    "lanLatestJson":  "http://192.168.31.243:8787/latest.json",
+    "lanApkUrl":  "http://192.168.31.243:8787/huiyi-v4.1.31-debug.apk",
+    "apkSha256":  "82EE100187231B7508CA8BD4AF96AB52FFBEE0FD1F91C8DF2BBEE5B671FC8514",
     "files":  [
                   {
                       "path":  "outputs/gpt_review_inbox/README_FOR_GPT.md",
-                      "description":  "Main GPT entry",
                       "sendToGpt":  true,
-                      "type":  "review_entry"
+                      "type":  "markdown"
                   },
                   {
-                      "path":  "outputs/gpt_review_inbox/relay-cloud-smoke-report-for-gpt.md",
-                      "description":  "Real relay GPT 5.5 CLI smoke report",
+                      "path":  "outputs/gpt_review_inbox/cloud-priority-latency-report-for-gpt.md",
                       "sendToGpt":  true,
-                      "type":  "relay_smoke_report"
+                      "type":  "markdown"
                   },
                   {
-                      "path":  "outputs/gpt_review_inbox/relay-cloud-smoke-report.json",
-                      "description":  "Machine-readable relay CLI smoke",
+                      "path":  "outputs/gpt_review_inbox/cloud-priority-latency-report.json",
                       "sendToGpt":  true,
-                      "type":  "relay_smoke_json"
-                  },
-                  {
-                      "path":  "outputs/gpt_review_inbox/emulator-cloud-smoke-report-for-gpt.md",
-                      "description":  "MockChat emulator cloud smoke report",
-                      "sendToGpt":  true,
-                      "type":  "emulator_smoke_report"
-                  },
-                  {
-                      "path":  "outputs/gpt_review_inbox/emulator-cloud-smoke-report.json",
-                      "description":  "Machine-readable emulator smoke",
-                      "sendToGpt":  true,
-                      "type":  "emulator_smoke_json"
+                      "type":  "json"
                   },
                   {
                       "path":  "outputs/codex_to_gpt/result-manifest.json",
-                      "description":  "Codex result manifest",
                       "sendToGpt":  true,
-                      "type":  "manifest"
+                      "type":  "json"
+                  },
+                  {
+                      "path":  "outputs/huiyi-v4.1.31-debug.apk",
+                      "sendToGpt":  false,
+                      "type":  "apk_private"
                   }
               ]
 }
