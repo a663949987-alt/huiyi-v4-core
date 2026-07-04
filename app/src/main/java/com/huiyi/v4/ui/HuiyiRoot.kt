@@ -54,6 +54,7 @@ import com.huiyi.v4.domain.model.ReplyRoute
 import com.huiyi.v4.domain.model.RiskLevel
 import com.huiyi.v4.domain.model.Speaker
 import com.huiyi.v4.domain.model.TacticalDecisionType
+import com.huiyi.v4.domain.panel.RoutePanelDisplayText
 import com.huiyi.v4.domain.pipeline.RealDeviceScenario
 import com.huiyi.v4.domain.persona.CharacterArcCandidate
 import com.huiyi.v4.domain.persona.CharacterArcPreferenceProfile
@@ -362,6 +363,20 @@ fun FloatingTacticalPanel(
                     else -> null
                 }
                 if (label != null) item { Text(label) }
+            }
+        }
+        if (expressSelfMode) {
+            item {
+                Card(modifier = Modifier.fillMaxWidth()) {
+                    Column(Modifier.padding(14.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                        RoutePanelDisplayText.expressSelfSummaryLines(
+                            arcProgressState = state.latestPipelineResult?.expressSelfArcProgressState,
+                            routes = routes
+                        ).forEach { line ->
+                            Text(line)
+                        }
+                    }
+                }
             }
         }
         if (decision.decisionType == TacticalDecisionType.WAIT) {

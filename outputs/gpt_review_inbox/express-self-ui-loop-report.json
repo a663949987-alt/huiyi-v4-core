@@ -1,10 +1,10 @@
 {
-  "project": "huiyi-v4",
+  "project": "Huiyi v4 Core",
   "taskName": "express_self_ui_loop_character_arc",
   "versionName": "4.1.56",
   "versionCode": 475,
-  "currentOverallResult": "LOCAL_FIXTURE_PASS_NO_PHONE_REQUIRED",
   "generatedAt": "2026-07-04T23:04:27+08:00",
+  "currentOverallResult": "LOCAL_FIXTURE_PASS_NO_PHONE_REQUIRED",
   "userNeedsPhoneThisRound": false,
   "realDeviceSmokeResult": "NOT_REQUIRED",
   "nextSentenceButtonExists": true,
@@ -20,6 +20,7 @@
   "expressSelfPanelShowsPersonaFacet": true,
   "expressSelfPanelShowsSuggestedLine": true,
   "expressSelfPanelShowsOverdoRisk": true,
+  "expressSelfRoutesVisible": "3-5",
   "mockChatFixtureArcRevealPass": true,
   "lightChatStateStoreRewritten": false,
   "parserRewritten": false,
@@ -27,26 +28,9 @@
   "cloudCallbackChanged": false,
   "longTermRawChatStorage": false,
   "autoSend": false,
-  "files": [
-    {
-      "path": "outputs/gpt_review_inbox/README_FOR_GPT.md",
-      "type": "markdown",
-      "sendToGpt": true
-    },
-    {
-      "path": "outputs/gpt_review_inbox/express-self-ui-loop-report-for-gpt.md",
-      "type": "markdown",
-      "sendToGpt": true
-    },
-    {
-      "path": "outputs/gpt_review_inbox/express-self-ui-loop-report.json",
-      "type": "json",
-      "sendToGpt": true
-    },
-    {
-      "path": "outputs/codex_to_gpt/result-manifest.json",
-      "type": "json",
-      "sendToGpt": true
-    }
-  ]
+  "tests": {
+    "ExpressSelfUiLoopTest": "PASS",
+    "CharacterArcPlannerTest": "PASS",
+    "PassiveActiveSplitTest": "PASS"
+  }
 }

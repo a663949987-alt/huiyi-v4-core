@@ -8,6 +8,7 @@ import com.huiyi.v4.domain.cloud.CloudAnalysisOutput
 import com.huiyi.v4.domain.cloud.CloudAnalysisService
 import com.huiyi.v4.domain.cloud.CloudAnalysisTrace
 import com.huiyi.v4.domain.cloud.CloudVisualEvidence
+import com.huiyi.v4.domain.context.ArcProgressState
 import com.huiyi.v4.domain.context.ContextAssembler
 import com.huiyi.v4.domain.model.ChatSceneContext
 import com.huiyi.v4.domain.model.InfluenceIntensity
@@ -71,6 +72,7 @@ data class CurrentScreenPipelineResult(
     val decisionTypeFamily: String = "UNKNOWN",
     val lightListenBackfillCount: Int = 0,
     val lightListenUsed: Boolean = false,
+    val expressSelfArcProgressState: ArcProgressState? = null,
     val cloudTrace: CloudAnalysisTrace = CloudAnalysisTrace()
 )
 

@@ -54,7 +54,7 @@ class FloatingResultPanelController(
         val container = panelContainer()
 
         if (state.floatingPanelMode == FloatingPanelMode.EXPRESS_SELF) {
-            showExpressSelfPanel(container, result, routes)
+            showExpressSelfPanelV2(container, result, routes)
         } else {
             showNextSentencePanel(container, result, decision.decisionType, routes)
         }
@@ -121,11 +121,41 @@ class FloatingResultPanelController(
         }
     }
 
+    private fun showExpressSelfPanelV2(
+        container: LinearLayout,
+        result: CurrentScreenPipelineResult?,
+        routes: List<ReplyRoute>
+    ) {
+        container.addView(titleText("表达我"))
+        RoutePanelDisplayText.expressSelfSummaryLines(
+            arcProgressState = result?.expressSelfArcProgressState,
+            routes = routes
+        ).forEach { line ->
+            container.addView(smallText(line))
+        }
+        cloudStatusLine(result)?.let { container.addView(smallText(it)) }
+        if (routes.isEmpty()) {
+            container.addView(text("这轮还没找到适合露出的底色，先低压力接住对方。"))
+        } else {
+            addReplyChoices(
+                container = container,
+                routes = routes,
+                mode = FloatingPanelMode.EXPRESS_SELF
+            )
+        }
+        addExpressSelfFooter(container)
+    }
+
     private fun showExpressSelfPanel(
         container: LinearLayout,
         result: CurrentScreenPipelineResult?,
         routes: List<ReplyRoute>
     ) {
+        val summaryLines = RoutePanelDisplayText.expressSelfSummaryLines(
+            arcProgressState = result?.expressSelfArcProgressState,
+            routes = routes
+        )
+        summaryLines.forEach { line -> container.addView(smallText(line)) }
         container.addView(titleText("表达我"))
         container.addView(smallText("本轮动作：表达我 / 共创 / 让她看见你"))
         RoutePanelDisplayText.topActionLine(routes)?.let { container.addView(smallText(it)) }

@@ -775,6 +775,7 @@ class HuiyiRuntime private constructor(
                     analysisEndedAt = endedAt,
                     analysisDurationMs = endedAt - startedTrace.startedAt,
                     decisionTypeFamily = "EXPRESS_SELF",
+                    expressSelfArcProgressState = arcProgress,
                     cloudTrace = CloudAnalysisTrace(
                         activeSessionId = sessionId,
                         cloudRequestSessionId = null,

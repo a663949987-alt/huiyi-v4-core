@@ -126,17 +126,17 @@ class FloatingBubbleController(
     }
 
     private fun addMenu(container: LinearLayout) {
-        listOf(NEXT, EXPRESS_SELF, HIDE).forEach { label ->
+        FloatingPanelSplitPolicy.mainMenuLabels.forEach { label ->
             val button = Button(context).apply {
                 text = label
                 importantForAccessibility = View.IMPORTANT_FOR_ACCESSIBILITY_NO
                 setOnClickListener {
                     when (label) {
-                        NEXT -> {
+                        FloatingPanelSplitPolicy.NEXT_SENTENCE_LABEL -> {
                             OverlayStateStore.markBubbleClick()
                             onNextSentence(markLoadingAck())
                         }
-                        EXPRESS_SELF -> {
+                        FloatingPanelSplitPolicy.EXPRESS_SELF_LABEL -> {
                             OverlayStateStore.markBubbleClick()
                             onExpressSelf(
                                 markLoadingAck(
@@ -145,7 +145,7 @@ class FloatingBubbleController(
                                 )
                             )
                         }
-                        HIDE -> hide("user_hide")
+                        FloatingPanelSplitPolicy.HIDE_LABEL -> hide("user_hide")
                     }
                 }
             }

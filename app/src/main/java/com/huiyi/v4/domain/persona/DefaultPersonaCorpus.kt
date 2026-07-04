@@ -1,5 +1,6 @@
 package com.huiyi.v4.domain.persona
 
+import com.huiyi.v4.domain.model.CharacterArcCard
 import com.huiyi.v4.domain.model.IdentityCard
 import com.huiyi.v4.domain.model.RiskRule
 import com.huiyi.v4.domain.model.StoryCard
@@ -35,6 +36,17 @@ object DefaultPersonaCorpus {
         ),
         riskRules = listOf(
             RiskRule("over-promise", "承诺过重", "避免一上来给长期承诺，优先给具体、可兑现的小稳定。")
+        ),
+        characterArcCards = listOf(
+            CharacterArcCard(
+                surfaceImpression = "不太会讲漂亮话，表达偏直接。",
+                hiddenDepth = "稳定、负责、愿意把现实里的事一点点做到位。",
+                contrastTension = "表面克制、不热闹，里面有长期感和责任感。",
+                revealTrigger = "现实 规划 稳定 未来 责任感 过去经历",
+                safeRevealLine = "我可能不是特别会讲漂亮话，但认真起来会把事情一点点做到位。",
+                overdoRisk = "不要讲成长篇自我证明，也不要像汇报经历，露出一点就收住。",
+                relatedPersonaCardIds = listOf("soldier", "transition", "army-responsibility")
+            )
         )
     )
 }
