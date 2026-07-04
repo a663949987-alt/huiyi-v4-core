@@ -1,9 +1,9 @@
 {
-    "versionName":  "4.1.51",
-    "versionCode":  470,
-    "apkUrl":  "huiyi-v4.1.51-debug.apk",
-    "releaseNotes":  "v4.1.51: solo character arc validation loop with auto judge, active sampler, blind SoloReviewLab, and lightweight route feedback",
+    "versionName":  "4.1.52",
+    "versionCode":  471,
+    "apkUrl":  "huiyi-v4.1.52-debug.apk",
+    "releaseNotes":  "v4.1.52: keep cloud soft-timeout session alive; second Next tap reopens pending cloud panel instead of restarting analysis",
     "forceUpdate":  false,
-    "sha256":  "D6064AC146E39E939FD640DEE1DF29268B6460911C391D52C0BF3B990FBB58B4",
-    "createdAt":  1783160051008
+    "sha256":  "D78ED8B9DA1E787EA26C58BBE5AD5C98004369FA7B5924A9E0C6B2160CB38FB4",
+    "createdAt":  1783160492635
 }

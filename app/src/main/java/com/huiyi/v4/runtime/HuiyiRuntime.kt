@@ -375,6 +375,7 @@ class HuiyiRuntime private constructor(
     }
 
     fun runNextSentence(clickAck: NextSentenceClickAck = NextSentenceClickAck()): String {
+        resumePendingCloudSessionIfAny()?.let { return it }
         val sessionId = UUID.randomUUID().toString()
         val beforeRuntime = AccessibilityRuntimeReader.read(appContext)
         val beforeOverlay = OverlayStateStore.state.value
@@ -632,6 +633,46 @@ class HuiyiRuntime private constructor(
                 handleNextSentenceFailure(error, (error as? com.huiyi.v4.domain.pipeline.NextSentenceException)?.trace ?: traceForThisRun)
             }
         }
+        return sessionId
+    }
+
+    private fun resumePendingCloudSessionIfAny(): String? {
+        val currentState = mutableState.value
+        val currentResult = currentState.latestPipelineResult
+        if (!NextSentencePendingCloudSessionPolicy.shouldResumePendingSession(
+                result = currentResult,
+                activeSessionId = activeNextSentenceSessionId
+            )
+        ) {
+            return null
+        }
+        val sessionId = currentResult?.sessionId ?: return null
+        val updatedTrace = currentState.lastNextSentenceTrace
+            ?.takeIf { it.sessionId == sessionId }
+            ?.copy(
+                panelShown = true,
+                panelAttached = true,
+                panelRenderSuccess = true,
+                userFacingMessage = "云端还在分析，结果回来会自动刷新。"
+            )
+        mutableState.update { latest ->
+            if (!NextSentencePendingCloudSessionPolicy.shouldResumePendingSession(
+                    result = latest.latestPipelineResult,
+                    activeSessionId = activeNextSentenceSessionId
+                )
+            ) {
+                latest
+            } else {
+                latest.copy(
+                    panelVisible = true,
+                    lastError = null,
+                    nextSentenceUiState = NextSentenceUiState.LOADING_CLOUD,
+                    lastNextSentenceTrace = updatedTrace ?: latest.lastNextSentenceTrace
+                )
+            }
+        }
+        updatedTrace?.let(::writeLatestSessionTraceReports)
+        Log.i(LOG_TAG, "pending_cloud_session_resumed sessionId=$sessionId")
         return sessionId
     }
 

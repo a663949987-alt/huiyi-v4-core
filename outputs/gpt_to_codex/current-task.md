@@ -2,22 +2,19 @@
 
 taskStatus: DONE
 project: Huiyi v4 Core
-taskName: solo_character_arc_validation_loop
-versionName: 4.1.51
-versionCode: 470
+taskName: cloud_soft_timeout_pending_panel_fix
+versionName: 4.1.52
+versionCode: 471
 userNeedsPhoneThisRound: true
 realDeviceRequiredThisRound: false
 cloudRealEndpointRequiredThisRound: false
 
 ## Result
 
-- CharacterArcAutoJudge: PASS
-- CharacterArcActiveSampler: PASS
-- SoloReviewLab: IMPLEMENTED
-- route feedback buttons: IMPLEMENTED
-- CharacterArcPreferenceStore: PASS
-- CharacterArcPreferenceProfile: PASS
-- raw private chat saved: false
-- auto send: false
-- unit tests: PASS
+- softTimeoutPendingPanel: PASS
+- secondNextTapReusesPendingSession: PASS
+- secondNextTapStartsNewAnalysis: false
+- secondNextTapStartsNewApiCall: false
+- lateCloudResultCanStillUpgradePanel: true
+- unitTests: PASS
 - LAN APK: READY

@@ -25,6 +25,7 @@ import com.huiyi.v4.domain.pipeline.CurrentScreenPipelineResult
 import com.huiyi.v4.domain.persona.CharacterArcUserFeedback
 import com.huiyi.v4.runtime.HuiyiRuntime
 import com.huiyi.v4.runtime.HuiyiRuntimeState
+import com.huiyi.v4.runtime.NextSentencePendingCloudSessionPolicy
 
 class FloatingResultPanelController(
     private val context: Context,
@@ -63,16 +64,21 @@ class FloatingResultPanelController(
                 container.addView(text("你已经回过了，先等对方。"))
             }
             else -> {
-                val title = if (result?.cloudTrace?.decisionSource == "CLOUD") {
-                    "会意云端分析"
-                } else {
-                    "推荐回复"
+                val waitingForCloud = result?.cloudTrace?.cloudErrorCode == NextSentencePendingCloudSessionPolicy.SOFT_TIMEOUT_PENDING
+                val title = when {
+                    result?.cloudTrace?.decisionSource == "CLOUD" -> "会意云端分析"
+                    waitingForCloud -> "云端还在分析"
+                    else -> "推荐回复"
                 }
                 container.addView(titleText(title))
                 RoutePanelDisplayText.topActionLine(routes)?.let { container.addView(smallText(it)) }
                 cloudStatusLine(result)?.let { container.addView(smallText(it)) }
                 if (routes.isEmpty()) {
-                    container.addView(text("这次还没拿到可用回复，请点一下聊天窗口后再试。"))
+                    if (waitingForCloud) {
+                        container.addView(text("中转站还在返回结果，回来后我会自动刷新到这里。你不用反复点“下一句”。"))
+                    } else {
+                        container.addView(text("这次还没拿到可用回复，请点一下聊天窗口后再试。"))
+                    }
                 } else {
                     addReplyChoices(container, routes)
                 }

@@ -1,38 +1,28 @@
 {
-  "taskName": "solo_character_arc_validation_loop",
-  "versionName": "4.1.51",
-  "versionCode": 470,
+  "taskName": "cloud_soft_timeout_pending_panel_fix",
+  "versionName": "4.1.52",
+  "versionCode": 471,
   "currentOverallResult": "LOCAL_TEST_PASS_LAN_APK_READY",
-  "generatedAt": "2026-07-04T18:15:00+08:00",
+  "generatedAt": "2026-07-04T18:45:00+08:00",
   "userNeedsPhoneThisRound": true,
-  "realDeviceSmokeResult": "NOT_TESTED_NOT_REQUIRED",
-  "soloValidation": {
-    "autoJudgedScenarioCount": 60,
-    "candidateCount": 180,
-    "userReviewNeededCount": 20,
-    "userReviewedCount": 0,
-    "arcRevealWinRate": 100,
-    "arcRevealPersonaFitScore": 89,
-    "overdoPressureScore": 99,
-    "receiveVsArcWantContinueDelta": 7,
-    "soloReviewLabImplemented": true,
-    "resultPanelFeedbackButtons": true,
-    "preferenceProfileGenerated": true,
-    "longTermRawPrivateChatSaved": false,
-    "rawPrivateChatUploadedToGithub": false,
-    "autoSend": false
+  "realDeviceSmokeResult": "NOT_TESTED_AFTER_FIX",
+  "softTimeoutPendingPanel": true,
+  "secondNextTapReusesPendingSession": true,
+  "secondNextTapStartsNewAnalysis": false,
+  "secondNextTapStartsNewApiCall": false,
+  "lateCloudResultCanStillUpgradePanel": true,
+  "tests": {
+    "unitTests": "PASS",
+    "assembleDebug": "PASS",
+    "pendingSessionPolicyTest": "PASS"
   },
   "apkDelivery": {
     "apkDeliveredOutOfBand": true,
     "apkCommittedToPublicGithub": false,
     "lanLatestJson": "http://192.168.31.243:8787/latest.json",
-    "lanApkUrl": "http://192.168.31.243:8787/huiyi-v4.1.51-debug.apk",
-    "localApkPath": "outputs/update_server/huiyi-v4.1.51-debug.apk",
-    "apkSha256": "D6064AC146E39E939FD640DEE1DF29268B6460911C391D52C0BF3B990FBB58B4"
-  },
-  "tests": {
-    "unitTests": "PASS",
-    "assembleDebug": "PASS"
+    "lanApkUrl": "http://192.168.31.243:8787/huiyi-v4.1.52-debug.apk",
+    "localApkPath": "outputs/update_server/huiyi-v4.1.52-debug.apk",
+    "apkSha256": "D78ED8B9DA1E787EA26C58BBE5AD5C98004369FA7B5924A9E0C6B2160CB38FB4"
   },
   "files": [
     {
@@ -41,23 +31,18 @@
       "sendToGpt": true
     },
     {
-      "path": "outputs/gpt_review_inbox/character-arc-solo-validation-report-for-gpt.md",
+      "path": "outputs/gpt_review_inbox/cloud-soft-timeout-pending-panel-report-for-gpt.md",
       "type": "markdown",
       "sendToGpt": true
     },
     {
-      "path": "outputs/gpt_review_inbox/character-arc-solo-validation-report.json",
+      "path": "outputs/gpt_review_inbox/cloud-soft-timeout-pending-panel-report.json",
       "type": "json",
       "sendToGpt": true
     },
     {
       "path": "outputs/update_server/latest.json",
       "type": "json",
-      "sendToGpt": true
-    },
-    {
-      "path": "outputs/codex_to_gpt/changed-files-for-gpt.md",
-      "type": "markdown",
       "sendToGpt": true
     }
   ]
