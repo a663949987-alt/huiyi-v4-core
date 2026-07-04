@@ -410,7 +410,7 @@ class CloudModelRoutingPolicy {
         }
 
     fun escalationTimeoutMs(config: CloudAnalysisConfig): Long =
-        config.timeoutMs.coerceIn(8_000L, 32_000L)
+        config.timeoutMs.coerceIn(20_000L, 90_000L)
 
     fun shouldEscalateError(error: CloudAnalysisException): Boolean {
         if (error.code == "TIMEOUT") return true
@@ -517,7 +517,13 @@ class CloudAnalysisRepository(
                     )
                 }
             }
-            throw error
+            throw error.withRoutingTrace(
+                primaryModel = primaryModel,
+                finalModel = primaryModel,
+                escalated = false,
+                escalationReason = null,
+                primaryLatencyMs = primaryLatencyMs
+            )
         }
         val quality = qualityGate.assess(primaryOutput)
         if (!quality.passed && escalationModel != null) {
@@ -653,7 +659,7 @@ class CloudAnalysisRepository(
         primaryModel: String,
         finalModel: String,
         escalated: Boolean,
-        escalationReason: String,
+        escalationReason: String?,
         primaryLatencyMs: Long?
     ): CloudAnalysisException = CloudAnalysisException(
         code = code,

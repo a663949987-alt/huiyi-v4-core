@@ -318,6 +318,27 @@ class PreconfiguredCloudRealUseMvpTest {
     }
 
     @Test
+    fun VisualEvidenceTimeoutUsesConfiguredLongTimeoutAndReports55AttemptTest() = runTest {
+        val client = ScriptedCloudClient(CloudAnalysisException("TIMEOUT"))
+        val result = pipeline(
+            messages = lastOtherMessages(),
+            repository = CloudAnalysisRepository(relayConfig(timeoutMs = 90_000L), client),
+            visualEvidenceProvider = { fakeVisualEvidence() }
+        ).run(emptyPersona()).getOrThrow()
+
+        assertEquals(1, client.callCount)
+        assertEquals(90_000L, client.timeouts.single())
+        assertTrue(client.bodies.single().contains("\"model\":\"gpt-5.5\""))
+        assertEquals("LOCAL_FALLBACK", result.cloudTrace.decisionSource)
+        assertTrue(result.cloudTrace.cloudFallbackUsed)
+        assertEquals("TIMEOUT", result.cloudTrace.cloudErrorCode)
+        assertFalse(result.cloudTrace.cloudEscalated)
+        assertEquals("gpt-5.5", result.cloudTrace.cloudPrimaryModel)
+        assertEquals("gpt-5.5", result.cloudTrace.cloudFinalModel)
+        assertEquals(5, result.routes.size)
+    }
+
+    @Test
     fun CloudFailureShowsLocalFallbackNotAnalysisFailedTest() = runTest {
         val result = pipeline(
             messages = lastOtherMessages(),
@@ -345,12 +366,12 @@ class PreconfiguredCloudRealUseMvpTest {
         appVersionCode = 447
     )
 
-    private fun relayConfig() = CloudAnalysisConfig(
+    private fun relayConfig(timeoutMs: Long = 6000L) = CloudAnalysisConfig(
         cloudEnabled = true,
         providerType = CloudProviderType.OPENAI_COMPATIBLE_RELAY,
         endpoint = "https://relay.example/v1",
         model = "gpt-5.5",
-        timeoutMs = 6000,
+        timeoutMs = timeoutMs,
         apiKey = "placeholder",
         relayApiKeyStoredSecurely = true
     )
@@ -372,10 +393,12 @@ class PreconfiguredCloudRealUseMvpTest {
     private class ScriptedCloudClient(private vararg val outcomes: Any) : CloudAnalysisClient {
         var callCount = 0
         val bodies = mutableListOf<String>()
+        val timeouts = mutableListOf<Long>()
 
         override fun postJson(endpoint: String, body: String, timeoutMs: Long, clientId: String, clientToken: String): String {
             callCount += 1
             bodies += body
+            timeouts += timeoutMs
             return when (val outcome = outcomes.getOrElse(callCount - 1) { outcomes.last() }) {
                 is Throwable -> throw outcome
                 is String -> outcome
