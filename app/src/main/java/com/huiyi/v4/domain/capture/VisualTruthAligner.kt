@@ -104,6 +104,7 @@ class VisualSpeakerFallback(
             speakerReason = reason,
             finalDecisionSource = reason,
             visualSpeakerFallbackUsed = true,
+            isEffectiveChatMessage = metadataType == com.huiyi.v4.domain.model.MetadataType.NONE && normalizedText?.isNotBlank() == true,
             visualConflict = visualConflict || possibleSpeakerConflict,
             visualConflictReason = visualConflictReason ?: if (possibleSpeakerConflict) "parser_side_conflict" else null
         )

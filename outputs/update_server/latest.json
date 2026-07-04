@@ -1,9 +1,9 @@
 {
-    "versionName":  "4.1.47",
-    "versionCode":  466,
-    "apkUrl":  "huiyi-v4.1.47-debug.apk",
-    "releaseNotes":  "v4.1.47: enforces LAST_ME local wait safety gate even when visual evidence is available; skips relay cloud for already-replied screens",
+    "versionName":  "4.1.48",
+    "versionCode":  467,
+    "apkUrl":  "huiyi-v4.1.48-debug.apk",
+    "releaseNotes":  "v4.1.48: treats visually projected left/right chat bubbles as effective messages so last OTHER is not skipped",
     "forceUpdate":  false,
-    "sha256":  "ACFE2BA61C584DE733CEED79D1B121569A51FE7B453E0E2F5270288C7A1BC5D9",
-    "createdAt":  1783156773294
+    "sha256":  "77C697EA9ECDC08EB1CB4C26AD07B5BFCEB7BA7A8F16ECF4037A8A72CD18DBFF",
+    "createdAt":  1783156935913
 }
