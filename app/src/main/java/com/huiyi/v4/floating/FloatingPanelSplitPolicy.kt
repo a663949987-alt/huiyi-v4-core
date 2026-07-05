@@ -7,9 +7,10 @@ import com.huiyi.v4.runtime.NextSentencePendingCloudSessionPolicy
 object FloatingPanelSplitPolicy {
     const val NEXT_SENTENCE_LABEL = "下一句"
     const val EXPRESS_SELF_LABEL = "表达我"
+    const val FEEDBACK_LABEL = "这次不对，发给 GPT"
     const val HIDE_LABEL = "隐藏"
 
-    val mainMenuLabels = listOf(NEXT_SENTENCE_LABEL, EXPRESS_SELF_LABEL, HIDE_LABEL)
+    val mainMenuLabels = listOf(NEXT_SENTENCE_LABEL, EXPRESS_SELF_LABEL, FEEDBACK_LABEL, HIDE_LABEL)
     val personaFeedbackLabels = listOf("像我", "不像我", "太油", "太重", "太空", "太像汇报", "可发")
     val characterArcDetailLabels = listOf("人物弧光", "本轮动作", "这句话展示了你的哪一面", "不要说过头")
 

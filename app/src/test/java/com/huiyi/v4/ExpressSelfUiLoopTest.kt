@@ -21,7 +21,12 @@ class ExpressSelfUiLoopTest {
     @Test
     fun FloatingMenuHasNextSentenceAndExpressSelfButtonsTest() {
         assertEquals(
-            listOf("\u4e0b\u4e00\u53e5", "\u8868\u8fbe\u6211", "\u9690\u85cf"),
+            listOf(
+                "\u4e0b\u4e00\u53e5",
+                "\u8868\u8fbe\u6211",
+                "\u8fd9\u6b21\u4e0d\u5bf9\uff0c\u53d1\u7ed9 GPT",
+                "\u9690\u85cf"
+            ),
             FloatingPanelSplitPolicy.mainMenuLabels
         )
     }

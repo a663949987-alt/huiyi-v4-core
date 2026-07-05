@@ -16,7 +16,8 @@ import com.huiyi.v4.runtime.NextSentenceClickAck
 class FloatingBubbleController(
     private val context: Context,
     private val onNextSentence: (NextSentenceClickAck) -> Unit,
-    private val onExpressSelf: (NextSentenceClickAck) -> Unit
+    private val onExpressSelf: (NextSentenceClickAck) -> Unit,
+    private val onFeedback: () -> Unit
 ) {
     private val windowManager = context.getSystemService(Context.WINDOW_SERVICE) as WindowManager
     private var rootView: LinearLayout? = null
@@ -144,6 +145,11 @@ class FloatingBubbleController(
                                     bubbleText = "会意正在整理…"
                                 )
                             )
+                        }
+                        FloatingPanelSplitPolicy.FEEDBACK_LABEL -> {
+                            OverlayStateStore.markBubbleClick()
+                            container.removeViews(1, container.childCount - 1)
+                            onFeedback()
                         }
                         FloatingPanelSplitPolicy.HIDE_LABEL -> hide("user_hide")
                     }

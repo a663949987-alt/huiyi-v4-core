@@ -4,6 +4,7 @@ import android.app.Service
 import android.content.Intent
 import android.os.IBinder
 import android.util.Log
+import android.widget.Toast
 import com.huiyi.v4.runtime.HuiyiRuntime
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -74,6 +75,24 @@ class FloatingBubbleService : Service() {
                             OverlayStateStore.recordPipelineException(error)
                             runtime.showOverlayError(error)
                             controller?.markIdle()
+                        }
+                    }
+                }.onFailure { error ->
+                    OverlayStateStore.recordPipelineException(error)
+                    runtime.showOverlayError(error)
+                }
+            },
+            onFeedback = {
+                runCatching {
+                    scope.launch {
+                        try {
+                            Log.i(LOG_TAG, "one_tap_feedback_from_floating_menu")
+                            runtime.exportOneTapFeedback()
+                            Toast.makeText(this@FloatingBubbleService, "正在生成反馈包", Toast.LENGTH_SHORT).show()
+                        } catch (error: Throwable) {
+                            Log.e(LOG_TAG, "one_tap_feedback_click_failed", error)
+                            OverlayStateStore.recordPipelineException(error)
+                            runtime.showOverlayError(error)
                         }
                     }
                 }.onFailure { error ->

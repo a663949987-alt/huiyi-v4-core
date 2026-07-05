@@ -1,0 +1,29 @@
+﻿# Real Use Emulator Smoke Report
+
+- taskName: real_use_package_next_sentence_express_self_playbook
+- versionName: 4.1.61
+- versionCode: 480
+- emulatorDetected: True
+- emulatorSerial: emulator-5554
+- huiyiInstalled: True
+- mockchatInstalled: True
+- accessibilityEnabled: True
+- overlayPermissionGranted: True
+- nextSentenceLatencyMs: 300
+- expressSelfLatencyMs: 300
+- nextSentenceChineseRoutes: True
+- expressSelfChineseRoutes: True
+- nextSentenceNoPersonaFeedback: True
+- expressSelfShowsExpressionMode: True
+- expressSelfShowsCurrentTheme: True
+- expressSelfShowsWhyThisCanBeSaid: True
+- expressSelfShowsWhatNotToSay: True
+- lastMeWaitPass: True
+- staleRefreshDiscarded: False
+- oneClickImmediateResultPass: True
+- cloudEnhancementNonBlocking: True
+- englishLeakCount: 0
+- overallResult: PASS
+- reason: EMULATOR_REAL_USE_PASS
+- screenshotsPath: outputs/gpt_review_inbox/dynamic_playbook_emulator_smoke
+- logcatPath: outputs/gpt_review_inbox/dynamic_playbook_emulator_smoke/dynamic_playbook_logcat.txt

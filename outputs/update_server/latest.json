@@ -1,9 +1,9 @@
 ﻿{
-    "versionName":  "4.1.58",
-    "versionCode":  477,
-    "apkUrl":  "huiyi-v4.1.58-debug.apk",
-    "releaseNotes":  "v4.1.58: dynamic playbook productization; Chinese sendable local fallback; emulator smoke PASS for next sentence, express self, LAST ME wait; cloud remains non-blocking.",
+    "versionName":  "4.1.61",
+    "versionCode":  480,
+    "apkUrl":  "huiyi-v4.1.61-debug.apk",
+    "releaseNotes":  "v4.1.61: real-use package for Next Sentence and Express Self; playbook cache/fallback first; cloud non-blocking; expression ledger visible in Express Self panel.",
     "forceUpdate":  false,
-    "sha256":  "44FB6B2C1F3459ECF49FBCDF437859FBA264DB2CE29F9DA79492A89C87A78A42",
-    "createdAt":  1783226071073
+    "sha256":  "A04257AFC7554DD20A7C48FECAD9A95593D8A240A9F42C17E08C691A4B237BFD",
+    "createdAt":  1783237441061
 }

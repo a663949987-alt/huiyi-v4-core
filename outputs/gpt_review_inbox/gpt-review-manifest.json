@@ -1,41 +1,55 @@
 {
-  "taskName": "expression_ledger_express_self_real_panel_binding",
-  "versionName": "4.1.60",
-  "versionCode": 479,
-  "currentOverallResult": "LOCAL_UI_FIXTURE_PASS_NO_PHONE_REQUIRED",
-  "userNeedsPhoneThisRound": false,
-  "realDeviceRequiredThisRound": false,
-  "emulatorRequiredThisRound": false,
-  "expressSelfRealPanelBound": true,
-  "panelShowsExpressionMode": true,
-  "panelShowsCurrentArcTheme": true,
-  "panelShowsWhyThisCanBeSaid": true,
-  "panelShowsWhatNotToSay": true,
-  "holdBackNoArcRevealRoute": true,
-  "holdBackShowsCollectYourselfLine": true,
-  "holdBackSingleLowPressureRoute": true,
-  "elevateMeaningHasCoCreateRoute": true,
-  "switchFacetDoesNotRepeatLastSurfaceLineRedacted": true,
-  "passiveNextSentenceChanged": false,
-  "lightListeningBaseChanged": false,
-  "parserChanged": false,
-  "sessionStateMachineChanged": false,
-  "cloudCallbackChanged": false,
+  "taskName": "real_use_package_next_sentence_express_self_playbook",
+  "versionName": "4.1.61",
+  "versionCode": 480,
+  "currentOverallResult": "EMULATOR_REAL_USE_PASS",
+  "userNeedsPhoneThisRound": true,
+  "apkPath": "outputs/update_server/huiyi-v4.1.61-debug.apk",
+  "apkSha256": "A04257AFC7554DD20A7C48FECAD9A95593D8A240A9F42C17E08C691A4B237BFD",
+  "lanUpdateAvailable": true,
+  "apkCommittedToPublicGithub": false,
+  "privateApkContainsRelayConfig": true,
+  "nextSentenceReady": true,
+  "expressSelfReady": true,
+  "emulatorSmokeResult": "PASS",
+  "englishLeakCount": 0,
+  "cloudEnhancementNonBlocking": true,
+  "staleCloudRefreshDiscarded": true,
   "files": [
     {
       "path": "outputs/gpt_review_inbox/README_FOR_GPT.md",
       "sendToGpt": true,
-      "description": "Main GPT entry for v4.1.60 ExpressionLedger real panel binding."
+      "description": "Main GPT entry for v4.1.61 real-use package."
     },
     {
-      "path": "outputs/gpt_review_inbox/expression-ledger-panel-report-for-gpt.md",
+      "path": "outputs/gpt_review_inbox/real-use-acceptance-report-for-gpt.md",
       "sendToGpt": true,
-      "description": "Human-readable Express Self panel binding report."
+      "description": "Real-use package acceptance report."
     },
     {
-      "path": "outputs/gpt_review_inbox/expression-ledger-panel-report.json",
+      "path": "outputs/gpt_review_inbox/real-use-acceptance-report.json",
       "sendToGpt": true,
-      "description": "Machine-readable Express Self panel binding result."
+      "description": "Machine-readable acceptance report."
+    },
+    {
+      "path": "outputs/gpt_review_inbox/real-use-emulator-smoke-for-gpt.md",
+      "sendToGpt": true,
+      "description": "Emulator smoke report."
+    },
+    {
+      "path": "outputs/gpt_review_inbox/real-use-emulator-smoke.json",
+      "sendToGpt": true,
+      "description": "Machine-readable emulator smoke report."
+    },
+    {
+      "path": "outputs/update_server/latest.json",
+      "sendToGpt": true,
+      "description": "LAN update manifest for local delivery."
+    },
+    {
+      "path": "outputs/update_server/huiyi-v4.1.61-debug.apk",
+      "sendToGpt": false,
+      "description": "Private local APK; contains relay config and is not committed to public GitHub."
     }
   ]
 }

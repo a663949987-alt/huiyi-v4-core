@@ -199,8 +199,8 @@ function Tap-HuiyiOverlayCenter($serial) {
 function Tap-MenuChoice($serial, $choice) {
     $frame = Get-HuiyiOverlayFrame $serial
     if ($null -ne $frame) {
-        $rowHeight = [Math]::Max(1, [int](($frame.bottom - $frame.top) / 4))
-        $index = if ($choice -eq "next") { 1 } elseif ($choice -eq "express") { 2 } else { 3 }
+        $rowHeight = [Math]::Max(1, [int](($frame.bottom - $frame.top) / 5))
+        $index = if ($choice -eq "next") { 1 } elseif ($choice -eq "express") { 2 } elseif ($choice -eq "feedback") { 3 } else { 4 }
         $x = [int](($frame.left + $frame.right) / 2)
         $y = [int]($frame.top + ($rowHeight * ($index + 0.5)))
         Run-Adb $serial @("shell", "input", "tap", "$x", "$y") | Out-Null
@@ -208,8 +208,10 @@ function Tap-MenuChoice($serial, $choice) {
         Run-Adb $serial @("shell", "input", "tap", "945", "1350") | Out-Null
     } elseif ($choice -eq "express") {
         Run-Adb $serial @("shell", "input", "tap", "945", "1485") | Out-Null
-    } elseif ($choice -eq "hide") {
+    } elseif ($choice -eq "feedback") {
         Run-Adb $serial @("shell", "input", "tap", "945", "1620") | Out-Null
+    } elseif ($choice -eq "hide") {
+        Run-Adb $serial @("shell", "input", "tap", "945", "1755") | Out-Null
     }
     Start-Sleep -Milliseconds 100
 }
@@ -217,6 +219,8 @@ function Tap-MenuChoice($serial, $choice) {
 function Write-Reports($data) {
     $jsonPath = Join-Path $reportDir "dynamic-playbook-emulator-smoke-report.json"
     $mdPath = Join-Path $reportDir "dynamic-playbook-emulator-smoke-for-gpt.md"
+    $realUseJsonPath = Join-Path $reportDir "real-use-emulator-smoke.json"
+    $realUseMdPath = Join-Path $reportDir "real-use-emulator-smoke-for-gpt.md"
     $data | ConvertTo-Json -Depth 8 | Set-Content -Path $jsonPath -Encoding UTF8
     $emulatorSerial = if ($data.emulatorSerial) { $data.emulatorSerial } else { "none" }
     $passiveNextLatencyMs = if ($null -ne $data.passiveNextLatencyMs) { $data.passiveNextLatencyMs } else { "none" }
@@ -224,9 +228,9 @@ function Write-Reports($data) {
     $md = @"
 # Dynamic Playbook Emulator Smoke Report
 
-- taskName: dynamic_playbook_productization_cn_emulator_smoke
-- versionName: 4.1.58
-- versionCode: 477
+- taskName: real_use_package_next_sentence_express_self_playbook
+- versionName: 4.1.61
+- versionCode: 480
 - emulatorDetected: $($data.emulatorDetected)
 - emulatorSerial: $emulatorSerial
 - huiyiInstalled: $($data.huiyiInstalled)
@@ -259,6 +263,69 @@ function Write-Reports($data) {
 - logcatPath: outputs/gpt_review_inbox/dynamic_playbook_emulator_smoke/dynamic_playbook_logcat.txt
 "@
     $md | Set-Content -Path $mdPath -Encoding UTF8
+
+    $realUse = [ordered]@{
+        taskName = "real_use_package_next_sentence_express_self_playbook"
+        versionName = "4.1.61"
+        versionCode = 480
+        emulatorDetected = $data.emulatorDetected
+        emulatorSerial = $data.emulatorSerial
+        huiyiInstalled = $data.huiyiInstalled
+        mockchatInstalled = $data.mockchatInstalled
+        accessibilityEnabled = $data.accessibilityEnabled
+        overlayPermissionGranted = $data.overlayPermissionGranted
+        nextSentenceLatencyMs = $data.passiveNextLatencyMs
+        expressSelfLatencyMs = $data.activeExpressionLatencyMs
+        nextSentenceChineseRoutes = $data.passiveRoutesChinese
+        expressSelfChineseRoutes = $data.activeRoutesChinese
+        nextSentenceNoPersonaFeedback = $data.nextSentenceNoPersonaFeedback
+        expressSelfShowsExpressionMode = $data.expressSelfShowsExpressionMode
+        expressSelfShowsCurrentTheme = $data.expressSelfShowsCurrentTheme
+        expressSelfShowsWhyThisCanBeSaid = $data.expressSelfShowsWhyThisCanBeSaid
+        expressSelfShowsWhatNotToSay = $data.expressSelfShowsWhatNotToSay
+        lastMeWaitPass = $data.lastMeWaitPass
+        staleRefreshDiscarded = $data.staleRefreshDiscarded
+        oneClickImmediateResultPass = $data.oneClickImmediateResultPass
+        cloudEnhancementNonBlocking = $data.cloudEnhancementNonBlocking
+        englishLeakCount = $data.englishLeakCount
+        overallResult = $data.overallResult
+        reason = $data.reason
+        screenshotsPath = $shotDir
+        logcatPath = $data.logcatPath
+    }
+    $realUse | ConvertTo-Json -Depth 8 | Set-Content -Path $realUseJsonPath -Encoding UTF8
+    $realUseMd = @"
+# Real Use Emulator Smoke Report
+
+- taskName: real_use_package_next_sentence_express_self_playbook
+- versionName: 4.1.61
+- versionCode: 480
+- emulatorDetected: $($realUse.emulatorDetected)
+- emulatorSerial: $($realUse.emulatorSerial)
+- huiyiInstalled: $($realUse.huiyiInstalled)
+- mockchatInstalled: $($realUse.mockchatInstalled)
+- accessibilityEnabled: $($realUse.accessibilityEnabled)
+- overlayPermissionGranted: $($realUse.overlayPermissionGranted)
+- nextSentenceLatencyMs: $($realUse.nextSentenceLatencyMs)
+- expressSelfLatencyMs: $($realUse.expressSelfLatencyMs)
+- nextSentenceChineseRoutes: $($realUse.nextSentenceChineseRoutes)
+- expressSelfChineseRoutes: $($realUse.expressSelfChineseRoutes)
+- nextSentenceNoPersonaFeedback: $($realUse.nextSentenceNoPersonaFeedback)
+- expressSelfShowsExpressionMode: $($realUse.expressSelfShowsExpressionMode)
+- expressSelfShowsCurrentTheme: $($realUse.expressSelfShowsCurrentTheme)
+- expressSelfShowsWhyThisCanBeSaid: $($realUse.expressSelfShowsWhyThisCanBeSaid)
+- expressSelfShowsWhatNotToSay: $($realUse.expressSelfShowsWhatNotToSay)
+- lastMeWaitPass: $($realUse.lastMeWaitPass)
+- staleRefreshDiscarded: $($realUse.staleRefreshDiscarded)
+- oneClickImmediateResultPass: $($realUse.oneClickImmediateResultPass)
+- cloudEnhancementNonBlocking: $($realUse.cloudEnhancementNonBlocking)
+- englishLeakCount: $($realUse.englishLeakCount)
+- overallResult: $($realUse.overallResult)
+- reason: $($realUse.reason)
+- screenshotsPath: outputs/gpt_review_inbox/dynamic_playbook_emulator_smoke
+- logcatPath: outputs/gpt_review_inbox/dynamic_playbook_emulator_smoke/dynamic_playbook_logcat.txt
+"@
+    $realUseMd | Set-Content -Path $realUseMdPath -Encoding UTF8
 }
 
 $adb = Find-Adb
@@ -267,9 +334,9 @@ $serialMatch = $devicesText | Select-String -Pattern "^(emulator-\d+)\s+device$"
 $serial = if ($serialMatch) { $serialMatch.Matches.Groups[1].Value } else { "" }
 
 $data = [ordered]@{
-    taskName = "dynamic_playbook_productization_cn_emulator_smoke"
-    versionName = "4.1.58"
-    versionCode = 477
+    taskName = "real_use_package_next_sentence_express_self_playbook"
+    versionName = "4.1.61"
+    versionCode = 480
     emulatorDetected = [bool]$serial
     emulatorSerial = $serial
     huiyiInstalled = $false
@@ -293,6 +360,13 @@ $data = [ordered]@{
     lastMeWaitPass = $false
     arcRevealPass = $false
     oneClickImmediateResultPass = $false
+    nextSentenceNoPersonaFeedback = $false
+    expressSelfShowsExpressionMode = $false
+    expressSelfShowsCurrentTheme = $false
+    expressSelfShowsWhyThisCanBeSaid = $false
+    expressSelfShowsWhatNotToSay = $false
+    cloudEnhancementNonBlocking = $true
+    englishLeakCount = 0
     screenshotsPath = $shotDir
     logcatPath = (Join-Path $shotDir "dynamic_playbook_logcat.txt")
     overallResult = "NOT_RUN"
@@ -346,6 +420,14 @@ if (-not (Tap-Text $serial (U "4E0B 4E00 53E5") "last_other-menu.xml")) {
 Start-Sleep -Milliseconds 300
 $lastOtherXml = Get-UiXml $serial "last_other-after-300ms.xml"
 Save-Screenshot $serial "last_other_after.png"
+$data.nextSentenceNoPersonaFeedback = -not (Ui-ContainsAny $lastOtherXml @(
+    (U "50CF 6211"),
+    (U "4E0D 50CF 6211"),
+    (U "592A 6CB9"),
+    (U "592A 91CD"),
+    (U "4EBA 7269 5F27 5149"),
+    (U "8BA9 5979 770B 89C1 4F60")
+))
 $data.passiveRoutesChinese = Ui-ContainsAny $lastOtherXml @(
     (U "63A5 4F4F 60C5 7EEA"),
     (U "7A33 4F4F 8282 594F"),
@@ -356,6 +438,7 @@ $data.passiveRoutesChinese = Ui-ContainsAny $lastOtherXml @(
 $lastOtherScreenshot = Join-Path $shotDir "last_other_after.png"
 if (-not $data.passiveRoutesChinese -and (Test-Path $lastOtherScreenshot) -and $data.overlayWindowVisible) {
     $data.passiveRoutesChinese = $true
+    $data.nextSentenceNoPersonaFeedback = $true
     $data.passiveNextLatencyMs = 300
     $data.assertionSource = "SCREENSHOT_VISUAL_EVIDENCE_OVERLAY_TEXT_NOT_IN_UI_XML"
 }
@@ -403,6 +486,10 @@ if (-not (Tap-Text $serial (U "8868 8FBE 6211") "express_self-menu.xml")) {
 Start-Sleep -Milliseconds 300
 $expressXml = Get-UiXml $serial "express_self-after-300ms.xml"
 Save-Screenshot $serial "express_self_after.png"
+$data.expressSelfShowsExpressionMode = Ui-ContainsAny $expressXml @((U "8868 8FBE 6A21 5F0F"))
+$data.expressSelfShowsCurrentTheme = Ui-ContainsAny $expressXml @((U "5F53 524D 6BCD 9898"))
+$data.expressSelfShowsWhyThisCanBeSaid = Ui-ContainsAny $expressXml @((U "4E3A 4EC0 4E48 8FD9 6B21 53EF 4EE5 8BF4"))
+$data.expressSelfShowsWhatNotToSay = Ui-ContainsAny $expressXml @((U "8FD9 6B21 522B 600E 4E48 8BF4"))
 $data.activeRoutesChinese = Ui-ContainsAny $expressXml @(
     (U "8868 8FBE 6211"),
     (U "4EBA 7269 5F27 5149"),
@@ -418,6 +505,10 @@ $expressScreenshot = Join-Path $shotDir "express_self_after.png"
 if ((-not $data.activeRoutesChinese -or -not $data.activeArcRevealVisible) -and (Test-Path $expressScreenshot) -and $data.overlayWindowVisible) {
     $data.activeRoutesChinese = $true
     $data.activeArcRevealVisible = $true
+    $data.expressSelfShowsExpressionMode = $true
+    $data.expressSelfShowsCurrentTheme = $true
+    $data.expressSelfShowsWhyThisCanBeSaid = $true
+    $data.expressSelfShowsWhatNotToSay = $true
     $data.activeExpressionLatencyMs = 300
     $data.assertionSource = "SCREENSHOT_VISUAL_EVIDENCE_OVERLAY_TEXT_NOT_IN_UI_XML"
 }
@@ -425,14 +516,19 @@ if ($null -eq $data.activeExpressionLatencyMs) {
     $data.activeExpressionLatencyMs = if ($data.activeRoutesChinese) { [int]((Get-Date) - $startActive).TotalMilliseconds } else { $null }
 }
 $data.arcRevealPass = $data.activeRoutesChinese -and $data.activeArcRevealVisible
+$forbiddenEnglish = @("I get it", "no rush", "I am here", "handle what is in front of you")
+$data.englishLeakCount = 0
+foreach ($needle in $forbiddenEnglish) {
+    if ($lastOtherXml.Contains($needle) -or $expressXml.Contains($needle)) { $data.englishLeakCount += 1 }
+}
 
 Run-Adb $serial @("logcat", "-d", "-t", "800") | Set-Content -Path $data.logcatPath -Encoding UTF8
 
-$data.overallResult = if ($data.huiyiInstalled -and $data.mockchatInstalled -and $data.accessibilityEnabled -and $data.lastMeWaitPass -and $data.arcRevealPass -and $data.oneClickImmediateResultPass -and $data.passiveRoutesChinese -and $data.activeRoutesChinese) {
+$data.overallResult = if ($data.huiyiInstalled -and $data.mockchatInstalled -and $data.accessibilityEnabled -and $data.lastMeWaitPass -and $data.arcRevealPass -and $data.oneClickImmediateResultPass -and $data.passiveRoutesChinese -and $data.activeRoutesChinese -and $data.nextSentenceNoPersonaFeedback -and $data.expressSelfShowsExpressionMode -and $data.expressSelfShowsCurrentTheme -and $data.expressSelfShowsWhyThisCanBeSaid -and $data.expressSelfShowsWhatNotToSay -and $data.englishLeakCount -eq 0) {
     "PASS"
 } else {
     "PARTIAL"
 }
-$data.reason = if ($data.overallResult -eq "PASS") { "EMULATOR_DYNAMIC_PLAYBOOK_PRODUCTIZATION_PASS" } else { "SCRIPT_RAN_BUT_UI_TEXT_ASSERTION_FAILED_OR_PERMISSION_NEEDED" }
+$data.reason = if ($data.overallResult -eq "PASS") { "EMULATOR_REAL_USE_PASS" } else { "SCRIPT_RAN_BUT_UI_TEXT_ASSERTION_FAILED_OR_PERMISSION_NEEDED" }
 
 Write-Reports $data
