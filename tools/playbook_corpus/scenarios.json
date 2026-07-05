@@ -1,0 +1,2436 @@
+{
+  "generatedBy": "generate-playbook-corpus.mjs",
+  "sampleCount": 90,
+  "scenarios": [
+    {
+      "scenarioId": "pb-001",
+      "category": "ordinary",
+      "appPackage": "com.bajiao.im.liaoqi",
+      "windowTitle": "corpus-ordinary",
+      "messages": [
+        {
+          "speaker": "ME",
+          "text": "我在听，你慢慢说。"
+        },
+        {
+          "speaker": "OTHER",
+          "text": "好，我过会也去吃饭了"
+        }
+      ],
+      "expected": {
+        "lastSpeaker": "OTHER",
+        "nextSentenceDecisionType": "NORMAL_REPLY",
+        "nextSentenceRouteCountMin": 3,
+        "nextSentenceRouteCountMax": 5,
+        "expressSelfAllowed": true,
+        "expectedNextMove": "RECEIVE_OTHER",
+        "expectedArcReveal": false,
+        "cloudBlockingAllowed": false,
+        "rawPrivateChat": false
+      }
+    },
+    {
+      "scenarioId": "pb-002",
+      "category": "ordinary",
+      "appPackage": "com.bajiao.im.liaoqi",
+      "windowTitle": "corpus-ordinary",
+      "messages": [
+        {
+          "speaker": "ME",
+          "text": "我在听，你慢慢说。"
+        },
+        {
+          "speaker": "OTHER",
+          "text": "好，我过会也去吃饭了 我想看看你会怎么处理。"
+        }
+      ],
+      "expected": {
+        "lastSpeaker": "OTHER",
+        "nextSentenceDecisionType": "NORMAL_REPLY",
+        "nextSentenceRouteCountMin": 3,
+        "nextSentenceRouteCountMax": 5,
+        "expressSelfAllowed": true,
+        "expectedNextMove": "RECEIVE_OTHER",
+        "expectedArcReveal": false,
+        "cloudBlockingAllowed": false,
+        "rawPrivateChat": false
+      }
+    },
+    {
+      "scenarioId": "pb-003",
+      "category": "ordinary",
+      "appPackage": "com.bajiao.im.liaoqi",
+      "windowTitle": "corpus-ordinary",
+      "messages": [
+        {
+          "speaker": "ME",
+          "text": "我在听，你慢慢说。"
+        },
+        {
+          "speaker": "OTHER",
+          "text": "好，我过会也去吃饭了"
+        }
+      ],
+      "expected": {
+        "lastSpeaker": "OTHER",
+        "nextSentenceDecisionType": "NORMAL_REPLY",
+        "nextSentenceRouteCountMin": 3,
+        "nextSentenceRouteCountMax": 5,
+        "expressSelfAllowed": true,
+        "expectedNextMove": "RECEIVE_OTHER",
+        "expectedArcReveal": false,
+        "cloudBlockingAllowed": false,
+        "rawPrivateChat": false
+      }
+    },
+    {
+      "scenarioId": "pb-004",
+      "category": "ordinary",
+      "appPackage": "com.bajiao.im.liaoqi",
+      "windowTitle": "corpus-ordinary",
+      "messages": [
+        {
+          "speaker": "ME",
+          "text": "我在听，你慢慢说。"
+        },
+        {
+          "speaker": "OTHER",
+          "text": "好，我过会也去吃饭了 我想看看你会怎么处理。"
+        }
+      ],
+      "expected": {
+        "lastSpeaker": "OTHER",
+        "nextSentenceDecisionType": "NORMAL_REPLY",
+        "nextSentenceRouteCountMin": 3,
+        "nextSentenceRouteCountMax": 5,
+        "expressSelfAllowed": true,
+        "expectedNextMove": "RECEIVE_OTHER",
+        "expectedArcReveal": false,
+        "cloudBlockingAllowed": false,
+        "rawPrivateChat": false
+      }
+    },
+    {
+      "scenarioId": "pb-005",
+      "category": "ordinary",
+      "appPackage": "com.bajiao.im.liaoqi",
+      "windowTitle": "corpus-ordinary",
+      "messages": [
+        {
+          "speaker": "ME",
+          "text": "我在听，你慢慢说。"
+        },
+        {
+          "speaker": "OTHER",
+          "text": "好，我过会也去吃饭了"
+        }
+      ],
+      "expected": {
+        "lastSpeaker": "OTHER",
+        "nextSentenceDecisionType": "NORMAL_REPLY",
+        "nextSentenceRouteCountMin": 3,
+        "nextSentenceRouteCountMax": 5,
+        "expressSelfAllowed": true,
+        "expectedNextMove": "RECEIVE_OTHER",
+        "expectedArcReveal": false,
+        "cloudBlockingAllowed": false,
+        "rawPrivateChat": false
+      }
+    },
+    {
+      "scenarioId": "pb-006",
+      "category": "last_me",
+      "appPackage": "com.bajiao.im.liaoqi",
+      "windowTitle": "corpus-last_me",
+      "messages": [
+        {
+          "speaker": "OTHER",
+          "text": "我已经回她一句了，现在先等她。"
+        },
+        {
+          "speaker": "ME",
+          "text": "我明白你的意思，我先按稳一点的节奏来。"
+        }
+      ],
+      "expected": {
+        "lastSpeaker": "ME",
+        "nextSentenceDecisionType": "WAIT",
+        "nextSentenceRouteCountMin": 0,
+        "nextSentenceRouteCountMax": 0,
+        "expressSelfAllowed": false,
+        "expectedNextMove": "WAIT",
+        "expectedArcReveal": false,
+        "cloudBlockingAllowed": false,
+        "rawPrivateChat": false
+      }
+    },
+    {
+      "scenarioId": "pb-007",
+      "category": "last_me",
+      "appPackage": "com.bajiao.im.liaoqi",
+      "windowTitle": "corpus-last_me",
+      "messages": [
+        {
+          "speaker": "OTHER",
+          "text": "我已经回她一句了，现在先等她。"
+        },
+        {
+          "speaker": "ME",
+          "text": "我明白你的意思，我先按稳一点的节奏来。"
+        }
+      ],
+      "expected": {
+        "lastSpeaker": "ME",
+        "nextSentenceDecisionType": "WAIT",
+        "nextSentenceRouteCountMin": 0,
+        "nextSentenceRouteCountMax": 0,
+        "expressSelfAllowed": false,
+        "expectedNextMove": "WAIT",
+        "expectedArcReveal": false,
+        "cloudBlockingAllowed": false,
+        "rawPrivateChat": false
+      }
+    },
+    {
+      "scenarioId": "pb-008",
+      "category": "last_me",
+      "appPackage": "com.bajiao.im.liaoqi",
+      "windowTitle": "corpus-last_me",
+      "messages": [
+        {
+          "speaker": "OTHER",
+          "text": "我已经回她一句了，现在先等她。"
+        },
+        {
+          "speaker": "ME",
+          "text": "我明白你的意思，我先按稳一点的节奏来。"
+        }
+      ],
+      "expected": {
+        "lastSpeaker": "ME",
+        "nextSentenceDecisionType": "WAIT",
+        "nextSentenceRouteCountMin": 0,
+        "nextSentenceRouteCountMax": 0,
+        "expressSelfAllowed": false,
+        "expectedNextMove": "WAIT",
+        "expectedArcReveal": false,
+        "cloudBlockingAllowed": false,
+        "rawPrivateChat": false
+      }
+    },
+    {
+      "scenarioId": "pb-009",
+      "category": "last_me",
+      "appPackage": "com.bajiao.im.liaoqi",
+      "windowTitle": "corpus-last_me",
+      "messages": [
+        {
+          "speaker": "OTHER",
+          "text": "我已经回她一句了，现在先等她。"
+        },
+        {
+          "speaker": "ME",
+          "text": "我明白你的意思，我先按稳一点的节奏来。"
+        }
+      ],
+      "expected": {
+        "lastSpeaker": "ME",
+        "nextSentenceDecisionType": "WAIT",
+        "nextSentenceRouteCountMin": 0,
+        "nextSentenceRouteCountMax": 0,
+        "expressSelfAllowed": false,
+        "expectedNextMove": "WAIT",
+        "expectedArcReveal": false,
+        "cloudBlockingAllowed": false,
+        "rawPrivateChat": false
+      }
+    },
+    {
+      "scenarioId": "pb-010",
+      "category": "last_me",
+      "appPackage": "com.bajiao.im.liaoqi",
+      "windowTitle": "corpus-last_me",
+      "messages": [
+        {
+          "speaker": "OTHER",
+          "text": "我已经回她一句了，现在先等她。"
+        },
+        {
+          "speaker": "ME",
+          "text": "我明白你的意思，我先按稳一点的节奏来。"
+        }
+      ],
+      "expected": {
+        "lastSpeaker": "ME",
+        "nextSentenceDecisionType": "WAIT",
+        "nextSentenceRouteCountMin": 0,
+        "nextSentenceRouteCountMax": 0,
+        "expressSelfAllowed": false,
+        "expectedNextMove": "WAIT",
+        "expectedArcReveal": false,
+        "cloudBlockingAllowed": false,
+        "rawPrivateChat": false
+      }
+    },
+    {
+      "scenarioId": "pb-011",
+      "category": "reality_planning",
+      "appPackage": "com.bajiao.im.liaoqi",
+      "windowTitle": "corpus-reality_planning",
+      "messages": [
+        {
+          "speaker": "ME",
+          "text": "我在听，你慢慢说。"
+        },
+        {
+          "speaker": "OTHER",
+          "text": "这个事情也需要考虑好规划好才行。"
+        }
+      ],
+      "expected": {
+        "lastSpeaker": "OTHER",
+        "nextSentenceDecisionType": "NORMAL_REPLY",
+        "nextSentenceRouteCountMin": 3,
+        "nextSentenceRouteCountMax": 5,
+        "expressSelfAllowed": true,
+        "expectedNextMove": "ARC_REVEAL",
+        "expectedArcReveal": true,
+        "cloudBlockingAllowed": false,
+        "rawPrivateChat": false
+      }
+    },
+    {
+      "scenarioId": "pb-012",
+      "category": "reality_planning",
+      "appPackage": "com.bajiao.im.liaoqi",
+      "windowTitle": "corpus-reality_planning",
+      "messages": [
+        {
+          "speaker": "ME",
+          "text": "我在听，你慢慢说。"
+        },
+        {
+          "speaker": "OTHER",
+          "text": "这个事情也需要考虑好规划好才行。 我想看看你会怎么处理。"
+        }
+      ],
+      "expected": {
+        "lastSpeaker": "OTHER",
+        "nextSentenceDecisionType": "NORMAL_REPLY",
+        "nextSentenceRouteCountMin": 3,
+        "nextSentenceRouteCountMax": 5,
+        "expressSelfAllowed": true,
+        "expectedNextMove": "ARC_REVEAL",
+        "expectedArcReveal": true,
+        "cloudBlockingAllowed": false,
+        "rawPrivateChat": false
+      }
+    },
+    {
+      "scenarioId": "pb-013",
+      "category": "reality_planning",
+      "appPackage": "com.bajiao.im.liaoqi",
+      "windowTitle": "corpus-reality_planning",
+      "messages": [
+        {
+          "speaker": "ME",
+          "text": "我在听，你慢慢说。"
+        },
+        {
+          "speaker": "OTHER",
+          "text": "这个事情也需要考虑好规划好才行。"
+        }
+      ],
+      "expected": {
+        "lastSpeaker": "OTHER",
+        "nextSentenceDecisionType": "NORMAL_REPLY",
+        "nextSentenceRouteCountMin": 3,
+        "nextSentenceRouteCountMax": 5,
+        "expressSelfAllowed": true,
+        "expectedNextMove": "ARC_REVEAL",
+        "expectedArcReveal": true,
+        "cloudBlockingAllowed": false,
+        "rawPrivateChat": false
+      }
+    },
+    {
+      "scenarioId": "pb-014",
+      "category": "reality_planning",
+      "appPackage": "com.bajiao.im.liaoqi",
+      "windowTitle": "corpus-reality_planning",
+      "messages": [
+        {
+          "speaker": "ME",
+          "text": "我在听，你慢慢说。"
+        },
+        {
+          "speaker": "OTHER",
+          "text": "这个事情也需要考虑好规划好才行。 我想看看你会怎么处理。"
+        }
+      ],
+      "expected": {
+        "lastSpeaker": "OTHER",
+        "nextSentenceDecisionType": "NORMAL_REPLY",
+        "nextSentenceRouteCountMin": 3,
+        "nextSentenceRouteCountMax": 5,
+        "expressSelfAllowed": true,
+        "expectedNextMove": "ARC_REVEAL",
+        "expectedArcReveal": true,
+        "cloudBlockingAllowed": false,
+        "rawPrivateChat": false
+      }
+    },
+    {
+      "scenarioId": "pb-015",
+      "category": "reality_planning",
+      "appPackage": "com.bajiao.im.liaoqi",
+      "windowTitle": "corpus-reality_planning",
+      "messages": [
+        {
+          "speaker": "ME",
+          "text": "我在听，你慢慢说。"
+        },
+        {
+          "speaker": "OTHER",
+          "text": "这个事情也需要考虑好规划好才行。"
+        }
+      ],
+      "expected": {
+        "lastSpeaker": "OTHER",
+        "nextSentenceDecisionType": "NORMAL_REPLY",
+        "nextSentenceRouteCountMin": 3,
+        "nextSentenceRouteCountMax": 5,
+        "expressSelfAllowed": true,
+        "expectedNextMove": "ARC_REVEAL",
+        "expectedArcReveal": true,
+        "cloudBlockingAllowed": false,
+        "rawPrivateChat": false
+      }
+    },
+    {
+      "scenarioId": "pb-016",
+      "category": "stability",
+      "appPackage": "com.bajiao.im.liaoqi",
+      "windowTitle": "corpus-stability",
+      "messages": [
+        {
+          "speaker": "ME",
+          "text": "我在听，你慢慢说。"
+        },
+        {
+          "speaker": "OTHER",
+          "text": "我其实更看重稳定和踏实。"
+        }
+      ],
+      "expected": {
+        "lastSpeaker": "OTHER",
+        "nextSentenceDecisionType": "NORMAL_REPLY",
+        "nextSentenceRouteCountMin": 3,
+        "nextSentenceRouteCountMax": 5,
+        "expressSelfAllowed": true,
+        "expectedNextMove": "ARC_REVEAL",
+        "expectedArcReveal": true,
+        "cloudBlockingAllowed": false,
+        "rawPrivateChat": false
+      }
+    },
+    {
+      "scenarioId": "pb-017",
+      "category": "stability",
+      "appPackage": "com.bajiao.im.liaoqi",
+      "windowTitle": "corpus-stability",
+      "messages": [
+        {
+          "speaker": "ME",
+          "text": "我在听，你慢慢说。"
+        },
+        {
+          "speaker": "OTHER",
+          "text": "我其实更看重稳定和踏实。 我想看看你会怎么处理。"
+        }
+      ],
+      "expected": {
+        "lastSpeaker": "OTHER",
+        "nextSentenceDecisionType": "NORMAL_REPLY",
+        "nextSentenceRouteCountMin": 3,
+        "nextSentenceRouteCountMax": 5,
+        "expressSelfAllowed": true,
+        "expectedNextMove": "ARC_REVEAL",
+        "expectedArcReveal": true,
+        "cloudBlockingAllowed": false,
+        "rawPrivateChat": false
+      }
+    },
+    {
+      "scenarioId": "pb-018",
+      "category": "stability",
+      "appPackage": "com.bajiao.im.liaoqi",
+      "windowTitle": "corpus-stability",
+      "messages": [
+        {
+          "speaker": "ME",
+          "text": "我在听，你慢慢说。"
+        },
+        {
+          "speaker": "OTHER",
+          "text": "我其实更看重稳定和踏实。"
+        }
+      ],
+      "expected": {
+        "lastSpeaker": "OTHER",
+        "nextSentenceDecisionType": "NORMAL_REPLY",
+        "nextSentenceRouteCountMin": 3,
+        "nextSentenceRouteCountMax": 5,
+        "expressSelfAllowed": true,
+        "expectedNextMove": "ARC_REVEAL",
+        "expectedArcReveal": true,
+        "cloudBlockingAllowed": false,
+        "rawPrivateChat": false
+      }
+    },
+    {
+      "scenarioId": "pb-019",
+      "category": "stability",
+      "appPackage": "com.bajiao.im.liaoqi",
+      "windowTitle": "corpus-stability",
+      "messages": [
+        {
+          "speaker": "ME",
+          "text": "我在听，你慢慢说。"
+        },
+        {
+          "speaker": "OTHER",
+          "text": "我其实更看重稳定和踏实。 我想看看你会怎么处理。"
+        }
+      ],
+      "expected": {
+        "lastSpeaker": "OTHER",
+        "nextSentenceDecisionType": "NORMAL_REPLY",
+        "nextSentenceRouteCountMin": 3,
+        "nextSentenceRouteCountMax": 5,
+        "expressSelfAllowed": true,
+        "expectedNextMove": "ARC_REVEAL",
+        "expectedArcReveal": true,
+        "cloudBlockingAllowed": false,
+        "rawPrivateChat": false
+      }
+    },
+    {
+      "scenarioId": "pb-020",
+      "category": "stability",
+      "appPackage": "com.bajiao.im.liaoqi",
+      "windowTitle": "corpus-stability",
+      "messages": [
+        {
+          "speaker": "ME",
+          "text": "我在听，你慢慢说。"
+        },
+        {
+          "speaker": "OTHER",
+          "text": "我其实更看重稳定和踏实。"
+        }
+      ],
+      "expected": {
+        "lastSpeaker": "OTHER",
+        "nextSentenceDecisionType": "NORMAL_REPLY",
+        "nextSentenceRouteCountMin": 3,
+        "nextSentenceRouteCountMax": 5,
+        "expressSelfAllowed": true,
+        "expectedNextMove": "ARC_REVEAL",
+        "expectedArcReveal": true,
+        "cloudBlockingAllowed": false,
+        "rawPrivateChat": false
+      }
+    },
+    {
+      "scenarioId": "pb-021",
+      "category": "future",
+      "appPackage": "com.bajiao.im.liaoqi",
+      "windowTitle": "corpus-future",
+      "messages": [
+        {
+          "speaker": "ME",
+          "text": "我在听，你慢慢说。"
+        },
+        {
+          "speaker": "OTHER",
+          "text": "以后怎么走还是要想清楚。"
+        }
+      ],
+      "expected": {
+        "lastSpeaker": "OTHER",
+        "nextSentenceDecisionType": "NORMAL_REPLY",
+        "nextSentenceRouteCountMin": 3,
+        "nextSentenceRouteCountMax": 5,
+        "expressSelfAllowed": true,
+        "expectedNextMove": "CO_CREATE_MEANING",
+        "expectedArcReveal": false,
+        "cloudBlockingAllowed": false,
+        "rawPrivateChat": false
+      }
+    },
+    {
+      "scenarioId": "pb-022",
+      "category": "future",
+      "appPackage": "com.bajiao.im.liaoqi",
+      "windowTitle": "corpus-future",
+      "messages": [
+        {
+          "speaker": "ME",
+          "text": "我在听，你慢慢说。"
+        },
+        {
+          "speaker": "OTHER",
+          "text": "以后怎么走还是要想清楚。 我想看看你会怎么处理。"
+        }
+      ],
+      "expected": {
+        "lastSpeaker": "OTHER",
+        "nextSentenceDecisionType": "NORMAL_REPLY",
+        "nextSentenceRouteCountMin": 3,
+        "nextSentenceRouteCountMax": 5,
+        "expressSelfAllowed": true,
+        "expectedNextMove": "CO_CREATE_MEANING",
+        "expectedArcReveal": false,
+        "cloudBlockingAllowed": false,
+        "rawPrivateChat": false
+      }
+    },
+    {
+      "scenarioId": "pb-023",
+      "category": "future",
+      "appPackage": "com.bajiao.im.liaoqi",
+      "windowTitle": "corpus-future",
+      "messages": [
+        {
+          "speaker": "ME",
+          "text": "我在听，你慢慢说。"
+        },
+        {
+          "speaker": "OTHER",
+          "text": "以后怎么走还是要想清楚。"
+        }
+      ],
+      "expected": {
+        "lastSpeaker": "OTHER",
+        "nextSentenceDecisionType": "NORMAL_REPLY",
+        "nextSentenceRouteCountMin": 3,
+        "nextSentenceRouteCountMax": 5,
+        "expressSelfAllowed": true,
+        "expectedNextMove": "CO_CREATE_MEANING",
+        "expectedArcReveal": false,
+        "cloudBlockingAllowed": false,
+        "rawPrivateChat": false
+      }
+    },
+    {
+      "scenarioId": "pb-024",
+      "category": "future",
+      "appPackage": "com.bajiao.im.liaoqi",
+      "windowTitle": "corpus-future",
+      "messages": [
+        {
+          "speaker": "ME",
+          "text": "我在听，你慢慢说。"
+        },
+        {
+          "speaker": "OTHER",
+          "text": "以后怎么走还是要想清楚。 我想看看你会怎么处理。"
+        }
+      ],
+      "expected": {
+        "lastSpeaker": "OTHER",
+        "nextSentenceDecisionType": "NORMAL_REPLY",
+        "nextSentenceRouteCountMin": 3,
+        "nextSentenceRouteCountMax": 5,
+        "expressSelfAllowed": true,
+        "expectedNextMove": "CO_CREATE_MEANING",
+        "expectedArcReveal": false,
+        "cloudBlockingAllowed": false,
+        "rawPrivateChat": false
+      }
+    },
+    {
+      "scenarioId": "pb-025",
+      "category": "future",
+      "appPackage": "com.bajiao.im.liaoqi",
+      "windowTitle": "corpus-future",
+      "messages": [
+        {
+          "speaker": "ME",
+          "text": "我在听，你慢慢说。"
+        },
+        {
+          "speaker": "OTHER",
+          "text": "以后怎么走还是要想清楚。"
+        }
+      ],
+      "expected": {
+        "lastSpeaker": "OTHER",
+        "nextSentenceDecisionType": "NORMAL_REPLY",
+        "nextSentenceRouteCountMin": 3,
+        "nextSentenceRouteCountMax": 5,
+        "expressSelfAllowed": true,
+        "expectedNextMove": "CO_CREATE_MEANING",
+        "expectedArcReveal": false,
+        "cloudBlockingAllowed": false,
+        "rawPrivateChat": false
+      }
+    },
+    {
+      "scenarioId": "pb-026",
+      "category": "past",
+      "appPackage": "com.bajiao.im.liaoqi",
+      "windowTitle": "corpus-past",
+      "messages": [
+        {
+          "speaker": "ME",
+          "text": "我在听，你慢慢说。"
+        },
+        {
+          "speaker": "OTHER",
+          "text": "今天你把它展示给我了。"
+        }
+      ],
+      "expected": {
+        "lastSpeaker": "OTHER",
+        "nextSentenceDecisionType": "NORMAL_REPLY",
+        "nextSentenceRouteCountMin": 3,
+        "nextSentenceRouteCountMax": 5,
+        "expressSelfAllowed": true,
+        "expectedNextMove": "ARC_REVEAL",
+        "expectedArcReveal": true,
+        "cloudBlockingAllowed": false,
+        "rawPrivateChat": false
+      }
+    },
+    {
+      "scenarioId": "pb-027",
+      "category": "past",
+      "appPackage": "com.bajiao.im.liaoqi",
+      "windowTitle": "corpus-past",
+      "messages": [
+        {
+          "speaker": "ME",
+          "text": "我在听，你慢慢说。"
+        },
+        {
+          "speaker": "OTHER",
+          "text": "今天你把它展示给我了。 我想看看你会怎么处理。"
+        }
+      ],
+      "expected": {
+        "lastSpeaker": "OTHER",
+        "nextSentenceDecisionType": "NORMAL_REPLY",
+        "nextSentenceRouteCountMin": 3,
+        "nextSentenceRouteCountMax": 5,
+        "expressSelfAllowed": true,
+        "expectedNextMove": "ARC_REVEAL",
+        "expectedArcReveal": true,
+        "cloudBlockingAllowed": false,
+        "rawPrivateChat": false
+      }
+    },
+    {
+      "scenarioId": "pb-028",
+      "category": "past",
+      "appPackage": "com.bajiao.im.liaoqi",
+      "windowTitle": "corpus-past",
+      "messages": [
+        {
+          "speaker": "ME",
+          "text": "我在听，你慢慢说。"
+        },
+        {
+          "speaker": "OTHER",
+          "text": "今天你把它展示给我了。"
+        }
+      ],
+      "expected": {
+        "lastSpeaker": "OTHER",
+        "nextSentenceDecisionType": "NORMAL_REPLY",
+        "nextSentenceRouteCountMin": 3,
+        "nextSentenceRouteCountMax": 5,
+        "expressSelfAllowed": true,
+        "expectedNextMove": "ARC_REVEAL",
+        "expectedArcReveal": true,
+        "cloudBlockingAllowed": false,
+        "rawPrivateChat": false
+      }
+    },
+    {
+      "scenarioId": "pb-029",
+      "category": "past",
+      "appPackage": "com.bajiao.im.liaoqi",
+      "windowTitle": "corpus-past",
+      "messages": [
+        {
+          "speaker": "ME",
+          "text": "我在听，你慢慢说。"
+        },
+        {
+          "speaker": "OTHER",
+          "text": "今天你把它展示给我了。 我想看看你会怎么处理。"
+        }
+      ],
+      "expected": {
+        "lastSpeaker": "OTHER",
+        "nextSentenceDecisionType": "NORMAL_REPLY",
+        "nextSentenceRouteCountMin": 3,
+        "nextSentenceRouteCountMax": 5,
+        "expressSelfAllowed": true,
+        "expectedNextMove": "ARC_REVEAL",
+        "expectedArcReveal": true,
+        "cloudBlockingAllowed": false,
+        "rawPrivateChat": false
+      }
+    },
+    {
+      "scenarioId": "pb-030",
+      "category": "past",
+      "appPackage": "com.bajiao.im.liaoqi",
+      "windowTitle": "corpus-past",
+      "messages": [
+        {
+          "speaker": "ME",
+          "text": "我在听，你慢慢说。"
+        },
+        {
+          "speaker": "OTHER",
+          "text": "今天你把它展示给我了。"
+        }
+      ],
+      "expected": {
+        "lastSpeaker": "OTHER",
+        "nextSentenceDecisionType": "NORMAL_REPLY",
+        "nextSentenceRouteCountMin": 3,
+        "nextSentenceRouteCountMax": 5,
+        "expressSelfAllowed": true,
+        "expectedNextMove": "ARC_REVEAL",
+        "expectedArcReveal": true,
+        "cloudBlockingAllowed": false,
+        "rawPrivateChat": false
+      }
+    },
+    {
+      "scenarioId": "pb-031",
+      "category": "true_feeling",
+      "appPackage": "com.bajiao.im.liaoqi",
+      "windowTitle": "corpus-true_feeling",
+      "messages": [
+        {
+          "speaker": "ME",
+          "text": "我在听，你慢慢说。"
+        },
+        {
+          "speaker": "OTHER",
+          "text": "你这样说我会有点不知道怎么接。"
+        }
+      ],
+      "expected": {
+        "lastSpeaker": "OTHER",
+        "nextSentenceDecisionType": "NORMAL_REPLY",
+        "nextSentenceRouteCountMin": 3,
+        "nextSentenceRouteCountMax": 5,
+        "expressSelfAllowed": true,
+        "expectedNextMove": "EXPRESS_SELF",
+        "expectedArcReveal": false,
+        "cloudBlockingAllowed": false,
+        "rawPrivateChat": false
+      }
+    },
+    {
+      "scenarioId": "pb-032",
+      "category": "true_feeling",
+      "appPackage": "com.bajiao.im.liaoqi",
+      "windowTitle": "corpus-true_feeling",
+      "messages": [
+        {
+          "speaker": "ME",
+          "text": "我在听，你慢慢说。"
+        },
+        {
+          "speaker": "OTHER",
+          "text": "你这样说我会有点不知道怎么接。 我想看看你会怎么处理。"
+        }
+      ],
+      "expected": {
+        "lastSpeaker": "OTHER",
+        "nextSentenceDecisionType": "NORMAL_REPLY",
+        "nextSentenceRouteCountMin": 3,
+        "nextSentenceRouteCountMax": 5,
+        "expressSelfAllowed": true,
+        "expectedNextMove": "EXPRESS_SELF",
+        "expectedArcReveal": false,
+        "cloudBlockingAllowed": false,
+        "rawPrivateChat": false
+      }
+    },
+    {
+      "scenarioId": "pb-033",
+      "category": "true_feeling",
+      "appPackage": "com.bajiao.im.liaoqi",
+      "windowTitle": "corpus-true_feeling",
+      "messages": [
+        {
+          "speaker": "ME",
+          "text": "我在听，你慢慢说。"
+        },
+        {
+          "speaker": "OTHER",
+          "text": "你这样说我会有点不知道怎么接。"
+        }
+      ],
+      "expected": {
+        "lastSpeaker": "OTHER",
+        "nextSentenceDecisionType": "NORMAL_REPLY",
+        "nextSentenceRouteCountMin": 3,
+        "nextSentenceRouteCountMax": 5,
+        "expressSelfAllowed": true,
+        "expectedNextMove": "EXPRESS_SELF",
+        "expectedArcReveal": false,
+        "cloudBlockingAllowed": false,
+        "rawPrivateChat": false
+      }
+    },
+    {
+      "scenarioId": "pb-034",
+      "category": "true_feeling",
+      "appPackage": "com.bajiao.im.liaoqi",
+      "windowTitle": "corpus-true_feeling",
+      "messages": [
+        {
+          "speaker": "ME",
+          "text": "我在听，你慢慢说。"
+        },
+        {
+          "speaker": "OTHER",
+          "text": "你这样说我会有点不知道怎么接。 我想看看你会怎么处理。"
+        }
+      ],
+      "expected": {
+        "lastSpeaker": "OTHER",
+        "nextSentenceDecisionType": "NORMAL_REPLY",
+        "nextSentenceRouteCountMin": 3,
+        "nextSentenceRouteCountMax": 5,
+        "expressSelfAllowed": true,
+        "expectedNextMove": "EXPRESS_SELF",
+        "expectedArcReveal": false,
+        "cloudBlockingAllowed": false,
+        "rawPrivateChat": false
+      }
+    },
+    {
+      "scenarioId": "pb-035",
+      "category": "true_feeling",
+      "appPackage": "com.bajiao.im.liaoqi",
+      "windowTitle": "corpus-true_feeling",
+      "messages": [
+        {
+          "speaker": "ME",
+          "text": "我在听，你慢慢说。"
+        },
+        {
+          "speaker": "OTHER",
+          "text": "你这样说我会有点不知道怎么接。"
+        }
+      ],
+      "expected": {
+        "lastSpeaker": "OTHER",
+        "nextSentenceDecisionType": "NORMAL_REPLY",
+        "nextSentenceRouteCountMin": 3,
+        "nextSentenceRouteCountMax": 5,
+        "expressSelfAllowed": true,
+        "expectedNextMove": "EXPRESS_SELF",
+        "expectedArcReveal": false,
+        "cloudBlockingAllowed": false,
+        "rawPrivateChat": false
+      }
+    },
+    {
+      "scenarioId": "pb-036",
+      "category": "expression_difficulty",
+      "appPackage": "com.bajiao.im.liaoqi",
+      "windowTitle": "corpus-expression_difficulty",
+      "messages": [
+        {
+          "speaker": "ME",
+          "text": "我在听，你慢慢说。"
+        },
+        {
+          "speaker": "OTHER",
+          "text": "我是不知道怎么表达。"
+        }
+      ],
+      "expected": {
+        "lastSpeaker": "OTHER",
+        "nextSentenceDecisionType": "NORMAL_REPLY",
+        "nextSentenceRouteCountMin": 3,
+        "nextSentenceRouteCountMax": 5,
+        "expressSelfAllowed": true,
+        "expectedNextMove": "EXPRESS_SELF",
+        "expectedArcReveal": false,
+        "cloudBlockingAllowed": false,
+        "rawPrivateChat": false
+      }
+    },
+    {
+      "scenarioId": "pb-037",
+      "category": "expression_difficulty",
+      "appPackage": "com.bajiao.im.liaoqi",
+      "windowTitle": "corpus-expression_difficulty",
+      "messages": [
+        {
+          "speaker": "ME",
+          "text": "我在听，你慢慢说。"
+        },
+        {
+          "speaker": "OTHER",
+          "text": "我是不知道怎么表达。 我想看看你会怎么处理。"
+        }
+      ],
+      "expected": {
+        "lastSpeaker": "OTHER",
+        "nextSentenceDecisionType": "NORMAL_REPLY",
+        "nextSentenceRouteCountMin": 3,
+        "nextSentenceRouteCountMax": 5,
+        "expressSelfAllowed": true,
+        "expectedNextMove": "EXPRESS_SELF",
+        "expectedArcReveal": false,
+        "cloudBlockingAllowed": false,
+        "rawPrivateChat": false
+      }
+    },
+    {
+      "scenarioId": "pb-038",
+      "category": "expression_difficulty",
+      "appPackage": "com.bajiao.im.liaoqi",
+      "windowTitle": "corpus-expression_difficulty",
+      "messages": [
+        {
+          "speaker": "ME",
+          "text": "我在听，你慢慢说。"
+        },
+        {
+          "speaker": "OTHER",
+          "text": "我是不知道怎么表达。"
+        }
+      ],
+      "expected": {
+        "lastSpeaker": "OTHER",
+        "nextSentenceDecisionType": "NORMAL_REPLY",
+        "nextSentenceRouteCountMin": 3,
+        "nextSentenceRouteCountMax": 5,
+        "expressSelfAllowed": true,
+        "expectedNextMove": "EXPRESS_SELF",
+        "expectedArcReveal": false,
+        "cloudBlockingAllowed": false,
+        "rawPrivateChat": false
+      }
+    },
+    {
+      "scenarioId": "pb-039",
+      "category": "expression_difficulty",
+      "appPackage": "com.bajiao.im.liaoqi",
+      "windowTitle": "corpus-expression_difficulty",
+      "messages": [
+        {
+          "speaker": "ME",
+          "text": "我在听，你慢慢说。"
+        },
+        {
+          "speaker": "OTHER",
+          "text": "我是不知道怎么表达。 我想看看你会怎么处理。"
+        }
+      ],
+      "expected": {
+        "lastSpeaker": "OTHER",
+        "nextSentenceDecisionType": "NORMAL_REPLY",
+        "nextSentenceRouteCountMin": 3,
+        "nextSentenceRouteCountMax": 5,
+        "expressSelfAllowed": true,
+        "expectedNextMove": "EXPRESS_SELF",
+        "expectedArcReveal": false,
+        "cloudBlockingAllowed": false,
+        "rawPrivateChat": false
+      }
+    },
+    {
+      "scenarioId": "pb-040",
+      "category": "expression_difficulty",
+      "appPackage": "com.bajiao.im.liaoqi",
+      "windowTitle": "corpus-expression_difficulty",
+      "messages": [
+        {
+          "speaker": "ME",
+          "text": "我在听，你慢慢说。"
+        },
+        {
+          "speaker": "OTHER",
+          "text": "我是不知道怎么表达。"
+        }
+      ],
+      "expected": {
+        "lastSpeaker": "OTHER",
+        "nextSentenceDecisionType": "NORMAL_REPLY",
+        "nextSentenceRouteCountMin": 3,
+        "nextSentenceRouteCountMax": 5,
+        "expressSelfAllowed": true,
+        "expectedNextMove": "EXPRESS_SELF",
+        "expectedArcReveal": false,
+        "cloudBlockingAllowed": false,
+        "rawPrivateChat": false
+      }
+    },
+    {
+      "scenarioId": "pb-041",
+      "category": "work_pressure",
+      "appPackage": "com.bajiao.im.liaoqi",
+      "windowTitle": "corpus-work_pressure",
+      "messages": [
+        {
+          "speaker": "ME",
+          "text": "我在听，你慢慢说。"
+        },
+        {
+          "speaker": "OTHER",
+          "text": "今天工作太多了，客户一直催。"
+        }
+      ],
+      "expected": {
+        "lastSpeaker": "OTHER",
+        "nextSentenceDecisionType": "NORMAL_REPLY",
+        "nextSentenceRouteCountMin": 3,
+        "nextSentenceRouteCountMax": 5,
+        "expressSelfAllowed": true,
+        "expectedNextMove": "RECEIVE_OTHER",
+        "expectedArcReveal": false,
+        "cloudBlockingAllowed": false,
+        "rawPrivateChat": false
+      }
+    },
+    {
+      "scenarioId": "pb-042",
+      "category": "work_pressure",
+      "appPackage": "com.bajiao.im.liaoqi",
+      "windowTitle": "corpus-work_pressure",
+      "messages": [
+        {
+          "speaker": "ME",
+          "text": "我在听，你慢慢说。"
+        },
+        {
+          "speaker": "OTHER",
+          "text": "今天工作太多了，客户一直催。 我想看看你会怎么处理。"
+        }
+      ],
+      "expected": {
+        "lastSpeaker": "OTHER",
+        "nextSentenceDecisionType": "NORMAL_REPLY",
+        "nextSentenceRouteCountMin": 3,
+        "nextSentenceRouteCountMax": 5,
+        "expressSelfAllowed": true,
+        "expectedNextMove": "RECEIVE_OTHER",
+        "expectedArcReveal": false,
+        "cloudBlockingAllowed": false,
+        "rawPrivateChat": false
+      }
+    },
+    {
+      "scenarioId": "pb-043",
+      "category": "work_pressure",
+      "appPackage": "com.bajiao.im.liaoqi",
+      "windowTitle": "corpus-work_pressure",
+      "messages": [
+        {
+          "speaker": "ME",
+          "text": "我在听，你慢慢说。"
+        },
+        {
+          "speaker": "OTHER",
+          "text": "今天工作太多了，客户一直催。"
+        }
+      ],
+      "expected": {
+        "lastSpeaker": "OTHER",
+        "nextSentenceDecisionType": "NORMAL_REPLY",
+        "nextSentenceRouteCountMin": 3,
+        "nextSentenceRouteCountMax": 5,
+        "expressSelfAllowed": true,
+        "expectedNextMove": "RECEIVE_OTHER",
+        "expectedArcReveal": false,
+        "cloudBlockingAllowed": false,
+        "rawPrivateChat": false
+      }
+    },
+    {
+      "scenarioId": "pb-044",
+      "category": "work_pressure",
+      "appPackage": "com.bajiao.im.liaoqi",
+      "windowTitle": "corpus-work_pressure",
+      "messages": [
+        {
+          "speaker": "ME",
+          "text": "我在听，你慢慢说。"
+        },
+        {
+          "speaker": "OTHER",
+          "text": "今天工作太多了，客户一直催。 我想看看你会怎么处理。"
+        }
+      ],
+      "expected": {
+        "lastSpeaker": "OTHER",
+        "nextSentenceDecisionType": "NORMAL_REPLY",
+        "nextSentenceRouteCountMin": 3,
+        "nextSentenceRouteCountMax": 5,
+        "expressSelfAllowed": true,
+        "expectedNextMove": "RECEIVE_OTHER",
+        "expectedArcReveal": false,
+        "cloudBlockingAllowed": false,
+        "rawPrivateChat": false
+      }
+    },
+    {
+      "scenarioId": "pb-045",
+      "category": "work_pressure",
+      "appPackage": "com.bajiao.im.liaoqi",
+      "windowTitle": "corpus-work_pressure",
+      "messages": [
+        {
+          "speaker": "ME",
+          "text": "我在听，你慢慢说。"
+        },
+        {
+          "speaker": "OTHER",
+          "text": "今天工作太多了，客户一直催。"
+        }
+      ],
+      "expected": {
+        "lastSpeaker": "OTHER",
+        "nextSentenceDecisionType": "NORMAL_REPLY",
+        "nextSentenceRouteCountMin": 3,
+        "nextSentenceRouteCountMax": 5,
+        "expressSelfAllowed": true,
+        "expectedNextMove": "RECEIVE_OTHER",
+        "expectedArcReveal": false,
+        "cloudBlockingAllowed": false,
+        "rawPrivateChat": false
+      }
+    },
+    {
+      "scenarioId": "pb-046",
+      "category": "transition",
+      "appPackage": "com.bajiao.im.liaoqi",
+      "windowTitle": "corpus-transition",
+      "messages": [
+        {
+          "speaker": "ME",
+          "text": "我在听，你慢慢说。"
+        },
+        {
+          "speaker": "OTHER",
+          "text": "转业以后很多事都要重新适应。"
+        }
+      ],
+      "expected": {
+        "lastSpeaker": "OTHER",
+        "nextSentenceDecisionType": "NORMAL_REPLY",
+        "nextSentenceRouteCountMin": 3,
+        "nextSentenceRouteCountMax": 5,
+        "expressSelfAllowed": true,
+        "expectedNextMove": "ARC_REVEAL",
+        "expectedArcReveal": true,
+        "cloudBlockingAllowed": false,
+        "rawPrivateChat": false
+      }
+    },
+    {
+      "scenarioId": "pb-047",
+      "category": "transition",
+      "appPackage": "com.bajiao.im.liaoqi",
+      "windowTitle": "corpus-transition",
+      "messages": [
+        {
+          "speaker": "ME",
+          "text": "我在听，你慢慢说。"
+        },
+        {
+          "speaker": "OTHER",
+          "text": "转业以后很多事都要重新适应。 我想看看你会怎么处理。"
+        }
+      ],
+      "expected": {
+        "lastSpeaker": "OTHER",
+        "nextSentenceDecisionType": "NORMAL_REPLY",
+        "nextSentenceRouteCountMin": 3,
+        "nextSentenceRouteCountMax": 5,
+        "expressSelfAllowed": true,
+        "expectedNextMove": "ARC_REVEAL",
+        "expectedArcReveal": true,
+        "cloudBlockingAllowed": false,
+        "rawPrivateChat": false
+      }
+    },
+    {
+      "scenarioId": "pb-048",
+      "category": "transition",
+      "appPackage": "com.bajiao.im.liaoqi",
+      "windowTitle": "corpus-transition",
+      "messages": [
+        {
+          "speaker": "ME",
+          "text": "我在听，你慢慢说。"
+        },
+        {
+          "speaker": "OTHER",
+          "text": "转业以后很多事都要重新适应。"
+        }
+      ],
+      "expected": {
+        "lastSpeaker": "OTHER",
+        "nextSentenceDecisionType": "NORMAL_REPLY",
+        "nextSentenceRouteCountMin": 3,
+        "nextSentenceRouteCountMax": 5,
+        "expressSelfAllowed": true,
+        "expectedNextMove": "ARC_REVEAL",
+        "expectedArcReveal": true,
+        "cloudBlockingAllowed": false,
+        "rawPrivateChat": false
+      }
+    },
+    {
+      "scenarioId": "pb-049",
+      "category": "transition",
+      "appPackage": "com.bajiao.im.liaoqi",
+      "windowTitle": "corpus-transition",
+      "messages": [
+        {
+          "speaker": "ME",
+          "text": "我在听，你慢慢说。"
+        },
+        {
+          "speaker": "OTHER",
+          "text": "转业以后很多事都要重新适应。 我想看看你会怎么处理。"
+        }
+      ],
+      "expected": {
+        "lastSpeaker": "OTHER",
+        "nextSentenceDecisionType": "NORMAL_REPLY",
+        "nextSentenceRouteCountMin": 3,
+        "nextSentenceRouteCountMax": 5,
+        "expressSelfAllowed": true,
+        "expectedNextMove": "ARC_REVEAL",
+        "expectedArcReveal": true,
+        "cloudBlockingAllowed": false,
+        "rawPrivateChat": false
+      }
+    },
+    {
+      "scenarioId": "pb-050",
+      "category": "transition",
+      "appPackage": "com.bajiao.im.liaoqi",
+      "windowTitle": "corpus-transition",
+      "messages": [
+        {
+          "speaker": "ME",
+          "text": "我在听，你慢慢说。"
+        },
+        {
+          "speaker": "OTHER",
+          "text": "转业以后很多事都要重新适应。"
+        }
+      ],
+      "expected": {
+        "lastSpeaker": "OTHER",
+        "nextSentenceDecisionType": "NORMAL_REPLY",
+        "nextSentenceRouteCountMin": 3,
+        "nextSentenceRouteCountMax": 5,
+        "expressSelfAllowed": true,
+        "expectedNextMove": "ARC_REVEAL",
+        "expectedArcReveal": true,
+        "cloudBlockingAllowed": false,
+        "rawPrivateChat": false
+      }
+    },
+    {
+      "scenarioId": "pb-051",
+      "category": "army",
+      "appPackage": "com.bajiao.im.liaoqi",
+      "windowTitle": "corpus-army",
+      "messages": [
+        {
+          "speaker": "ME",
+          "text": "我在听，你慢慢说。"
+        },
+        {
+          "speaker": "OTHER",
+          "text": "老班长都是为你好啊。"
+        }
+      ],
+      "expected": {
+        "lastSpeaker": "OTHER",
+        "nextSentenceDecisionType": "NORMAL_REPLY",
+        "nextSentenceRouteCountMin": 3,
+        "nextSentenceRouteCountMax": 5,
+        "expressSelfAllowed": true,
+        "expectedNextMove": "ARC_REVEAL",
+        "expectedArcReveal": true,
+        "cloudBlockingAllowed": false,
+        "rawPrivateChat": false
+      }
+    },
+    {
+      "scenarioId": "pb-052",
+      "category": "army",
+      "appPackage": "com.bajiao.im.liaoqi",
+      "windowTitle": "corpus-army",
+      "messages": [
+        {
+          "speaker": "ME",
+          "text": "我在听，你慢慢说。"
+        },
+        {
+          "speaker": "OTHER",
+          "text": "老班长都是为你好啊。 我想看看你会怎么处理。"
+        }
+      ],
+      "expected": {
+        "lastSpeaker": "OTHER",
+        "nextSentenceDecisionType": "NORMAL_REPLY",
+        "nextSentenceRouteCountMin": 3,
+        "nextSentenceRouteCountMax": 5,
+        "expressSelfAllowed": true,
+        "expectedNextMove": "ARC_REVEAL",
+        "expectedArcReveal": true,
+        "cloudBlockingAllowed": false,
+        "rawPrivateChat": false
+      }
+    },
+    {
+      "scenarioId": "pb-053",
+      "category": "army",
+      "appPackage": "com.bajiao.im.liaoqi",
+      "windowTitle": "corpus-army",
+      "messages": [
+        {
+          "speaker": "ME",
+          "text": "我在听，你慢慢说。"
+        },
+        {
+          "speaker": "OTHER",
+          "text": "老班长都是为你好啊。"
+        }
+      ],
+      "expected": {
+        "lastSpeaker": "OTHER",
+        "nextSentenceDecisionType": "NORMAL_REPLY",
+        "nextSentenceRouteCountMin": 3,
+        "nextSentenceRouteCountMax": 5,
+        "expressSelfAllowed": true,
+        "expectedNextMove": "ARC_REVEAL",
+        "expectedArcReveal": true,
+        "cloudBlockingAllowed": false,
+        "rawPrivateChat": false
+      }
+    },
+    {
+      "scenarioId": "pb-054",
+      "category": "army",
+      "appPackage": "com.bajiao.im.liaoqi",
+      "windowTitle": "corpus-army",
+      "messages": [
+        {
+          "speaker": "ME",
+          "text": "我在听，你慢慢说。"
+        },
+        {
+          "speaker": "OTHER",
+          "text": "老班长都是为你好啊。 我想看看你会怎么处理。"
+        }
+      ],
+      "expected": {
+        "lastSpeaker": "OTHER",
+        "nextSentenceDecisionType": "NORMAL_REPLY",
+        "nextSentenceRouteCountMin": 3,
+        "nextSentenceRouteCountMax": 5,
+        "expressSelfAllowed": true,
+        "expectedNextMove": "ARC_REVEAL",
+        "expectedArcReveal": true,
+        "cloudBlockingAllowed": false,
+        "rawPrivateChat": false
+      }
+    },
+    {
+      "scenarioId": "pb-055",
+      "category": "army",
+      "appPackage": "com.bajiao.im.liaoqi",
+      "windowTitle": "corpus-army",
+      "messages": [
+        {
+          "speaker": "ME",
+          "text": "我在听，你慢慢说。"
+        },
+        {
+          "speaker": "OTHER",
+          "text": "老班长都是为你好啊。"
+        }
+      ],
+      "expected": {
+        "lastSpeaker": "OTHER",
+        "nextSentenceDecisionType": "NORMAL_REPLY",
+        "nextSentenceRouteCountMin": 3,
+        "nextSentenceRouteCountMax": 5,
+        "expressSelfAllowed": true,
+        "expectedNextMove": "ARC_REVEAL",
+        "expectedArcReveal": true,
+        "cloudBlockingAllowed": false,
+        "rawPrivateChat": false
+      }
+    },
+    {
+      "scenarioId": "pb-056",
+      "category": "responsibility",
+      "appPackage": "com.bajiao.im.liaoqi",
+      "windowTitle": "corpus-responsibility",
+      "messages": [
+        {
+          "speaker": "ME",
+          "text": "我在听，你慢慢说。"
+        },
+        {
+          "speaker": "OTHER",
+          "text": "我觉得责任感真的很重要。"
+        }
+      ],
+      "expected": {
+        "lastSpeaker": "OTHER",
+        "nextSentenceDecisionType": "NORMAL_REPLY",
+        "nextSentenceRouteCountMin": 3,
+        "nextSentenceRouteCountMax": 5,
+        "expressSelfAllowed": true,
+        "expectedNextMove": "ARC_REVEAL",
+        "expectedArcReveal": true,
+        "cloudBlockingAllowed": false,
+        "rawPrivateChat": false
+      }
+    },
+    {
+      "scenarioId": "pb-057",
+      "category": "responsibility",
+      "appPackage": "com.bajiao.im.liaoqi",
+      "windowTitle": "corpus-responsibility",
+      "messages": [
+        {
+          "speaker": "ME",
+          "text": "我在听，你慢慢说。"
+        },
+        {
+          "speaker": "OTHER",
+          "text": "我觉得责任感真的很重要。 我想看看你会怎么处理。"
+        }
+      ],
+      "expected": {
+        "lastSpeaker": "OTHER",
+        "nextSentenceDecisionType": "NORMAL_REPLY",
+        "nextSentenceRouteCountMin": 3,
+        "nextSentenceRouteCountMax": 5,
+        "expressSelfAllowed": true,
+        "expectedNextMove": "ARC_REVEAL",
+        "expectedArcReveal": true,
+        "cloudBlockingAllowed": false,
+        "rawPrivateChat": false
+      }
+    },
+    {
+      "scenarioId": "pb-058",
+      "category": "responsibility",
+      "appPackage": "com.bajiao.im.liaoqi",
+      "windowTitle": "corpus-responsibility",
+      "messages": [
+        {
+          "speaker": "ME",
+          "text": "我在听，你慢慢说。"
+        },
+        {
+          "speaker": "OTHER",
+          "text": "我觉得责任感真的很重要。"
+        }
+      ],
+      "expected": {
+        "lastSpeaker": "OTHER",
+        "nextSentenceDecisionType": "NORMAL_REPLY",
+        "nextSentenceRouteCountMin": 3,
+        "nextSentenceRouteCountMax": 5,
+        "expressSelfAllowed": true,
+        "expectedNextMove": "ARC_REVEAL",
+        "expectedArcReveal": true,
+        "cloudBlockingAllowed": false,
+        "rawPrivateChat": false
+      }
+    },
+    {
+      "scenarioId": "pb-059",
+      "category": "responsibility",
+      "appPackage": "com.bajiao.im.liaoqi",
+      "windowTitle": "corpus-responsibility",
+      "messages": [
+        {
+          "speaker": "ME",
+          "text": "我在听，你慢慢说。"
+        },
+        {
+          "speaker": "OTHER",
+          "text": "我觉得责任感真的很重要。 我想看看你会怎么处理。"
+        }
+      ],
+      "expected": {
+        "lastSpeaker": "OTHER",
+        "nextSentenceDecisionType": "NORMAL_REPLY",
+        "nextSentenceRouteCountMin": 3,
+        "nextSentenceRouteCountMax": 5,
+        "expressSelfAllowed": true,
+        "expectedNextMove": "ARC_REVEAL",
+        "expectedArcReveal": true,
+        "cloudBlockingAllowed": false,
+        "rawPrivateChat": false
+      }
+    },
+    {
+      "scenarioId": "pb-060",
+      "category": "responsibility",
+      "appPackage": "com.bajiao.im.liaoqi",
+      "windowTitle": "corpus-responsibility",
+      "messages": [
+        {
+          "speaker": "ME",
+          "text": "我在听，你慢慢说。"
+        },
+        {
+          "speaker": "OTHER",
+          "text": "我觉得责任感真的很重要。"
+        }
+      ],
+      "expected": {
+        "lastSpeaker": "OTHER",
+        "nextSentenceDecisionType": "NORMAL_REPLY",
+        "nextSentenceRouteCountMin": 3,
+        "nextSentenceRouteCountMax": 5,
+        "expressSelfAllowed": true,
+        "expectedNextMove": "ARC_REVEAL",
+        "expectedArcReveal": true,
+        "cloudBlockingAllowed": false,
+        "rawPrivateChat": false
+      }
+    },
+    {
+      "scenarioId": "pb-061",
+      "category": "kids",
+      "appPackage": "com.bajiao.im.liaoqi",
+      "windowTitle": "corpus-kids",
+      "messages": [
+        {
+          "speaker": "ME",
+          "text": "我在听，你慢慢说。"
+        },
+        {
+          "speaker": "OTHER",
+          "text": "带孩子真的很耗精力。"
+        }
+      ],
+      "expected": {
+        "lastSpeaker": "OTHER",
+        "nextSentenceDecisionType": "NORMAL_REPLY",
+        "nextSentenceRouteCountMin": 3,
+        "nextSentenceRouteCountMax": 5,
+        "expressSelfAllowed": true,
+        "expectedNextMove": "RECEIVE_OTHER",
+        "expectedArcReveal": false,
+        "cloudBlockingAllowed": false,
+        "rawPrivateChat": false
+      }
+    },
+    {
+      "scenarioId": "pb-062",
+      "category": "kids",
+      "appPackage": "com.bajiao.im.liaoqi",
+      "windowTitle": "corpus-kids",
+      "messages": [
+        {
+          "speaker": "ME",
+          "text": "我在听，你慢慢说。"
+        },
+        {
+          "speaker": "OTHER",
+          "text": "带孩子真的很耗精力。 我想看看你会怎么处理。"
+        }
+      ],
+      "expected": {
+        "lastSpeaker": "OTHER",
+        "nextSentenceDecisionType": "NORMAL_REPLY",
+        "nextSentenceRouteCountMin": 3,
+        "nextSentenceRouteCountMax": 5,
+        "expressSelfAllowed": true,
+        "expectedNextMove": "RECEIVE_OTHER",
+        "expectedArcReveal": false,
+        "cloudBlockingAllowed": false,
+        "rawPrivateChat": false
+      }
+    },
+    {
+      "scenarioId": "pb-063",
+      "category": "kids",
+      "appPackage": "com.bajiao.im.liaoqi",
+      "windowTitle": "corpus-kids",
+      "messages": [
+        {
+          "speaker": "ME",
+          "text": "我在听，你慢慢说。"
+        },
+        {
+          "speaker": "OTHER",
+          "text": "带孩子真的很耗精力。"
+        }
+      ],
+      "expected": {
+        "lastSpeaker": "OTHER",
+        "nextSentenceDecisionType": "NORMAL_REPLY",
+        "nextSentenceRouteCountMin": 3,
+        "nextSentenceRouteCountMax": 5,
+        "expressSelfAllowed": true,
+        "expectedNextMove": "RECEIVE_OTHER",
+        "expectedArcReveal": false,
+        "cloudBlockingAllowed": false,
+        "rawPrivateChat": false
+      }
+    },
+    {
+      "scenarioId": "pb-064",
+      "category": "kids",
+      "appPackage": "com.bajiao.im.liaoqi",
+      "windowTitle": "corpus-kids",
+      "messages": [
+        {
+          "speaker": "ME",
+          "text": "我在听，你慢慢说。"
+        },
+        {
+          "speaker": "OTHER",
+          "text": "带孩子真的很耗精力。 我想看看你会怎么处理。"
+        }
+      ],
+      "expected": {
+        "lastSpeaker": "OTHER",
+        "nextSentenceDecisionType": "NORMAL_REPLY",
+        "nextSentenceRouteCountMin": 3,
+        "nextSentenceRouteCountMax": 5,
+        "expressSelfAllowed": true,
+        "expectedNextMove": "RECEIVE_OTHER",
+        "expectedArcReveal": false,
+        "cloudBlockingAllowed": false,
+        "rawPrivateChat": false
+      }
+    },
+    {
+      "scenarioId": "pb-065",
+      "category": "kids",
+      "appPackage": "com.bajiao.im.liaoqi",
+      "windowTitle": "corpus-kids",
+      "messages": [
+        {
+          "speaker": "ME",
+          "text": "我在听，你慢慢说。"
+        },
+        {
+          "speaker": "OTHER",
+          "text": "带孩子真的很耗精力。"
+        }
+      ],
+      "expected": {
+        "lastSpeaker": "OTHER",
+        "nextSentenceDecisionType": "NORMAL_REPLY",
+        "nextSentenceRouteCountMin": 3,
+        "nextSentenceRouteCountMax": 5,
+        "expressSelfAllowed": true,
+        "expectedNextMove": "RECEIVE_OTHER",
+        "expectedArcReveal": false,
+        "cloudBlockingAllowed": false,
+        "rawPrivateChat": false
+      }
+    },
+    {
+      "scenarioId": "pb-066",
+      "category": "read_no_reply",
+      "appPackage": "com.bajiao.im.liaoqi",
+      "windowTitle": "corpus-read_no_reply",
+      "messages": [
+        {
+          "speaker": "ME",
+          "text": "我在听，你慢慢说。"
+        },
+        {
+          "speaker": "OTHER",
+          "text": "刚刚我看到已读了，但不知道怎么回。"
+        }
+      ],
+      "expected": {
+        "lastSpeaker": "OTHER",
+        "nextSentenceDecisionType": "NORMAL_REPLY",
+        "nextSentenceRouteCountMin": 3,
+        "nextSentenceRouteCountMax": 5,
+        "expressSelfAllowed": true,
+        "expectedNextMove": "WITHDRAW",
+        "expectedArcReveal": false,
+        "cloudBlockingAllowed": false,
+        "rawPrivateChat": false
+      }
+    },
+    {
+      "scenarioId": "pb-067",
+      "category": "read_no_reply",
+      "appPackage": "com.bajiao.im.liaoqi",
+      "windowTitle": "corpus-read_no_reply",
+      "messages": [
+        {
+          "speaker": "ME",
+          "text": "我在听，你慢慢说。"
+        },
+        {
+          "speaker": "OTHER",
+          "text": "刚刚我看到已读了，但不知道怎么回。 我想看看你会怎么处理。"
+        }
+      ],
+      "expected": {
+        "lastSpeaker": "OTHER",
+        "nextSentenceDecisionType": "NORMAL_REPLY",
+        "nextSentenceRouteCountMin": 3,
+        "nextSentenceRouteCountMax": 5,
+        "expressSelfAllowed": true,
+        "expectedNextMove": "WITHDRAW",
+        "expectedArcReveal": false,
+        "cloudBlockingAllowed": false,
+        "rawPrivateChat": false
+      }
+    },
+    {
+      "scenarioId": "pb-068",
+      "category": "read_no_reply",
+      "appPackage": "com.bajiao.im.liaoqi",
+      "windowTitle": "corpus-read_no_reply",
+      "messages": [
+        {
+          "speaker": "ME",
+          "text": "我在听，你慢慢说。"
+        },
+        {
+          "speaker": "OTHER",
+          "text": "刚刚我看到已读了，但不知道怎么回。"
+        }
+      ],
+      "expected": {
+        "lastSpeaker": "OTHER",
+        "nextSentenceDecisionType": "NORMAL_REPLY",
+        "nextSentenceRouteCountMin": 3,
+        "nextSentenceRouteCountMax": 5,
+        "expressSelfAllowed": true,
+        "expectedNextMove": "WITHDRAW",
+        "expectedArcReveal": false,
+        "cloudBlockingAllowed": false,
+        "rawPrivateChat": false
+      }
+    },
+    {
+      "scenarioId": "pb-069",
+      "category": "read_no_reply",
+      "appPackage": "com.bajiao.im.liaoqi",
+      "windowTitle": "corpus-read_no_reply",
+      "messages": [
+        {
+          "speaker": "ME",
+          "text": "我在听，你慢慢说。"
+        },
+        {
+          "speaker": "OTHER",
+          "text": "刚刚我看到已读了，但不知道怎么回。 我想看看你会怎么处理。"
+        }
+      ],
+      "expected": {
+        "lastSpeaker": "OTHER",
+        "nextSentenceDecisionType": "NORMAL_REPLY",
+        "nextSentenceRouteCountMin": 3,
+        "nextSentenceRouteCountMax": 5,
+        "expressSelfAllowed": true,
+        "expectedNextMove": "WITHDRAW",
+        "expectedArcReveal": false,
+        "cloudBlockingAllowed": false,
+        "rawPrivateChat": false
+      }
+    },
+    {
+      "scenarioId": "pb-070",
+      "category": "read_no_reply",
+      "appPackage": "com.bajiao.im.liaoqi",
+      "windowTitle": "corpus-read_no_reply",
+      "messages": [
+        {
+          "speaker": "ME",
+          "text": "我在听，你慢慢说。"
+        },
+        {
+          "speaker": "OTHER",
+          "text": "刚刚我看到已读了，但不知道怎么回。"
+        }
+      ],
+      "expected": {
+        "lastSpeaker": "OTHER",
+        "nextSentenceDecisionType": "NORMAL_REPLY",
+        "nextSentenceRouteCountMin": 3,
+        "nextSentenceRouteCountMax": 5,
+        "expressSelfAllowed": true,
+        "expectedNextMove": "WITHDRAW",
+        "expectedArcReveal": false,
+        "cloudBlockingAllowed": false,
+        "rawPrivateChat": false
+      }
+    },
+    {
+      "scenarioId": "pb-071",
+      "category": "light_life",
+      "appPackage": "com.bajiao.im.liaoqi",
+      "windowTitle": "corpus-light_life",
+      "messages": [
+        {
+          "speaker": "ME",
+          "text": "我在听，你慢慢说。"
+        },
+        {
+          "speaker": "OTHER",
+          "text": "我去给客户送衣服去了。"
+        }
+      ],
+      "expected": {
+        "lastSpeaker": "OTHER",
+        "nextSentenceDecisionType": "NORMAL_REPLY",
+        "nextSentenceRouteCountMin": 3,
+        "nextSentenceRouteCountMax": 5,
+        "expressSelfAllowed": true,
+        "expectedNextMove": "RECEIVE_OTHER",
+        "expectedArcReveal": false,
+        "cloudBlockingAllowed": false,
+        "rawPrivateChat": false
+      }
+    },
+    {
+      "scenarioId": "pb-072",
+      "category": "light_life",
+      "appPackage": "com.bajiao.im.liaoqi",
+      "windowTitle": "corpus-light_life",
+      "messages": [
+        {
+          "speaker": "ME",
+          "text": "我在听，你慢慢说。"
+        },
+        {
+          "speaker": "OTHER",
+          "text": "我去给客户送衣服去了。 我想看看你会怎么处理。"
+        }
+      ],
+      "expected": {
+        "lastSpeaker": "OTHER",
+        "nextSentenceDecisionType": "NORMAL_REPLY",
+        "nextSentenceRouteCountMin": 3,
+        "nextSentenceRouteCountMax": 5,
+        "expressSelfAllowed": true,
+        "expectedNextMove": "RECEIVE_OTHER",
+        "expectedArcReveal": false,
+        "cloudBlockingAllowed": false,
+        "rawPrivateChat": false
+      }
+    },
+    {
+      "scenarioId": "pb-073",
+      "category": "light_life",
+      "appPackage": "com.bajiao.im.liaoqi",
+      "windowTitle": "corpus-light_life",
+      "messages": [
+        {
+          "speaker": "ME",
+          "text": "我在听，你慢慢说。"
+        },
+        {
+          "speaker": "OTHER",
+          "text": "我去给客户送衣服去了。"
+        }
+      ],
+      "expected": {
+        "lastSpeaker": "OTHER",
+        "nextSentenceDecisionType": "NORMAL_REPLY",
+        "nextSentenceRouteCountMin": 3,
+        "nextSentenceRouteCountMax": 5,
+        "expressSelfAllowed": true,
+        "expectedNextMove": "RECEIVE_OTHER",
+        "expectedArcReveal": false,
+        "cloudBlockingAllowed": false,
+        "rawPrivateChat": false
+      }
+    },
+    {
+      "scenarioId": "pb-074",
+      "category": "light_life",
+      "appPackage": "com.bajiao.im.liaoqi",
+      "windowTitle": "corpus-light_life",
+      "messages": [
+        {
+          "speaker": "ME",
+          "text": "我在听，你慢慢说。"
+        },
+        {
+          "speaker": "OTHER",
+          "text": "我去给客户送衣服去了。 我想看看你会怎么处理。"
+        }
+      ],
+      "expected": {
+        "lastSpeaker": "OTHER",
+        "nextSentenceDecisionType": "NORMAL_REPLY",
+        "nextSentenceRouteCountMin": 3,
+        "nextSentenceRouteCountMax": 5,
+        "expressSelfAllowed": true,
+        "expectedNextMove": "RECEIVE_OTHER",
+        "expectedArcReveal": false,
+        "cloudBlockingAllowed": false,
+        "rawPrivateChat": false
+      }
+    },
+    {
+      "scenarioId": "pb-075",
+      "category": "light_life",
+      "appPackage": "com.bajiao.im.liaoqi",
+      "windowTitle": "corpus-light_life",
+      "messages": [
+        {
+          "speaker": "ME",
+          "text": "我在听，你慢慢说。"
+        },
+        {
+          "speaker": "OTHER",
+          "text": "我去给客户送衣服去了。"
+        }
+      ],
+      "expected": {
+        "lastSpeaker": "OTHER",
+        "nextSentenceDecisionType": "NORMAL_REPLY",
+        "nextSentenceRouteCountMin": 3,
+        "nextSentenceRouteCountMax": 5,
+        "expressSelfAllowed": true,
+        "expectedNextMove": "RECEIVE_OTHER",
+        "expectedArcReveal": false,
+        "cloudBlockingAllowed": false,
+        "rawPrivateChat": false
+      }
+    },
+    {
+      "scenarioId": "pb-076",
+      "category": "topic_shift",
+      "appPackage": "com.bajiao.im.liaoqi",
+      "windowTitle": "corpus-topic_shift",
+      "messages": [
+        {
+          "speaker": "ME",
+          "text": "我在听，你慢慢说。"
+        },
+        {
+          "speaker": "OTHER",
+          "text": "算了，先不聊这个了。"
+        }
+      ],
+      "expected": {
+        "lastSpeaker": "OTHER",
+        "nextSentenceDecisionType": "NORMAL_REPLY",
+        "nextSentenceRouteCountMin": 3,
+        "nextSentenceRouteCountMax": 5,
+        "expressSelfAllowed": true,
+        "expectedNextMove": "WITHDRAW",
+        "expectedArcReveal": false,
+        "cloudBlockingAllowed": false,
+        "rawPrivateChat": false
+      }
+    },
+    {
+      "scenarioId": "pb-077",
+      "category": "topic_shift",
+      "appPackage": "com.bajiao.im.liaoqi",
+      "windowTitle": "corpus-topic_shift",
+      "messages": [
+        {
+          "speaker": "ME",
+          "text": "我在听，你慢慢说。"
+        },
+        {
+          "speaker": "OTHER",
+          "text": "算了，先不聊这个了。 我想看看你会怎么处理。"
+        }
+      ],
+      "expected": {
+        "lastSpeaker": "OTHER",
+        "nextSentenceDecisionType": "NORMAL_REPLY",
+        "nextSentenceRouteCountMin": 3,
+        "nextSentenceRouteCountMax": 5,
+        "expressSelfAllowed": true,
+        "expectedNextMove": "WITHDRAW",
+        "expectedArcReveal": false,
+        "cloudBlockingAllowed": false,
+        "rawPrivateChat": false
+      }
+    },
+    {
+      "scenarioId": "pb-078",
+      "category": "topic_shift",
+      "appPackage": "com.bajiao.im.liaoqi",
+      "windowTitle": "corpus-topic_shift",
+      "messages": [
+        {
+          "speaker": "ME",
+          "text": "我在听，你慢慢说。"
+        },
+        {
+          "speaker": "OTHER",
+          "text": "算了，先不聊这个了。"
+        }
+      ],
+      "expected": {
+        "lastSpeaker": "OTHER",
+        "nextSentenceDecisionType": "NORMAL_REPLY",
+        "nextSentenceRouteCountMin": 3,
+        "nextSentenceRouteCountMax": 5,
+        "expressSelfAllowed": true,
+        "expectedNextMove": "WITHDRAW",
+        "expectedArcReveal": false,
+        "cloudBlockingAllowed": false,
+        "rawPrivateChat": false
+      }
+    },
+    {
+      "scenarioId": "pb-079",
+      "category": "topic_shift",
+      "appPackage": "com.bajiao.im.liaoqi",
+      "windowTitle": "corpus-topic_shift",
+      "messages": [
+        {
+          "speaker": "ME",
+          "text": "我在听，你慢慢说。"
+        },
+        {
+          "speaker": "OTHER",
+          "text": "算了，先不聊这个了。 我想看看你会怎么处理。"
+        }
+      ],
+      "expected": {
+        "lastSpeaker": "OTHER",
+        "nextSentenceDecisionType": "NORMAL_REPLY",
+        "nextSentenceRouteCountMin": 3,
+        "nextSentenceRouteCountMax": 5,
+        "expressSelfAllowed": true,
+        "expectedNextMove": "WITHDRAW",
+        "expectedArcReveal": false,
+        "cloudBlockingAllowed": false,
+        "rawPrivateChat": false
+      }
+    },
+    {
+      "scenarioId": "pb-080",
+      "category": "topic_shift",
+      "appPackage": "com.bajiao.im.liaoqi",
+      "windowTitle": "corpus-topic_shift",
+      "messages": [
+        {
+          "speaker": "ME",
+          "text": "我在听，你慢慢说。"
+        },
+        {
+          "speaker": "OTHER",
+          "text": "算了，先不聊这个了。"
+        }
+      ],
+      "expected": {
+        "lastSpeaker": "OTHER",
+        "nextSentenceDecisionType": "NORMAL_REPLY",
+        "nextSentenceRouteCountMin": 3,
+        "nextSentenceRouteCountMax": 5,
+        "expressSelfAllowed": true,
+        "expectedNextMove": "WITHDRAW",
+        "expectedArcReveal": false,
+        "cloudBlockingAllowed": false,
+        "rawPrivateChat": false
+      }
+    },
+    {
+      "scenarioId": "pb-081",
+      "category": "other_retreat",
+      "appPackage": "com.bajiao.im.liaoqi",
+      "windowTitle": "corpus-other_retreat",
+      "messages": [
+        {
+          "speaker": "ME",
+          "text": "我在听，你慢慢说。"
+        },
+        {
+          "speaker": "OTHER",
+          "text": "嗯，好，晚点说吧。"
+        }
+      ],
+      "expected": {
+        "lastSpeaker": "OTHER",
+        "nextSentenceDecisionType": "NORMAL_REPLY",
+        "nextSentenceRouteCountMin": 3,
+        "nextSentenceRouteCountMax": 5,
+        "expressSelfAllowed": true,
+        "expectedNextMove": "WITHDRAW",
+        "expectedArcReveal": false,
+        "cloudBlockingAllowed": false,
+        "rawPrivateChat": false
+      }
+    },
+    {
+      "scenarioId": "pb-082",
+      "category": "other_retreat",
+      "appPackage": "com.bajiao.im.liaoqi",
+      "windowTitle": "corpus-other_retreat",
+      "messages": [
+        {
+          "speaker": "ME",
+          "text": "我在听，你慢慢说。"
+        },
+        {
+          "speaker": "OTHER",
+          "text": "嗯，好，晚点说吧。 我想看看你会怎么处理。"
+        }
+      ],
+      "expected": {
+        "lastSpeaker": "OTHER",
+        "nextSentenceDecisionType": "NORMAL_REPLY",
+        "nextSentenceRouteCountMin": 3,
+        "nextSentenceRouteCountMax": 5,
+        "expressSelfAllowed": true,
+        "expectedNextMove": "WITHDRAW",
+        "expectedArcReveal": false,
+        "cloudBlockingAllowed": false,
+        "rawPrivateChat": false
+      }
+    },
+    {
+      "scenarioId": "pb-083",
+      "category": "other_retreat",
+      "appPackage": "com.bajiao.im.liaoqi",
+      "windowTitle": "corpus-other_retreat",
+      "messages": [
+        {
+          "speaker": "ME",
+          "text": "我在听，你慢慢说。"
+        },
+        {
+          "speaker": "OTHER",
+          "text": "嗯，好，晚点说吧。"
+        }
+      ],
+      "expected": {
+        "lastSpeaker": "OTHER",
+        "nextSentenceDecisionType": "NORMAL_REPLY",
+        "nextSentenceRouteCountMin": 3,
+        "nextSentenceRouteCountMax": 5,
+        "expressSelfAllowed": true,
+        "expectedNextMove": "WITHDRAW",
+        "expectedArcReveal": false,
+        "cloudBlockingAllowed": false,
+        "rawPrivateChat": false
+      }
+    },
+    {
+      "scenarioId": "pb-084",
+      "category": "other_retreat",
+      "appPackage": "com.bajiao.im.liaoqi",
+      "windowTitle": "corpus-other_retreat",
+      "messages": [
+        {
+          "speaker": "ME",
+          "text": "我在听，你慢慢说。"
+        },
+        {
+          "speaker": "OTHER",
+          "text": "嗯，好，晚点说吧。 我想看看你会怎么处理。"
+        }
+      ],
+      "expected": {
+        "lastSpeaker": "OTHER",
+        "nextSentenceDecisionType": "NORMAL_REPLY",
+        "nextSentenceRouteCountMin": 3,
+        "nextSentenceRouteCountMax": 5,
+        "expressSelfAllowed": true,
+        "expectedNextMove": "WITHDRAW",
+        "expectedArcReveal": false,
+        "cloudBlockingAllowed": false,
+        "rawPrivateChat": false
+      }
+    },
+    {
+      "scenarioId": "pb-085",
+      "category": "other_retreat",
+      "appPackage": "com.bajiao.im.liaoqi",
+      "windowTitle": "corpus-other_retreat",
+      "messages": [
+        {
+          "speaker": "ME",
+          "text": "我在听，你慢慢说。"
+        },
+        {
+          "speaker": "OTHER",
+          "text": "嗯，好，晚点说吧。"
+        }
+      ],
+      "expected": {
+        "lastSpeaker": "OTHER",
+        "nextSentenceDecisionType": "NORMAL_REPLY",
+        "nextSentenceRouteCountMin": 3,
+        "nextSentenceRouteCountMax": 5,
+        "expressSelfAllowed": true,
+        "expectedNextMove": "WITHDRAW",
+        "expectedArcReveal": false,
+        "cloudBlockingAllowed": false,
+        "rawPrivateChat": false
+      }
+    },
+    {
+      "scenarioId": "pb-086",
+      "category": "user_just_expressed",
+      "appPackage": "com.bajiao.im.liaoqi",
+      "windowTitle": "corpus-user_just_expressed",
+      "messages": [
+        {
+          "speaker": "OTHER",
+          "text": "我刚刚已经表达过自己的态度了。"
+        },
+        {
+          "speaker": "ME",
+          "text": "我明白你的意思，我先按稳一点的节奏来。"
+        }
+      ],
+      "expected": {
+        "lastSpeaker": "ME",
+        "nextSentenceDecisionType": "WAIT",
+        "nextSentenceRouteCountMin": 0,
+        "nextSentenceRouteCountMax": 0,
+        "expressSelfAllowed": false,
+        "expectedNextMove": "WAIT",
+        "expectedArcReveal": false,
+        "cloudBlockingAllowed": false,
+        "rawPrivateChat": false
+      }
+    },
+    {
+      "scenarioId": "pb-087",
+      "category": "user_just_expressed",
+      "appPackage": "com.bajiao.im.liaoqi",
+      "windowTitle": "corpus-user_just_expressed",
+      "messages": [
+        {
+          "speaker": "OTHER",
+          "text": "我刚刚已经表达过自己的态度了。"
+        },
+        {
+          "speaker": "ME",
+          "text": "我明白你的意思，我先按稳一点的节奏来。"
+        }
+      ],
+      "expected": {
+        "lastSpeaker": "ME",
+        "nextSentenceDecisionType": "WAIT",
+        "nextSentenceRouteCountMin": 0,
+        "nextSentenceRouteCountMax": 0,
+        "expressSelfAllowed": false,
+        "expectedNextMove": "WAIT",
+        "expectedArcReveal": false,
+        "cloudBlockingAllowed": false,
+        "rawPrivateChat": false
+      }
+    },
+    {
+      "scenarioId": "pb-088",
+      "category": "user_just_expressed",
+      "appPackage": "com.bajiao.im.liaoqi",
+      "windowTitle": "corpus-user_just_expressed",
+      "messages": [
+        {
+          "speaker": "OTHER",
+          "text": "我刚刚已经表达过自己的态度了。"
+        },
+        {
+          "speaker": "ME",
+          "text": "我明白你的意思，我先按稳一点的节奏来。"
+        }
+      ],
+      "expected": {
+        "lastSpeaker": "ME",
+        "nextSentenceDecisionType": "WAIT",
+        "nextSentenceRouteCountMin": 0,
+        "nextSentenceRouteCountMax": 0,
+        "expressSelfAllowed": false,
+        "expectedNextMove": "WAIT",
+        "expectedArcReveal": false,
+        "cloudBlockingAllowed": false,
+        "rawPrivateChat": false
+      }
+    },
+    {
+      "scenarioId": "pb-089",
+      "category": "user_just_expressed",
+      "appPackage": "com.bajiao.im.liaoqi",
+      "windowTitle": "corpus-user_just_expressed",
+      "messages": [
+        {
+          "speaker": "OTHER",
+          "text": "我刚刚已经表达过自己的态度了。"
+        },
+        {
+          "speaker": "ME",
+          "text": "我明白你的意思，我先按稳一点的节奏来。"
+        }
+      ],
+      "expected": {
+        "lastSpeaker": "ME",
+        "nextSentenceDecisionType": "WAIT",
+        "nextSentenceRouteCountMin": 0,
+        "nextSentenceRouteCountMax": 0,
+        "expressSelfAllowed": false,
+        "expectedNextMove": "WAIT",
+        "expectedArcReveal": false,
+        "cloudBlockingAllowed": false,
+        "rawPrivateChat": false
+      }
+    },
+    {
+      "scenarioId": "pb-090",
+      "category": "user_just_expressed",
+      "appPackage": "com.bajiao.im.liaoqi",
+      "windowTitle": "corpus-user_just_expressed",
+      "messages": [
+        {
+          "speaker": "OTHER",
+          "text": "我刚刚已经表达过自己的态度了。"
+        },
+        {
+          "speaker": "ME",
+          "text": "我明白你的意思，我先按稳一点的节奏来。"
+        }
+      ],
+      "expected": {
+        "lastSpeaker": "ME",
+        "nextSentenceDecisionType": "WAIT",
+        "nextSentenceRouteCountMin": 0,
+        "nextSentenceRouteCountMax": 0,
+        "expressSelfAllowed": false,
+        "expectedNextMove": "WAIT",
+        "expectedArcReveal": false,
+        "cloudBlockingAllowed": false,
+        "rawPrivateChat": false
+      }
+    }
+  ]
+}

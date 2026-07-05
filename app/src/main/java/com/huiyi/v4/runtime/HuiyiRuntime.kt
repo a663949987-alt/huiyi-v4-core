@@ -15,12 +15,14 @@ import com.huiyi.v4.domain.context.CharacterArcPlanner
 import com.huiyi.v4.domain.context.ContextAssembler
 import com.huiyi.v4.domain.context.LightChatStateStore
 import com.huiyi.v4.domain.model.InfluenceIntensity
+import com.huiyi.v4.domain.model.InfluenceProfile
 import com.huiyi.v4.domain.model.ReplyAttempt
 import com.huiyi.v4.domain.model.ReplyAttemptStatus
 import com.huiyi.v4.domain.model.ReplyRoute
 import com.huiyi.v4.domain.model.ReplyRouteType
 import com.huiyi.v4.domain.model.RiskLevel
 import com.huiyi.v4.domain.model.Speaker
+import com.huiyi.v4.domain.model.TacticalDecision
 import com.huiyi.v4.domain.model.TacticalDecisionType
 import com.huiyi.v4.domain.model.UserAction
 import com.huiyi.v4.domain.model.UserPersonaCorpus
@@ -33,6 +35,7 @@ import com.huiyi.v4.domain.persona.CharacterArcReviewItem
 import com.huiyi.v4.domain.persona.CharacterArcUserFeedback
 import com.huiyi.v4.domain.persona.DefaultPersonaCorpus
 import com.huiyi.v4.domain.pipeline.CurrentScreenCaptureUseCase
+import com.huiyi.v4.domain.pipeline.CurrentScreenCaptureResult
 import com.huiyi.v4.domain.pipeline.CurrentScreenPipelineResult
 import com.huiyi.v4.domain.pipeline.CurrentScreenPipelineUseCase
 import com.huiyi.v4.domain.pipeline.EvidencePackReportGenerator
@@ -49,7 +52,9 @@ import com.huiyi.v4.domain.pipeline.RealDeviceReviewBundleGenerator
 import com.huiyi.v4.domain.pipeline.RealDeviceScenario
 import com.huiyi.v4.domain.pipeline.RealDeviceTestIntent
 import com.huiyi.v4.domain.pipeline.ReplyAttemptFactory
+import com.huiyi.v4.domain.pipeline.SampleSource
 import com.huiyi.v4.accessibility.HuiyiAccessibilityService
+import com.huiyi.v4.accessibility.LastStableForeignWindowSnapshot
 import com.huiyi.v4.accessibility.AccessibilityRuntimeReader
 import com.huiyi.v4.accessibility.AccessibilityRuntimeState
 import com.huiyi.v4.accessibility.accessibilityRuntimeMessage
@@ -60,6 +65,11 @@ import com.huiyi.v4.domain.pipeline.toNextSentenceException
 import com.huiyi.v4.domain.pipeline.userFacingMessageFor
 import com.huiyi.v4.domain.pipeline.mapScreenshotException
 import com.huiyi.v4.domain.pipeline.redactPrivateText
+import com.huiyi.v4.domain.playbook.DynamicPlaybookEngine
+import com.huiyi.v4.domain.playbook.DynamicPlaybookMode
+import com.huiyi.v4.domain.playbook.DynamicPlaybookRequest
+import com.huiyi.v4.domain.playbook.DynamicPlaybookResult
+import com.huiyi.v4.domain.playbook.PlaybookRefreshScheduler
 import com.huiyi.v4.domain.tactical.ReplyRouteGenerator
 import com.huiyi.v4.domain.tactical.TacticalDecisionEngine
 import com.huiyi.v4.ui.HuiyiDemoState
@@ -170,6 +180,8 @@ class HuiyiRuntime private constructor(
         lateCloudScope = scope,
         onLateCloudResult = { lateResult -> handleLateCloudResult(lateResult) }
     )
+    private val dynamicPlaybookEngine = DynamicPlaybookEngine()
+    private val playbookRefreshScheduler = PlaybookRefreshScheduler(dynamicPlaybookEngine)
     private var sessionWatchdogJob: Job? = null
     private var activeNextSentenceJob: Job? = null
     @Volatile
@@ -446,6 +458,15 @@ class HuiyiRuntime private constructor(
             launchSessionTerminalWatchdogV2(startedTrace, scenarioAtStart)
             var traceForThisRun = captureStartingTrace
             try {
+                if (tryRenderDynamicPlaybookFromStableSnapshot(
+                        mode = DynamicPlaybookMode.NEXT_SENTENCE,
+                        sessionId = sessionId,
+                        trace = captureStartingTrace,
+                        previousSessionId = previousSessionId
+                    )
+                ) {
+                    return@launch
+                }
                 traceForThisRun = waitForAccessibilityConnection(captureStartingTrace)
                 mutableState.update { state ->
                     if (state.lastNextSentenceTrace?.sessionId == sessionId) {
@@ -702,6 +723,15 @@ class HuiyiRuntime private constructor(
                 }
             }
             try {
+                if (tryRenderDynamicPlaybookFromStableSnapshot(
+                        mode = DynamicPlaybookMode.EXPRESS_SELF,
+                        sessionId = sessionId,
+                        trace = captureTrace,
+                        previousSessionId = null
+                    )
+                ) {
+                    return@launch
+                }
                 val checkedTrace = waitForAccessibilityConnection(captureTrace)
                 val capture = withContext(Dispatchers.Default) { CurrentScreenCaptureUseCase().capture().getOrThrow() }
                 ensureActive()
@@ -887,6 +917,254 @@ class HuiyiRuntime private constructor(
             .take(5)
             .mapIndexed { index, route -> route.copy(recommended = index == 0) }
     }
+
+    private fun tryRenderDynamicPlaybookFromStableSnapshot(
+        mode: DynamicPlaybookMode,
+        sessionId: String,
+        trace: NextSentenceSessionTrace,
+        previousSessionId: String?
+    ): Boolean {
+        val stable = HuiyiAccessibilityService.instance?.lastStableChatSnapshot() ?: return false
+        val messages = stable.normalizedMessages
+            .filter { it.isEffectiveChatMessage && it.speaker != Speaker.SYSTEM }
+        if (messages.isEmpty()) return false
+        val persona = currentPersona()
+        val request = DynamicPlaybookRequest(
+            mode = mode,
+            appPackage = stable.packageName,
+            windowTitle = stable.windowTitle,
+            messages = messages,
+            personaCorpus = persona,
+            capturedAt = stable.capturedAt,
+            sessionId = sessionId,
+            chatWindowHash = stable.nodesHash
+        )
+        val dynamicResult = when (mode) {
+            DynamicPlaybookMode.NEXT_SENTENCE -> dynamicPlaybookEngine.nextSentence(request)
+            DynamicPlaybookMode.EXPRESS_SELF -> dynamicPlaybookEngine.expressSelf(request)
+        }
+        if (mode == DynamicPlaybookMode.NEXT_SENTENCE &&
+            dynamicResult.tacticalDecisionType != TacticalDecisionType.WAIT &&
+            dynamicResult.routes.isEmpty()
+        ) {
+            return false
+        }
+        renderDynamicPlaybookResult(
+            stable = stable,
+            request = request,
+            dynamicResult = dynamicResult,
+            sessionId = sessionId,
+            trace = trace,
+            previousSessionId = previousSessionId
+        )
+        playbookRefreshScheduler.refreshInBackground(scope, request) {
+            HuiyiAccessibilityService.instance?.lastStableChatSnapshot()?.stableChatKey()
+        }
+        return true
+    }
+
+    private fun renderDynamicPlaybookResult(
+        stable: LastStableForeignWindowSnapshot,
+        request: DynamicPlaybookRequest,
+        dynamicResult: DynamicPlaybookResult,
+        sessionId: String,
+        trace: NextSentenceSessionTrace,
+        previousSessionId: String?
+    ) {
+        val endedAt = System.currentTimeMillis()
+        val mode = request.mode
+        val persona = request.personaCorpus
+        val capture = CurrentScreenCaptureResult(
+            snapshot = stable.snapshot,
+            messages = stable.normalizedMessages,
+            sampleSource = if (stable.packageName == "com.huiyi.mockchat") {
+                SampleSource.EMULATOR_MOCK_CHAT_ACCESSIBILITY
+            } else {
+                SampleSource.REAL_DEVICE_ACCESSIBILITY
+            },
+            parserName = "DynamicPlaybookStableSnapshot",
+            captureSource = NextSentenceCaptureSource.LAST_STABLE_CHAT_SNAPSHOT,
+            usedFallbackSnapshot = true,
+            lastStableSnapshotAgeMs = endedAt - stable.capturedAt,
+            lastStableSnapshotPackage = stable.packageName,
+            currentRootPackageAtCapture = stable.packageName,
+            rootAvailableFirstTry = true,
+            rootAvailableAfterRetry = true,
+            rawNodeCount = stable.nodeCount,
+            visibleTextCount = stable.visibleTextCount
+        )
+        val context = ContextAssembler().assemble(stable.normalizedMessages, userPersonaCorpus = persona)
+        val decision = dynamicPlaybookDecision(dynamicResult)
+        val terminalState = when {
+            mode == DynamicPlaybookMode.EXPRESS_SELF -> "EXPRESS_SELF_PANEL"
+            decision.decisionType == TacticalDecisionType.WAIT -> "WAIT_PANEL"
+            dynamicResult.routes.isNotEmpty() -> "ROUTE_PANEL"
+            else -> terminalStateFor(decision.decisionType)
+        }
+        val settings = mutableState.value.cloudSettings
+        val result = CurrentScreenPipelineResult(
+            captureResult = capture,
+            context = context,
+            lastSpeakerDecision = dynamicResult.lastSpeakerDecision,
+            tacticalDecision = decision,
+            routes = dynamicResult.routes,
+            apiCalled = false,
+            sessionId = sessionId,
+            previousSessionId = previousSessionId,
+            panelSessionId = sessionId,
+            panelContentFromCurrentSession = true,
+            staleRoutesClearedAtSessionStart = true,
+            staleRoutesReused = false,
+            waitPanelShown = decision.decisionType == TacticalDecisionType.WAIT,
+            routePanelShown = dynamicResult.routes.isNotEmpty(),
+            sessionTerminalState = terminalState,
+            analysisStartedAt = trace.startedAt,
+            analysisEndedAt = endedAt,
+            analysisDurationMs = dynamicResult.latencyMs,
+            loadingStillVisibleAfterTimeout = false,
+            waitDecisionReached = decision.decisionType == TacticalDecisionType.WAIT,
+            waitPanelRenderAttempted = decision.decisionType == TacticalDecisionType.WAIT,
+            waitPanelRenderSuccess = decision.decisionType == TacticalDecisionType.WAIT,
+            decisionTypeFamily = if (mode == DynamicPlaybookMode.EXPRESS_SELF) {
+                "EXPRESS_SELF"
+            } else {
+                decisionTypeFamily(decision.decisionType)
+            },
+            lightListenBackfillCount = stable.normalizedMessages.size,
+            lightListenUsed = true,
+            expressSelfArcProgressState = if (mode == DynamicPlaybookMode.EXPRESS_SELF) dynamicResult.arcProgressState else null,
+            cloudTrace = CloudAnalysisTrace(
+                activeSessionId = sessionId,
+                preAnalysisSnapshotId = stable.capturedAt.toString(),
+                chatPackage = stable.packageName,
+                chatWindowHash = stable.nodesHash,
+                cloudEnabled = settings.cloudEnabled,
+                endpointConfigured = settings.relayBaseUrlConfigured,
+                cloudAttempted = false,
+                cloudSkippedReason = when {
+                    decision.decisionType == TacticalDecisionType.WAIT -> "LAST_SPEAKER_ME_WAIT"
+                    dynamicResult.cloudRefreshRecommended -> "CLOUD_REFRESH_BACKGROUND_OPTIONAL"
+                    else -> "PLAYBOOK_CACHE_OR_LOCAL_FALLBACK"
+                },
+                decisionSource = dynamicResult.decisionSource,
+                providerType = settings.providerType,
+                relayBaseUrlConfigured = settings.relayBaseUrlConfigured,
+                relayApiKeyConfigured = settings.relayApiKeyConfigured,
+                relayApiKeyStoredSecurely = settings.relayApiKeyStoredSecurely,
+                cloudPrimaryModel = settings.model,
+                cloudFinalModel = settings.model,
+                panelRenderedSessionId = sessionId
+            )
+        )
+        val successTrace = trace.copy(
+            endedAt = endedAt,
+            stage = NextSentenceStage.ROUTES_GENERATED,
+            activePackageAtCaptureStart = stable.packageName,
+            activePackageAfterRootRetry = stable.packageName,
+            rootAvailableFirstTry = true,
+            rootRetryCount = 0,
+            rootAvailableAfterRetry = true,
+            rootPackageName = stable.packageName,
+            rootWindowTitle = stable.windowTitle,
+            rootIsOwnOverlay = false,
+            rootIsSystemUi = false,
+            rootIsTargetChatApp = true,
+            captureSource = NextSentenceCaptureSource.LAST_STABLE_CHAT_SNAPSHOT,
+            primaryCapturePath = "LAST_STABLE_CHAT_SNAPSHOT",
+            nodeTreeAttempted = false,
+            nodeTreeSuccess = false,
+            fallbackSnapshotAttempted = true,
+            fallbackSnapshotSuccess = true,
+            usedFallbackSnapshot = true,
+            lastStableSnapshotAgeMs = endedAt - stable.capturedAt,
+            lastStableSnapshotPackage = stable.packageName,
+            rawNodeCount = stable.nodeCount,
+            visibleTextCount = stable.visibleTextCount,
+            parsedMessageCount = stable.normalizedMessages.size,
+            effectiveMessageCount = stable.normalizedMessages.count { it.isEffectiveChatMessage && it.speaker != Speaker.SYSTEM },
+            lastEffectiveSpeaker = dynamicResult.lastSpeakerDecision.lastSpeaker,
+            decisionType = decision.decisionType.name,
+            routeCount = dynamicResult.routes.size,
+            apiCalled = false,
+            panelAttached = true,
+            panelRenderSuccess = true,
+            terminalState = terminalState,
+            panelShown = true,
+            userFacingMessage = if (decision.decisionType == TacticalDecisionType.WAIT) {
+                "\u4f60\u5df2\u7ecf\u56de\u8fc7\u4e86\uff0c\u5148\u7b49\u5bf9\u65b9\u3002"
+            } else {
+                null
+            }
+        )
+        writeLatestSessionTraceReports(successTrace)
+        val flightRecord = NextSentenceFlightRecordFactory.fromSuccess(result, successTrace)
+        mutableState.update {
+            if (it.lastNextSentenceTrace?.sessionId != sessionId || activeNextSentenceSessionId != sessionId) {
+                it
+            } else {
+                it.copy(
+                    demoState = it.demoState.copy(messages = stable.normalizedMessages),
+                    latestPipelineResult = result,
+                    floatingPanelMode = if (mode == DynamicPlaybookMode.EXPRESS_SELF) {
+                        FloatingPanelMode.EXPRESS_SELF
+                    } else {
+                        FloatingPanelMode.NEXT_SENTENCE
+                    },
+                    panelVisible = true,
+                    lastError = null,
+                    nextSentenceUiState = NextSentenceUiState.RESULT,
+                    lastNextSentenceTrace = successTrace,
+                    latestFlightRecord = flightRecord,
+                    recentFlightRecords = (it.recentFlightRecords + flightRecord).takeLast(10)
+                )
+            }
+        }
+    }
+
+    private fun dynamicPlaybookDecision(result: DynamicPlaybookResult): TacticalDecision {
+        val wait = result.tacticalDecisionType == TacticalDecisionType.WAIT
+        return TacticalDecision(
+            decisionType = result.tacticalDecisionType,
+            situation = if (wait) {
+                "last_speaker_me_wait"
+            } else {
+                "dynamic_playbook_${result.mode.name.lowercase()}"
+            },
+            coreInsight = if (wait) {
+                "LAST_ME safety gate remains highest priority."
+            } else {
+                "Use cached relationship playbook first; refresh cloud in the background."
+            },
+            userLikelyMistake = if (wait) {
+                "Adding another message before the other person replies."
+            } else {
+                "Waiting for cloud before showing usable wording."
+            },
+            bestMove = if (wait) {
+                "\u4f60\u5df2\u7ecf\u56de\u8fc7\u4e86\uff0c\u5148\u7b49\u5bf9\u65b9\u3002"
+            } else {
+                result.routes.firstOrNull()?.message ?: "Use the local playbook fallback."
+            },
+            avoidMoves = if (wait) {
+                listOf("do not call cloud", "do not show routes")
+            } else {
+                listOf("do not block on cloud", "do not mix active persona feedback into passive panel")
+            },
+            coCreationOpportunity = null,
+            shouldUseUserStory = result.mode == DynamicPlaybookMode.EXPRESS_SELF,
+            selectedStoryCardIds = emptyList(),
+            influenceProfile = InfluenceProfile(
+                intensity = if (result.mode == DynamicPlaybookMode.EXPRESS_SELF) InfluenceIntensity.MEDIUM else InfluenceIntensity.LOW,
+                riskLevel = result.playbook.risk,
+                riskWarning = result.playbook.characterArcPlan.overdoRisk,
+                fallbackMove = result.playbook.fallback
+            ),
+            fallbackMove = result.playbook.fallback
+        )
+    }
+
+    private fun LastStableForeignWindowSnapshot.stableChatKey(): String =
+        "${packageName}|${windowTitle?.trim()?.replace(Regex("\\s+"), " ")?.take(80).orEmpty().ifBlank { "default" }}"
 
     private fun fallbackArcRevealRoute(): ReplyRoute = ReplyRoute(
         id = "express-self-arc-reveal",

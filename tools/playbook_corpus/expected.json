@@ -1,0 +1,1356 @@
+{
+  "generatedBy": "generate-playbook-corpus.mjs",
+  "sampleCount": 90,
+  "expected": [
+    {
+      "scenarioId": "pb-001",
+      "category": "ordinary",
+      "expected": {
+        "lastSpeaker": "OTHER",
+        "nextSentenceDecisionType": "NORMAL_REPLY",
+        "nextSentenceRouteCountMin": 3,
+        "nextSentenceRouteCountMax": 5,
+        "expressSelfAllowed": true,
+        "expectedNextMove": "RECEIVE_OTHER",
+        "expectedArcReveal": false,
+        "cloudBlockingAllowed": false,
+        "rawPrivateChat": false
+      }
+    },
+    {
+      "scenarioId": "pb-002",
+      "category": "ordinary",
+      "expected": {
+        "lastSpeaker": "OTHER",
+        "nextSentenceDecisionType": "NORMAL_REPLY",
+        "nextSentenceRouteCountMin": 3,
+        "nextSentenceRouteCountMax": 5,
+        "expressSelfAllowed": true,
+        "expectedNextMove": "RECEIVE_OTHER",
+        "expectedArcReveal": false,
+        "cloudBlockingAllowed": false,
+        "rawPrivateChat": false
+      }
+    },
+    {
+      "scenarioId": "pb-003",
+      "category": "ordinary",
+      "expected": {
+        "lastSpeaker": "OTHER",
+        "nextSentenceDecisionType": "NORMAL_REPLY",
+        "nextSentenceRouteCountMin": 3,
+        "nextSentenceRouteCountMax": 5,
+        "expressSelfAllowed": true,
+        "expectedNextMove": "RECEIVE_OTHER",
+        "expectedArcReveal": false,
+        "cloudBlockingAllowed": false,
+        "rawPrivateChat": false
+      }
+    },
+    {
+      "scenarioId": "pb-004",
+      "category": "ordinary",
+      "expected": {
+        "lastSpeaker": "OTHER",
+        "nextSentenceDecisionType": "NORMAL_REPLY",
+        "nextSentenceRouteCountMin": 3,
+        "nextSentenceRouteCountMax": 5,
+        "expressSelfAllowed": true,
+        "expectedNextMove": "RECEIVE_OTHER",
+        "expectedArcReveal": false,
+        "cloudBlockingAllowed": false,
+        "rawPrivateChat": false
+      }
+    },
+    {
+      "scenarioId": "pb-005",
+      "category": "ordinary",
+      "expected": {
+        "lastSpeaker": "OTHER",
+        "nextSentenceDecisionType": "NORMAL_REPLY",
+        "nextSentenceRouteCountMin": 3,
+        "nextSentenceRouteCountMax": 5,
+        "expressSelfAllowed": true,
+        "expectedNextMove": "RECEIVE_OTHER",
+        "expectedArcReveal": false,
+        "cloudBlockingAllowed": false,
+        "rawPrivateChat": false
+      }
+    },
+    {
+      "scenarioId": "pb-006",
+      "category": "last_me",
+      "expected": {
+        "lastSpeaker": "ME",
+        "nextSentenceDecisionType": "WAIT",
+        "nextSentenceRouteCountMin": 0,
+        "nextSentenceRouteCountMax": 0,
+        "expressSelfAllowed": false,
+        "expectedNextMove": "WAIT",
+        "expectedArcReveal": false,
+        "cloudBlockingAllowed": false,
+        "rawPrivateChat": false
+      }
+    },
+    {
+      "scenarioId": "pb-007",
+      "category": "last_me",
+      "expected": {
+        "lastSpeaker": "ME",
+        "nextSentenceDecisionType": "WAIT",
+        "nextSentenceRouteCountMin": 0,
+        "nextSentenceRouteCountMax": 0,
+        "expressSelfAllowed": false,
+        "expectedNextMove": "WAIT",
+        "expectedArcReveal": false,
+        "cloudBlockingAllowed": false,
+        "rawPrivateChat": false
+      }
+    },
+    {
+      "scenarioId": "pb-008",
+      "category": "last_me",
+      "expected": {
+        "lastSpeaker": "ME",
+        "nextSentenceDecisionType": "WAIT",
+        "nextSentenceRouteCountMin": 0,
+        "nextSentenceRouteCountMax": 0,
+        "expressSelfAllowed": false,
+        "expectedNextMove": "WAIT",
+        "expectedArcReveal": false,
+        "cloudBlockingAllowed": false,
+        "rawPrivateChat": false
+      }
+    },
+    {
+      "scenarioId": "pb-009",
+      "category": "last_me",
+      "expected": {
+        "lastSpeaker": "ME",
+        "nextSentenceDecisionType": "WAIT",
+        "nextSentenceRouteCountMin": 0,
+        "nextSentenceRouteCountMax": 0,
+        "expressSelfAllowed": false,
+        "expectedNextMove": "WAIT",
+        "expectedArcReveal": false,
+        "cloudBlockingAllowed": false,
+        "rawPrivateChat": false
+      }
+    },
+    {
+      "scenarioId": "pb-010",
+      "category": "last_me",
+      "expected": {
+        "lastSpeaker": "ME",
+        "nextSentenceDecisionType": "WAIT",
+        "nextSentenceRouteCountMin": 0,
+        "nextSentenceRouteCountMax": 0,
+        "expressSelfAllowed": false,
+        "expectedNextMove": "WAIT",
+        "expectedArcReveal": false,
+        "cloudBlockingAllowed": false,
+        "rawPrivateChat": false
+      }
+    },
+    {
+      "scenarioId": "pb-011",
+      "category": "reality_planning",
+      "expected": {
+        "lastSpeaker": "OTHER",
+        "nextSentenceDecisionType": "NORMAL_REPLY",
+        "nextSentenceRouteCountMin": 3,
+        "nextSentenceRouteCountMax": 5,
+        "expressSelfAllowed": true,
+        "expectedNextMove": "ARC_REVEAL",
+        "expectedArcReveal": true,
+        "cloudBlockingAllowed": false,
+        "rawPrivateChat": false
+      }
+    },
+    {
+      "scenarioId": "pb-012",
+      "category": "reality_planning",
+      "expected": {
+        "lastSpeaker": "OTHER",
+        "nextSentenceDecisionType": "NORMAL_REPLY",
+        "nextSentenceRouteCountMin": 3,
+        "nextSentenceRouteCountMax": 5,
+        "expressSelfAllowed": true,
+        "expectedNextMove": "ARC_REVEAL",
+        "expectedArcReveal": true,
+        "cloudBlockingAllowed": false,
+        "rawPrivateChat": false
+      }
+    },
+    {
+      "scenarioId": "pb-013",
+      "category": "reality_planning",
+      "expected": {
+        "lastSpeaker": "OTHER",
+        "nextSentenceDecisionType": "NORMAL_REPLY",
+        "nextSentenceRouteCountMin": 3,
+        "nextSentenceRouteCountMax": 5,
+        "expressSelfAllowed": true,
+        "expectedNextMove": "ARC_REVEAL",
+        "expectedArcReveal": true,
+        "cloudBlockingAllowed": false,
+        "rawPrivateChat": false
+      }
+    },
+    {
+      "scenarioId": "pb-014",
+      "category": "reality_planning",
+      "expected": {
+        "lastSpeaker": "OTHER",
+        "nextSentenceDecisionType": "NORMAL_REPLY",
+        "nextSentenceRouteCountMin": 3,
+        "nextSentenceRouteCountMax": 5,
+        "expressSelfAllowed": true,
+        "expectedNextMove": "ARC_REVEAL",
+        "expectedArcReveal": true,
+        "cloudBlockingAllowed": false,
+        "rawPrivateChat": false
+      }
+    },
+    {
+      "scenarioId": "pb-015",
+      "category": "reality_planning",
+      "expected": {
+        "lastSpeaker": "OTHER",
+        "nextSentenceDecisionType": "NORMAL_REPLY",
+        "nextSentenceRouteCountMin": 3,
+        "nextSentenceRouteCountMax": 5,
+        "expressSelfAllowed": true,
+        "expectedNextMove": "ARC_REVEAL",
+        "expectedArcReveal": true,
+        "cloudBlockingAllowed": false,
+        "rawPrivateChat": false
+      }
+    },
+    {
+      "scenarioId": "pb-016",
+      "category": "stability",
+      "expected": {
+        "lastSpeaker": "OTHER",
+        "nextSentenceDecisionType": "NORMAL_REPLY",
+        "nextSentenceRouteCountMin": 3,
+        "nextSentenceRouteCountMax": 5,
+        "expressSelfAllowed": true,
+        "expectedNextMove": "ARC_REVEAL",
+        "expectedArcReveal": true,
+        "cloudBlockingAllowed": false,
+        "rawPrivateChat": false
+      }
+    },
+    {
+      "scenarioId": "pb-017",
+      "category": "stability",
+      "expected": {
+        "lastSpeaker": "OTHER",
+        "nextSentenceDecisionType": "NORMAL_REPLY",
+        "nextSentenceRouteCountMin": 3,
+        "nextSentenceRouteCountMax": 5,
+        "expressSelfAllowed": true,
+        "expectedNextMove": "ARC_REVEAL",
+        "expectedArcReveal": true,
+        "cloudBlockingAllowed": false,
+        "rawPrivateChat": false
+      }
+    },
+    {
+      "scenarioId": "pb-018",
+      "category": "stability",
+      "expected": {
+        "lastSpeaker": "OTHER",
+        "nextSentenceDecisionType": "NORMAL_REPLY",
+        "nextSentenceRouteCountMin": 3,
+        "nextSentenceRouteCountMax": 5,
+        "expressSelfAllowed": true,
+        "expectedNextMove": "ARC_REVEAL",
+        "expectedArcReveal": true,
+        "cloudBlockingAllowed": false,
+        "rawPrivateChat": false
+      }
+    },
+    {
+      "scenarioId": "pb-019",
+      "category": "stability",
+      "expected": {
+        "lastSpeaker": "OTHER",
+        "nextSentenceDecisionType": "NORMAL_REPLY",
+        "nextSentenceRouteCountMin": 3,
+        "nextSentenceRouteCountMax": 5,
+        "expressSelfAllowed": true,
+        "expectedNextMove": "ARC_REVEAL",
+        "expectedArcReveal": true,
+        "cloudBlockingAllowed": false,
+        "rawPrivateChat": false
+      }
+    },
+    {
+      "scenarioId": "pb-020",
+      "category": "stability",
+      "expected": {
+        "lastSpeaker": "OTHER",
+        "nextSentenceDecisionType": "NORMAL_REPLY",
+        "nextSentenceRouteCountMin": 3,
+        "nextSentenceRouteCountMax": 5,
+        "expressSelfAllowed": true,
+        "expectedNextMove": "ARC_REVEAL",
+        "expectedArcReveal": true,
+        "cloudBlockingAllowed": false,
+        "rawPrivateChat": false
+      }
+    },
+    {
+      "scenarioId": "pb-021",
+      "category": "future",
+      "expected": {
+        "lastSpeaker": "OTHER",
+        "nextSentenceDecisionType": "NORMAL_REPLY",
+        "nextSentenceRouteCountMin": 3,
+        "nextSentenceRouteCountMax": 5,
+        "expressSelfAllowed": true,
+        "expectedNextMove": "CO_CREATE_MEANING",
+        "expectedArcReveal": false,
+        "cloudBlockingAllowed": false,
+        "rawPrivateChat": false
+      }
+    },
+    {
+      "scenarioId": "pb-022",
+      "category": "future",
+      "expected": {
+        "lastSpeaker": "OTHER",
+        "nextSentenceDecisionType": "NORMAL_REPLY",
+        "nextSentenceRouteCountMin": 3,
+        "nextSentenceRouteCountMax": 5,
+        "expressSelfAllowed": true,
+        "expectedNextMove": "CO_CREATE_MEANING",
+        "expectedArcReveal": false,
+        "cloudBlockingAllowed": false,
+        "rawPrivateChat": false
+      }
+    },
+    {
+      "scenarioId": "pb-023",
+      "category": "future",
+      "expected": {
+        "lastSpeaker": "OTHER",
+        "nextSentenceDecisionType": "NORMAL_REPLY",
+        "nextSentenceRouteCountMin": 3,
+        "nextSentenceRouteCountMax": 5,
+        "expressSelfAllowed": true,
+        "expectedNextMove": "CO_CREATE_MEANING",
+        "expectedArcReveal": false,
+        "cloudBlockingAllowed": false,
+        "rawPrivateChat": false
+      }
+    },
+    {
+      "scenarioId": "pb-024",
+      "category": "future",
+      "expected": {
+        "lastSpeaker": "OTHER",
+        "nextSentenceDecisionType": "NORMAL_REPLY",
+        "nextSentenceRouteCountMin": 3,
+        "nextSentenceRouteCountMax": 5,
+        "expressSelfAllowed": true,
+        "expectedNextMove": "CO_CREATE_MEANING",
+        "expectedArcReveal": false,
+        "cloudBlockingAllowed": false,
+        "rawPrivateChat": false
+      }
+    },
+    {
+      "scenarioId": "pb-025",
+      "category": "future",
+      "expected": {
+        "lastSpeaker": "OTHER",
+        "nextSentenceDecisionType": "NORMAL_REPLY",
+        "nextSentenceRouteCountMin": 3,
+        "nextSentenceRouteCountMax": 5,
+        "expressSelfAllowed": true,
+        "expectedNextMove": "CO_CREATE_MEANING",
+        "expectedArcReveal": false,
+        "cloudBlockingAllowed": false,
+        "rawPrivateChat": false
+      }
+    },
+    {
+      "scenarioId": "pb-026",
+      "category": "past",
+      "expected": {
+        "lastSpeaker": "OTHER",
+        "nextSentenceDecisionType": "NORMAL_REPLY",
+        "nextSentenceRouteCountMin": 3,
+        "nextSentenceRouteCountMax": 5,
+        "expressSelfAllowed": true,
+        "expectedNextMove": "ARC_REVEAL",
+        "expectedArcReveal": true,
+        "cloudBlockingAllowed": false,
+        "rawPrivateChat": false
+      }
+    },
+    {
+      "scenarioId": "pb-027",
+      "category": "past",
+      "expected": {
+        "lastSpeaker": "OTHER",
+        "nextSentenceDecisionType": "NORMAL_REPLY",
+        "nextSentenceRouteCountMin": 3,
+        "nextSentenceRouteCountMax": 5,
+        "expressSelfAllowed": true,
+        "expectedNextMove": "ARC_REVEAL",
+        "expectedArcReveal": true,
+        "cloudBlockingAllowed": false,
+        "rawPrivateChat": false
+      }
+    },
+    {
+      "scenarioId": "pb-028",
+      "category": "past",
+      "expected": {
+        "lastSpeaker": "OTHER",
+        "nextSentenceDecisionType": "NORMAL_REPLY",
+        "nextSentenceRouteCountMin": 3,
+        "nextSentenceRouteCountMax": 5,
+        "expressSelfAllowed": true,
+        "expectedNextMove": "ARC_REVEAL",
+        "expectedArcReveal": true,
+        "cloudBlockingAllowed": false,
+        "rawPrivateChat": false
+      }
+    },
+    {
+      "scenarioId": "pb-029",
+      "category": "past",
+      "expected": {
+        "lastSpeaker": "OTHER",
+        "nextSentenceDecisionType": "NORMAL_REPLY",
+        "nextSentenceRouteCountMin": 3,
+        "nextSentenceRouteCountMax": 5,
+        "expressSelfAllowed": true,
+        "expectedNextMove": "ARC_REVEAL",
+        "expectedArcReveal": true,
+        "cloudBlockingAllowed": false,
+        "rawPrivateChat": false
+      }
+    },
+    {
+      "scenarioId": "pb-030",
+      "category": "past",
+      "expected": {
+        "lastSpeaker": "OTHER",
+        "nextSentenceDecisionType": "NORMAL_REPLY",
+        "nextSentenceRouteCountMin": 3,
+        "nextSentenceRouteCountMax": 5,
+        "expressSelfAllowed": true,
+        "expectedNextMove": "ARC_REVEAL",
+        "expectedArcReveal": true,
+        "cloudBlockingAllowed": false,
+        "rawPrivateChat": false
+      }
+    },
+    {
+      "scenarioId": "pb-031",
+      "category": "true_feeling",
+      "expected": {
+        "lastSpeaker": "OTHER",
+        "nextSentenceDecisionType": "NORMAL_REPLY",
+        "nextSentenceRouteCountMin": 3,
+        "nextSentenceRouteCountMax": 5,
+        "expressSelfAllowed": true,
+        "expectedNextMove": "EXPRESS_SELF",
+        "expectedArcReveal": false,
+        "cloudBlockingAllowed": false,
+        "rawPrivateChat": false
+      }
+    },
+    {
+      "scenarioId": "pb-032",
+      "category": "true_feeling",
+      "expected": {
+        "lastSpeaker": "OTHER",
+        "nextSentenceDecisionType": "NORMAL_REPLY",
+        "nextSentenceRouteCountMin": 3,
+        "nextSentenceRouteCountMax": 5,
+        "expressSelfAllowed": true,
+        "expectedNextMove": "EXPRESS_SELF",
+        "expectedArcReveal": false,
+        "cloudBlockingAllowed": false,
+        "rawPrivateChat": false
+      }
+    },
+    {
+      "scenarioId": "pb-033",
+      "category": "true_feeling",
+      "expected": {
+        "lastSpeaker": "OTHER",
+        "nextSentenceDecisionType": "NORMAL_REPLY",
+        "nextSentenceRouteCountMin": 3,
+        "nextSentenceRouteCountMax": 5,
+        "expressSelfAllowed": true,
+        "expectedNextMove": "EXPRESS_SELF",
+        "expectedArcReveal": false,
+        "cloudBlockingAllowed": false,
+        "rawPrivateChat": false
+      }
+    },
+    {
+      "scenarioId": "pb-034",
+      "category": "true_feeling",
+      "expected": {
+        "lastSpeaker": "OTHER",
+        "nextSentenceDecisionType": "NORMAL_REPLY",
+        "nextSentenceRouteCountMin": 3,
+        "nextSentenceRouteCountMax": 5,
+        "expressSelfAllowed": true,
+        "expectedNextMove": "EXPRESS_SELF",
+        "expectedArcReveal": false,
+        "cloudBlockingAllowed": false,
+        "rawPrivateChat": false
+      }
+    },
+    {
+      "scenarioId": "pb-035",
+      "category": "true_feeling",
+      "expected": {
+        "lastSpeaker": "OTHER",
+        "nextSentenceDecisionType": "NORMAL_REPLY",
+        "nextSentenceRouteCountMin": 3,
+        "nextSentenceRouteCountMax": 5,
+        "expressSelfAllowed": true,
+        "expectedNextMove": "EXPRESS_SELF",
+        "expectedArcReveal": false,
+        "cloudBlockingAllowed": false,
+        "rawPrivateChat": false
+      }
+    },
+    {
+      "scenarioId": "pb-036",
+      "category": "expression_difficulty",
+      "expected": {
+        "lastSpeaker": "OTHER",
+        "nextSentenceDecisionType": "NORMAL_REPLY",
+        "nextSentenceRouteCountMin": 3,
+        "nextSentenceRouteCountMax": 5,
+        "expressSelfAllowed": true,
+        "expectedNextMove": "EXPRESS_SELF",
+        "expectedArcReveal": false,
+        "cloudBlockingAllowed": false,
+        "rawPrivateChat": false
+      }
+    },
+    {
+      "scenarioId": "pb-037",
+      "category": "expression_difficulty",
+      "expected": {
+        "lastSpeaker": "OTHER",
+        "nextSentenceDecisionType": "NORMAL_REPLY",
+        "nextSentenceRouteCountMin": 3,
+        "nextSentenceRouteCountMax": 5,
+        "expressSelfAllowed": true,
+        "expectedNextMove": "EXPRESS_SELF",
+        "expectedArcReveal": false,
+        "cloudBlockingAllowed": false,
+        "rawPrivateChat": false
+      }
+    },
+    {
+      "scenarioId": "pb-038",
+      "category": "expression_difficulty",
+      "expected": {
+        "lastSpeaker": "OTHER",
+        "nextSentenceDecisionType": "NORMAL_REPLY",
+        "nextSentenceRouteCountMin": 3,
+        "nextSentenceRouteCountMax": 5,
+        "expressSelfAllowed": true,
+        "expectedNextMove": "EXPRESS_SELF",
+        "expectedArcReveal": false,
+        "cloudBlockingAllowed": false,
+        "rawPrivateChat": false
+      }
+    },
+    {
+      "scenarioId": "pb-039",
+      "category": "expression_difficulty",
+      "expected": {
+        "lastSpeaker": "OTHER",
+        "nextSentenceDecisionType": "NORMAL_REPLY",
+        "nextSentenceRouteCountMin": 3,
+        "nextSentenceRouteCountMax": 5,
+        "expressSelfAllowed": true,
+        "expectedNextMove": "EXPRESS_SELF",
+        "expectedArcReveal": false,
+        "cloudBlockingAllowed": false,
+        "rawPrivateChat": false
+      }
+    },
+    {
+      "scenarioId": "pb-040",
+      "category": "expression_difficulty",
+      "expected": {
+        "lastSpeaker": "OTHER",
+        "nextSentenceDecisionType": "NORMAL_REPLY",
+        "nextSentenceRouteCountMin": 3,
+        "nextSentenceRouteCountMax": 5,
+        "expressSelfAllowed": true,
+        "expectedNextMove": "EXPRESS_SELF",
+        "expectedArcReveal": false,
+        "cloudBlockingAllowed": false,
+        "rawPrivateChat": false
+      }
+    },
+    {
+      "scenarioId": "pb-041",
+      "category": "work_pressure",
+      "expected": {
+        "lastSpeaker": "OTHER",
+        "nextSentenceDecisionType": "NORMAL_REPLY",
+        "nextSentenceRouteCountMin": 3,
+        "nextSentenceRouteCountMax": 5,
+        "expressSelfAllowed": true,
+        "expectedNextMove": "RECEIVE_OTHER",
+        "expectedArcReveal": false,
+        "cloudBlockingAllowed": false,
+        "rawPrivateChat": false
+      }
+    },
+    {
+      "scenarioId": "pb-042",
+      "category": "work_pressure",
+      "expected": {
+        "lastSpeaker": "OTHER",
+        "nextSentenceDecisionType": "NORMAL_REPLY",
+        "nextSentenceRouteCountMin": 3,
+        "nextSentenceRouteCountMax": 5,
+        "expressSelfAllowed": true,
+        "expectedNextMove": "RECEIVE_OTHER",
+        "expectedArcReveal": false,
+        "cloudBlockingAllowed": false,
+        "rawPrivateChat": false
+      }
+    },
+    {
+      "scenarioId": "pb-043",
+      "category": "work_pressure",
+      "expected": {
+        "lastSpeaker": "OTHER",
+        "nextSentenceDecisionType": "NORMAL_REPLY",
+        "nextSentenceRouteCountMin": 3,
+        "nextSentenceRouteCountMax": 5,
+        "expressSelfAllowed": true,
+        "expectedNextMove": "RECEIVE_OTHER",
+        "expectedArcReveal": false,
+        "cloudBlockingAllowed": false,
+        "rawPrivateChat": false
+      }
+    },
+    {
+      "scenarioId": "pb-044",
+      "category": "work_pressure",
+      "expected": {
+        "lastSpeaker": "OTHER",
+        "nextSentenceDecisionType": "NORMAL_REPLY",
+        "nextSentenceRouteCountMin": 3,
+        "nextSentenceRouteCountMax": 5,
+        "expressSelfAllowed": true,
+        "expectedNextMove": "RECEIVE_OTHER",
+        "expectedArcReveal": false,
+        "cloudBlockingAllowed": false,
+        "rawPrivateChat": false
+      }
+    },
+    {
+      "scenarioId": "pb-045",
+      "category": "work_pressure",
+      "expected": {
+        "lastSpeaker": "OTHER",
+        "nextSentenceDecisionType": "NORMAL_REPLY",
+        "nextSentenceRouteCountMin": 3,
+        "nextSentenceRouteCountMax": 5,
+        "expressSelfAllowed": true,
+        "expectedNextMove": "RECEIVE_OTHER",
+        "expectedArcReveal": false,
+        "cloudBlockingAllowed": false,
+        "rawPrivateChat": false
+      }
+    },
+    {
+      "scenarioId": "pb-046",
+      "category": "transition",
+      "expected": {
+        "lastSpeaker": "OTHER",
+        "nextSentenceDecisionType": "NORMAL_REPLY",
+        "nextSentenceRouteCountMin": 3,
+        "nextSentenceRouteCountMax": 5,
+        "expressSelfAllowed": true,
+        "expectedNextMove": "ARC_REVEAL",
+        "expectedArcReveal": true,
+        "cloudBlockingAllowed": false,
+        "rawPrivateChat": false
+      }
+    },
+    {
+      "scenarioId": "pb-047",
+      "category": "transition",
+      "expected": {
+        "lastSpeaker": "OTHER",
+        "nextSentenceDecisionType": "NORMAL_REPLY",
+        "nextSentenceRouteCountMin": 3,
+        "nextSentenceRouteCountMax": 5,
+        "expressSelfAllowed": true,
+        "expectedNextMove": "ARC_REVEAL",
+        "expectedArcReveal": true,
+        "cloudBlockingAllowed": false,
+        "rawPrivateChat": false
+      }
+    },
+    {
+      "scenarioId": "pb-048",
+      "category": "transition",
+      "expected": {
+        "lastSpeaker": "OTHER",
+        "nextSentenceDecisionType": "NORMAL_REPLY",
+        "nextSentenceRouteCountMin": 3,
+        "nextSentenceRouteCountMax": 5,
+        "expressSelfAllowed": true,
+        "expectedNextMove": "ARC_REVEAL",
+        "expectedArcReveal": true,
+        "cloudBlockingAllowed": false,
+        "rawPrivateChat": false
+      }
+    },
+    {
+      "scenarioId": "pb-049",
+      "category": "transition",
+      "expected": {
+        "lastSpeaker": "OTHER",
+        "nextSentenceDecisionType": "NORMAL_REPLY",
+        "nextSentenceRouteCountMin": 3,
+        "nextSentenceRouteCountMax": 5,
+        "expressSelfAllowed": true,
+        "expectedNextMove": "ARC_REVEAL",
+        "expectedArcReveal": true,
+        "cloudBlockingAllowed": false,
+        "rawPrivateChat": false
+      }
+    },
+    {
+      "scenarioId": "pb-050",
+      "category": "transition",
+      "expected": {
+        "lastSpeaker": "OTHER",
+        "nextSentenceDecisionType": "NORMAL_REPLY",
+        "nextSentenceRouteCountMin": 3,
+        "nextSentenceRouteCountMax": 5,
+        "expressSelfAllowed": true,
+        "expectedNextMove": "ARC_REVEAL",
+        "expectedArcReveal": true,
+        "cloudBlockingAllowed": false,
+        "rawPrivateChat": false
+      }
+    },
+    {
+      "scenarioId": "pb-051",
+      "category": "army",
+      "expected": {
+        "lastSpeaker": "OTHER",
+        "nextSentenceDecisionType": "NORMAL_REPLY",
+        "nextSentenceRouteCountMin": 3,
+        "nextSentenceRouteCountMax": 5,
+        "expressSelfAllowed": true,
+        "expectedNextMove": "ARC_REVEAL",
+        "expectedArcReveal": true,
+        "cloudBlockingAllowed": false,
+        "rawPrivateChat": false
+      }
+    },
+    {
+      "scenarioId": "pb-052",
+      "category": "army",
+      "expected": {
+        "lastSpeaker": "OTHER",
+        "nextSentenceDecisionType": "NORMAL_REPLY",
+        "nextSentenceRouteCountMin": 3,
+        "nextSentenceRouteCountMax": 5,
+        "expressSelfAllowed": true,
+        "expectedNextMove": "ARC_REVEAL",
+        "expectedArcReveal": true,
+        "cloudBlockingAllowed": false,
+        "rawPrivateChat": false
+      }
+    },
+    {
+      "scenarioId": "pb-053",
+      "category": "army",
+      "expected": {
+        "lastSpeaker": "OTHER",
+        "nextSentenceDecisionType": "NORMAL_REPLY",
+        "nextSentenceRouteCountMin": 3,
+        "nextSentenceRouteCountMax": 5,
+        "expressSelfAllowed": true,
+        "expectedNextMove": "ARC_REVEAL",
+        "expectedArcReveal": true,
+        "cloudBlockingAllowed": false,
+        "rawPrivateChat": false
+      }
+    },
+    {
+      "scenarioId": "pb-054",
+      "category": "army",
+      "expected": {
+        "lastSpeaker": "OTHER",
+        "nextSentenceDecisionType": "NORMAL_REPLY",
+        "nextSentenceRouteCountMin": 3,
+        "nextSentenceRouteCountMax": 5,
+        "expressSelfAllowed": true,
+        "expectedNextMove": "ARC_REVEAL",
+        "expectedArcReveal": true,
+        "cloudBlockingAllowed": false,
+        "rawPrivateChat": false
+      }
+    },
+    {
+      "scenarioId": "pb-055",
+      "category": "army",
+      "expected": {
+        "lastSpeaker": "OTHER",
+        "nextSentenceDecisionType": "NORMAL_REPLY",
+        "nextSentenceRouteCountMin": 3,
+        "nextSentenceRouteCountMax": 5,
+        "expressSelfAllowed": true,
+        "expectedNextMove": "ARC_REVEAL",
+        "expectedArcReveal": true,
+        "cloudBlockingAllowed": false,
+        "rawPrivateChat": false
+      }
+    },
+    {
+      "scenarioId": "pb-056",
+      "category": "responsibility",
+      "expected": {
+        "lastSpeaker": "OTHER",
+        "nextSentenceDecisionType": "NORMAL_REPLY",
+        "nextSentenceRouteCountMin": 3,
+        "nextSentenceRouteCountMax": 5,
+        "expressSelfAllowed": true,
+        "expectedNextMove": "ARC_REVEAL",
+        "expectedArcReveal": true,
+        "cloudBlockingAllowed": false,
+        "rawPrivateChat": false
+      }
+    },
+    {
+      "scenarioId": "pb-057",
+      "category": "responsibility",
+      "expected": {
+        "lastSpeaker": "OTHER",
+        "nextSentenceDecisionType": "NORMAL_REPLY",
+        "nextSentenceRouteCountMin": 3,
+        "nextSentenceRouteCountMax": 5,
+        "expressSelfAllowed": true,
+        "expectedNextMove": "ARC_REVEAL",
+        "expectedArcReveal": true,
+        "cloudBlockingAllowed": false,
+        "rawPrivateChat": false
+      }
+    },
+    {
+      "scenarioId": "pb-058",
+      "category": "responsibility",
+      "expected": {
+        "lastSpeaker": "OTHER",
+        "nextSentenceDecisionType": "NORMAL_REPLY",
+        "nextSentenceRouteCountMin": 3,
+        "nextSentenceRouteCountMax": 5,
+        "expressSelfAllowed": true,
+        "expectedNextMove": "ARC_REVEAL",
+        "expectedArcReveal": true,
+        "cloudBlockingAllowed": false,
+        "rawPrivateChat": false
+      }
+    },
+    {
+      "scenarioId": "pb-059",
+      "category": "responsibility",
+      "expected": {
+        "lastSpeaker": "OTHER",
+        "nextSentenceDecisionType": "NORMAL_REPLY",
+        "nextSentenceRouteCountMin": 3,
+        "nextSentenceRouteCountMax": 5,
+        "expressSelfAllowed": true,
+        "expectedNextMove": "ARC_REVEAL",
+        "expectedArcReveal": true,
+        "cloudBlockingAllowed": false,
+        "rawPrivateChat": false
+      }
+    },
+    {
+      "scenarioId": "pb-060",
+      "category": "responsibility",
+      "expected": {
+        "lastSpeaker": "OTHER",
+        "nextSentenceDecisionType": "NORMAL_REPLY",
+        "nextSentenceRouteCountMin": 3,
+        "nextSentenceRouteCountMax": 5,
+        "expressSelfAllowed": true,
+        "expectedNextMove": "ARC_REVEAL",
+        "expectedArcReveal": true,
+        "cloudBlockingAllowed": false,
+        "rawPrivateChat": false
+      }
+    },
+    {
+      "scenarioId": "pb-061",
+      "category": "kids",
+      "expected": {
+        "lastSpeaker": "OTHER",
+        "nextSentenceDecisionType": "NORMAL_REPLY",
+        "nextSentenceRouteCountMin": 3,
+        "nextSentenceRouteCountMax": 5,
+        "expressSelfAllowed": true,
+        "expectedNextMove": "RECEIVE_OTHER",
+        "expectedArcReveal": false,
+        "cloudBlockingAllowed": false,
+        "rawPrivateChat": false
+      }
+    },
+    {
+      "scenarioId": "pb-062",
+      "category": "kids",
+      "expected": {
+        "lastSpeaker": "OTHER",
+        "nextSentenceDecisionType": "NORMAL_REPLY",
+        "nextSentenceRouteCountMin": 3,
+        "nextSentenceRouteCountMax": 5,
+        "expressSelfAllowed": true,
+        "expectedNextMove": "RECEIVE_OTHER",
+        "expectedArcReveal": false,
+        "cloudBlockingAllowed": false,
+        "rawPrivateChat": false
+      }
+    },
+    {
+      "scenarioId": "pb-063",
+      "category": "kids",
+      "expected": {
+        "lastSpeaker": "OTHER",
+        "nextSentenceDecisionType": "NORMAL_REPLY",
+        "nextSentenceRouteCountMin": 3,
+        "nextSentenceRouteCountMax": 5,
+        "expressSelfAllowed": true,
+        "expectedNextMove": "RECEIVE_OTHER",
+        "expectedArcReveal": false,
+        "cloudBlockingAllowed": false,
+        "rawPrivateChat": false
+      }
+    },
+    {
+      "scenarioId": "pb-064",
+      "category": "kids",
+      "expected": {
+        "lastSpeaker": "OTHER",
+        "nextSentenceDecisionType": "NORMAL_REPLY",
+        "nextSentenceRouteCountMin": 3,
+        "nextSentenceRouteCountMax": 5,
+        "expressSelfAllowed": true,
+        "expectedNextMove": "RECEIVE_OTHER",
+        "expectedArcReveal": false,
+        "cloudBlockingAllowed": false,
+        "rawPrivateChat": false
+      }
+    },
+    {
+      "scenarioId": "pb-065",
+      "category": "kids",
+      "expected": {
+        "lastSpeaker": "OTHER",
+        "nextSentenceDecisionType": "NORMAL_REPLY",
+        "nextSentenceRouteCountMin": 3,
+        "nextSentenceRouteCountMax": 5,
+        "expressSelfAllowed": true,
+        "expectedNextMove": "RECEIVE_OTHER",
+        "expectedArcReveal": false,
+        "cloudBlockingAllowed": false,
+        "rawPrivateChat": false
+      }
+    },
+    {
+      "scenarioId": "pb-066",
+      "category": "read_no_reply",
+      "expected": {
+        "lastSpeaker": "OTHER",
+        "nextSentenceDecisionType": "NORMAL_REPLY",
+        "nextSentenceRouteCountMin": 3,
+        "nextSentenceRouteCountMax": 5,
+        "expressSelfAllowed": true,
+        "expectedNextMove": "WITHDRAW",
+        "expectedArcReveal": false,
+        "cloudBlockingAllowed": false,
+        "rawPrivateChat": false
+      }
+    },
+    {
+      "scenarioId": "pb-067",
+      "category": "read_no_reply",
+      "expected": {
+        "lastSpeaker": "OTHER",
+        "nextSentenceDecisionType": "NORMAL_REPLY",
+        "nextSentenceRouteCountMin": 3,
+        "nextSentenceRouteCountMax": 5,
+        "expressSelfAllowed": true,
+        "expectedNextMove": "WITHDRAW",
+        "expectedArcReveal": false,
+        "cloudBlockingAllowed": false,
+        "rawPrivateChat": false
+      }
+    },
+    {
+      "scenarioId": "pb-068",
+      "category": "read_no_reply",
+      "expected": {
+        "lastSpeaker": "OTHER",
+        "nextSentenceDecisionType": "NORMAL_REPLY",
+        "nextSentenceRouteCountMin": 3,
+        "nextSentenceRouteCountMax": 5,
+        "expressSelfAllowed": true,
+        "expectedNextMove": "WITHDRAW",
+        "expectedArcReveal": false,
+        "cloudBlockingAllowed": false,
+        "rawPrivateChat": false
+      }
+    },
+    {
+      "scenarioId": "pb-069",
+      "category": "read_no_reply",
+      "expected": {
+        "lastSpeaker": "OTHER",
+        "nextSentenceDecisionType": "NORMAL_REPLY",
+        "nextSentenceRouteCountMin": 3,
+        "nextSentenceRouteCountMax": 5,
+        "expressSelfAllowed": true,
+        "expectedNextMove": "WITHDRAW",
+        "expectedArcReveal": false,
+        "cloudBlockingAllowed": false,
+        "rawPrivateChat": false
+      }
+    },
+    {
+      "scenarioId": "pb-070",
+      "category": "read_no_reply",
+      "expected": {
+        "lastSpeaker": "OTHER",
+        "nextSentenceDecisionType": "NORMAL_REPLY",
+        "nextSentenceRouteCountMin": 3,
+        "nextSentenceRouteCountMax": 5,
+        "expressSelfAllowed": true,
+        "expectedNextMove": "WITHDRAW",
+        "expectedArcReveal": false,
+        "cloudBlockingAllowed": false,
+        "rawPrivateChat": false
+      }
+    },
+    {
+      "scenarioId": "pb-071",
+      "category": "light_life",
+      "expected": {
+        "lastSpeaker": "OTHER",
+        "nextSentenceDecisionType": "NORMAL_REPLY",
+        "nextSentenceRouteCountMin": 3,
+        "nextSentenceRouteCountMax": 5,
+        "expressSelfAllowed": true,
+        "expectedNextMove": "RECEIVE_OTHER",
+        "expectedArcReveal": false,
+        "cloudBlockingAllowed": false,
+        "rawPrivateChat": false
+      }
+    },
+    {
+      "scenarioId": "pb-072",
+      "category": "light_life",
+      "expected": {
+        "lastSpeaker": "OTHER",
+        "nextSentenceDecisionType": "NORMAL_REPLY",
+        "nextSentenceRouteCountMin": 3,
+        "nextSentenceRouteCountMax": 5,
+        "expressSelfAllowed": true,
+        "expectedNextMove": "RECEIVE_OTHER",
+        "expectedArcReveal": false,
+        "cloudBlockingAllowed": false,
+        "rawPrivateChat": false
+      }
+    },
+    {
+      "scenarioId": "pb-073",
+      "category": "light_life",
+      "expected": {
+        "lastSpeaker": "OTHER",
+        "nextSentenceDecisionType": "NORMAL_REPLY",
+        "nextSentenceRouteCountMin": 3,
+        "nextSentenceRouteCountMax": 5,
+        "expressSelfAllowed": true,
+        "expectedNextMove": "RECEIVE_OTHER",
+        "expectedArcReveal": false,
+        "cloudBlockingAllowed": false,
+        "rawPrivateChat": false
+      }
+    },
+    {
+      "scenarioId": "pb-074",
+      "category": "light_life",
+      "expected": {
+        "lastSpeaker": "OTHER",
+        "nextSentenceDecisionType": "NORMAL_REPLY",
+        "nextSentenceRouteCountMin": 3,
+        "nextSentenceRouteCountMax": 5,
+        "expressSelfAllowed": true,
+        "expectedNextMove": "RECEIVE_OTHER",
+        "expectedArcReveal": false,
+        "cloudBlockingAllowed": false,
+        "rawPrivateChat": false
+      }
+    },
+    {
+      "scenarioId": "pb-075",
+      "category": "light_life",
+      "expected": {
+        "lastSpeaker": "OTHER",
+        "nextSentenceDecisionType": "NORMAL_REPLY",
+        "nextSentenceRouteCountMin": 3,
+        "nextSentenceRouteCountMax": 5,
+        "expressSelfAllowed": true,
+        "expectedNextMove": "RECEIVE_OTHER",
+        "expectedArcReveal": false,
+        "cloudBlockingAllowed": false,
+        "rawPrivateChat": false
+      }
+    },
+    {
+      "scenarioId": "pb-076",
+      "category": "topic_shift",
+      "expected": {
+        "lastSpeaker": "OTHER",
+        "nextSentenceDecisionType": "NORMAL_REPLY",
+        "nextSentenceRouteCountMin": 3,
+        "nextSentenceRouteCountMax": 5,
+        "expressSelfAllowed": true,
+        "expectedNextMove": "WITHDRAW",
+        "expectedArcReveal": false,
+        "cloudBlockingAllowed": false,
+        "rawPrivateChat": false
+      }
+    },
+    {
+      "scenarioId": "pb-077",
+      "category": "topic_shift",
+      "expected": {
+        "lastSpeaker": "OTHER",
+        "nextSentenceDecisionType": "NORMAL_REPLY",
+        "nextSentenceRouteCountMin": 3,
+        "nextSentenceRouteCountMax": 5,
+        "expressSelfAllowed": true,
+        "expectedNextMove": "WITHDRAW",
+        "expectedArcReveal": false,
+        "cloudBlockingAllowed": false,
+        "rawPrivateChat": false
+      }
+    },
+    {
+      "scenarioId": "pb-078",
+      "category": "topic_shift",
+      "expected": {
+        "lastSpeaker": "OTHER",
+        "nextSentenceDecisionType": "NORMAL_REPLY",
+        "nextSentenceRouteCountMin": 3,
+        "nextSentenceRouteCountMax": 5,
+        "expressSelfAllowed": true,
+        "expectedNextMove": "WITHDRAW",
+        "expectedArcReveal": false,
+        "cloudBlockingAllowed": false,
+        "rawPrivateChat": false
+      }
+    },
+    {
+      "scenarioId": "pb-079",
+      "category": "topic_shift",
+      "expected": {
+        "lastSpeaker": "OTHER",
+        "nextSentenceDecisionType": "NORMAL_REPLY",
+        "nextSentenceRouteCountMin": 3,
+        "nextSentenceRouteCountMax": 5,
+        "expressSelfAllowed": true,
+        "expectedNextMove": "WITHDRAW",
+        "expectedArcReveal": false,
+        "cloudBlockingAllowed": false,
+        "rawPrivateChat": false
+      }
+    },
+    {
+      "scenarioId": "pb-080",
+      "category": "topic_shift",
+      "expected": {
+        "lastSpeaker": "OTHER",
+        "nextSentenceDecisionType": "NORMAL_REPLY",
+        "nextSentenceRouteCountMin": 3,
+        "nextSentenceRouteCountMax": 5,
+        "expressSelfAllowed": true,
+        "expectedNextMove": "WITHDRAW",
+        "expectedArcReveal": false,
+        "cloudBlockingAllowed": false,
+        "rawPrivateChat": false
+      }
+    },
+    {
+      "scenarioId": "pb-081",
+      "category": "other_retreat",
+      "expected": {
+        "lastSpeaker": "OTHER",
+        "nextSentenceDecisionType": "NORMAL_REPLY",
+        "nextSentenceRouteCountMin": 3,
+        "nextSentenceRouteCountMax": 5,
+        "expressSelfAllowed": true,
+        "expectedNextMove": "WITHDRAW",
+        "expectedArcReveal": false,
+        "cloudBlockingAllowed": false,
+        "rawPrivateChat": false
+      }
+    },
+    {
+      "scenarioId": "pb-082",
+      "category": "other_retreat",
+      "expected": {
+        "lastSpeaker": "OTHER",
+        "nextSentenceDecisionType": "NORMAL_REPLY",
+        "nextSentenceRouteCountMin": 3,
+        "nextSentenceRouteCountMax": 5,
+        "expressSelfAllowed": true,
+        "expectedNextMove": "WITHDRAW",
+        "expectedArcReveal": false,
+        "cloudBlockingAllowed": false,
+        "rawPrivateChat": false
+      }
+    },
+    {
+      "scenarioId": "pb-083",
+      "category": "other_retreat",
+      "expected": {
+        "lastSpeaker": "OTHER",
+        "nextSentenceDecisionType": "NORMAL_REPLY",
+        "nextSentenceRouteCountMin": 3,
+        "nextSentenceRouteCountMax": 5,
+        "expressSelfAllowed": true,
+        "expectedNextMove": "WITHDRAW",
+        "expectedArcReveal": false,
+        "cloudBlockingAllowed": false,
+        "rawPrivateChat": false
+      }
+    },
+    {
+      "scenarioId": "pb-084",
+      "category": "other_retreat",
+      "expected": {
+        "lastSpeaker": "OTHER",
+        "nextSentenceDecisionType": "NORMAL_REPLY",
+        "nextSentenceRouteCountMin": 3,
+        "nextSentenceRouteCountMax": 5,
+        "expressSelfAllowed": true,
+        "expectedNextMove": "WITHDRAW",
+        "expectedArcReveal": false,
+        "cloudBlockingAllowed": false,
+        "rawPrivateChat": false
+      }
+    },
+    {
+      "scenarioId": "pb-085",
+      "category": "other_retreat",
+      "expected": {
+        "lastSpeaker": "OTHER",
+        "nextSentenceDecisionType": "NORMAL_REPLY",
+        "nextSentenceRouteCountMin": 3,
+        "nextSentenceRouteCountMax": 5,
+        "expressSelfAllowed": true,
+        "expectedNextMove": "WITHDRAW",
+        "expectedArcReveal": false,
+        "cloudBlockingAllowed": false,
+        "rawPrivateChat": false
+      }
+    },
+    {
+      "scenarioId": "pb-086",
+      "category": "user_just_expressed",
+      "expected": {
+        "lastSpeaker": "ME",
+        "nextSentenceDecisionType": "WAIT",
+        "nextSentenceRouteCountMin": 0,
+        "nextSentenceRouteCountMax": 0,
+        "expressSelfAllowed": false,
+        "expectedNextMove": "WAIT",
+        "expectedArcReveal": false,
+        "cloudBlockingAllowed": false,
+        "rawPrivateChat": false
+      }
+    },
+    {
+      "scenarioId": "pb-087",
+      "category": "user_just_expressed",
+      "expected": {
+        "lastSpeaker": "ME",
+        "nextSentenceDecisionType": "WAIT",
+        "nextSentenceRouteCountMin": 0,
+        "nextSentenceRouteCountMax": 0,
+        "expressSelfAllowed": false,
+        "expectedNextMove": "WAIT",
+        "expectedArcReveal": false,
+        "cloudBlockingAllowed": false,
+        "rawPrivateChat": false
+      }
+    },
+    {
+      "scenarioId": "pb-088",
+      "category": "user_just_expressed",
+      "expected": {
+        "lastSpeaker": "ME",
+        "nextSentenceDecisionType": "WAIT",
+        "nextSentenceRouteCountMin": 0,
+        "nextSentenceRouteCountMax": 0,
+        "expressSelfAllowed": false,
+        "expectedNextMove": "WAIT",
+        "expectedArcReveal": false,
+        "cloudBlockingAllowed": false,
+        "rawPrivateChat": false
+      }
+    },
+    {
+      "scenarioId": "pb-089",
+      "category": "user_just_expressed",
+      "expected": {
+        "lastSpeaker": "ME",
+        "nextSentenceDecisionType": "WAIT",
+        "nextSentenceRouteCountMin": 0,
+        "nextSentenceRouteCountMax": 0,
+        "expressSelfAllowed": false,
+        "expectedNextMove": "WAIT",
+        "expectedArcReveal": false,
+        "cloudBlockingAllowed": false,
+        "rawPrivateChat": false
+      }
+    },
+    {
+      "scenarioId": "pb-090",
+      "category": "user_just_expressed",
+      "expected": {
+        "lastSpeaker": "ME",
+        "nextSentenceDecisionType": "WAIT",
+        "nextSentenceRouteCountMin": 0,
+        "nextSentenceRouteCountMax": 0,
+        "expressSelfAllowed": false,
+        "expectedNextMove": "WAIT",
+        "expectedArcReveal": false,
+        "cloudBlockingAllowed": false,
+        "rawPrivateChat": false
+      }
+    }
+  ]
+}

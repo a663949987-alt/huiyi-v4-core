@@ -19,6 +19,11 @@ enum class RelationshipStage {
     BOUNDARY_PAUSE
 }
 
+enum class RelationshipPlaybookSource {
+    LOCAL_FALLBACK,
+    CLOUD_ENHANCED
+}
+
 data class RelationshipPlaybook(
     val stage: RelationshipStage,
     val currentFrame: String,
@@ -28,7 +33,12 @@ data class RelationshipPlaybook(
     val next2StepBranches: List<PlaybookBranch>,
     val risk: RiskLevel,
     val fallback: String,
-    val expiresWhen: PlaybookExpiry
+    val expiresWhen: PlaybookExpiry,
+    val playbookId: String = "playbook-${nowId()}",
+    val chatKey: String? = null,
+    val topicHash: String = "",
+    val generatedAtMillis: Long = System.currentTimeMillis(),
+    val source: RelationshipPlaybookSource = RelationshipPlaybookSource.LOCAL_FALLBACK
 )
 
 data class PlaybookCharacterArcPlan(
@@ -83,7 +93,11 @@ class RelationshipPlaybookGenerator {
             expiresWhen = PlaybookExpiry(
                 expiresAtMillis = nowMillis + 10 * 60 * 1000,
                 expiresWhen = listOf("stage_changed", "topic_changed", "last_speaker_changed", "playbook_ttl_expired")
-            )
+            ),
+            chatKey = lightChatState.chatKey,
+            topicHash = topicHash(compression),
+            generatedAtMillis = nowMillis,
+            source = RelationshipPlaybookSource.LOCAL_FALLBACK
         )
     }
 
@@ -196,6 +210,15 @@ class RelationshipPlaybookGenerator {
         RiskLevel.LOW -> "stay light and keep the next move easy to answer"
     }
 
+    private fun topicHash(compression: ConversationStateCompression): String =
+        (compression.currentTopics + compression.expressionTriggerTopics)
+            .map { it.trim().lowercase() }
+            .filter { it.isNotBlank() }
+            .distinct()
+            .sorted()
+            .joinToString("|")
+            .ifBlank { "general" }
+
     private fun route(
         id: String,
         name: String,
@@ -250,3 +273,5 @@ class RelationshipPlaybookGenerator {
         )
     }
 }
+
+private fun nowId(): String = System.currentTimeMillis().toString(36)

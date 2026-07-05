@@ -1,0 +1,29 @@
+{
+  "taskName": "dynamic_playbook_instant_messages_mvp",
+  "versionName": "4.1.57",
+  "versionCode": 476,
+  "generatedAt": "2026-07-05T03:37:30.127Z",
+  "dynamicPlaybookCache": true,
+  "nextSentencePassiveCache": true,
+  "expressSelfActiveCache": true,
+  "localFallbackInstantResult": true,
+  "cloudNonBlockingRefresh": true,
+  "cloudEnhancementOptional": true,
+  "localPlaybookFallbackReady": true,
+  "nextSentencePanelPassiveOnly": true,
+  "expressSelfPanelUsesArcPlanner": true,
+  "lastMeWaitHardGate": true,
+  "defaultCloudModel": "deepseek-v4-flash",
+  "strongCloudModel": "gpt-5.5",
+  "dsProRuntimeEnabled": false,
+  "corpusSize": 90,
+  "corpusPath": "tools/playbook_corpus/scenarios.json",
+  "expectedPath": "tools/playbook_corpus/expected.json",
+  "unitTests": [
+    "DynamicPlaybookEngineTest PASS",
+    "DynamicPlaybookCorpusTest PASS"
+  ],
+  "emulatorSmokeResult": "NOT_RUN",
+  "userNeedsPhoneThisRound": false,
+  "overallResult": "LOCAL_FIXTURE_PASS"
+}

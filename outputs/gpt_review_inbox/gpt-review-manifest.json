@@ -1,52 +1,52 @@
 {
-  "project": "huiyi-v4",
-  "taskName": "relay_model_benchmark_default_playbook_model_search",
-  "versionName": "4.1.56",
-  "versionCode": 475,
-  "currentOverallResult": "RELAY_MODEL_BENCHMARK_COMPLETE_NO_RUNTIME_SWITCH",
-  "generatedAt": "2026-07-05T10:45:23+08:00",
+  "taskName": "dynamic_playbook_instant_messages_mvp",
+  "versionName": "4.1.57",
+  "versionCode": 476,
+  "currentOverallResult": "LOCAL_FIXTURE_PASS",
+  "dynamicPlaybookCache": true,
+  "nextSentencePassiveCache": true,
+  "expressSelfActiveCache": true,
+  "localFallbackInstantResult": true,
+  "cloudNonBlockingRefresh": true,
+  "corpusSize": 90,
+  "emulatorSmokeResult": "NOT_RUN",
   "userNeedsPhoneThisRound": false,
-  "realDeviceSmokeResult": "NOT_REQUIRED",
-  "apiKeyIncluded": false,
-  "availableRawModelCount": 111,
-  "availableTextModelCount": 68,
-  "testedModelCount": 10,
-  "sampleCountPerModel": 20,
-  "recommendedDefaultModel": null,
-  "recommendedStrongModel": null,
-  "closestStrongReference": "gpt-5.4",
-  "runtimeSwitchRecommended": false,
-  "deepseekV4ProRuntimeEnabled": false,
   "files": [
     {
       "path": "outputs/gpt_review_inbox/README_FOR_GPT.md",
-      "type": "markdown",
-      "sendToGpt": true
+      "sha256": "6cf0ea9589ca8f3c89a5a6755d3b2e189f6364733b13d8bf3b2b3fe8d8b69099"
     },
     {
-      "path": "outputs/gpt_review_inbox/relay-available-models-for-gpt.md",
-      "type": "markdown",
-      "sendToGpt": true
+      "path": "outputs/gpt_review_inbox/dynamic-playbook-mvp-report-for-gpt.md",
+      "sha256": "eb19d7ecc5aa2cd58139f81b8789ccf9ba01e59502c9fbab8cda49977d2c6064"
     },
     {
-      "path": "outputs/gpt_review_inbox/relay-available-models.json",
-      "type": "json",
-      "sendToGpt": true
+      "path": "outputs/gpt_review_inbox/dynamic-playbook-mvp-report.json",
+      "sha256": "012f58cff5fc3a09adf867a2aaa42ef65d68ca6359b529b1b68f7ec0e0112912"
     },
     {
-      "path": "outputs/gpt_review_inbox/relay-model-benchmark-for-gpt.md",
-      "type": "markdown",
-      "sendToGpt": true
+      "path": "outputs/gpt_review_inbox/dynamic-playbook-emulator-smoke-for-gpt.md",
+      "sha256": "c2e6a8b17798f5f330b3a0daa43c6ac3c23dcb92f056a554b0513b01863a298a"
     },
     {
-      "path": "outputs/gpt_review_inbox/relay-model-benchmark.json",
-      "type": "json",
-      "sendToGpt": true
+      "path": "outputs/gpt_review_inbox/dynamic-playbook-emulator-smoke-report.json",
+      "sha256": "fee886a39503cf60addf2a9186653eb26f87bdc535228d4c7f1b2c210d9b8584"
     },
     {
-      "path": "outputs/codex_to_gpt/result-manifest.json",
-      "type": "json",
-      "sendToGpt": true
+      "path": "outputs/update_server/latest.json",
+      "sha256": "3c9e80ae517e97384791f867942e9f73b6f5468bdfc2b2c35fb8572548136f7c"
+    },
+    {
+      "path": "outputs/update_server/huiyi-v4.1.57-debug.apk",
+      "sha256": "c071624116adce608f216529cbc963dc5e2709c3f2c3c34300665a3e03ad5d89"
+    },
+    {
+      "path": "tools/playbook_corpus/scenarios.json",
+      "sha256": "d8d4b7414acaa8d65d2873d6abc6f0dcbf0bb13312594ec940af8218c25000d1"
+    },
+    {
+      "path": "tools/playbook_corpus/expected.json",
+      "sha256": "780715f85d219836f9338441e120d746adcdc958d03a8c314c1139ac117ca7aa"
     }
   ]
 }

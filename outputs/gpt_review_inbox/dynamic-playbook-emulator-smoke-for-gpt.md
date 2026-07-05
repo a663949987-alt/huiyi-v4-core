@@ -1,0 +1,24 @@
+﻿# Dynamic Playbook Emulator Smoke Report
+
+- taskName: dynamic_playbook_instant_messages_mvp
+- versionName: 4.1.57
+- versionCode: 476
+- emulatorDetected: False
+- emulatorSerial: none
+- huiyiInstalled: False
+- mockchatInstalled: False
+- accessibilityEnabled: False
+- overlayPermissionGranted: False
+- passiveNextLatencyMs: none
+- activeExpressionLatencyMs: none
+- playbookCacheHit: False
+- localFallbackUsed: False
+- cloudRefreshAttempted: False
+- cloudRefreshSuccess: False
+- staleRefreshDiscarded: False
+- lastMeWaitPass: False
+- arcRevealPass: False
+- oneClickImmediateResultPass: False
+- overallResult: NOT_RUN
+- reason: NO_EMULATOR_AVAILABLE
+- screenshotsPath: C:\Users\fbjdf\Documents\Codex\2026-07-02\new-chat-3\outputs\gpt_review_inbox\dynamic_playbook_emulator_smoke

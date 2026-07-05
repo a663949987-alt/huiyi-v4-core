@@ -1,9 +1,9 @@
-{
-    "versionName":  "4.1.56",
-    "versionCode":  475,
-    "apkUrl":  "huiyi-v4.1.56-debug.apk",
-    "releaseNotes":  "v4.1.56: accept valid late cloud result after soft timeout even when foreground package changes",
+﻿{
+    "versionName":  "4.1.57",
+    "versionCode":  476,
+    "apkUrl":  "huiyi-v4.1.57-debug.apk",
+    "releaseNotes":  "v4.1.57: dynamic playbook cache with instant passive next sentence and express-self routes; cloud refresh is non-blocking",
     "forceUpdate":  false,
-    "sha256":  "A48E30DEF6FB77F80CFAF14C2871B81C84494A5B4497B9BCF07211FED458B4B3",
-    "createdAt":  1783168011763
+    "sha256":  "C071624116ADCE608F216529CBC963DC5E2709C3F2C3C34300665A3E03AD5D89",
+    "createdAt":  1783222530570
 }
