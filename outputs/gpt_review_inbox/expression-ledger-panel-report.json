@@ -1,4 +1,5 @@
 {
+  "project": "Huiyi v4 Core",
   "taskName": "expression_ledger_express_self_real_panel_binding",
   "versionName": "4.1.60",
   "versionCode": 479,
@@ -15,14 +16,17 @@
   "holdBackShowsCollectYourselfLine": true,
   "holdBackSingleLowPressureRoute": true,
   "elevateMeaningHasCoCreateRoute": true,
+  "elevateMeaningDoesNotRepeatLastLine": true,
   "switchFacetDoesNotRepeatLastSurfaceLineRedacted": true,
   "passiveNextSentenceChanged": false,
   "lightListeningBaseChanged": false,
   "parserChanged": false,
   "sessionStateMachineChanged": false,
   "cloudCallbackChanged": false,
-  "reports": [
-    "outputs/gpt_review_inbox/expression-ledger-panel-report-for-gpt.md",
-    "outputs/gpt_review_inbox/expression-ledger-panel-report.json"
-  ]
+  "tests": {
+    "ExpressionLedgerTest": "PASS",
+    "DynamicPlaybookEngineTest": "PASS",
+    "ExpressSelfUiLoopTest": "PASS",
+    "app:testDebugUnitTest": "PASS"
+  }
 }

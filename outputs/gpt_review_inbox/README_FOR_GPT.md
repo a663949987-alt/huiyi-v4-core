@@ -1,37 +1,33 @@
 # GPT Review Inbox
 
-- taskName: expression_ledger_arc_theme_progression
-- versionName: 4.1.59
-- versionCode: 478
-- currentOverallResult: LOCAL_INTERFACE_PASS_NO_PHONE_REQUIRED
+- taskName: expression_ledger_express_self_real_panel_binding
+- versionName: 4.1.60
+- versionCode: 479
+- currentOverallResult: LOCAL_UI_FIXTURE_PASS_NO_PHONE_REQUIRED
 - userNeedsPhoneThisRound: false
 - realDeviceRequiredThisRound: false
 - emulatorRequiredThisRound: false
-- expressionLedgerImplemented: true
-- fixedArcThemesCount: 5
-- expressionModesSupported: START_TOPIC / EXTEND_TOPIC / ELEVATE_MEANING / SWITCH_FACET / HOLD_BACK
-- coldStartExpressionSupported: true
-- repeatedThemeCanElevate: true
-- lowLevelRepetitionBlocked: true
-- overExpressionGuard: true
-- noLightListeningRewrite: true
-- noParserRewrite: true
-- noSessionStateRewrite: true
-- noCloudCallbackRewrite: true
+- expressSelfRealPanelBound: true
+- panelShowsExpressionMode: true
+- panelShowsCurrentArcTheme: true
+- panelShowsWhyThisCanBeSaid: true
+- panelShowsWhatNotToSay: true
+- holdBackNoArcRevealRoute: true
+- holdBackShowsCollectYourselfLine: true
+- holdBackSingleLowPressureRoute: true
+- elevateMeaningHasCoCreateRoute: true
+- switchFacetDoesNotRepeatLastSurfaceLineRedacted: true
 - passiveNextSentenceChanged: false
-- longTermRawPrivateChatStorage: false
-- autoSend: false
-- rawPrivateChatInGithub: false
+- lightListeningBaseChanged: false
+- parserChanged: false
+- sessionStateMachineChanged: false
+- cloudCallbackChanged: false
 
 ## Main Reports
 
-- outputs/gpt_review_inbox/expression-ledger-report-for-gpt.md
-- outputs/gpt_review_inbox/expression-ledger-report.json
+- outputs/gpt_review_inbox/expression-ledger-panel-report-for-gpt.md
+- outputs/gpt_review_inbox/expression-ledger-panel-report.json
 
 ## Test Evidence
 
-- compileDebugKotlin: PASS
-- ExpressionLedgerTest: PASS
-- DynamicPlaybookEngineTest: PASS
-- ExpressSelfUiLoopTest: PASS
 - app:testDebugUnitTest: PASS

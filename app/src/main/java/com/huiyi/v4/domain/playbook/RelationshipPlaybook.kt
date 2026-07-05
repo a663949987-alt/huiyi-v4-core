@@ -199,22 +199,6 @@ class RelationshipPlaybookGenerator(
                     message = "\u8fd9\u4e2a\u70b9\u6211\u5148\u4e0d\u5f80\u81ea\u5df1\u8eab\u4e0a\u8bb2\u4e86\uff0c\u4f60\u521a\u521a\u90a3\u4e2a\u611f\u53d7\u6211\u5148\u63a5\u4f4f\u3002",
                     risk = risk,
                     selection = selection
-                ),
-                route(
-                    id = "receive-before-express",
-                    name = "\u4f4e\u538b\u63a5\u4f4f",
-                    type = ReplyRouteType.EMPATHY,
-                    message = "\u6211\u5148\u4e0d\u6025\u7740\u8868\u8fbe\u81ea\u5df1\uff0c\u5148\u542c\u4f60\u628a\u8fd9\u4e2a\u8bf4\u5b8c\u3002",
-                    risk = RiskLevel.LOW,
-                    selection = selection
-                ),
-                route(
-                    id = "safe-withdraw",
-                    name = "\u6536\u53e3",
-                    type = ReplyRouteType.COOL_DOWN,
-                    message = "\u5148\u4e0d\u628a\u8bdd\u8bf4\u91cd\uff0c\u6211\u4eec\u6162\u6162\u6765\u5c31\u597d\u3002",
-                    risk = risk,
-                    selection = selection
                 )
             ).mapIndexed { index, item -> item.copy(recommended = index == 0) }
         }

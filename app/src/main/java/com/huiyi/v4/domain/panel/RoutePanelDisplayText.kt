@@ -75,7 +75,12 @@ object RoutePanelDisplayText {
             metaRoute?.panelModeReason?.let { "\u4e3a\u4ec0\u4e48\u8fd9\u6b21\u53ef\u4ee5\u8bf4\uff1a$it" },
             metaRoute?.panelAvoidLine?.let { "\u8fd9\u6b21\u522b\u600e\u4e48\u8bf4\uff1a$it" }
         )
-        return expressionLedgerLines + listOf(
+        val holdBackLines = if (metaRoute?.panelExpressionMode == "\u5148\u4e0d\u8bf4") {
+            listOf("\u8fd9\u8f6e\u5148\u522b\u7ee7\u7eed\u8868\u8fbe\u81ea\u5df1\uff0c\u5148\u6536\u4e00\u4e0b")
+        } else {
+            emptyList()
+        }
+        return expressionLedgerLines + holdBackLines + listOf(
             actionLine,
             "\u9002\u5408\u9732\u51fa\u7684\u4f60\uff1a$facet",
             windowLine,
