@@ -2,10 +2,14 @@
   "taskName": "express_self_ui_loop_character_arc",
   "versionName": "4.1.56",
   "versionCode": 475,
-  "currentOverallResult": "LOCAL_FIXTURE_PASS_NO_PHONE_REQUIRED",
-  "generatedAt": "2026-07-04T23:04:27+08:00",
-  "userNeedsPhoneThisRound": false,
-  "realDeviceSmokeResult": "NOT_REQUIRED",
+  "currentOverallResult": "EMULATOR_EXPRESS_SELF_TWO_ROUND_PASS",
+  "generatedAt": "2026-07-05T08:34:15+08:00",
+  "userNeedsPhoneThisRound": true,
+  "realDeviceSmokeResult": "READY_FOR_USER_TEST",
+  "emulatorExpressSelfTwoRoundResult": "PASS",
+  "emulatorSerial": "emulator-5554",
+  "emulatorAccessibilityConnected": true,
+  "emulatorOverlayPermissionGranted": true,
   "nextSentenceButtonExists": true,
   "expressSelfButtonExists": true,
   "nextSentencePassiveOnly": true,
@@ -29,7 +33,9 @@
   "tests": {
     "ExpressSelfUiLoopTest": "PASS",
     "CharacterArcPlannerTest": "PASS",
-    "PassiveActiveSplitTest": "PASS"
+    "PassiveActiveSplitTest": "PASS",
+    "EmulatorExpressSelfRound1": "PASS",
+    "EmulatorExpressSelfRound2": "PASS"
   },
   "files": [
     {
@@ -45,6 +51,26 @@
     {
       "path": "outputs/gpt_review_inbox/express-self-ui-loop-report.json",
       "type": "json",
+      "sendToGpt": true
+    },
+    {
+      "path": "outputs/gpt_review_inbox/express-self-emulator-two-round-report-for-gpt.md",
+      "type": "markdown",
+      "sendToGpt": true
+    },
+    {
+      "path": "outputs/gpt_review_inbox/express-self-emulator-two-round-report.json",
+      "type": "json",
+      "sendToGpt": true
+    },
+    {
+      "path": "outputs/gpt_review_inbox/express_self_emulator_smoke/round1_valid2_panel.png",
+      "type": "png",
+      "sendToGpt": true
+    },
+    {
+      "path": "outputs/gpt_review_inbox/express_self_emulator_smoke/round2_valid_panel.png",
+      "type": "png",
       "sendToGpt": true
     },
     {

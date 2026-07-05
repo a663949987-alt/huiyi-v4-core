@@ -4,10 +4,10 @@
 - taskName: express_self_ui_loop_character_arc
 - versionName: 4.1.56
 - versionCode: 475
-- currentOverallResult: LOCAL_FIXTURE_PASS_NO_PHONE_REQUIRED
-- generatedAt: 2026-07-04T23:04:27+08:00
-- userNeedsPhoneThisRound: false
-- realDeviceSmokeResult: NOT_REQUIRED
+- currentOverallResult: EMULATOR_EXPRESS_SELF_TWO_ROUND_PASS
+- generatedAt: 2026-07-05T08:34:15+08:00
+- userNeedsPhoneThisRound: true
+- realDeviceSmokeResult: READY_FOR_USER_TEST
 
 ## What Changed
 - Floating menu policy exposes three entries: 下一句 / 表达我 / 隐藏.
@@ -31,13 +31,21 @@
 - PassiveActiveSplitTest: PASS
 - MockChat-style fixture with reality/stability/future/responsibility triggers ARC_REVEAL: PASS
 - Next Sentence panel has no persona feedback: PASS
+- Emulator Express Self round 1: PASS
+- Emulator Express Self round 2: PASS
+- Emulator accessibility service connected: PASS
+- Emulator overlay permission granted: PASS
 
 ## GPT Should Inspect
 1. outputs/gpt_review_inbox/express-self-ui-loop-report-for-gpt.md
 2. outputs/gpt_review_inbox/express-self-ui-loop-report.json
-3. outputs/codex_to_gpt/result-manifest.json
+3. outputs/gpt_review_inbox/express-self-emulator-two-round-report-for-gpt.md
+4. outputs/gpt_review_inbox/express-self-emulator-two-round-report.json
+5. outputs/gpt_review_inbox/express_self_emulator_smoke/round1_valid2_panel.png
+6. outputs/gpt_review_inbox/express_self_emulator_smoke/round2_valid_panel.png
+7. outputs/codex_to_gpt/result-manifest.json
 
 ## Delivery
 - apkGeneratedThisRound: false
 - lanUpdateTouchedThisRound: false
-- userNeedsPhoneThisRound: false
+- userNeedsPhoneThisRound: true
