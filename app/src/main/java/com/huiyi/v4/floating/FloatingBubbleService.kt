@@ -31,7 +31,7 @@ class FloatingBubbleService : Service() {
                         try {
                             Log.i(LOG_TAG, "next_sentence_click_ack latencyMs=${clickAck.clickAckLatencyMs} ackVisible=${clickAck.clickAckVisible}")
                             resultPanelController?.hide()
-                            delay(if (clickAck.panelVisibleBeforeClick) 1200L else 250L)
+                            delay(if (clickAck.panelVisibleBeforeClick) 300L else 40L)
                             val sessionId = runtime.runNextSentence(clickAck)
                             delay(700L)
                             val state = runtime.state.value
@@ -59,7 +59,7 @@ class FloatingBubbleService : Service() {
                         try {
                             Log.i(LOG_TAG, "express_self_click_ack latencyMs=${clickAck.clickAckLatencyMs} ackVisible=${clickAck.clickAckVisible}")
                             resultPanelController?.hide()
-                            delay(if (clickAck.panelVisibleBeforeClick) 600L else 180L)
+                            delay(if (clickAck.panelVisibleBeforeClick) 240L else 40L)
                             val sessionId = runtime.runExpressSelf(clickAck)
                             delay(700L)
                             val state = runtime.state.value
@@ -94,6 +94,15 @@ class FloatingBubbleService : Service() {
         }
     }
 
+    override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
+        OverlayStateStore.markFloatingServiceRunning(true)
+        if (intent?.getBooleanExtra(EXTRA_RESET_PANEL, false) == true) {
+            resultPanelController?.hide()
+        }
+        controller?.show()
+        return START_STICKY
+    }
+
     override fun onDestroy() {
         OverlayStateStore.markFloatingServiceRunning(false)
         controller?.hide("service_destroy")
@@ -108,5 +117,6 @@ class FloatingBubbleService : Service() {
 
     private companion object {
         const val LOG_TAG = "FloatingBubbleService"
+        const val EXTRA_RESET_PANEL = "resetPanel"
     }
 }

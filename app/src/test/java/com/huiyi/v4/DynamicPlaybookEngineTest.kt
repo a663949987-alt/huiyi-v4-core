@@ -59,6 +59,7 @@ class DynamicPlaybookEngineTest {
         assertEquals(5, second.routes.size)
         assertTrue(second.routes.none { it.routeType == ReplyRouteType.ARC_REVEAL })
         assertTrue(second.routes.none { it.routeType == ReplyRouteType.SELF_STORY })
+        assertChineseSendableRoutes(second.routes)
         assertTrue(second.oneClickImmediateResultPass)
     }
 
@@ -75,7 +76,10 @@ class DynamicPlaybookEngineTest {
 
         assertTrue(first.routes.size in 3..5)
         assertTrue(first.routes.any { it.routeType == ReplyRouteType.ARC_REVEAL })
+        assertTrue(first.routes.any { it.routeType == ReplyRouteType.SELF_STORY })
         assertTrue(first.routes.any { it.routeType == ReplyRouteType.CO_CREATION })
+        assertTrue(first.routes.any { it.routeType == ReplyRouteType.COOL_DOWN })
+        assertChineseSendableRoutes(first.routes)
         assertTrue(first.cloudRefreshRecommended)
         assertTrue(second.cacheHit)
         assertTrue(second.oneClickImmediateResultPass)
@@ -122,4 +126,13 @@ class DynamicPlaybookEngineTest {
         textNode("me-1", Speaker.ME, "I hear you.", 1),
         textNode("other-1", Speaker.OTHER, "This needs real planning, future stability and responsibility.", 2)
     )
+
+    private fun assertChineseSendableRoutes(routes: List<com.huiyi.v4.domain.model.ReplyRoute>) {
+        assertTrue(routes.isNotEmpty())
+        routes.forEach { route ->
+            assertTrue("route name should be Chinese: ${route.name}", route.name.contains(Regex("[\\u4e00-\\u9fff]")))
+            assertTrue("route message should be Chinese: ${route.message}", route.message.contains(Regex("[\\u4e00-\\u9fff]")))
+            assertFalse("route message should not expose English template: ${route.message}", route.message.contains(Regex("[A-Za-z]{3,}")))
+        }
+    }
 }

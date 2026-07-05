@@ -148,14 +148,14 @@ class RelationshipPlaybookGenerator {
     private fun passiveRoutes(lightChatState: LightChatStableSnapshot, risk: RiskLevel): List<ReplyRoute> {
         val lastSpeaker = lightChatState.recentEffectiveMessages.lastOrNull()?.speaker
         if (lastSpeaker == Speaker.ME) {
-            return listOf(route("wait", "Wait", ReplyRouteType.WAIT, "You already replied. Wait for the other person.", RiskLevel.LOW))
+            return listOf(route("wait", "先等对方", ReplyRouteType.WAIT, "你已经回过了，先等对方。", RiskLevel.LOW))
         }
         return listOf(
-            route("receive", "Receive", ReplyRouteType.EMPATHY, "I get it, no rush. Say it at your pace.", RiskLevel.LOW),
-            route("steady", "Steady", ReplyRouteType.STABLE, "Handle what is in front of you first. I am here.", RiskLevel.LOW),
-            route("light-question", "Light question", ReplyRouteType.DIRECT, "Is it the situation itself, or being misunderstood?", RiskLevel.LOW),
-            route("warm", "Warmer", ReplyRouteType.WARM_UP, "I actually like that you still told me this.", RiskLevel.MEDIUM),
-            route("withdraw", "Withdraw", ReplyRouteType.COOL_DOWN, "Then I will not press. We can talk when it feels easier.", risk)
+            route("receive", "接住情绪", ReplyRouteType.EMPATHY, "嗯，我懂你这个意思。你先按自己的节奏来，不用急着解释清楚。", RiskLevel.LOW),
+            route("steady", "稳住节奏", ReplyRouteType.STABLE, "先把眼前这件事处理好就行，我在，不用一下子想太多。", RiskLevel.LOW),
+            route("light-question", "轻轻追问", ReplyRouteType.DIRECT, "你现在更在意的是事情本身，还是怕别人没理解你？", RiskLevel.LOW),
+            route("warm", "轻微升温", ReplyRouteType.WARM_UP, "其实你愿意跟我说这些，我是有感觉到的。", RiskLevel.MEDIUM),
+            route("withdraw", "低压撤退", ReplyRouteType.COOL_DOWN, "那我先不追着问了，你舒服一点的时候我们再慢慢说。", risk)
         )
     }
 
@@ -166,15 +166,15 @@ class RelationshipPlaybookGenerator {
     ): List<ReplyRoute> {
         val arcLine = arcPlan.suggestedLine ?: personaCorpus.characterArcCards.firstOrNull()?.safeRevealLine
         val arcRoutes = if (arcLine != null && arcPlan.exists) {
-            listOf(route("arc-reveal", "Character arc", ReplyRouteType.ARC_REVEAL, arcLine, RiskLevel.MEDIUM))
+            listOf(route("arc-reveal", "人物弧光", ReplyRouteType.ARC_REVEAL, arcLine, RiskLevel.MEDIUM))
         } else {
             emptyList()
         }
         return (arcRoutes + listOf(
-            route("express-self", "Express self", ReplyRouteType.SELF_STORY, "I may not say it perfectly, but I do take this seriously.", RiskLevel.LOW),
-            route("co-create", "Co-create", ReplyRouteType.CO_CREATION, "Maybe we do not force an answer tonight. We find a pace that both of us can hold.", RiskLevel.LOW),
-            route("lighten", "Lighten", ReplyRouteType.WARM_UP, "Then I will keep it simple: take a breath first, I am not going anywhere.", RiskLevel.LOW),
-            route("safe-withdraw", "Withdraw", ReplyRouteType.COOL_DOWN, "If this is too much now, I will pause here.", risk)
+            route("express-self", "表达我", ReplyRouteType.SELF_STORY, "我也挺认同这个。对我来说，很多事不是嘴上说得满就行，我更愿意一步一步走稳。", RiskLevel.LOW),
+            route("co-create", "共创节奏", ReplyRouteType.CO_CREATION, "那我们也别急着把答案定死，可以先找一个彼此都舒服、也能长期走下去的节奏。", RiskLevel.LOW),
+            route("lighten", "放轻一点", ReplyRouteType.WARM_UP, "我先不把话说重，简单点说就是：我会认真看待，也会慢慢做给你看。", RiskLevel.LOW),
+            route("safe-withdraw", "撤退收口", ReplyRouteType.COOL_DOWN, "如果现在聊这个有点重，我先收一下，等你觉得合适的时候我们再继续。", risk)
         )).take(5).mapIndexed { index, item -> item.copy(recommended = index == 0) }
     }
 
@@ -188,7 +188,7 @@ class RelationshipPlaybookGenerator {
             condition = "other replies with warmth or more detail",
             passiveRoute = passiveRoutes.first(),
             expressRoute = activeRoutes.firstOrNull { it.routeType == ReplyRouteType.ARC_REVEAL },
-            fallback = "keep one small self-expression, then return to her topic"
+            fallback = "只露出一点真实底色，然后回到对方的话题上"
         ),
         PlaybookBranch(
             id = "other_pulls_back",
@@ -205,9 +205,9 @@ class RelationshipPlaybookGenerator {
     }
 
     private fun fallbackFor(risk: RiskLevel): String = when (risk) {
-        RiskLevel.HIGH -> "pause and lower pressure"
-        RiskLevel.MEDIUM -> "keep it short; avoid explaining yourself twice"
-        RiskLevel.LOW -> "stay light and keep the next move easy to answer"
+        RiskLevel.HIGH -> "先停一下，把压力降下来。"
+        RiskLevel.MEDIUM -> "说短一点，不要连续解释自己。"
+        RiskLevel.LOW -> "保持轻一点，让对方容易接。"
     }
 
     private fun topicHash(compression: ConversationStateCompression): String =
@@ -233,8 +233,8 @@ class RelationshipPlaybookGenerator {
         message = message,
         intensity = if (risk == RiskLevel.LOW) InfluenceIntensity.LOW else InfluenceIntensity.MEDIUM,
         riskLevel = risk,
-        riskWarning = if (risk == RiskLevel.HIGH) "high pressure; do not push" else null,
-        expectedEffect = "precomputed relationship move",
+        riskWarning = if (risk == RiskLevel.HIGH) "压力偏高，不要继续推进。" else null,
+        expectedEffect = "预案缓存里的可发关系动作",
         fallbackMove = fallbackFor(risk),
         recommended = false
     )

@@ -1,9 +1,9 @@
 ﻿{
-    "versionName":  "4.1.57",
-    "versionCode":  476,
-    "apkUrl":  "huiyi-v4.1.57-debug.apk",
-    "releaseNotes":  "v4.1.57: dynamic playbook cache with instant passive next sentence and express-self routes; cloud refresh is non-blocking",
+    "versionName":  "4.1.58",
+    "versionCode":  477,
+    "apkUrl":  "huiyi-v4.1.58-debug.apk",
+    "releaseNotes":  "v4.1.58: dynamic playbook productization; Chinese sendable local fallback; emulator smoke PASS for next sentence, express self, LAST ME wait; cloud remains non-blocking.",
     "forceUpdate":  false,
-    "sha256":  "C071624116ADCE608F216529CBC963DC5E2709C3F2C3C34300665A3E03AD5D89",
-    "createdAt":  1783222530570
+    "sha256":  "44FB6B2C1F3459ECF49FBCDF437859FBA264DB2CE29F9DA79492A89C87A78A42",
+    "createdAt":  1783226071073
 }
