@@ -1,51 +1,53 @@
 # Huiyi v4 GPT Review Inbox
 
 ## Current Task
-- taskName: express_self_ui_loop_character_arc
+- taskName: deepseek_relationship_playbook_architecture_validation
 - versionName: 4.1.56
 - versionCode: 475
-- currentOverallResult: EMULATOR_EXPRESS_SELF_TWO_ROUND_PASS
-- generatedAt: 2026-07-05T08:34:15+08:00
-- userNeedsPhoneThisRound: true
-- realDeviceSmokeResult: READY_FOR_USER_TEST
+- currentOverallResult: DEEPSEEK_PLAYBOOK_ARCHITECTURE_PASS
+- generatedAt: 2026-07-05T09:19:10+08:00
+- userNeedsPhoneThisRound: false
+- realDeviceSmokeResult: NOT_REQUIRED
 
 ## What Changed
-- Floating menu policy exposes three entries: 下一句 / 表达我 / 隐藏.
-- Express Self panel now reads ArcProgressState from the runtime result.
-- Express Self panel shows: 本轮动作, 她给的窗口, 适合露出的你, 建议句, 别说过头.
-- Express Self uses CharacterArcPlanner output to build an ARC_REVEAL route when a valid expression window exists.
-- Default persona corpus now includes one CharacterArcCard for the built-in soldier/transition persona.
+- Added RelationshipPlaybook as a background relationship-plan object.
+- Added RelationshipPlaybookGenerator for passive routes, active expression routes, arc reveal routes, co-create routes, and fallback branches.
+- Added DeepSeekProvider for OpenAI-compatible relay calls to deepseek-v4-flash / deepseek-v4-pro using NormalizedConversation JSON only.
+- Added ModelRouter rules for LOCAL_WAIT, LOCAL_CONTEXT_REQUIRED, DS_FLASH_PLAYBOOK, DS_PRO, GPT_STRONG, and LOCAL_FALLBACK.
+- Added PlaybookCache so 下一句 can read passiveNext and 表达我 can read activeExpression without calling GPT 5.5 every tap.
+- Added ModelBenchmark over 60 character-arc samples + 200 synthetic relationship samples.
 
 ## What Did Not Change
-- LightChatStateStore was not rewritten.
+- Existing 下一句 / 表达我 phone flow was not replaced.
 - Parser was not rewritten.
-- NextSentenceSession state machine was not rewritten.
-- Cloud callback/session discard logic was not changed.
-- Passive Next Sentence remains separate and clean.
-- No raw long-term private chat storage was added.
-- No auto-send was added.
+- LightChatStateStore was not rewritten.
+- NextSentenceSession isolation was not changed.
+- Cloud callback discard logic was not changed.
+- No phone test is required this round.
 
 ## Validation
-- ExpressSelfUiLoopTest: PASS
-- CharacterArcPlannerTest: PASS
-- PassiveActiveSplitTest: PASS
-- MockChat-style fixture with reality/stability/future/responsibility triggers ARC_REVEAL: PASS
-- Next Sentence panel has no persona feedback: PASS
-- Emulator Express Self round 1: PASS
-- Emulator Express Self round 2: PASS
-- Emulator accessibility service connected: PASS
-- Emulator overlay permission granted: PASS
+- DeepSeekRelationshipPlaybookTest: PASS
+- Offline benchmark sample count: 260
+- CLI smoke models: deepseek-v4-flash, deepseek-v4-pro, gpt-5.4, gpt-5.5
+- deepseek-v4-flash CLI smoke: PASS, 9236 ms, 5 passive + 5 active routes
+- deepseek-v4-pro CLI smoke: FAIL_LENGTH_TRUNCATED, 27836 ms
+- gpt-5.4 CLI smoke: PASS, 15127 ms
+- gpt-5.5 CLI smoke: PASS, 25964 ms
+
+## Recommendation
+- recommendedDefaultModel: deepseek-v4-flash
+- recommendedStrongModel: gpt-5.5
+- DeepSeek V4 Flash is worth testing as a low-cost background playbook model for normal OTHER.
+- DeepSeek V4 Pro should not be default yet because the current playbook contract prompt hit length truncation in CLI smoke.
 
 ## GPT Should Inspect
-1. outputs/gpt_review_inbox/express-self-ui-loop-report-for-gpt.md
-2. outputs/gpt_review_inbox/express-self-ui-loop-report.json
-3. outputs/gpt_review_inbox/express-self-emulator-two-round-report-for-gpt.md
-4. outputs/gpt_review_inbox/express-self-emulator-two-round-report.json
-5. outputs/gpt_review_inbox/express_self_emulator_smoke/round1_valid2_panel.png
-6. outputs/gpt_review_inbox/express_self_emulator_smoke/round2_valid_panel.png
-7. outputs/codex_to_gpt/result-manifest.json
+1. outputs/gpt_review_inbox/deepseek-playbook-benchmark-for-gpt.md
+2. outputs/gpt_review_inbox/deepseek-playbook-benchmark.json
+3. outputs/gpt_review_inbox/deepseek-playbook-cli-smoke-for-gpt.md
+4. outputs/gpt_review_inbox/deepseek-playbook-cli-smoke.json
+5. outputs/codex_to_gpt/result-manifest.json
 
 ## Delivery
 - apkGeneratedThisRound: false
 - lanUpdateTouchedThisRound: false
-- userNeedsPhoneThisRound: true
+- userNeedsPhoneThisRound: false

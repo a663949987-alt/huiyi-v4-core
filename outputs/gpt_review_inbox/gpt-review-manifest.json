@@ -1,32 +1,44 @@
 {
   "project": "huiyi-v4",
-  "taskName": "express_self_ui_loop_character_arc",
+  "taskName": "deepseek_relationship_playbook_architecture_validation",
   "versionName": "4.1.56",
   "versionCode": 475,
-  "currentOverallResult": "LOCAL_FIXTURE_PASS_NO_PHONE_REQUIRED",
-  "generatedAt": "2026-07-04T23:04:27+08:00",
+  "currentOverallResult": "DEEPSEEK_PLAYBOOK_ARCHITECTURE_PASS",
+  "generatedAt": "2026-07-05T09:19:10+08:00",
   "userNeedsPhoneThisRound": false,
   "realDeviceSmokeResult": "NOT_REQUIRED",
-  "nextSentenceButtonExists": true,
-  "expressSelfButtonExists": true,
-  "nextSentencePassiveOnly": true,
-  "nextSentencePanelHasNoCharacterArcOverload": true,
-  "nextSentencePanelHasNoLikeMeFeedback": true,
-  "expressSelfCallsConversationStateCompressor": true,
-  "expressSelfCallsArcProgressState": true,
-  "expressSelfCallsCharacterArcPlanner": true,
-  "expressSelfPanelShowsAction": true,
-  "expressSelfPanelShowsExpressionWindow": true,
-  "expressSelfPanelShowsPersonaFacet": true,
-  "expressSelfPanelShowsSuggestedLine": true,
-  "expressSelfPanelShowsOverdoRisk": true,
-  "mockChatFixtureArcRevealPass": true,
-  "lightChatStateStoreRewritten": false,
-  "parserRewritten": false,
-  "sessionStateMachineChanged": false,
-  "cloudCallbackChanged": false,
-  "longTermRawChatStorage": false,
-  "autoSend": false,
+  "relationshipPlaybookImplemented": true,
+  "relationshipPlaybookGeneratorImplemented": true,
+  "deepSeekProviderImplemented": true,
+  "deepSeekProviderImageInputSupported": false,
+  "modelRouterImplemented": true,
+  "playbookCacheImplemented": true,
+  "modelBenchmarkImplemented": true,
+  "offlineBenchmarkSampleCount": 260,
+  "recommendedDefaultModel": "deepseek-v4-flash",
+  "recommendedStrongModel": "gpt-5.5",
+  "cliSmoke": {
+    "deepseek-v4-flash": {
+      "result": "PASS",
+      "latencyMs": 9236,
+      "contractPass": true
+    },
+    "deepseek-v4-pro": {
+      "result": "FAIL_LENGTH_TRUNCATED",
+      "latencyMs": 27836,
+      "contractPass": false
+    },
+    "gpt-5.4": {
+      "result": "PASS",
+      "latencyMs": 15127,
+      "contractPass": true
+    },
+    "gpt-5.5": {
+      "result": "PASS",
+      "latencyMs": 25964,
+      "contractPass": true
+    }
+  },
   "files": [
     {
       "path": "outputs/gpt_review_inbox/README_FOR_GPT.md",
@@ -34,12 +46,22 @@
       "sendToGpt": true
     },
     {
-      "path": "outputs/gpt_review_inbox/express-self-ui-loop-report-for-gpt.md",
+      "path": "outputs/gpt_review_inbox/deepseek-playbook-benchmark-for-gpt.md",
       "type": "markdown",
       "sendToGpt": true
     },
     {
-      "path": "outputs/gpt_review_inbox/express-self-ui-loop-report.json",
+      "path": "outputs/gpt_review_inbox/deepseek-playbook-benchmark.json",
+      "type": "json",
+      "sendToGpt": true
+    },
+    {
+      "path": "outputs/gpt_review_inbox/deepseek-playbook-cli-smoke-for-gpt.md",
+      "type": "markdown",
+      "sendToGpt": true
+    },
+    {
+      "path": "outputs/gpt_review_inbox/deepseek-playbook-cli-smoke.json",
       "type": "json",
       "sendToGpt": true
     },
