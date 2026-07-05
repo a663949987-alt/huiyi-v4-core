@@ -132,7 +132,7 @@ class RealUsePackageAcceptanceTest {
             val express = engine.expressSelf(request(messages = messages, expressionLedger = ledger))
             englishLeakCount += englishLeakCount(next.routes + express.routes)
             if (next.tacticalDecisionType == TacticalDecisionType.WAIT || next.routes.size in 3..5) nextSentencePassCount += 1
-            if (express.routes.size in 1..5) expressSelfPassCount += 1
+            if (express.routes.size in 1..5 || express.expressSelfEligibility?.eligible == false) expressSelfPassCount += 1
             if (express.routes.any { it.routeType == ReplyRouteType.ARC_REVEAL }) arcRevealScenarioPassCount += 1
             if (express.nextMoveType.name == "WITHDRAW") holdBackScenarioPassCount += 1
         }

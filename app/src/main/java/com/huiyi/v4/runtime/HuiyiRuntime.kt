@@ -69,6 +69,7 @@ import com.huiyi.v4.domain.playbook.DynamicPlaybookEngine
 import com.huiyi.v4.domain.playbook.DynamicPlaybookMode
 import com.huiyi.v4.domain.playbook.DynamicPlaybookRequest
 import com.huiyi.v4.domain.playbook.DynamicPlaybookResult
+import com.huiyi.v4.domain.playbook.ExpressSelfEligibilityMode
 import com.huiyi.v4.domain.playbook.CloudRelationshipPlaybookMapper
 import com.huiyi.v4.domain.playbook.CloudPlaybookRefresher
 import com.huiyi.v4.domain.playbook.DeepSeekPlaybookModel
@@ -766,16 +767,28 @@ class HuiyiRuntime private constructor(
                     personaCorpus = persona,
                     capturedAt = capture.snapshot.capturedAt,
                     sessionId = sessionId,
-                    chatWindowHash = capture.snapshot.windowTitle.orEmpty()
+                    chatWindowHash = capture.snapshot.windowTitle.orEmpty(),
+                    targetAppSupported = capture.snapshot.appPackage in setOf("com.bajiao.im.liaoqi", "com.huiyi.mockchat"),
+                    snapshotTrusted = capture.snapshot.appPackage !in setOf(null, appContext.packageName, "com.android.systemui"),
+                    currentAppPackage = beforeRuntime.currentPackage ?: capture.snapshot.appPackage,
+                    currentWindowTitleRedacted = beforeRuntime.currentWindowTitle ?: capture.snapshot.windowTitle,
+                    parserConfidence = 100,
+                    preAnalysisSnapshotSource = "CURRENT_ROOT_BEFORE_PANEL"
                 )
                 val dynamicResult = dynamicPlaybookEngine.expressSelf(dynamicRequest)
+                val finalExpressDecision = dynamicPlaybookDecision(dynamicResult)
                 val routes = dynamicResult.routes
                 val endedAt = System.currentTimeMillis()
+                val terminalState = terminalStateForDynamicPlaybook(
+                    mode = DynamicPlaybookMode.EXPRESS_SELF,
+                    decision = finalExpressDecision,
+                    dynamicResult = dynamicResult
+                )
                 val result = CurrentScreenPipelineResult(
                     captureResult = capture,
                     context = context,
                     lastSpeakerDecision = lastSpeaker,
-                    tacticalDecision = expressDecision,
+                    tacticalDecision = finalExpressDecision,
                     routes = routes,
                     apiCalled = false,
                     sessionId = sessionId,
@@ -783,13 +796,14 @@ class HuiyiRuntime private constructor(
                     panelContentFromCurrentSession = true,
                     staleRoutesClearedAtSessionStart = true,
                     staleRoutesReused = false,
-                    routePanelShown = routes.isNotEmpty(),
-                    sessionTerminalState = "EXPRESS_SELF_PANEL",
+                    routePanelShown = routes.isNotEmpty() && dynamicResult.expressSelfEligibility?.eligible != false,
+                    sessionTerminalState = terminalState,
                     analysisStartedAt = startedTrace.startedAt,
                     analysisEndedAt = endedAt,
                     analysisDurationMs = endedAt - startedTrace.startedAt,
                     decisionTypeFamily = "EXPRESS_SELF",
                     expressSelfArcProgressState = dynamicResult.arcProgressState,
+                    expressSelfEligibility = dynamicResult.expressSelfEligibility,
                     cloudTrace = CloudAnalysisTrace(
                         activeSessionId = sessionId,
                         cloudRequestSessionId = null,
@@ -798,8 +812,9 @@ class HuiyiRuntime private constructor(
                         chatPackage = capture.snapshot.appPackage.orEmpty(),
                         chatWindowHash = capture.snapshot.windowTitle.orEmpty(),
                         cloudAttempted = false,
-                        cloudSkippedReason = "EXPRESS_SELF_LOCAL_FALLBACK",
-                        decisionSource = "LOCAL_EXPRESS_SELF",
+                        cloudSkippedReason = dynamicResult.expressSelfEligibility?.let { "EXPRESS_SELF_${it.mode.name}" }
+                            ?: "EXPRESS_SELF_LOCAL_FALLBACK",
+                        decisionSource = dynamicResult.decisionSource,
                         panelRenderedSessionId = sessionId
                     )
                 )
@@ -816,12 +831,12 @@ class HuiyiRuntime private constructor(
                     parsedMessageCount = capture.messages.size,
                     effectiveMessageCount = capture.messages.count { it.isEffectiveChatMessage && it.speaker != Speaker.SYSTEM },
                     lastEffectiveSpeaker = lastSpeaker.lastSpeaker,
-                    decisionType = expressDecision.decisionType.name,
+                    decisionType = finalExpressDecision.decisionType.name,
                     routeCount = routes.size,
                     apiCalled = false,
                     panelAttached = true,
                     panelRenderSuccess = true,
-                    terminalState = "EXPRESS_SELF_PANEL",
+                    terminalState = terminalState,
                     panelShown = true,
                     userFacingMessage = "表达我"
                 )
@@ -913,6 +928,7 @@ class HuiyiRuntime private constructor(
             .filter { it.isEffectiveChatMessage && it.speaker != Speaker.SYSTEM }
         if (messages.isEmpty()) return false
         val persona = currentPersona()
+        val runtimeAtClick = AccessibilityRuntimeReader.read(appContext)
         val request = DynamicPlaybookRequest(
             mode = mode,
             appPackage = stable.packageName,
@@ -921,7 +937,13 @@ class HuiyiRuntime private constructor(
             personaCorpus = persona,
             capturedAt = stable.capturedAt,
             sessionId = sessionId,
-            chatWindowHash = stable.nodesHash
+            chatWindowHash = stable.nodesHash,
+            targetAppSupported = stable.packageName in setOf("com.bajiao.im.liaoqi", "com.huiyi.mockchat"),
+            snapshotTrusted = true,
+            currentAppPackage = runtimeAtClick.currentPackage ?: stable.packageName,
+            currentWindowTitleRedacted = runtimeAtClick.currentWindowTitle ?: stable.windowTitle,
+            parserConfidence = 100,
+            preAnalysisSnapshotSource = "LAST_STABLE_CHAT_SNAPSHOT_BEFORE_PANEL"
         )
         val dynamicResult = when (mode) {
             DynamicPlaybookMode.NEXT_SENTENCE -> dynamicPlaybookEngine.nextSentence(request)
@@ -941,7 +963,7 @@ class HuiyiRuntime private constructor(
             trace = trace,
             previousSessionId = previousSessionId
         )
-        if (dynamicResult.cloudRefreshRecommended) {
+        if (dynamicResult.cloudRefreshRecommended && dynamicResult.expressSelfEligibility?.eligible != false) {
             launchDynamicPlaybookCloudRefresh(request)
         }
         return true
@@ -1011,12 +1033,7 @@ class HuiyiRuntime private constructor(
         )
         val context = ContextAssembler().assemble(stable.normalizedMessages, userPersonaCorpus = persona)
         val decision = dynamicPlaybookDecision(dynamicResult)
-        val terminalState = when {
-            mode == DynamicPlaybookMode.EXPRESS_SELF -> "EXPRESS_SELF_PANEL"
-            decision.decisionType == TacticalDecisionType.WAIT -> "WAIT_PANEL"
-            dynamicResult.routes.isNotEmpty() -> "ROUTE_PANEL"
-            else -> terminalStateFor(decision.decisionType)
-        }
+        val terminalState = terminalStateForDynamicPlaybook(mode, decision, dynamicResult)
         val settings = mutableState.value.cloudSettings
         val result = CurrentScreenPipelineResult(
             captureResult = capture,
@@ -1032,7 +1049,7 @@ class HuiyiRuntime private constructor(
             staleRoutesClearedAtSessionStart = true,
             staleRoutesReused = false,
             waitPanelShown = decision.decisionType == TacticalDecisionType.WAIT,
-            routePanelShown = dynamicResult.routes.isNotEmpty(),
+            routePanelShown = dynamicResult.routes.isNotEmpty() && dynamicResult.expressSelfEligibility?.eligible != false,
             sessionTerminalState = terminalState,
             analysisStartedAt = trace.startedAt,
             analysisEndedAt = endedAt,
@@ -1049,6 +1066,7 @@ class HuiyiRuntime private constructor(
             lightListenBackfillCount = stable.normalizedMessages.size,
             lightListenUsed = true,
             expressSelfArcProgressState = if (mode == DynamicPlaybookMode.EXPRESS_SELF) dynamicResult.arcProgressState else null,
+            expressSelfEligibility = if (mode == DynamicPlaybookMode.EXPRESS_SELF) dynamicResult.expressSelfEligibility else null,
             cloudTrace = CloudAnalysisTrace(
                 activeSessionId = sessionId,
                 preAnalysisSnapshotId = stable.capturedAt.toString(),
@@ -1058,6 +1076,7 @@ class HuiyiRuntime private constructor(
                 endpointConfigured = settings.relayBaseUrlConfigured,
                 cloudAttempted = false,
                 cloudSkippedReason = when {
+                    dynamicResult.expressSelfEligibility?.eligible == false -> "EXPRESS_SELF_${dynamicResult.expressSelfEligibility.mode.name}"
                     decision.decisionType == TacticalDecisionType.WAIT -> "LAST_SPEAKER_ME_WAIT"
                     dynamicResult.cloudRefreshRecommended -> "CLOUD_REFRESH_BACKGROUND_OPTIONAL"
                     else -> "PLAYBOOK_CACHE_OR_LOCAL_FALLBACK"
@@ -1119,6 +1138,8 @@ class HuiyiRuntime private constructor(
             panelShown = true,
             userFacingMessage = if (decision.decisionType == TacticalDecisionType.WAIT) {
                 "\u4f60\u5df2\u7ecf\u56de\u8fc7\u4e86\uff0c\u5148\u7b49\u5bf9\u65b9\u3002"
+            } else if (mode == DynamicPlaybookMode.EXPRESS_SELF && dynamicResult.expressSelfEligibility?.eligible == false) {
+                expressSelfUserFacingMessage(dynamicResult)
             } else {
                 null
             }
@@ -1150,30 +1171,45 @@ class HuiyiRuntime private constructor(
 
     private fun dynamicPlaybookDecision(result: DynamicPlaybookResult): TacticalDecision {
         val wait = result.tacticalDecisionType == TacticalDecisionType.WAIT
+        val expressBlocked = result.mode == DynamicPlaybookMode.EXPRESS_SELF &&
+            result.expressSelfEligibility?.eligible == false
+        val holdBack = result.tacticalDecisionType == TacticalDecisionType.HOLD_BACK
         return TacticalDecision(
             decisionType = result.tacticalDecisionType,
             situation = if (wait) {
                 "last_speaker_me_wait"
+            } else if (expressBlocked) {
+                "express_self_eligibility_blocked:${result.expressSelfEligibility?.mode?.name}"
             } else {
                 "dynamic_playbook_${result.mode.name.lowercase()}"
             },
             coreInsight = if (wait) {
                 "LAST_ME safety gate remains highest priority."
+            } else if (expressBlocked) {
+                "Express Self is blocked until the chat state is trusted and there is a real expression window."
             } else {
                 "Use cached relationship playbook first; refresh cloud in the background."
             },
             userLikelyMistake = if (wait) {
                 "Adding another message before the other person replies."
+            } else if (expressBlocked) {
+                "Forcing self-expression from an unsupported, stale, or recent LAST_ME state."
             } else {
                 "Waiting for cloud before showing usable wording."
             },
             bestMove = if (wait) {
                 "\u4f60\u5df2\u7ecf\u56de\u8fc7\u4e86\uff0c\u5148\u7b49\u5bf9\u65b9\u3002"
+            } else if (holdBack) {
+                "\u8fd9\u8f6e\u5148\u522b\u6025\u7740\u8868\u8fbe\u81ea\u5df1\uff0c\u5148\u7ed9\u5bf9\u65b9\u4e00\u70b9\u7a7a\u95f4\u3002"
+            } else if (expressBlocked) {
+                "\u5f53\u524d\u804a\u5929\u72b6\u6001\u4e0d\u591f\u7a33\uff0c\u5148\u56de\u5230\u652f\u6301\u7684\u804a\u5929\u9875\u518d\u8bd5\u3002"
             } else {
                 result.routes.firstOrNull()?.message ?: "Use the local playbook fallback."
             },
             avoidMoves = if (wait) {
                 listOf("do not call cloud", "do not show routes")
+            } else if (expressBlocked) {
+                listOf("do not show active routes", "do not call cloud", "do not reuse stale snapshot")
             } else {
                 listOf("do not block on cloud", "do not mix active persona feedback into passive panel")
             },
@@ -1188,6 +1224,40 @@ class HuiyiRuntime private constructor(
             ),
             fallbackMove = result.playbook.fallback
         )
+    }
+
+    private fun terminalStateForDynamicPlaybook(
+        mode: DynamicPlaybookMode,
+        decision: TacticalDecision,
+        dynamicResult: DynamicPlaybookResult
+    ): String {
+        if (mode == DynamicPlaybookMode.EXPRESS_SELF && dynamicResult.expressSelfEligibility?.eligible == false) {
+            return when (dynamicResult.expressSelfEligibility.mode) {
+                ExpressSelfEligibilityMode.HOLD_BACK,
+                ExpressSelfEligibilityMode.BLOCK_RECENT_LAST_ME -> "HOLD_BACK_PANEL"
+                else -> "CONTROLLED_FAIL_PANEL"
+            }
+        }
+        return when {
+            mode == DynamicPlaybookMode.EXPRESS_SELF -> "EXPRESS_SELF_PANEL"
+            decision.decisionType == TacticalDecisionType.WAIT -> "WAIT_PANEL"
+            dynamicResult.routes.isNotEmpty() -> "ROUTE_PANEL"
+            else -> terminalStateFor(decision.decisionType)
+        }
+    }
+
+    private fun expressSelfUserFacingMessage(result: DynamicPlaybookResult): String {
+        val eligibility = result.expressSelfEligibility
+        return if (eligibility?.eligible == false &&
+            eligibility.mode !in setOf(
+                ExpressSelfEligibilityMode.HOLD_BACK,
+                ExpressSelfEligibilityMode.BLOCK_RECENT_LAST_ME
+            )
+        ) {
+            "\u5f53\u524d\u804a\u5929\u72b6\u6001\u4e0d\u591f\u7a33\uff0c\u5148\u70b9\u4e00\u4e0b\u804a\u5929\u7a97\u53e3\u6216\u56de\u5230\u652f\u6301\u7684\u804a\u5929\u9875\u518d\u8bd5\u3002"
+        } else {
+            "\u8fd9\u8f6e\u5148\u522b\u6025\u7740\u8868\u8fbe\u81ea\u5df1\uff0c\u5148\u7ed9\u5bf9\u65b9\u4e00\u70b9\u7a7a\u95f4\u3002"
+        }
     }
 
     private suspend fun refreshDynamicPlaybookFromCloud(
@@ -1498,6 +1568,7 @@ class HuiyiRuntime private constructor(
 
     private fun terminalStateFor(type: TacticalDecisionType): String = when (type) {
         TacticalDecisionType.WAIT -> "WAIT_PANEL"
+        TacticalDecisionType.HOLD_BACK -> "HOLD_BACK_PANEL"
         TacticalDecisionType.CHAT_WINDOW_NOT_FOUND,
         TacticalDecisionType.PRE_ANALYSIS_CONTAMINATED -> "CONTROLLED_FAIL"
         TacticalDecisionType.CONTEXT_REQUIRED,
@@ -1507,6 +1578,7 @@ class HuiyiRuntime private constructor(
 
     private fun decisionTypeFamily(type: TacticalDecisionType): String = when (type) {
         TacticalDecisionType.WAIT -> "WAIT"
+        TacticalDecisionType.HOLD_BACK -> "HOLD_BACK"
         TacticalDecisionType.CHAT_WINDOW_NOT_FOUND,
         TacticalDecisionType.PRE_ANALYSIS_CONTAMINATED -> "CONTROLLED_FAIL"
         TacticalDecisionType.CONTEXT_REQUIRED,

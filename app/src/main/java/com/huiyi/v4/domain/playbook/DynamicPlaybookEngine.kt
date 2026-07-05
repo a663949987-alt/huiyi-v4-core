@@ -32,7 +32,17 @@ data class DynamicPlaybookRequest(
     val currentTopics: List<String> = emptyList(),
     val expressionLedger: ExpressionLedger = ExpressionLedger.empty(),
     val sessionId: String? = null,
-    val chatWindowHash: String? = null
+    val chatWindowHash: String? = null,
+    val targetAppSupported: Boolean? = null,
+    val snapshotTrusted: Boolean = true,
+    val currentAppPackage: String? = appPackage,
+    val currentWindowTitleRedacted: String? = windowTitle,
+    val parserConfidence: Int = 0,
+    val lastUserMessageAgeMsOverride: Long? = null,
+    val chatInactiveMsOverride: Long? = null,
+    val recentSelfExpressionCountOverride: Int? = null,
+    val repeatRiskOverride: String? = null,
+    val preAnalysisSnapshotSource: String = "CURRENT_ROOT_BEFORE_PANEL"
 )
 
 data class DynamicPlaybookResult(
@@ -54,7 +64,8 @@ data class DynamicPlaybookResult(
     val panelNextAction: String,
     val latencyMs: Long,
     val decisionSource: String,
-    val expressionModeSelection: ExpressionModeSelection? = null
+    val expressionModeSelection: ExpressionModeSelection? = null,
+    val expressSelfEligibility: ExpressSelfEligibility? = null
 ) {
     val oneClickImmediateResultPass: Boolean
         get() = latencyMs <= 300 && (
@@ -69,7 +80,8 @@ class DynamicPlaybookEngine(
     private val compressor: ConversationStateCompressor = ConversationStateCompressor(),
     private val arcPlanner: CharacterArcPlanner = CharacterArcPlanner(compressor),
     private val generator: RelationshipPlaybookGenerator = RelationshipPlaybookGenerator(),
-    private val lastSpeakerDecisionUseCase: LastSpeakerDecisionUseCase = LastSpeakerDecisionUseCase()
+    private val lastSpeakerDecisionUseCase: LastSpeakerDecisionUseCase = LastSpeakerDecisionUseCase(),
+    private val expressSelfEligibilityEvaluator: ExpressSelfEligibilityEvaluator = ExpressSelfEligibilityEvaluator()
 ) {
     fun nextSentence(request: DynamicPlaybookRequest): DynamicPlaybookResult =
         resolve(request.copy(mode = DynamicPlaybookMode.NEXT_SENTENCE))
@@ -251,6 +263,45 @@ class DynamicPlaybookEngine(
         compression: ConversationStateCompression,
         arcProgress: ArcProgressState
     ): DynamicPlaybookResult {
+        val eligibility = expressSelfEligibilityEvaluator.evaluate(
+            request = request,
+            snapshot = snapshot,
+            lastSpeakerDecision = lastSpeaker,
+            playbook = playbook,
+            arcProgress = arcProgress
+        )
+        if (!eligibility.eligible) {
+            val decisionType = when (eligibility.mode) {
+                ExpressSelfEligibilityMode.HOLD_BACK,
+                ExpressSelfEligibilityMode.BLOCK_RECENT_LAST_ME -> TacticalDecisionType.HOLD_BACK
+                ExpressSelfEligibilityMode.BLOCK_UNTRUSTED_SNAPSHOT -> TacticalDecisionType.PRE_ANALYSIS_CONTAMINATED
+                ExpressSelfEligibilityMode.BLOCK_UNSUPPORTED_CONTEXT,
+                ExpressSelfEligibilityMode.BLOCK_NO_CHAT_STATE -> TacticalDecisionType.CHAT_WINDOW_NOT_FOUND
+                else -> TacticalDecisionType.HOLD_BACK
+            }
+            return DynamicPlaybookResult(
+                mode = DynamicPlaybookMode.EXPRESS_SELF,
+                snapshot = snapshot,
+                cacheKey = cacheKey,
+                playbook = playbook,
+                lastSpeakerDecision = lastSpeaker,
+                tacticalDecisionType = decisionType,
+                routes = emptyList(),
+                cacheHit = cacheHit,
+                localFallbackUsed = false,
+                cloudRefreshRecommended = false,
+                cloudRefreshAttempted = false,
+                refreshTriggers = emptyList(),
+                compression = compression,
+                arcProgressState = arcProgress,
+                nextMoveType = NextMoveType.WITHDRAW,
+                panelNextAction = eligibility.mode.name,
+                latencyMs = 0L,
+                decisionSource = "EXPRESS_SELF_ELIGIBILITY_BLOCKED",
+                expressionModeSelection = playbook.expressionModeSelection,
+                expressSelfEligibility = eligibility
+            )
+        }
         val activeRoutes = playbook.activeExpression
             .ifEmpty {
                 generator.generate(
@@ -296,7 +347,8 @@ class DynamicPlaybookEngine(
                 cacheSource = "PLAYBOOK_CACHE_ACTIVE_EXPRESSION",
                 fallbackSource = "LOCAL_PLAYBOOK_FALLBACK_ACTIVE_EXPRESSION"
             ),
-            expressionModeSelection = playbook.expressionModeSelection
+            expressionModeSelection = playbook.expressionModeSelection,
+            expressSelfEligibility = eligibility
         )
     }
 

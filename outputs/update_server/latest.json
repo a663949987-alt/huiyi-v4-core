@@ -1,9 +1,9 @@
 ﻿{
-    "versionName":  "4.1.61",
-    "versionCode":  480,
-    "apkUrl":  "huiyi-v4.1.61-debug.apk",
-    "releaseNotes":  "v4.1.61: dynamic playbook cloud refresh emulator smoke PASS; local playbook first, cloud-enhanced cache refresh, stale refresh discard, LAST_ME wait.",
+    "versionName":  "4.1.62",
+    "versionCode":  481,
+    "apkUrl":  "huiyi-v4.1.62-debug.apk",
+    "releaseNotes":  "v4.1.62: Express Self eligibility gate; blocks unsupported/desktop/untrusted/recent LAST_ME, shows HOLD_BACK, no active routes/cloud when blocked.",
     "forceUpdate":  false,
-    "sha256":  "DEE518C42E53087700C5AC579EBDC664037A4DACB79FB3DFA43993E00D4E3209",
-    "createdAt":  1783240507470
+    "sha256":  "4355D08810DBE1B176FE754C0E946F82FD4297E2F097758056DBD5BA1F6C6247",
+    "createdAt":  1783243143257
 }

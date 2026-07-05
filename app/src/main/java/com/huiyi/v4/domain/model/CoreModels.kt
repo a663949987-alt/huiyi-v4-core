@@ -259,6 +259,7 @@ enum class TacticalDecisionType {
     WAIT,
     PUSH_LIGHTLY,
     PUSH_NOT_NOW,
+    HOLD_BACK,
     VOICE_SUMMARY_REQUIRED,
     CONTEXT_REQUIRED,
     CHAT_WINDOW_NOT_FOUND,

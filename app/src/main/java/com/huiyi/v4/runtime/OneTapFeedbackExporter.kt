@@ -124,7 +124,20 @@ data class NextSentenceFlightRecord(
     val cloudQualityScore: Int? = null,
     val cloudQualityIssues: List<String> = emptyList(),
     val cloudPrimaryLatencyMs: Long? = null,
-    val cloudTotalLatencyMs: Long? = null
+    val cloudTotalLatencyMs: Long? = null,
+    val expressSelfClicked: Boolean = false,
+    val expressSelfEligibilityEligible: Boolean? = null,
+    val expressSelfEligibilityMode: String = "NONE",
+    val expressSelfEligibilityBlockReason: String? = null,
+    val expressSelfEligibilityConfidence: Int? = null,
+    val currentWindowTitleRedacted: String? = null,
+    val lastUserMessageAgeMs: Long? = null,
+    val expressionWindowExists: Boolean? = null,
+    val coldStartAllowed: Boolean? = null,
+    val recentSelfExpressionCount: Int? = null,
+    val repeatRisk: String = "UNKNOWN",
+    val expressSelfAllowedReason: String = "NONE",
+    val expressSelfBlockedReason: String = "NONE"
 ) {
     fun withFeedback(feedback: UserFeedbackMark): NextSentenceFlightRecord = copy(userFeedback = feedback)
 
@@ -287,6 +300,9 @@ object NextSentenceFlightRecordFactory {
     ): NextSentenceFlightRecord {
         val capture = result.captureResult
         val decisionType = result.tacticalDecision.decisionType
+        val expressSelfEligibility = result.expressSelfEligibility
+        val expressSelfClicked = result.decisionTypeFamily == "EXPRESS_SELF" ||
+            result.sessionTerminalState in setOf("EXPRESS_SELF_PANEL", "HOLD_BACK_PANEL", "CONTROLLED_FAIL_PANEL")
         val startedAt = result.analysisStartedAt.takeIf { it > 0L } ?: trace.startedAt
         val endedAt = result.analysisEndedAt.takeIf { it > 0L } ?: trace.endedAt ?: System.currentTimeMillis()
         return NextSentenceFlightRecord(
@@ -294,7 +310,7 @@ object NextSentenceFlightRecordFactory {
             startedAt = startedAt,
             endedAt = endedAt,
             durationMs = result.analysisDurationMs.takeIf { it > 0L } ?: (endedAt - startedAt),
-            terminalState = terminalStateFor(decisionType),
+            terminalState = result.sessionTerminalState.takeIf { it != "UNKNOWN" } ?: terminalStateFor(decisionType),
             appPackage = capture?.snapshot?.appPackage ?: "unknown",
             windowTitlePreAnalysisRedacted = capture?.snapshot?.windowTitle?.redactPrivateText(120) ?: "unknown",
             targetAppSupported = capture?.snapshot?.appPackage == "com.bajiao.im.liaoqi" || capture?.snapshot?.appPackage == "com.huiyi.mockchat",
@@ -374,7 +390,20 @@ object NextSentenceFlightRecordFactory {
             cloudQualityScore = result.cloudTrace.cloudQualityScore,
             cloudQualityIssues = result.cloudTrace.cloudQualityIssues,
             cloudPrimaryLatencyMs = result.cloudTrace.cloudPrimaryLatencyMs,
-            cloudTotalLatencyMs = result.cloudTrace.cloudTotalLatencyMs
+            cloudTotalLatencyMs = result.cloudTrace.cloudTotalLatencyMs,
+            expressSelfClicked = expressSelfClicked,
+            expressSelfEligibilityEligible = expressSelfEligibility?.eligible,
+            expressSelfEligibilityMode = expressSelfEligibility?.mode?.name ?: "NONE",
+            expressSelfEligibilityBlockReason = expressSelfEligibility?.blockReason?.name,
+            expressSelfEligibilityConfidence = expressSelfEligibility?.confidence,
+            currentWindowTitleRedacted = expressSelfEligibility?.currentWindowTitleRedacted?.redactPrivateText(120),
+            lastUserMessageAgeMs = expressSelfEligibility?.lastUserMessageAgeMs,
+            expressionWindowExists = expressSelfEligibility?.expressionWindowExists,
+            coldStartAllowed = expressSelfEligibility?.coldStartAllowed,
+            recentSelfExpressionCount = expressSelfEligibility?.recentSelfExpressionCount,
+            repeatRisk = expressSelfEligibility?.repeatRisk ?: "UNKNOWN",
+            expressSelfAllowedReason = expressSelfEligibility?.allowedReason ?: "NONE",
+            expressSelfBlockedReason = expressSelfEligibility?.blockedReason ?: "NONE"
         ).withComputedConsistency()
     }
 
@@ -469,6 +498,7 @@ object NextSentenceFlightRecordFactory {
 
     private fun terminalStateFor(type: TacticalDecisionType): String = when (type) {
         TacticalDecisionType.WAIT -> "WAIT_PANEL"
+        TacticalDecisionType.HOLD_BACK -> "HOLD_BACK_PANEL"
         TacticalDecisionType.CHAT_WINDOW_NOT_FOUND,
         TacticalDecisionType.PRE_ANALYSIS_CONTAMINATED -> "CONTROLLED_FAIL"
         TacticalDecisionType.CONTEXT_REQUIRED,
@@ -478,6 +508,7 @@ object NextSentenceFlightRecordFactory {
 
     private fun decisionTypeFamily(type: TacticalDecisionType): String = when (type) {
         TacticalDecisionType.WAIT -> "WAIT"
+        TacticalDecisionType.HOLD_BACK -> "HOLD_BACK"
         TacticalDecisionType.CHAT_WINDOW_NOT_FOUND,
         TacticalDecisionType.PRE_ANALYSIS_CONTAMINATED -> "CONTROLLED_FAIL"
         TacticalDecisionType.CONTEXT_REQUIRED,
@@ -792,6 +823,19 @@ class OneTapFeedbackExporter(
         appendLine("- recordClaimsLastOtherRoutePanel: ${record.recordClaimsLastOtherRoutePanel}")
         appendLine("- windowTitleAndDecisionContradiction: ${record.windowTitleAndDecisionContradiction}")
         appendLine("- reportConsistencyResult: ${record.reportConsistencyResult}")
+        appendLine("- expressSelfClicked: ${record.expressSelfClicked}")
+        appendLine("- expressSelfEligibility.eligible: ${record.expressSelfEligibilityEligible ?: "null"}")
+        appendLine("- expressSelfEligibility.mode: ${record.expressSelfEligibilityMode}")
+        appendLine("- expressSelfEligibility.blockReason: ${record.expressSelfEligibilityBlockReason ?: "none"}")
+        appendLine("- expressSelfEligibility.confidence: ${record.expressSelfEligibilityConfidence ?: "null"}")
+        appendLine("- currentWindowTitleRedacted: ${record.currentWindowTitleRedacted ?: record.windowTitlePreAnalysisRedacted}")
+        appendLine("- lastUserMessageAgeMs: ${record.lastUserMessageAgeMs ?: "null"}")
+        appendLine("- expressionWindowExists: ${record.expressionWindowExists ?: "null"}")
+        appendLine("- coldStartAllowed: ${record.coldStartAllowed ?: "null"}")
+        appendLine("- recentSelfExpressionCount: ${record.recentSelfExpressionCount ?: "null"}")
+        appendLine("- repeatRisk: ${record.repeatRisk}")
+        appendLine("- expressSelfAllowedReason: ${record.expressSelfAllowedReason}")
+        appendLine("- expressSelfBlockedReason: ${record.expressSelfBlockedReason}")
         appendLine("- usedFallbackSnapshot: ${record.usedFallbackSnapshot}")
         appendLine("- systemAccessibilityEnabled: ${record.systemAccessibilityEnabled}")
         appendLine("- serviceConnected: ${record.serviceConnected}")
@@ -841,6 +885,21 @@ class OneTapFeedbackExporter(
           "recordClaimsLastOtherRoutePanel": ${record.recordClaimsLastOtherRoutePanel},
           "windowTitleAndDecisionContradiction": ${record.windowTitleAndDecisionContradiction},
           "reportConsistencyResult": "${record.reportConsistencyResult}",
+          "expressSelfClicked": ${record.expressSelfClicked},
+          "expressSelfEligibility": {
+            "eligible": ${record.expressSelfEligibilityEligible ?: "null"},
+            "mode": "${escape(record.expressSelfEligibilityMode)}",
+            "blockReason": ${record.expressSelfEligibilityBlockReason?.let { "\"${escape(it)}\"" } ?: "null"},
+            "confidence": ${record.expressSelfEligibilityConfidence ?: "null"}
+          },
+          "currentWindowTitleRedacted": "${escape(record.currentWindowTitleRedacted ?: record.windowTitlePreAnalysisRedacted)}",
+          "lastUserMessageAgeMs": ${record.lastUserMessageAgeMs ?: "null"},
+          "expressionWindowExists": ${record.expressionWindowExists ?: "null"},
+          "coldStartAllowed": ${record.coldStartAllowed ?: "null"},
+          "recentSelfExpressionCount": ${record.recentSelfExpressionCount ?: "null"},
+          "repeatRisk": "${escape(record.repeatRisk)}",
+          "expressSelfAllowedReason": "${escape(record.expressSelfAllowedReason)}",
+          "expressSelfBlockedReason": "${escape(record.expressSelfBlockedReason)}",
           "actualLastSpeaker": "${record.actualLastSpeaker}",
           "decisionType": "${record.decisionType}",
           "decisionTypeFamily": "${record.decisionTypeFamily}",
@@ -927,7 +986,10 @@ class OneTapFeedbackExporter(
             "这次一键反馈包被会意面板污染，不能用于判断 LAST ME / LAST OTHER。需要修 feedback export 绑定原始 session。"
         record.userFeedback.markedWrong && record.userFeedback.userCorrectionLastSpeaker != "NONE" ->
             "User marked this result wrong; correction last speaker is ${record.userFeedback.userCorrectionLastSpeaker}, system saw ${record.actualLastSpeaker}."
+        record.expressSelfClicked && record.expressSelfEligibilityEligible == false ->
+            "Express Self was blocked because the current chat state is untrusted, the user just sent a message, or the app is unsupported. No active routes were shown."
         record.terminalState == "WAIT_PANEL" -> "last ME entered WAIT panel with zero routes."
+        record.terminalState == "HOLD_BACK_PANEL" -> "Express Self entered HOLD_BACK with no active routes."
         record.terminalState == "ROUTE_PANEL" -> "reply routes were shown, routeCount=${record.routeCount}."
         record.terminalState == "TIMEOUT" -> "session timed out without a terminal state."
         record.terminalState == "UNSUPPORTED_APP" -> "current chat app is not adapted yet."

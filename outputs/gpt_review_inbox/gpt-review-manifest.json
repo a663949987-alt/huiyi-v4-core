@@ -1,24 +1,27 @@
-{
+﻿{
   "project": "huiyi-v4",
-  "phoneBundleIncluded": true,
-  "oneTapFeedbackIncluded": true,
-  "uploadedFromPhone": true,
-  "latestPhoneUploadAt": "2026-07-05T08:53:16.520087+00:00",
-  "latestPhoneSessionId": "ec9643af-62cc-4133-b1f0-4f99bc3699b5",
-  "githubCommitHash": "98f1d896c9090c32bc403f8616f181b0c12bcec1",
-  "githubReviewPath": "outputs/gpt_review_inbox/phone/latest/",
-  "realDeviceTested": true,
-  "latestPhoneConclusion": {
-    "sessionId": "ec9643af-62cc-4133-b1f0-4f99bc3699b5",
-    "terminalState": "ROUTE_PANEL",
-    "appPackage": "com.xiaoenai.app",
-    "actualLastSpeaker": "ME",
-    "decisionType": "NORMAL_REPLY",
-    "routeCount": 5,
-    "waitPanelShown": false,
-    "routePanelShown": true,
-    "errorCode": "",
-    "userMarkedWrong": true,
-    "userCorrectionLastSpeaker": "NONE"
-  }
+  "taskName": "express_self_eligibility_and_hold_back_fix",
+  "versionName": "4.1.62",
+  "versionCode": 481,
+  "currentOverallResult": "LOCAL_TEST_PASS_APK_GENERATED",
+  "generatedAt": "2026-07-05T17:20:09.7517281+08:00",
+  "userNeedsPhoneThisRound": true,
+  "userTestScope": "Express Self only",
+  "apkPath": "outputs/update_server/huiyi-v4.1.62-debug.apk",
+  "apkSha256": "4355D08810DBE1B176FE754C0E946F82FD4297E2F097758056DBD5BA1F6C6247",
+  "lanUpdateAvailable": true,
+  "apkCommittedToPublicGithub": false,
+  "privateApkContainsRelayConfig": true,
+  "expressSelfEligibilityImplemented": true,
+  "unsupportedContextBlocked": true,
+  "recentLastMeHoldBack": true,
+  "coldStartAllowedAfterLongInactive": true,
+  "planningWindowArcRevealAllowed": true,
+  "v4161BugFixtureFixed": true,
+  "reports": [
+    "outputs/gpt_review_inbox/README_FOR_GPT.md",
+    "outputs/gpt_review_inbox/express-self-eligibility-report-for-gpt.md",
+    "outputs/gpt_review_inbox/express-self-eligibility-report.json",
+    "outputs/update_server/latest.json"
+  ]
 }

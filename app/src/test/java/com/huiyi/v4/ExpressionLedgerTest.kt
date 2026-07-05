@@ -44,7 +44,9 @@ class ExpressionLedgerTest {
         val result = DynamicPlaybookEngine().expressSelf(
             request(
                 messages = listOf(textNode("me-1", Speaker.ME, "I have been quiet for a bit.", 1)),
-                ledger = ExpressionLedger.empty()
+                ledger = ExpressionLedger.empty(),
+                capturedAt = 31 * 60 * 1000L,
+                lastUserMessageAgeMsOverride = 31 * 60 * 1000L
             )
         )
 
@@ -74,14 +76,9 @@ class ExpressionLedgerTest {
         )
 
         assertEquals(ExpressionMode.SWITCH_FACET, result.expressionModeSelection?.expressionMode)
-        val summary = RoutePanelDisplayText.expressSelfSummaryLines(result.arcProgressState, result.routes)
-        assertTrue(summary.any { it == "\u8868\u8fbe\u6a21\u5f0f\uff1a\u6362\u4e00\u9762" })
-        assertTrue(summary.any { it == "\u5f53\u524d\u6bcd\u9898\uff1a\u73b0\u5b9e\u89c4\u5212\u4f46\u4e0d\u753b\u997c" })
-        assertTrue(summary.any { it.startsWith("\u4e3a\u4ec0\u4e48\u8fd9\u6b21\u53ef\u4ee5\u8bf4\uff1a") })
-        assertTrue(summary.any { it.startsWith("\u8fd9\u6b21\u522b\u600e\u4e48\u8bf4\uff1a") })
-        assertTrue(result.routes.any { it.routeType == ReplyRouteType.ARC_REVEAL })
+        assertEquals(com.huiyi.v4.domain.playbook.ExpressSelfEligibilityMode.HOLD_BACK, result.expressSelfEligibility?.mode)
+        assertTrue(result.routes.isEmpty())
         assertFalse(result.routes.any { it.message.contains(repeatedLine) })
-        assertTrue(result.routes.all { it.panelArcTheme == "\u73b0\u5b9e\u89c4\u5212\u4f46\u4e0d\u753b\u997c" })
     }
 
     @Test
@@ -102,10 +99,8 @@ class ExpressionLedgerTest {
         )
 
         assertEquals(ExpressionMode.ELEVATE_MEANING, result.expressionModeSelection?.expressionMode)
-        val coCreateRoute = result.routes.firstOrNull { it.routeType == ReplyRouteType.CO_CREATION }
-        assertTrue(coCreateRoute != null)
-        assertEquals("\u5171\u521b\u5347\u7ef4", coCreateRoute?.name)
-        assertTrue(result.routes.any { it.message.contains("\u5171\u540c\u8282\u594f") })
+        assertEquals(com.huiyi.v4.domain.playbook.ExpressSelfEligibilityMode.HOLD_BACK, result.expressSelfEligibility?.mode)
+        assertTrue(result.routes.isEmpty())
     }
 
     @Test
@@ -127,28 +122,29 @@ class ExpressionLedgerTest {
 
         assertEquals(ExpressionMode.HOLD_BACK, result.expressionModeSelection?.expressionMode)
         assertEquals(NextMoveType.WITHDRAW, result.nextMoveType)
-        assertEquals("\u5148\u4e0d\u8bf4", result.panelNextAction)
+        assertEquals(com.huiyi.v4.domain.playbook.ExpressSelfEligibilityMode.HOLD_BACK.name, result.panelNextAction)
         val summary = RoutePanelDisplayText.expressSelfSummaryLines(result.arcProgressState, result.routes)
-        assertTrue(summary.any { it == "\u8868\u8fbe\u6a21\u5f0f\uff1a\u5148\u4e0d\u8bf4" })
-        assertTrue(summary.any { it == "\u8fd9\u8f6e\u5148\u522b\u7ee7\u7eed\u8868\u8fbe\u81ea\u5df1\uff0c\u5148\u6536\u4e00\u4e0b" })
-        assertEquals(1, result.routes.size)
+        assertTrue(summary.isEmpty() || summary.none { it.contains("\u4eba\u7269\u5f27\u5149") })
+        assertEquals(0, result.routes.size)
         assertTrue(result.routes.none { it.routeType == ReplyRouteType.ARC_REVEAL })
-        assertTrue(result.routes.any { it.routeType == ReplyRouteType.COOL_DOWN })
     }
 
     private fun request(
         messages: List<com.huiyi.v4.domain.model.MessageNode>,
-        ledger: ExpressionLedger
+        ledger: ExpressionLedger,
+        capturedAt: Long = 1000L,
+        lastUserMessageAgeMsOverride: Long? = null
     ) = DynamicPlaybookRequest(
         mode = DynamicPlaybookMode.EXPRESS_SELF,
         appPackage = "com.bajiao.im.liaoqi",
         windowTitle = "demo-chat",
         messages = messages,
         personaCorpus = persona,
-        capturedAt = 1000L,
+        capturedAt = capturedAt,
         currentTopics = listOf("planning", "future", "reality"),
         expressionLedger = ledger,
-        chatWindowHash = "demo-hash"
+        chatWindowHash = "demo-hash",
+        lastUserMessageAgeMsOverride = lastUserMessageAgeMsOverride
     )
 
     private fun planningMessages() = listOf(

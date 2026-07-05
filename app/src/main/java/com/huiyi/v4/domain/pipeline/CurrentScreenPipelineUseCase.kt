@@ -21,6 +21,7 @@ import com.huiyi.v4.domain.model.Speaker
 import com.huiyi.v4.domain.model.TacticalDecision
 import com.huiyi.v4.domain.model.TacticalDecisionType
 import com.huiyi.v4.domain.model.UserPersonaCorpus
+import com.huiyi.v4.domain.playbook.ExpressSelfEligibility
 import com.huiyi.v4.domain.capture.VisualDebugResult
 import com.huiyi.v4.domain.review.ChatReviewMemoryBuilder
 import com.huiyi.v4.domain.tactical.ReplyRouteGenerator
@@ -73,6 +74,7 @@ data class CurrentScreenPipelineResult(
     val lightListenBackfillCount: Int = 0,
     val lightListenUsed: Boolean = false,
     val expressSelfArcProgressState: ArcProgressState? = null,
+    val expressSelfEligibility: ExpressSelfEligibility? = null,
     val cloudTrace: CloudAnalysisTrace = CloudAnalysisTrace()
 )
 

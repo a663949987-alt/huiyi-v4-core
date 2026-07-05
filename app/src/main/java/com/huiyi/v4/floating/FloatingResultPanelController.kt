@@ -20,6 +20,7 @@ import com.huiyi.v4.domain.model.ReplyRoute
 import com.huiyi.v4.domain.model.ReplyRouteType
 import com.huiyi.v4.domain.model.TacticalDecisionType
 import com.huiyi.v4.domain.panel.RoutePanelDisplayText
+import com.huiyi.v4.domain.playbook.ExpressSelfEligibilityMode
 import com.huiyi.v4.domain.pipeline.CurrentScreenPipelineResult
 import com.huiyi.v4.domain.persona.CharacterArcUserFeedback
 import com.huiyi.v4.runtime.FloatingPanelMode
@@ -126,6 +127,25 @@ class FloatingResultPanelController(
         result: CurrentScreenPipelineResult?,
         routes: List<ReplyRoute>
     ) {
+        val eligibility = result?.expressSelfEligibility
+        if (eligibility?.eligible == false) {
+            val holdBack = eligibility.mode in setOf(
+                ExpressSelfEligibilityMode.HOLD_BACK,
+                ExpressSelfEligibilityMode.BLOCK_RECENT_LAST_ME
+            )
+            if (holdBack) {
+                container.addView(titleText("\u8fd9\u8f6e\u5148\u522b\u6025\u7740\u8868\u8fbe\u81ea\u5df1"))
+                container.addView(text("\u4f60\u521a\u521a\u5df2\u7ecf\u8bf4\u8fc7\u4e86\uff0c\u5148\u7ed9\u5bf9\u65b9\u4e00\u70b9\u7a7a\u95f4\u3002\u73b0\u5728\u7ee7\u7eed\u8868\u8fbe\u81ea\u5df1\uff0c\u5bb9\u6613\u663e\u5f97\u7528\u529b\u3002"))
+                container.addView(smallText("\u5efa\u8bae\uff1a\u5148\u7b49\u5bf9\u65b9\u4e00\u53e5\uff0c\u6216\u53ea\u53d1\u4e00\u4e2a\u5f88\u8f7b\u7684\u63a5\u4f4f\u53e5\u3002"))
+                container.addView(smallText("\u522b\u8bf4\u8fc7\u5934\uff1a\u4e0d\u8981\u7ee7\u7eed\u5c55\u5f00\u4eba\u7269\u5f27\u5149\u3002"))
+            } else {
+                container.addView(titleText("\u5f53\u524d\u804a\u5929\u72b6\u6001\u4e0d\u591f\u7a33"))
+                container.addView(text("\u6ca1\u786e\u8ba4\u5230\u5e72\u51c0\u7684\u804a\u5929\u9875\uff0c\u5148\u70b9\u4e00\u4e0b\u804a\u5929\u7a97\u53e3\u6216\u56de\u5230\u652f\u6301\u7684\u804a\u5929\u9875\u518d\u8bd5\u3002"))
+                container.addView(smallText("blockReason: ${eligibility.blockReason?.name ?: "UNKNOWN"}"))
+            }
+            addExpressSelfFooter(container)
+            return
+        }
         container.addView(titleText("表达我"))
         RoutePanelDisplayText.expressSelfSummaryLines(
             arcProgressState = result?.expressSelfArcProgressState,
