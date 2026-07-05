@@ -1,0 +1,53 @@
+{
+  "project": "Huiyi v4 Core",
+  "taskName": "expression_ledger_arc_theme_progression",
+  "versionName": "4.1.59",
+  "versionCode": 478,
+  "currentOverallResult": "LOCAL_INTERFACE_PASS_NO_PHONE_REQUIRED",
+  "userNeedsPhoneThisRound": false,
+  "realDeviceRequiredThisRound": false,
+  "emulatorRequiredThisRound": false,
+  "expressionLedgerImplemented": true,
+  "fixedArcThemesCount": 5,
+  "fixedArcThemes": [
+    "steady_not_cold",
+    "serious_not_playboy",
+    "experienced_not_miserable",
+    "responsible_not_pressuring",
+    "planning_not_promise"
+  ],
+  "expressionModesSupported": [
+    "START_TOPIC",
+    "EXTEND_TOPIC",
+    "ELEVATE_MEANING",
+    "SWITCH_FACET",
+    "HOLD_BACK"
+  ],
+  "repeatedThemeCanElevate": true,
+  "lowLevelRepetitionBlocked": true,
+  "coldStartExpressionSupported": true,
+  "overExpressionGuard": true,
+  "sameThemeCanReappearWithNewLayerOrCarrier": true,
+  "routeStructure": [
+    "轻开场",
+    "低压表达",
+    "人物弧光",
+    "共创升维",
+    "撤退"
+  ],
+  "lightChatStateStoreRewritten": false,
+  "parserRewritten": false,
+  "nextSentenceSessionChanged": false,
+  "cloudCallbackChanged": false,
+  "passiveNextSentenceChanged": false,
+  "longTermRawPrivateChatStorage": false,
+  "autoSend": false,
+  "rawPrivateChatUploadedToGithub": false,
+  "tests": {
+    "compileDebugKotlin": "PASS",
+    "ExpressionLedgerTest": "PASS",
+    "DynamicPlaybookEngineTest": "PASS",
+    "ExpressSelfUiLoopTest": "PASS",
+    "app:testDebugUnitTest": "PASS"
+  }
+}

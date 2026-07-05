@@ -30,6 +30,7 @@ data class DynamicPlaybookRequest(
     val personaCorpus: UserPersonaCorpus,
     val capturedAt: Long = System.currentTimeMillis(),
     val currentTopics: List<String> = emptyList(),
+    val expressionLedger: ExpressionLedger = ExpressionLedger.empty(),
     val sessionId: String? = null,
     val chatWindowHash: String? = null
 )
@@ -52,7 +53,8 @@ data class DynamicPlaybookResult(
     val nextMoveType: NextMoveType,
     val panelNextAction: String,
     val latencyMs: Long,
-    val decisionSource: String
+    val decisionSource: String,
+    val expressionModeSelection: ExpressionModeSelection? = null
 ) {
     val oneClickImmediateResultPass: Boolean
         get() = latencyMs <= 300 && (
@@ -127,6 +129,7 @@ class DynamicPlaybookEngine(
             compression = compression,
             arcProgressState = arcProgress,
             personaCorpus = request.personaCorpus,
+            expressionLedger = request.expressionLedger,
             nowMillis = request.capturedAt
         )
         val cacheKey = PlaybookCacheKey(
@@ -200,7 +203,8 @@ class DynamicPlaybookEngine(
                 nextMoveType = NextMoveType.WAIT,
                 panelNextAction = "WAIT",
                 latencyMs = 0L,
-                decisionSource = "LOCAL_WAIT"
+                decisionSource = "LOCAL_WAIT",
+                expressionModeSelection = null
             )
         }
         val passiveRoutes = playbook.passiveNext
@@ -225,7 +229,8 @@ class DynamicPlaybookEngine(
             nextMoveType = NextMoveType.RECEIVE_OTHER,
             panelNextAction = "RECEIVE_OTHER",
             latencyMs = 0L,
-            decisionSource = if (cacheHit) "PLAYBOOK_CACHE_PASSIVE_NEXT" else "LOCAL_PLAYBOOK_FALLBACK_PASSIVE_NEXT"
+            decisionSource = if (cacheHit) "PLAYBOOK_CACHE_PASSIVE_NEXT" else "LOCAL_PLAYBOOK_FALLBACK_PASSIVE_NEXT",
+            expressionModeSelection = null
         )
     }
 
@@ -242,10 +247,21 @@ class DynamicPlaybookEngine(
         arcProgress: ArcProgressState
     ): DynamicPlaybookResult {
         val activeRoutes = playbook.activeExpression
-            .ifEmpty { generator.generate(snapshot, compression, arcProgress, personaCorpus = request.personaCorpus).activeExpression }
+            .ifEmpty {
+                generator.generate(
+                    lightChatState = snapshot,
+                    compression = compression,
+                    arcProgressState = arcProgress,
+                    personaCorpus = request.personaCorpus,
+                    expressionLedger = request.expressionLedger,
+                    nowMillis = request.capturedAt
+                ).activeExpression
+            }
             .take(5)
             .mapIndexed { index, route -> route.copy(recommended = index == 0) }
+        val selectedMode = playbook.expressionModeSelection?.expressionMode
         val nextMove = when {
+            selectedMode == ExpressionMode.HOLD_BACK -> NextMoveType.WITHDRAW
             activeRoutes.any { it.routeType == ReplyRouteType.ARC_REVEAL } -> NextMoveType.ARC_REVEAL
             activeRoutes.any { it.routeType == ReplyRouteType.CO_CREATION } -> NextMoveType.CO_CREATE_MEANING
             activeRoutes.any { it.routeType == ReplyRouteType.COOL_DOWN } -> NextMoveType.WITHDRAW
@@ -267,9 +283,10 @@ class DynamicPlaybookEngine(
             compression = compression,
             arcProgressState = arcProgress,
             nextMoveType = nextMove,
-            panelNextAction = nextMove.name,
+            panelNextAction = playbook.expressionModeSelection?.panelModeLabel ?: nextMove.name,
             latencyMs = 0L,
-            decisionSource = if (cacheHit) "PLAYBOOK_CACHE_ACTIVE_EXPRESSION" else "LOCAL_PLAYBOOK_FALLBACK_ACTIVE_EXPRESSION"
+            decisionSource = if (cacheHit) "PLAYBOOK_CACHE_ACTIVE_EXPRESSION" else "LOCAL_PLAYBOOK_FALLBACK_ACTIVE_EXPRESSION",
+            expressionModeSelection = playbook.expressionModeSelection
         )
     }
 

@@ -296,7 +296,11 @@ data class ReplyRoute(
     val riskWarning: String?,
     val expectedEffect: String?,
     val fallbackMove: String?,
-    val recommended: Boolean
+    val recommended: Boolean,
+    val panelExpressionMode: String? = null,
+    val panelArcTheme: String? = null,
+    val panelModeReason: String? = null,
+    val panelAvoidLine: String? = null
 ) {
     val routeFamily: String get() = routeType.name
     val panelNextAction: String get() = when (routeType) {

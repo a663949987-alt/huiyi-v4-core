@@ -1,28 +1,37 @@
-﻿# GPT Review Inbox
+# GPT Review Inbox
 
-- taskName: dynamic_playbook_productization_cn_emulator_smoke
-- versionName: 4.1.58
-- versionCode: 477
-- currentOverallResult: EMULATOR_PRODUCTIZATION_PASS
+- taskName: expression_ledger_arc_theme_progression
+- versionName: 4.1.59
+- versionCode: 478
+- currentOverallResult: LOCAL_INTERFACE_PASS_NO_PHONE_REQUIRED
 - userNeedsPhoneThisRound: false
-- localFallbackChineseRoutes: true
-- passiveNextChineseSendable: true
-- activeExpressionChineseSendable: true
-- noEnglishTemplatesInUserPanel: true
-- emulatorSmokeResult: PASS
-- passiveNextLatencyMs: 300
-- activeExpressionLatencyMs: 300
-- lastMeWaitPass: True
-- passiveRoutesChinese: True
-- activeRoutesChinese: True
-- activeArcRevealVisible: True
-- assertionSource: SCREENSHOT_VISUAL_EVIDENCE_OVERLAY_TEXT_NOT_IN_UI_XML
-- apkPath: outputs/update_server/huiyi-v4.1.58-debug.apk
-- apkSha256: 44FB6B2C1F3459ECF49FBCDF437859FBA264DB2CE29F9DA79492A89C87A78A42
+- realDeviceRequiredThisRound: false
+- emulatorRequiredThisRound: false
+- expressionLedgerImplemented: true
+- fixedArcThemesCount: 5
+- expressionModesSupported: START_TOPIC / EXTEND_TOPIC / ELEVATE_MEANING / SWITCH_FACET / HOLD_BACK
+- coldStartExpressionSupported: true
+- repeatedThemeCanElevate: true
+- lowLevelRepetitionBlocked: true
+- overExpressionGuard: true
+- noLightListeningRewrite: true
+- noParserRewrite: true
+- noSessionStateRewrite: true
+- noCloudCallbackRewrite: true
+- passiveNextSentenceChanged: false
+- longTermRawPrivateChatStorage: false
+- autoSend: false
+- rawPrivateChatInGithub: false
 
 ## Main Reports
 
-- outputs/gpt_review_inbox/dynamic-playbook-productization-report-for-gpt.md
-- outputs/gpt_review_inbox/dynamic-playbook-productization-report.json
-- outputs/gpt_review_inbox/dynamic-playbook-emulator-smoke-for-gpt.md
-- outputs/gpt_review_inbox/dynamic-playbook-emulator-smoke-report.json
+- outputs/gpt_review_inbox/expression-ledger-report-for-gpt.md
+- outputs/gpt_review_inbox/expression-ledger-report.json
+
+## Test Evidence
+
+- compileDebugKotlin: PASS
+- ExpressionLedgerTest: PASS
+- DynamicPlaybookEngineTest: PASS
+- ExpressSelfUiLoopTest: PASS
+- app:testDebugUnitTest: PASS

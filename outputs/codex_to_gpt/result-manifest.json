@@ -1,67 +1,22 @@
-﻿{
-    "taskName":  "dynamic_playbook_productization_cn_emulator_smoke",
-    "versionName":  "4.1.58",
-    "versionCode":  477,
-    "currentOverallResult":  "EMULATOR_PRODUCTIZATION_PASS",
-    "userNeedsPhoneThisRound":  false,
-    "emulatorSmokeResult":  "PASS",
-    "localFallbackChineseRoutes":  true,
-    "passiveNextChineseSendable":  true,
-    "activeExpressionChineseSendable":  true,
-    "apkPath":  "outputs/update_server/huiyi-v4.1.58-debug.apk",
-    "apkSha256":  "44FB6B2C1F3459ECF49FBCDF437859FBA264DB2CE29F9DA79492A89C87A78A42",
-    "files":  [
-                  {
-                      "path":  "outputs/gpt_review_inbox/README_FOR_GPT.md",
-                      "sha256":  "03A738808E7780EC5EA13E85092E77028CD66288BC1594F907F20ECBCFE66676"
-                  },
-                  {
-                      "path":  "outputs/gpt_review_inbox/dynamic-playbook-productization-report-for-gpt.md",
-                      "sha256":  "F907EAB5AFC21F6DD16C1AA88A8C0D9FBA56E02D6462277AD4D9A87E0DF81BEE"
-                  },
-                  {
-                      "path":  "outputs/gpt_review_inbox/dynamic-playbook-productization-report.json",
-                      "sha256":  "EDB967D0E97DC881CC037215FFDA3C22F05BC58F64A9D5761D372BAABBD77185"
-                  },
-                  {
-                      "path":  "outputs/gpt_review_inbox/dynamic-playbook-emulator-smoke-for-gpt.md",
-                      "sha256":  "8C13F96A61C09596E1ADC793805EC083E3EFEABA2B35D6DB88CEB3CADB76268B"
-                  },
-                  {
-                      "path":  "outputs/gpt_review_inbox/dynamic-playbook-emulator-smoke-report.json",
-                      "sha256":  "7E27C28D93626908B784E1057B0DF546FDF1E0CCFB79F19D1BE6F06F98D71E1E"
-                  },
-                  {
-                      "path":  "outputs/gpt_review_inbox/dynamic_playbook_emulator_smoke/last_other_after.png",
-                      "sha256":  "2F58FF1E2BE49B75F0B316488ABB1BB36B06656296AD6105426DE3FFD9895065"
-                  },
-                  {
-                      "path":  "outputs/gpt_review_inbox/dynamic_playbook_emulator_smoke/last_me_after.png",
-                      "sha256":  "E0A3560552EE423A6C1A82355BF4DA0573C26D24EE30BF602F02187EB04532F4"
-                  },
-                  {
-                      "path":  "outputs/gpt_review_inbox/dynamic_playbook_emulator_smoke/express_self_after.png",
-                      "sha256":  "FC935D1F687D827FA0F54A15B37D11C164D8FED4FD2D274089DF0CEE10649DBE"
-                  },
-                  {
-                      "path":  "outputs/gpt_review_inbox/dynamic_playbook_emulator_smoke/dynamic_playbook_logcat.txt",
-                      "sha256":  "922DFD85F0F9C59D9B1A64AECD142B197E3799EA74C6A10FBCA3E74EA853760B"
-                  },
-                  {
-                      "path":  "outputs/codex_to_gpt/README_FOR_GPT.md",
-                      "sha256":  "C8C639C17F928EE2E6FC63722085F70B4F37A4840463EF7DA0868328FF08948B"
-                  },
-                  {
-                      "path":  "outputs/codex_to_gpt/changed-files-for-gpt.md",
-                      "sha256":  "103373C553288A9CD85750D4838D7DCE7FA6FFE282CAF39A5541BD23DD7ABAC8"
-                  },
-                  {
-                      "path":  "outputs/update_server/latest.json",
-                      "sha256":  "1E9B73C9A819B09F43BE4DA7E0277F0F5FCE75819F50609B8D41E1859B9BC32B"
-                  },
-                  {
-                      "path":  "outputs/update_server/huiyi-v4.1.58-debug.apk",
-                      "sha256":  "44FB6B2C1F3459ECF49FBCDF437859FBA264DB2CE29F9DA79492A89C87A78A42"
-                  }
-              ]
+{
+  "taskName": "expression_ledger_arc_theme_progression",
+  "versionName": "4.1.59",
+  "versionCode": 478,
+  "currentOverallResult": "LOCAL_INTERFACE_PASS_NO_PHONE_REQUIRED",
+  "userNeedsPhoneThisRound": false,
+  "realDeviceRequiredThisRound": false,
+  "emulatorRequiredThisRound": false,
+  "expressionLedgerImplemented": true,
+  "fixedArcThemesCount": 5,
+  "coldStartExpressionSupported": true,
+  "repeatedThemeCanElevate": true,
+  "lowLevelRepetitionBlocked": true,
+  "overExpressionGuard": true,
+  "longTermRawPrivateChatStorage": false,
+  "autoSend": false,
+  "rawPrivateChatInGithub": false,
+  "reports": [
+    "outputs/gpt_review_inbox/expression-ledger-report-for-gpt.md",
+    "outputs/gpt_review_inbox/expression-ledger-report.json"
+  ]
 }
