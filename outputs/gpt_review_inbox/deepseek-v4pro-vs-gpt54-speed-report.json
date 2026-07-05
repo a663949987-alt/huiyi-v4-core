@@ -1,0 +1,232 @@
+{
+  "taskName": "deepseek_v4_pro_vs_gpt54_relay_speed_smoke",
+  "generatedAt": "2026-07-05T01:01:18.899Z",
+  "baseUrl": "https://toapis.com/v1",
+  "apiKeyIncluded": false,
+  "models": [
+    "gpt-5.4",
+    "deepseek-v4-pro"
+  ],
+  "trials": 3,
+  "input": "same_utf8_chinese_prompt_same_json_contract",
+  "summary": {
+    "gpt-5.4": {
+      "calls": 3,
+      "ok": 3,
+      "parseOk": 3,
+      "routeCountOk": 3,
+      "avgLatencyMs": 8406,
+      "minLatencyMs": 7163,
+      "maxLatencyMs": 9266,
+      "p50LatencyMs": 8789,
+      "p90LatencyMs": 9266
+    },
+    "deepseek-v4-pro": {
+      "calls": 3,
+      "ok": 3,
+      "parseOk": 1,
+      "routeCountOk": 1,
+      "avgLatencyMs": 13269,
+      "minLatencyMs": 6710,
+      "maxLatencyMs": 16910,
+      "p50LatencyMs": 16188,
+      "p90LatencyMs": 16910
+    }
+  },
+  "results": [
+    {
+      "model": "gpt-5.4",
+      "trial": 1,
+      "ok": true,
+      "httpStatus": 200,
+      "latencyMs": 7163,
+      "parseOk": true,
+      "routeCount": 4,
+      "contentChars": 342,
+      "finishReason": "stop",
+      "usage": {
+        "completion_tokens": 167,
+        "total_tokens": 688,
+        "prompt_tokens": 521,
+        "prompt_tokens_details": {
+          "cached_tokens": 0
+        },
+        "completion_tokens_details": {
+          "reasoning_tokens": 9
+        }
+      },
+      "samples": [
+        {
+          "title": "轻松接住",
+          "text": "没事，你先忙你的，想聊的时候找我就好。",
+          "riskLevel": "low"
+        },
+        {
+          "title": "理解型",
+          "text": "我懂，最近你压力大，先顾好自己就行。",
+          "riskLevel": "low"
+        }
+      ],
+      "error": null
+    },
+    {
+      "model": "deepseek-v4-pro",
+      "trial": 1,
+      "ok": true,
+      "httpStatus": 200,
+      "latencyMs": 16188,
+      "parseOk": false,
+      "routeCount": null,
+      "contentChars": 0,
+      "finishReason": "length",
+      "usage": {
+        "prompt_tokens": 226,
+        "completion_tokens": 700,
+        "total_tokens": 926,
+        "prompt_tokens_details": {
+          "cached_tokens": 0
+        },
+        "completion_tokens_details": {
+          "reasoning_tokens": 700
+        },
+        "prompt_cache_hit_tokens": 0,
+        "prompt_cache_miss_tokens": 226
+      },
+      "samples": [],
+      "error": "Unexpected end of JSON input"
+    },
+    {
+      "model": "gpt-5.4",
+      "trial": 2,
+      "ok": true,
+      "httpStatus": 200,
+      "latencyMs": 8789,
+      "parseOk": true,
+      "routeCount": 4,
+      "contentChars": 344,
+      "finishReason": "stop",
+      "usage": {
+        "completion_tokens": 174,
+        "total_tokens": 695,
+        "prompt_tokens": 521,
+        "prompt_tokens_details": {
+          "cached_tokens": 0
+        },
+        "completion_tokens_details": {
+          "reasoning_tokens": 10
+        }
+      },
+      "samples": [
+        {
+          "title": "轻松接住型",
+          "text": "我懂呀，别有压力，想聊时找我就好。",
+          "riskLevel": "low"
+        },
+        {
+          "title": "体谅温柔型",
+          "text": "没事，我知道你最近忙，先顾好自己。",
+          "riskLevel": "low"
+        }
+      ],
+      "error": null
+    },
+    {
+      "model": "deepseek-v4-pro",
+      "trial": 2,
+      "ok": true,
+      "httpStatus": 200,
+      "latencyMs": 6710,
+      "parseOk": true,
+      "routeCount": 4,
+      "contentChars": 483,
+      "finishReason": "stop",
+      "usage": {
+        "prompt_tokens": 226,
+        "completion_tokens": 298,
+        "total_tokens": 524,
+        "prompt_tokens_details": {
+          "cached_tokens": 128
+        },
+        "completion_tokens_details": {
+          "reasoning_tokens": 104
+        },
+        "prompt_cache_hit_tokens": 128,
+        "prompt_cache_miss_tokens": 98
+      },
+      "samples": [
+        {
+          "title": "轻松包容",
+          "text": "没事，忙你的就好，我也正好偷个闲。",
+          "riskLevel": "low"
+        },
+        {
+          "title": "共情减压",
+          "text": "完全理解，事情多的时候回复确实会很有压力。",
+          "riskLevel": "low"
+        }
+      ],
+      "error": null
+    },
+    {
+      "model": "gpt-5.4",
+      "trial": 3,
+      "ok": true,
+      "httpStatus": 200,
+      "latencyMs": 9266,
+      "parseOk": true,
+      "routeCount": 4,
+      "contentChars": 367,
+      "finishReason": "stop",
+      "usage": {
+        "completion_tokens": 199,
+        "total_tokens": 720,
+        "prompt_tokens": 521,
+        "prompt_tokens_details": {
+          "cached_tokens": 0
+        },
+        "completion_tokens_details": {
+          "reasoning_tokens": 14
+        }
+      },
+      "samples": [
+        {
+          "title": "最稳妥｜理解+减压",
+          "text": "懂你，忙的时候不用硬回，有空再聊就好。",
+          "riskLevel": "低"
+        },
+        {
+          "title": "自然体｜轻松接住",
+          "text": "没事呀，我知道你最近忙，别给自己压力。",
+          "riskLevel": "低"
+        }
+      ],
+      "error": null
+    },
+    {
+      "model": "deepseek-v4-pro",
+      "trial": 3,
+      "ok": true,
+      "httpStatus": 200,
+      "latencyMs": 16910,
+      "parseOk": false,
+      "routeCount": null,
+      "contentChars": 0,
+      "finishReason": "length",
+      "usage": {
+        "prompt_tokens": 226,
+        "completion_tokens": 700,
+        "total_tokens": 926,
+        "prompt_tokens_details": {
+          "cached_tokens": 128
+        },
+        "completion_tokens_details": {
+          "reasoning_tokens": 700
+        },
+        "prompt_cache_hit_tokens": 128,
+        "prompt_cache_miss_tokens": 98
+      },
+      "samples": [],
+      "error": "Unexpected end of JSON input"
+    }
+  ]
+}

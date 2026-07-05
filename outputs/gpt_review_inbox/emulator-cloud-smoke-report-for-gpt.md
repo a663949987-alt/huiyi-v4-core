@@ -1,25 +1,26 @@
-﻿# Emulator Cloud / No-Reaction Smoke Report
+﻿# Emulator Cloud Smoke Report
 
-- taskName: real_device_next_sentence_no_reaction_fix_emulator_smoke
-- versionName: 4.1.30
-- versionCode: 449
-- generatedAt: 2026-07-04T09:36:52.2792248+08:00
-- overallResult: PASS
-- emulatorDetected: true
+- taskName: emulator_mockchat_cloud_smoke
+- versionName: 4.1.28
+- versionCode: 447
+- generatedAt: 2026-07-04T20:11:36.6333660+08:00
+- overallResult: FAIL
+- emulatorDetected: True
 - emulatorSerial: emulator-5554
-- huiyiInstalled: true
-- mockchatInstalled: true
-- accessibilityEnabled: true
-- overlayPermissionGranted: true
-- lastOtherResult: PASS_LOCAL_FALLBACK
-- lastOtherDecisionSource: LOCAL_FALLBACK
-- lastOtherCloudSuccess: false
-- lastOtherCloudErrorCode: TIMEOUT
-- lastOtherRouteCount: 5
-- lastOtherClickAckLatencyMs: 4
+- huiyiInstalled: True
+- mockchatInstalled: True
+- accessibilityEnabled: True
+- overlayPermissionGranted: True
+- relaySmokeAlreadyPassed: True
+- lastOtherCloudResult: FAIL
 - lastMeWaitResult: PASS
-- lastMeClickAckLatencyMs: 5
-- noReactionDiagnosticGenerated: true
+- cloudAttempted: False
+- cloudSuccess: False
+- cloudErrorCode: 
+- decisionSource: 
+- routeCount: 0
+- screenshotsPath: outputs/gpt_review_inbox/emulator_cloud_smoke
+- logcatPath: outputs/gpt_review_inbox/emulator_cloud_smoke/last_other_after_contract_prompt_logcat.txt, outputs/gpt_review_inbox/emulator_cloud_smoke/last_me_wait_logcat.txt
 - realDeviceSmokeResult: NOT_TESTED
-- userNeedsPhoneThisRound: true
-- logcatPath: outputs/gpt_review_inbox/emulator_cloud_smoke/v4130_last_other_fast_fallback_logcat.txt, outputs/gpt_review_inbox/emulator_cloud_smoke/v4130_last_me_wait_logcat.txt
+- userNeedsPhoneThisRound: False
+- reason: 

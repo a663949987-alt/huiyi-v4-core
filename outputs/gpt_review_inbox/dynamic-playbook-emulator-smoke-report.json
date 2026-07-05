@@ -1,7 +1,7 @@
 ﻿{
-    "taskName":  "dynamic_playbook_productization_cn_emulator_smoke",
-    "versionName":  "4.1.58",
-    "versionCode":  477,
+    "taskName":  "real_use_package_next_sentence_express_self_playbook",
+    "versionName":  "4.1.61",
+    "versionCode":  480,
     "emulatorDetected":  true,
     "emulatorSerial":  "emulator-5554",
     "huiyiInstalled":  true,
@@ -25,8 +25,15 @@
     "lastMeWaitPass":  true,
     "arcRevealPass":  true,
     "oneClickImmediateResultPass":  true,
+    "nextSentenceNoPersonaFeedback":  true,
+    "expressSelfShowsExpressionMode":  true,
+    "expressSelfShowsCurrentTheme":  true,
+    "expressSelfShowsWhyThisCanBeSaid":  true,
+    "expressSelfShowsWhatNotToSay":  true,
+    "cloudEnhancementNonBlocking":  true,
+    "englishLeakCount":  0,
     "screenshotsPath":  "C:\\Users\\fbjdf\\Documents\\Codex\\2026-07-02\\new-chat-3\\outputs\\gpt_review_inbox\\dynamic_playbook_emulator_smoke",
     "logcatPath":  "C:\\Users\\fbjdf\\Documents\\Codex\\2026-07-02\\new-chat-3\\outputs\\gpt_review_inbox\\dynamic_playbook_emulator_smoke\\dynamic_playbook_logcat.txt",
     "overallResult":  "PASS",
-    "reason":  "EMULATOR_DYNAMIC_PLAYBOOK_PRODUCTIZATION_PASS"
+    "reason":  "EMULATOR_REAL_USE_PASS"
 }

@@ -1,6 +1,6 @@
 {
   "taskName": "deepseek_relationship_playbook_architecture_validation",
-  "generatedAt": "2026-07-05T01:17:03.116Z",
+  "generatedAt": "2026-07-05T08:24:25.376Z",
   "apiKeyIncluded": false,
   "baseUrlConfigured": true,
   "models": [
@@ -14,7 +14,7 @@
     {
       "model": "deepseek-v4-flash",
       "httpStatus": 200,
-      "latencyMs": 9236,
+      "latencyMs": 10802,
       "responseParsed": true,
       "contractPass": true,
       "passiveCount": 5,
@@ -26,19 +26,19 @@
     {
       "model": "deepseek-v4-pro",
       "httpStatus": 200,
-      "latencyMs": 27836,
-      "responseParsed": false,
-      "contractPass": false,
-      "passiveCount": 0,
-      "activeCount": 0,
+      "latencyMs": 21898,
+      "responseParsed": true,
+      "contractPass": true,
+      "passiveCount": 3,
+      "activeCount": 4,
       "arcCount": 0,
-      "finishReason": "length",
-      "error": "empty_content"
+      "finishReason": "stop",
+      "error": null
     },
     {
       "model": "gpt-5.4",
       "httpStatus": 200,
-      "latencyMs": 15127,
+      "latencyMs": 14794,
       "responseParsed": true,
       "contractPass": true,
       "passiveCount": 4,
@@ -50,7 +50,7 @@
     {
       "model": "gpt-5.5",
       "httpStatus": 200,
-      "latencyMs": 25964,
+      "latencyMs": 29274,
       "responseParsed": true,
       "contractPass": true,
       "passiveCount": 4,

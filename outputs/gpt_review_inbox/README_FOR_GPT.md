@@ -1,44 +1,28 @@
-# GPT Review Inbox
+# Huiyi v4 GPT Review Inbox
 
-- taskName: dynamic_playbook_cloud_refresh_emulator_smoke
-- versionName: 4.1.61
-- versionCode: 480
-- currentOverallResult: EMULATOR_DYNAMIC_PLAYBOOK_CLOUD_REFRESH_PASS
-- userNeedsPhoneThisRound: false
-- apkPath: outputs/update_server/huiyi-v4.1.61-debug.apk
-- apkSha256: DEE518C42E53087700C5AC579EBDC664037A4DACB79FB3DFA43993E00D4E3209
-- lanUpdateAvailable: true
-- latestJsonPath: outputs/update_server/latest.json
-- apkCommittedToPublicGithub: false
-- privateApkContainsRelayConfig: true
-- dynamicPlaybookCloudRefreshSmokeResult: PASS
-- emulatorDetected: true
-- emulatorSerial: emulator-5554
-- localPlaybookFirstResultPass: true
-- passiveNextLatencyMs: 300
-- activeExpressionLatencyMs: 300
-- cloudRefreshAttempted: true
-- cloudRefreshSuccess: true
-- cloudContractValidationResult: PASS
-- playbookCacheUpdatedFromCloud: true
-- nextClickReadsCloudEnhancedPlaybook: true
-- staleCloudRefreshDiscarded: true
-- staleDiscardReason: CHAT_KEY_CHANGED
-- lastMeWaitPass: true
-- lastMeCloudAttempted: false
+## Source
+- phoneBundleIncluded: true
+- oneTapFeedbackIncluded: true
+- uploadedFromPhone: true
+- latestPhoneUploadAt: 2026-07-05T08:53:16.520087+00:00
+- latestPhoneSessionId: ec9643af-62cc-4133-b1f0-4f99bc3699b5
+- githubCommitHash: PENDING
+- githubReviewPath: outputs/gpt_review_inbox/phone/latest/
+- realDeviceTested: true
 
-## Main Reports
+## Latest Phone Conclusion
+- terminalState: ROUTE_PANEL
+- appPackage: com.xiaoenai.app
+- actualLastSpeaker: ME
+- decisionType: NORMAL_REPLY
+- routeCount: 5
+- waitPanelShown: False
+- routePanelShown: True
+- errorCode: 
+- userMarkedWrong: True
+- userCorrectionLastSpeaker: NONE
 
-- outputs/gpt_review_inbox/dynamic-playbook-cloud-refresh-emulator-smoke-for-gpt.md
-- outputs/gpt_review_inbox/dynamic-playbook-cloud-refresh-emulator-smoke.json
-- outputs/update_server/latest.json
-
-## Evidence
-
-- outputs/gpt_review_inbox/dynamic_playbook_cloud_refresh_emulator_smoke/
-
-## Test Evidence
-
-- app:testDebugUnitTest DeepSeekRelationshipPlaybookTest + DynamicPlaybookEngineTest: PASS
-- app:assembleDebug: PASS
-- dynamic playbook cloud refresh emulator smoke: PASS
+## GPT Should Inspect
+1. outputs/gpt_review_inbox/phone/latest/README_FOR_GPT.md
+2. outputs/gpt_review_inbox/phone/latest/one-tap-feedback-manifest.json
+3. outputs/gpt_review_inbox/phone/latest/latest-session/next-sentence-flight-record.json

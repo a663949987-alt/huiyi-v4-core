@@ -1,0 +1,53 @@
+{
+  "generatedAt": "2026-07-05T09:07:00+08:00",
+  "relayBaseUrl": "https://toapis.com/v1",
+  "apiKeyIncluded": false,
+  "promptEncoding": "UTF-8",
+  "input": "same Chinese chat context + same JSON output contract",
+  "models": {
+    "gpt-5.4": {
+      "available": true
+    },
+    "deepseek-v4-pro": {
+      "available": true
+    }
+  },
+  "dropIn700MaxTokens": {
+    "gpt-5.4": {
+      "ok": "3/3",
+      "parseOk": "3/3",
+      "routeCountOk": "3/3",
+      "avgLatencyMs": 8406,
+      "minLatencyMs": 7163,
+      "maxLatencyMs": 9266
+    },
+    "deepseek-v4-pro": {
+      "ok": "3/3",
+      "parseOk": "1/3",
+      "routeCountOk": "1/3",
+      "avgLatencyMs": 13269,
+      "minLatencyMs": 6710,
+      "maxLatencyMs": 16910,
+      "failurePattern": "finishReason=length in 2/3 calls"
+    }
+  },
+  "appLike1200MaxTokens": {
+    "gpt-5.4": {
+      "ok": "3/3",
+      "parseOk": "3/3",
+      "routeCountOk": "3/3",
+      "latenciesMs": [12324, 7155, 10803],
+      "avgLatencyMs": 10094,
+      "reasoningTokens": [224, 126, 257]
+    },
+    "deepseek-v4-pro": {
+      "ok": "3/3",
+      "parseOk": "3/3",
+      "routeCountOk": "3/3",
+      "latenciesMs": [18186, 21090, 13844],
+      "avgLatencyMs": 17707,
+      "reasoningTokens": [696, 948, 525]
+    }
+  },
+  "recommendation": "Do not switch the mainline from gpt-5.4 to deepseek-v4-pro for speed. If DeepSeek is added later, keep it behind an experimental provider/model router. Test deepseek-v4-flash separately as a speed candidate."
+}

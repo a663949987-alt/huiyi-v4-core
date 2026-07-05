@@ -1,8 +1,8 @@
 ﻿# Dynamic Playbook Emulator Smoke Report
 
-- taskName: dynamic_playbook_productization_cn_emulator_smoke
-- versionName: 4.1.58
-- versionCode: 477
+- taskName: real_use_package_next_sentence_express_self_playbook
+- versionName: 4.1.61
+- versionCode: 480
 - emulatorDetected: True
 - emulatorSerial: emulator-5554
 - huiyiInstalled: True
@@ -27,10 +27,9 @@
 - arcRevealPass: True
 - oneClickImmediateResultPass: True
 - overallResult: PASS
-- reason: EMULATOR_DYNAMIC_PLAYBOOK_PRODUCTIZATION_PASS
+- reason: EMULATOR_REAL_USE_PASS
 - screenshotsPath: C:\Users\fbjdf\Documents\Codex\2026-07-02\new-chat-3\outputs\gpt_review_inbox\dynamic_playbook_emulator_smoke
 - lastOtherScreenshot: outputs/gpt_review_inbox/dynamic_playbook_emulator_smoke/last_other_after.png
 - lastMeScreenshot: outputs/gpt_review_inbox/dynamic_playbook_emulator_smoke/last_me_after.png
 - expressSelfScreenshot: outputs/gpt_review_inbox/dynamic_playbook_emulator_smoke/express_self_after.png
 - logcatPath: outputs/gpt_review_inbox/dynamic_playbook_emulator_smoke/dynamic_playbook_logcat.txt
-
