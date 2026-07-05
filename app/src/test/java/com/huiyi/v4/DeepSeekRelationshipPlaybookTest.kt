@@ -9,6 +9,7 @@ import com.huiyi.v4.domain.model.RiskLevel
 import com.huiyi.v4.domain.model.Speaker
 import com.huiyi.v4.domain.persona.DefaultPersonaCorpus
 import com.huiyi.v4.domain.playbook.BenchmarkCandidateModel
+import com.huiyi.v4.domain.playbook.CloudRelationshipPlaybookMapper
 import com.huiyi.v4.domain.playbook.DeepSeekPlaybookModel
 import com.huiyi.v4.domain.playbook.DeepSeekProvider
 import com.huiyi.v4.domain.playbook.DeepSeekProviderConfig
@@ -19,6 +20,7 @@ import com.huiyi.v4.domain.playbook.ModelRouterInput
 import com.huiyi.v4.domain.playbook.NormalizedConversationJson
 import com.huiyi.v4.domain.playbook.PlaybookCache
 import com.huiyi.v4.domain.playbook.PlaybookCacheKey
+import com.huiyi.v4.domain.playbook.RelationshipPlaybookSource
 import com.huiyi.v4.domain.playbook.RelationshipPlaybookGenerator
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
@@ -142,6 +144,46 @@ class DeepSeekRelationshipPlaybookTest {
 
         val imageResult = provider.generate(NormalizedConversationJson("""{"imageBase64":"abc"}"""))
         assertTrue(imageResult.isFailure)
+    }
+
+    @Test
+    fun CloudRelationshipPlaybookMapperParsesOpenAiResponseIntoCloudEnhancedPlaybookTest() {
+        val persona = DefaultPersonaCorpus.soldier()
+        val snapshot = planningSnapshot(lastSpeaker = Speaker.OTHER)
+        val compression = ConversationStateCompressor().compress(
+            recentMessages = snapshot.recentEffectiveMessages,
+            lastUserMessage = snapshot.lastUserMessage,
+            lastOtherMessage = snapshot.lastOtherMessage,
+            currentTopics = listOf("planning", "future"),
+            personaCorpus = persona
+        )
+        val arcProgress = CharacterArcPlanner().plan(
+            recentMessages = snapshot.recentEffectiveMessages,
+            lastUserMessage = snapshot.lastUserMessage,
+            lastOtherMessage = snapshot.lastOtherMessage,
+            currentTopics = compression.currentTopics,
+            personaCorpus = persona
+        )
+        val local = RelationshipPlaybookGenerator().generate(snapshot, compression, arcProgress, personaCorpus = persona, nowMillis = 1000L)
+        val cloudJson = """
+            {
+              "choices": [
+                {
+                  "message": {
+                    "content": "{\"stage\":\"TRUST_BUILDING\",\"currentFrame\":\"planning / future\",\"passiveNext\":[{\"slot\":\"接住现实感\",\"routeFamily\":\"EMPATHY\",\"message\":\"我懂，你不是随便说说，是想把这事真的想清楚。\",\"why\":\"接住对方的现实感\",\"riskLevel\":\"LOW\",\"fallbackMove\":\"先顺着聊\"},{\"slot\":\"稳住节奏\",\"routeFamily\":\"STABLE\",\"message\":\"那我们就按舒服的节奏来，不急着一下子定死。\",\"why\":\"降低压力\",\"riskLevel\":\"LOW\",\"fallbackMove\":\"转轻一点\"},{\"slot\":\"轻问一句\",\"routeFamily\":\"DIRECT\",\"message\":\"你现在更在意的是规划本身，还是怕走到后面不稳定？\",\"why\":\"轻问关键点\",\"riskLevel\":\"LOW\",\"fallbackMove\":\"不追问\"}],\"activeExpression\":[{\"slot\":\"低压表达\",\"routeFamily\":\"EXPRESS_SELF\",\"message\":\"我也挺认同这个。对我来说，很多事不是嘴上说满就行，能一步一步走稳更重要。\",\"why\":\"表达底色\",\"riskLevel\":\"LOW\",\"fallbackMove\":\"说短一点\"},{\"slot\":\"人物弧光\",\"routeFamily\":\"ARC_REVEAL\",\"message\":\"我可能不太会把话说得很漂亮，但真到要负责的时候，我会更愿意把事落到实处。\",\"why\":\"让对方看见稳定反差\",\"riskLevel\":\"MEDIUM\",\"fallbackMove\":\"露一点就收\"},{\"slot\":\"共创升维\",\"routeFamily\":\"CO_CREATE\",\"message\":\"那我们也可以先找一个彼此都舒服、也能长期走下去的节奏。\",\"why\":\"形成共同节奏\",\"riskLevel\":\"LOW\",\"fallbackMove\":\"回到轻松话题\"}],\"characterArcPlan\":{\"exists\":true,\"nextMoveType\":\"ARC_REVEAL\",\"suggestedFacet\":\"稳定但不冷\",\"suggestedLine\":\"我更愿意把事落到实处。\",\"overdoRisk\":\"别讲成自我证明\",\"triggerTopics\":[\"planning\",\"future\"]},\"next2StepBranches\":[],\"risk\":\"LOW\",\"fallback\":\"如果她没接住，就先降压收口。\",\"expiresWhen\":[\"topic_changed\",\"playbook_ttl_expired\"]}"
+                  }
+                }
+              ]
+            }
+        """.trimIndent()
+
+        val mapped = CloudRelationshipPlaybookMapper().parseResponse(cloudJson, local, nowMillis = 2000L)
+
+        assertEquals(RelationshipPlaybookSource.CLOUD_ENHANCED, mapped.source)
+        assertEquals(3, mapped.passiveNext.size)
+        assertTrue(mapped.passiveNext.all { it.message.contains(Regex("[\\u4e00-\\u9fff]")) })
+        assertTrue(mapped.activeExpression.any { it.routeType == ReplyRouteType.ARC_REVEAL })
+        assertTrue(mapped.activeExpression.any { it.routeType == ReplyRouteType.CO_CREATION })
     }
 
     @Test

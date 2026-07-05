@@ -69,7 +69,13 @@ import com.huiyi.v4.domain.playbook.DynamicPlaybookEngine
 import com.huiyi.v4.domain.playbook.DynamicPlaybookMode
 import com.huiyi.v4.domain.playbook.DynamicPlaybookRequest
 import com.huiyi.v4.domain.playbook.DynamicPlaybookResult
+import com.huiyi.v4.domain.playbook.CloudRelationshipPlaybookMapper
+import com.huiyi.v4.domain.playbook.CloudPlaybookRefresher
+import com.huiyi.v4.domain.playbook.DeepSeekPlaybookModel
+import com.huiyi.v4.domain.playbook.DeepSeekProvider
+import com.huiyi.v4.domain.playbook.DeepSeekProviderConfig
 import com.huiyi.v4.domain.playbook.PlaybookRefreshScheduler
+import com.huiyi.v4.domain.playbook.RelationshipPlaybook
 import com.huiyi.v4.domain.tactical.ReplyRouteGenerator
 import com.huiyi.v4.domain.tactical.TacticalDecisionEngine
 import com.huiyi.v4.ui.HuiyiDemoState
@@ -181,7 +187,13 @@ class HuiyiRuntime private constructor(
         onLateCloudResult = { lateResult -> handleLateCloudResult(lateResult) }
     )
     private val dynamicPlaybookEngine = DynamicPlaybookEngine()
-    private val playbookRefreshScheduler = PlaybookRefreshScheduler(dynamicPlaybookEngine)
+    private val cloudRelationshipPlaybookMapper = CloudRelationshipPlaybookMapper()
+    private val playbookRefreshScheduler = PlaybookRefreshScheduler(
+        engine = dynamicPlaybookEngine,
+        cloudRefresher = CloudPlaybookRefresher { request, localPlaybook ->
+            refreshDynamicPlaybookFromCloud(request, localPlaybook)
+        }
+    )
     private var sessionWatchdogJob: Job? = null
     private var activeNextSentenceJob: Job? = null
     @Volatile
@@ -929,10 +941,42 @@ class HuiyiRuntime private constructor(
             trace = trace,
             previousSessionId = previousSessionId
         )
-        playbookRefreshScheduler.refreshInBackground(scope, request) {
-            HuiyiAccessibilityService.instance?.lastStableChatSnapshot()?.stableChatKey()
+        if (dynamicResult.cloudRefreshRecommended) {
+            launchDynamicPlaybookCloudRefresh(request)
         }
         return true
+    }
+
+    private fun launchDynamicPlaybookCloudRefresh(request: DynamicPlaybookRequest) {
+        scope.launch {
+            val outcome = runCatching {
+                playbookRefreshScheduler.refreshNow(request) {
+                    HuiyiAccessibilityService.instance?.lastStableChatSnapshot()?.stableChatKey()
+                }
+            }.getOrElse { error ->
+                Log.w(
+                    LOG_TAG,
+                    "dynamic_playbook_cloud_refresh sessionId=${request.sessionId} " +
+                        "mode=${request.mode} chatKey=${request.appPackage}|${request.windowTitle.orEmpty()} " +
+                        "localFallbackReady=true cloudAttempted=true cloudSuccess=false " +
+                        "cacheReplaced=false staleRefreshDiscarded=false discardedReason=${error.javaClass.simpleName} " +
+                        "cloudContractValidation=FAIL"
+                )
+                return@launch
+            }
+            Log.i(
+                LOG_TAG,
+                "dynamic_playbook_cloud_refresh sessionId=${request.sessionId} " +
+                    "mode=${request.mode} chatKey=${request.appPackage}|${request.windowTitle.orEmpty()} " +
+                    "localFallbackReady=${outcome.localFallbackReady} " +
+                    "cloudAttempted=${outcome.cloudAttempted} " +
+                    "cloudSuccess=${outcome.cloudSuccess} " +
+                    "cacheReplaced=${outcome.cacheReplaced} " +
+                    "staleRefreshDiscarded=${outcome.staleRefreshDiscarded} " +
+                    "discardedReason=${outcome.discardedReason ?: "NONE"} " +
+                    "cloudContractValidation=${if (outcome.cloudSuccess) "PASS" else "FAIL"}"
+            )
+        }
     }
 
     private fun renderDynamicPlaybookResult(
@@ -1027,6 +1071,17 @@ class HuiyiRuntime private constructor(
                 cloudFinalModel = settings.model,
                 panelRenderedSessionId = sessionId
             )
+        )
+        Log.i(
+            LOG_TAG,
+            "dynamic_playbook_result sessionId=$sessionId mode=$mode " +
+                "chatKey=${stable.stableChatKey()} source=${dynamicResult.playbook.source} " +
+                "decisionSource=${dynamicResult.decisionSource} " +
+                "lastSpeaker=${dynamicResult.lastSpeakerDecision.lastSpeaker} " +
+                "decision=${decision.decisionType} routeCount=${dynamicResult.routes.size} " +
+                "latencyMs=${dynamicResult.latencyMs} cacheHit=${dynamicResult.cacheHit} " +
+                "localFallbackUsed=${dynamicResult.localFallbackUsed} " +
+                "cloudRefreshRecommended=${dynamicResult.cloudRefreshRecommended}"
         )
         val successTrace = trace.copy(
             endedAt = endedAt,
@@ -1135,8 +1190,54 @@ class HuiyiRuntime private constructor(
         )
     }
 
+    private suspend fun refreshDynamicPlaybookFromCloud(
+        request: DynamicPlaybookRequest,
+        localPlaybook: RelationshipPlaybook
+    ): Result<RelationshipPlaybook> {
+        val lastSpeaker = LastSpeakerDecisionUseCase().decide(request.messages)
+        if (lastSpeaker.lastSpeaker != Speaker.OTHER) {
+            return Result.failure(IllegalStateException("LAST_SPEAKER_NOT_OTHER"))
+        }
+        val baseConfig = cloudSettingsRepository.currentConfig()
+        if (!baseConfig.configuredAndEnabled) {
+            return Result.failure(IllegalStateException("CLOUD_NOT_CONFIGURED"))
+        }
+        val input = cloudRelationshipPlaybookMapper.buildInput(
+            request = request,
+            localPlaybook = localPlaybook,
+            lastSpeaker = lastSpeaker.lastSpeaker
+        )
+        val provider = DeepSeekProvider(
+            DeepSeekProviderConfig(
+                baseUrl = baseConfig.endpoint,
+                apiKey = baseConfig.apiKey,
+                model = DeepSeekPlaybookModel.V4_FLASH,
+                timeoutMs = baseConfig.timeoutMs.coerceIn(20_000L, 30_000L)
+            )
+        )
+        val response = withContext(Dispatchers.IO) {
+            provider.generate(input)
+        }.getOrElse { error ->
+            return Result.failure(error)
+        }
+        if (response.httpStatus !in 200..299) {
+            return Result.failure(IllegalStateException("HTTP_${response.httpStatus}"))
+        }
+        return runCatching {
+            cloudRelationshipPlaybookMapper.parseResponse(
+                responseBody = response.responseBody,
+                localPlaybook = localPlaybook,
+                nowMillis = System.currentTimeMillis()
+            )
+        }
+    }
+
     private fun LastStableForeignWindowSnapshot.stableChatKey(): String =
-        "${packageName}|${windowTitle?.trim()?.replace(Regex("\\s+"), " ")?.take(80).orEmpty().ifBlank { "default" }}"
+        if (packageName == "com.huiyi.mockchat" && nodesHash.isNotBlank()) {
+            "$packageName|mock:$nodesHash"
+        } else {
+            "${packageName}|${windowTitle?.trim()?.replace(Regex("\\s+"), " ")?.take(80).orEmpty().ifBlank { "default" }}"
+        }
 
     private fun fallbackArcRevealRoute(): ReplyRoute = ReplyRoute(
         id = "express-self-arc-reveal",

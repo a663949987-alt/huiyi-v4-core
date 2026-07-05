@@ -1,0 +1,36 @@
+﻿# Dynamic Playbook + Cloud Refresh Emulator Smoke
+
+- taskName: dynamic_playbook_cloud_refresh_emulator_smoke
+- versionName: 4.1.61
+- versionCode: 480
+- generatedAt: 2026-07-05T16:33:23.2822788+08:00
+- emulatorDetected: True
+- emulatorSerial: emulator-5554
+- huiyiInstalled: True
+- mockchatInstalled: True
+- accessibilityEnabled: True
+- overlayPermissionGranted: True
+- localPlaybookFirstResultPass: True
+- passiveNextLatencyMs: 300
+- passiveFirstRouteCount: 5
+- passiveFirstSource: LOCAL_PLAYBOOK_FALLBACK_PASSIVE_NEXT
+- activeExpressionLatencyMs: 300
+- activeExpressionRouteCount: 3
+- activeExpressionContainsArcReveal: True
+- cloudRefreshAttempted: True
+- cloudRefreshSuccess: True
+- cloudRefreshFailureReason: NONE
+- cloudContractValidationResult: PASS
+- playbookCacheUpdatedFromCloud: True
+- nextClickReadsCloudEnhancedPlaybook: True
+- cloudEnhancedRouteCount: 3
+- activeExpressionCloudEnhanced: True
+- staleCloudRefreshDiscarded: True
+- staleDiscardReason: CHAT_KEY_CHANGED
+- lastMeWaitPass: True
+- lastMeCloudAttempted: False
+- lastMeRouteCount: 0
+- screenshotsPath: outputs/gpt_review_inbox/dynamic_playbook_cloud_refresh_emulator_smoke
+- logcatPath: outputs/gpt_review_inbox/dynamic_playbook_cloud_refresh_emulator_smoke
+- finalOverallResult: PASS
+- failReason: NONE

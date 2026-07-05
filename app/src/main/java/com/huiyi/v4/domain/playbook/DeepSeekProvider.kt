@@ -39,12 +39,13 @@ class DeepSeekProvider(
     fun buildRequestBody(input: NormalizedConversationJson): String = """
         {
           "model": "${config.model.modelId}",
-          "max_tokens": 1200,
+          "max_tokens": 3500,
+          "temperature": 0.25,
           "response_format": {"type": "json_object"},
           "messages": [
             {
               "role": "system",
-              "content": "You are Huiyi RelationshipPlaybookGenerator. Return only RelationshipPlaybook JSON. Do not request or use images."
+              "content": "You are Huiyi RelationshipPlaybookGenerator. Return strict compact JSON only. Required fields: stage,currentFrame,passiveNext,activeExpression,characterArcPlan,next2StepBranches,risk,fallback,expiresWhen. passiveNext and activeExpression must each include exactly 3 short Chinese routes. Each route needs slot,message,routeFamily,why,riskLevel,fallbackMove. message <= 34 Chinese chars; why <= 18 chars; fallbackMove <= 18 chars. For planning/reality/stability/future/responsibility topics, activeExpression must include routeFamily=ARC_REVEAL and CO_CREATE. next2StepBranches can be an empty array. No images. Use only the normalized conversation JSON."
             },
             {
               "role": "user",

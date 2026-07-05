@@ -109,6 +109,43 @@ class DynamicPlaybookEngineTest {
         assertEquals("CHAT_KEY_CHANGED", outcome.discardedReason)
     }
 
+    @Test
+    fun CloudRefreshSuccessUpdatesCacheAndNextClickReadsCloudEnhancedPlaybookTest() = runBlocking {
+        val engine = DynamicPlaybookEngine()
+        val req = request(
+            mode = DynamicPlaybookMode.NEXT_SENTENCE,
+            messages = planningMessages()
+        )
+        val initial = engine.nextSentence(req)
+        val cloudRoute = initial.routes.first().copy(
+            id = "cloud-passive-1",
+            name = "云端接话",
+            message = "我懂你的意思，我们先按舒服的节奏慢慢来。"
+        )
+        val scheduler = PlaybookRefreshScheduler(
+            engine = engine,
+            cloudRefresher = CloudPlaybookRefresher { _, local ->
+                Result.success(
+                    local.copy(
+                        passiveNext = listOf(cloudRoute) + local.passiveNext.drop(1),
+                        source = RelationshipPlaybookSource.CLOUD_ENHANCED
+                    )
+                )
+            }
+        )
+
+        val outcome = scheduler.refreshNow(req) { "com.bajiao.im.liaoqi|demo-chat" }
+        val afterRefresh = engine.nextSentence(req)
+
+        assertTrue(outcome.localFallbackReady)
+        assertTrue(outcome.cloudAttempted)
+        assertTrue(outcome.cloudSuccess)
+        assertTrue(outcome.cacheReplaced)
+        assertFalse(outcome.staleRefreshDiscarded)
+        assertEquals("CLOUD_ENHANCED_PLAYBOOK", afterRefresh.decisionSource)
+        assertEquals("我懂你的意思，我们先按舒服的节奏慢慢来。", afterRefresh.routes.first().message)
+    }
+
     private fun request(
         mode: DynamicPlaybookMode,
         messages: List<com.huiyi.v4.domain.model.MessageNode>

@@ -390,6 +390,7 @@ class CloudModelRoutingPolicy {
         }
         val configured = config.model.trim()
         return when {
+            configured.isRelayTextModel() -> configured
             configured.contains("5.4", ignoreCase = true) -> configured
             configured.contains("5.3", ignoreCase = true) -> configured
             else -> "gpt-5.4"
@@ -398,6 +399,7 @@ class CloudModelRoutingPolicy {
 
     fun escalationModel(config: CloudAnalysisConfig, primaryModel: String): String? {
         val configured = config.model.trim()
+        if (configured.isRelayTextModel()) return null
         val candidate = if (configured.contains("5.5", ignoreCase = true)) configured else "gpt-5.5"
         return candidate.takeUnless { it.equals(primaryModel, ignoreCase = true) }
     }
@@ -405,6 +407,8 @@ class CloudModelRoutingPolicy {
     fun primaryTimeoutMs(config: CloudAnalysisConfig, visualEvidenceAttached: Boolean = false): Long =
         if (visualEvidenceAttached) {
             escalationTimeoutMs(config)
+        } else if (config.model.trim().isRelayTextModel()) {
+            config.timeoutMs.coerceIn(1_000L, 30_000L)
         } else {
             config.timeoutMs.coerceIn(1_000L, 10_000L)
         }
@@ -426,6 +430,13 @@ class CloudModelRoutingPolicy {
             "HTTP_5XX",
             "SERVER_ERROR"
         )
+    }
+
+    private fun String.isRelayTextModel(): Boolean {
+        val normalized = lowercase()
+        return listOf("deepseek", "qwen", "kimi", "glm", "minimax", "claude", "gemini").any {
+            normalized.contains(it)
+        }
     }
 }
 

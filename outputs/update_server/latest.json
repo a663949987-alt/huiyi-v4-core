@@ -2,8 +2,8 @@
     "versionName":  "4.1.61",
     "versionCode":  480,
     "apkUrl":  "huiyi-v4.1.61-debug.apk",
-    "releaseNotes":  "v4.1.61: real-use package for Next Sentence and Express Self; playbook cache/fallback first; cloud non-blocking; expression ledger visible in Express Self panel.",
+    "releaseNotes":  "v4.1.61: dynamic playbook cloud refresh emulator smoke PASS; local playbook first, cloud-enhanced cache refresh, stale refresh discard, LAST_ME wait.",
     "forceUpdate":  false,
-    "sha256":  "A04257AFC7554DD20A7C48FECAD9A95593D8A240A9F42C17E08C691A4B237BFD",
-    "createdAt":  1783237441061
+    "sha256":  "DEE518C42E53087700C5AC579EBDC664037A4DACB79FB3DFA43993E00D4E3209",
+    "createdAt":  1783240507470
 }

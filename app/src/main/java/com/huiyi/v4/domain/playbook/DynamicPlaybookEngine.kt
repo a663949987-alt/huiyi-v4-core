@@ -131,7 +131,7 @@ class DynamicPlaybookEngine(
             personaCorpus = request.personaCorpus,
             expressionLedger = request.expressionLedger,
             nowMillis = request.capturedAt
-        )
+        ).copy(chatKey = playbookChatKey(request, snapshot))
         val cacheKey = PlaybookCacheKey(
             chatKey = localPlaybook.chatKey.orEmpty().ifBlank { "unknown_chat" },
             stage = localPlaybook.stage,
@@ -229,7 +229,12 @@ class DynamicPlaybookEngine(
             nextMoveType = NextMoveType.RECEIVE_OTHER,
             panelNextAction = "RECEIVE_OTHER",
             latencyMs = 0L,
-            decisionSource = if (cacheHit) "PLAYBOOK_CACHE_PASSIVE_NEXT" else "LOCAL_PLAYBOOK_FALLBACK_PASSIVE_NEXT",
+            decisionSource = decisionSourceFor(
+                cacheHit = cacheHit,
+                playbook = playbook,
+                cacheSource = "PLAYBOOK_CACHE_PASSIVE_NEXT",
+                fallbackSource = "LOCAL_PLAYBOOK_FALLBACK_PASSIVE_NEXT"
+            ),
             expressionModeSelection = null
         )
     }
@@ -285,9 +290,25 @@ class DynamicPlaybookEngine(
             nextMoveType = nextMove,
             panelNextAction = playbook.expressionModeSelection?.panelModeLabel ?: nextMove.name,
             latencyMs = 0L,
-            decisionSource = if (cacheHit) "PLAYBOOK_CACHE_ACTIVE_EXPRESSION" else "LOCAL_PLAYBOOK_FALLBACK_ACTIVE_EXPRESSION",
+            decisionSource = decisionSourceFor(
+                cacheHit = cacheHit,
+                playbook = playbook,
+                cacheSource = "PLAYBOOK_CACHE_ACTIVE_EXPRESSION",
+                fallbackSource = "LOCAL_PLAYBOOK_FALLBACK_ACTIVE_EXPRESSION"
+            ),
             expressionModeSelection = playbook.expressionModeSelection
         )
+    }
+
+    private fun decisionSourceFor(
+        cacheHit: Boolean,
+        playbook: RelationshipPlaybook,
+        cacheSource: String,
+        fallbackSource: String
+    ): String = when {
+        cacheHit && playbook.source == RelationshipPlaybookSource.CLOUD_ENHANCED -> "CLOUD_ENHANCED_PLAYBOOK"
+        cacheHit -> cacheSource
+        else -> fallbackSource
     }
 
     private fun refreshTriggers(
@@ -312,6 +333,15 @@ class DynamicPlaybookEngine(
             .map { (topic, _) -> topic }
             .ifEmpty { listOf("ordinary") }
             .distinct()
+    }
+
+    private fun playbookChatKey(
+        request: DynamicPlaybookRequest,
+        snapshot: LightChatStableSnapshot
+    ): String = if (request.appPackage == "com.huiyi.mockchat" && !request.chatWindowHash.isNullOrBlank()) {
+        "${request.appPackage}|mock:${request.chatWindowHash}"
+    } else {
+        snapshot.chatKey.orEmpty().ifBlank { "${request.appPackage.orEmpty()}|default" }
     }
 
     private companion object {

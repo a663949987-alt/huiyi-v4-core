@@ -1,22 +1,27 @@
 # Codex To GPT Result
 
-- taskName: real_use_package_next_sentence_express_self_playbook
+- taskName: dynamic_playbook_cloud_refresh_emulator_smoke
 - versionName: 4.1.61
 - versionCode: 480
-- currentOverallResult: EMULATOR_REAL_USE_PASS
-- userNeedsPhoneThisRound: true
+- currentOverallResult: EMULATOR_DYNAMIC_PLAYBOOK_CLOUD_REFRESH_PASS
+- userNeedsPhoneThisRound: false
 - apkPath: outputs/update_server/huiyi-v4.1.61-debug.apk
-- apkSha256: A04257AFC7554DD20A7C48FECAD9A95593D8A240A9F42C17E08C691A4B237BFD
+- apkSha256: DEE518C42E53087700C5AC579EBDC664037A4DACB79FB3DFA43993E00D4E3209
 - lanUpdateAvailable: true
 - apkCommittedToPublicGithub: false
 - privateApkContainsRelayConfig: true
-- nextSentenceReady: true
-- expressSelfReady: true
-- emulatorSmokeResult: PASS
-- englishLeakCount: 0
-- cloudEnhancementNonBlocking: true
+- dynamicPlaybookCloudRefreshSmokeResult: PASS
+- localPlaybookFirstResultPass: true
+- cloudRefreshAttempted: true
+- cloudRefreshSuccess: true
+- cloudContractValidationResult: PASS
+- playbookCacheUpdatedFromCloud: true
+- nextClickReadsCloudEnhancedPlaybook: true
+- staleCloudRefreshDiscarded: true
+- lastMeWaitPass: true
 
 ## Main Reports
 
-- outputs/gpt_review_inbox/real-use-acceptance-report-for-gpt.md
-- outputs/gpt_review_inbox/real-use-emulator-smoke-for-gpt.md
+- outputs/gpt_review_inbox/dynamic-playbook-cloud-refresh-emulator-smoke-for-gpt.md
+- outputs/gpt_review_inbox/dynamic-playbook-cloud-refresh-emulator-smoke.json
+- outputs/update_server/latest.json
