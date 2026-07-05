@@ -1,44 +1,22 @@
 {
   "project": "huiyi-v4",
-  "taskName": "deepseek_relationship_playbook_architecture_validation",
+  "taskName": "relay_model_benchmark_default_playbook_model_search",
   "versionName": "4.1.56",
   "versionCode": 475,
-  "currentOverallResult": "DEEPSEEK_PLAYBOOK_ARCHITECTURE_PASS",
-  "generatedAt": "2026-07-05T09:19:10+08:00",
+  "currentOverallResult": "RELAY_MODEL_BENCHMARK_COMPLETE_NO_RUNTIME_SWITCH",
+  "generatedAt": "2026-07-05T10:45:23+08:00",
   "userNeedsPhoneThisRound": false,
   "realDeviceSmokeResult": "NOT_REQUIRED",
-  "relationshipPlaybookImplemented": true,
-  "relationshipPlaybookGeneratorImplemented": true,
-  "deepSeekProviderImplemented": true,
-  "deepSeekProviderImageInputSupported": false,
-  "modelRouterImplemented": true,
-  "playbookCacheImplemented": true,
-  "modelBenchmarkImplemented": true,
-  "offlineBenchmarkSampleCount": 260,
-  "recommendedDefaultModel": "deepseek-v4-flash",
-  "recommendedStrongModel": "gpt-5.5",
-  "cliSmoke": {
-    "deepseek-v4-flash": {
-      "result": "PASS",
-      "latencyMs": 9236,
-      "contractPass": true
-    },
-    "deepseek-v4-pro": {
-      "result": "FAIL_LENGTH_TRUNCATED",
-      "latencyMs": 27836,
-      "contractPass": false
-    },
-    "gpt-5.4": {
-      "result": "PASS",
-      "latencyMs": 15127,
-      "contractPass": true
-    },
-    "gpt-5.5": {
-      "result": "PASS",
-      "latencyMs": 25964,
-      "contractPass": true
-    }
-  },
+  "apiKeyIncluded": false,
+  "availableRawModelCount": 111,
+  "availableTextModelCount": 68,
+  "testedModelCount": 10,
+  "sampleCountPerModel": 20,
+  "recommendedDefaultModel": null,
+  "recommendedStrongModel": null,
+  "closestStrongReference": "gpt-5.4",
+  "runtimeSwitchRecommended": false,
+  "deepseekV4ProRuntimeEnabled": false,
   "files": [
     {
       "path": "outputs/gpt_review_inbox/README_FOR_GPT.md",
@@ -46,22 +24,22 @@
       "sendToGpt": true
     },
     {
-      "path": "outputs/gpt_review_inbox/deepseek-playbook-benchmark-for-gpt.md",
+      "path": "outputs/gpt_review_inbox/relay-available-models-for-gpt.md",
       "type": "markdown",
       "sendToGpt": true
     },
     {
-      "path": "outputs/gpt_review_inbox/deepseek-playbook-benchmark.json",
+      "path": "outputs/gpt_review_inbox/relay-available-models.json",
       "type": "json",
       "sendToGpt": true
     },
     {
-      "path": "outputs/gpt_review_inbox/deepseek-playbook-cli-smoke-for-gpt.md",
+      "path": "outputs/gpt_review_inbox/relay-model-benchmark-for-gpt.md",
       "type": "markdown",
       "sendToGpt": true
     },
     {
-      "path": "outputs/gpt_review_inbox/deepseek-playbook-cli-smoke.json",
+      "path": "outputs/gpt_review_inbox/relay-model-benchmark.json",
       "type": "json",
       "sendToGpt": true
     },

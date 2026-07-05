@@ -1,0 +1,858 @@
+{
+  "taskName": "relay_model_benchmark_default_playbook_model_search",
+  "generatedAt": "2026-07-05T01:41:21.418Z",
+  "baseUrlConfigured": true,
+  "apiKeyIncluded": false,
+  "rawModelCount": 111,
+  "availableTextModels": [
+    "gpt-5-pro-official",
+    "gpt-5.3-codex-official",
+    "gpt-5.4-mini-official",
+    "gpt-5.4-nano-official",
+    "gpt-5.4-pro-official",
+    "MiniMax-Hailuo-02",
+    "claude-opus-4-6",
+    "gpt-5.3-codex-spark",
+    "doubao-seedream-5-0",
+    "gemini-2.5-flash-official",
+    "gpt-5.4",
+    "MiniMax-Hailuo-2.3",
+    "gemini-3.1-pro",
+    "qwen3.6-plus",
+    "claude-opus-4-8",
+    "gemini-3-pro",
+    "gemini-3.0-flash",
+    "qwen3.5-plus",
+    "deepseek-v3.2",
+    "deepseek-v4-pro",
+    "gemini-2.5-flash",
+    "kimi-k2.6",
+    "claude-haiku-4-5",
+    "doubao-seedance-1-0-pro-fast",
+    "doubao-seedance-1-5-pro",
+    "gemini-2.5-flash-lite",
+    "gemini_omni",
+    "gpt-5.2-official",
+    "gpt-realtime-1.5-official",
+    "gemini-2.5-pro-official",
+    "gemini-3.0-pro",
+    "gemini-3.1-pro-preview-official",
+    "doubao-seedream-4-5",
+    "gemini-2.0-flash-lite-official",
+    "claude-fable-5",
+    "glm-5.2",
+    "claude-sonnet-4-6",
+    "gpt-5.4-official",
+    "gpt-5.5",
+    "claude-sonnet-5",
+    "MiniMax-Hailuo-2.3-Fast",
+    "gemini-3.5-thinking",
+    "gemini_omni_flash",
+    "kimi-k2.5",
+    "gemini-3.1-flash-lite",
+    "gemini-3.1-flash-lite-preview-official",
+    "glm-5.1",
+    "gemini-2.0-flash-official",
+    "gemini-3-flash",
+    "gemini-3-flash-official",
+    "gemini-3-pro-official",
+    "gemini-3.5-flash",
+    "qwen3.7-max",
+    "gemini-3-pro-preview-official",
+    "gpt-5.4-mini",
+    "qwen3-max",
+    "qwen3.5-flash",
+    "kimi-k2-6",
+    "gemini-2.5-flash-lite-official",
+    "gpt-5.3-codex",
+    "doubao-seedance-1-0-pro-quality",
+    "doubao-seedream-4-0",
+    "deepseek-v4-flash",
+    "MiniMax-M2.5",
+    "claude-opus-4-7",
+    "glm-5",
+    "gemini-2.5-pro",
+    "gemini-3-flash-preview-official"
+  ],
+  "models": [
+    {
+      "id": "gpt-5-pro-official",
+      "object": "model",
+      "ownedBy": "custom",
+      "created": 1626777600,
+      "supportsChatCompletions": true
+    },
+    {
+      "id": "gpt-5.3-codex-official",
+      "object": "model",
+      "ownedBy": "custom",
+      "created": 1626777600,
+      "supportsChatCompletions": true
+    },
+    {
+      "id": "gpt-5.4-mini-official",
+      "object": "model",
+      "ownedBy": "custom",
+      "created": 1626777600,
+      "supportsChatCompletions": true
+    },
+    {
+      "id": "gpt-5.4-nano-official",
+      "object": "model",
+      "ownedBy": "custom",
+      "created": 1626777600,
+      "supportsChatCompletions": true
+    },
+    {
+      "id": "gpt-5.4-pro-official",
+      "object": "model",
+      "ownedBy": "custom",
+      "created": 1626777600,
+      "supportsChatCompletions": true
+    },
+    {
+      "id": "MiniMax-Hailuo-02",
+      "object": "model",
+      "ownedBy": "custom",
+      "created": 1626777600,
+      "supportsChatCompletions": true
+    },
+    {
+      "id": "claude-opus-4-6",
+      "object": "model",
+      "ownedBy": "custom",
+      "created": 1626777600,
+      "supportsChatCompletions": true
+    },
+    {
+      "id": "gemini-2.5-flash-image-official",
+      "object": "model",
+      "ownedBy": "custom",
+      "created": 1626777600,
+      "supportsChatCompletions": false
+    },
+    {
+      "id": "gpt-5.3-codex-spark",
+      "object": "model",
+      "ownedBy": "CodexReverse",
+      "created": 1626777600,
+      "supportsChatCompletions": true
+    },
+    {
+      "id": "gpt-image-2",
+      "object": "model",
+      "ownedBy": "custom",
+      "created": 1626777600,
+      "supportsChatCompletions": false
+    },
+    {
+      "id": "sora-2-official",
+      "object": "model",
+      "ownedBy": "custom",
+      "created": 1626777600,
+      "supportsChatCompletions": false
+    },
+    {
+      "id": "veo3.1-quality",
+      "object": "model",
+      "ownedBy": "custom",
+      "created": 1626777600,
+      "supportsChatCompletions": false
+    },
+    {
+      "id": "wan2.6",
+      "object": "model",
+      "ownedBy": "custom",
+      "created": 1626777600,
+      "supportsChatCompletions": false
+    },
+    {
+      "id": "doubao-seedream-5-0",
+      "object": "model",
+      "ownedBy": "custom",
+      "created": 1626777600,
+      "supportsChatCompletions": true
+    },
+    {
+      "id": "gemini-2.5-flash-official",
+      "object": "model",
+      "ownedBy": "custom",
+      "created": 1626777600,
+      "supportsChatCompletions": true
+    },
+    {
+      "id": "gpt-5.4",
+      "object": "model",
+      "ownedBy": "custom",
+      "created": 1626777600,
+      "supportsChatCompletions": true
+    },
+    {
+      "id": "gpt-image-2-official",
+      "object": "model",
+      "ownedBy": "custom",
+      "created": 1626777600,
+      "supportsChatCompletions": false
+    },
+    {
+      "id": "kling-3.0-turbo",
+      "object": "model",
+      "ownedBy": "custom",
+      "created": 1626777600,
+      "supportsChatCompletions": false
+    },
+    {
+      "id": "viduq3",
+      "object": "model",
+      "ownedBy": "custom",
+      "created": 1626777600,
+      "supportsChatCompletions": false
+    },
+    {
+      "id": "viduq3-turbo",
+      "object": "model",
+      "ownedBy": "custom",
+      "created": 1626777600,
+      "supportsChatCompletions": false
+    },
+    {
+      "id": "MiniMax-Hailuo-2.3",
+      "object": "model",
+      "ownedBy": "custom",
+      "created": 1626777600,
+      "supportsChatCompletions": true
+    },
+    {
+      "id": "gemini-3.1-pro",
+      "object": "model",
+      "ownedBy": "custom",
+      "created": 1626777600,
+      "supportsChatCompletions": true
+    },
+    {
+      "id": "happyhorse-1.1",
+      "object": "model",
+      "ownedBy": "custom",
+      "created": 1626777600,
+      "supportsChatCompletions": false
+    },
+    {
+      "id": "qwen3.6-plus",
+      "object": "model",
+      "ownedBy": "custom",
+      "created": 1626777600,
+      "supportsChatCompletions": true
+    },
+    {
+      "id": "claude-opus-4-8",
+      "object": "model",
+      "ownedBy": "custom",
+      "created": 1626777600,
+      "supportsChatCompletions": true
+    },
+    {
+      "id": "gemini-3-pro",
+      "object": "model",
+      "ownedBy": "custom",
+      "created": 1626777600,
+      "supportsChatCompletions": true
+    },
+    {
+      "id": "gemini-3.0-flash",
+      "object": "model",
+      "ownedBy": "custom",
+      "created": 1626777600,
+      "supportsChatCompletions": true
+    },
+    {
+      "id": "kling-v2-6",
+      "object": "model",
+      "ownedBy": "custom",
+      "created": 1626777600,
+      "supportsChatCompletions": false
+    },
+    {
+      "id": "qwen3.5-plus",
+      "object": "model",
+      "ownedBy": "ali",
+      "created": 1626777600,
+      "supportsChatCompletions": true
+    },
+    {
+      "id": "deepseek-v3.2",
+      "object": "model",
+      "ownedBy": "custom",
+      "created": 1626777600,
+      "supportsChatCompletions": true
+    },
+    {
+      "id": "deepseek-v4-pro",
+      "object": "model",
+      "ownedBy": "custom",
+      "created": 1626777600,
+      "supportsChatCompletions": true
+    },
+    {
+      "id": "flux-kontext-max",
+      "object": "model",
+      "ownedBy": "custom",
+      "created": 1626777600,
+      "supportsChatCompletions": false
+    },
+    {
+      "id": "gemini-2.5-flash",
+      "object": "model",
+      "ownedBy": "ai studio chat",
+      "created": 1626777600,
+      "supportsChatCompletions": true
+    },
+    {
+      "id": "gemini-3-pro-image-preview-4K",
+      "object": "model",
+      "ownedBy": "custom",
+      "created": 1626777600,
+      "supportsChatCompletions": false
+    },
+    {
+      "id": "kimi-k2.6",
+      "object": "model",
+      "ownedBy": "custom",
+      "created": 1626777600,
+      "supportsChatCompletions": true
+    },
+    {
+      "id": "veo3.1-fast",
+      "object": "model",
+      "ownedBy": "custom",
+      "created": 1626777600,
+      "supportsChatCompletions": false
+    },
+    {
+      "id": "claude-haiku-4-5",
+      "object": "model",
+      "ownedBy": "custom",
+      "created": 1626777600,
+      "supportsChatCompletions": true
+    },
+    {
+      "id": "doubao-seedance-1-0-pro-fast",
+      "object": "model",
+      "ownedBy": "custom",
+      "created": 1626777600,
+      "supportsChatCompletions": true
+    },
+    {
+      "id": "doubao-seedance-1-5-pro",
+      "object": "model",
+      "ownedBy": "custom",
+      "created": 1626777600,
+      "supportsChatCompletions": true
+    },
+    {
+      "id": "gemini-2.5-flash-lite",
+      "object": "model",
+      "ownedBy": "ai studio chat",
+      "created": 1626777600,
+      "supportsChatCompletions": true
+    },
+    {
+      "id": "gemini_omni",
+      "object": "model",
+      "ownedBy": "custom",
+      "created": 1626777600,
+      "supportsChatCompletions": true
+    },
+    {
+      "id": "gpt-5.2-official",
+      "object": "model",
+      "ownedBy": "custom",
+      "created": 1626777600,
+      "supportsChatCompletions": true
+    },
+    {
+      "id": "gpt-realtime-1.5-official",
+      "object": "model",
+      "ownedBy": "custom",
+      "created": 1626777600,
+      "supportsChatCompletions": true
+    },
+    {
+      "id": "seedance-2-fast",
+      "object": "model",
+      "ownedBy": "custom",
+      "created": 1626777600,
+      "supportsChatCompletions": false
+    },
+    {
+      "id": "gemini-2.5-pro-official",
+      "object": "model",
+      "ownedBy": "custom",
+      "created": 1626777600,
+      "supportsChatCompletions": true
+    },
+    {
+      "id": "gemini-3.0-pro",
+      "object": "model",
+      "ownedBy": "custom",
+      "created": 1626777600,
+      "supportsChatCompletions": true
+    },
+    {
+      "id": "gemini-3.1-pro-preview-official",
+      "object": "model",
+      "ownedBy": "custom",
+      "created": 1626777600,
+      "supportsChatCompletions": true
+    },
+    {
+      "id": "doubao-seedream-4-5",
+      "object": "model",
+      "ownedBy": "custom",
+      "created": 1626777600,
+      "supportsChatCompletions": true
+    },
+    {
+      "id": "gemini-2.0-flash-lite-official",
+      "object": "model",
+      "ownedBy": "custom",
+      "created": 1626777600,
+      "supportsChatCompletions": true
+    },
+    {
+      "id": "Veo3.1-fast-official",
+      "object": "model",
+      "ownedBy": "custom",
+      "created": 1626777600,
+      "supportsChatCompletions": false
+    },
+    {
+      "id": "claude-fable-5",
+      "object": "model",
+      "ownedBy": "custom",
+      "created": 1626777600,
+      "supportsChatCompletions": true
+    },
+    {
+      "id": "glm-5.2",
+      "object": "model",
+      "ownedBy": "custom",
+      "created": 1626777600,
+      "supportsChatCompletions": true
+    },
+    {
+      "id": "claude-sonnet-4-6",
+      "object": "model",
+      "ownedBy": "custom",
+      "created": 1626777600,
+      "supportsChatCompletions": true
+    },
+    {
+      "id": "flux-2-flex",
+      "object": "model",
+      "ownedBy": "custom",
+      "created": 1626777600,
+      "supportsChatCompletions": false
+    },
+    {
+      "id": "gpt-5.4-official",
+      "object": "model",
+      "ownedBy": "custom",
+      "created": 1626777600,
+      "supportsChatCompletions": true
+    },
+    {
+      "id": "gpt-5.5",
+      "object": "model",
+      "ownedBy": "custom",
+      "created": 1626777600,
+      "supportsChatCompletions": true
+    },
+    {
+      "id": "grok-video-3",
+      "object": "model",
+      "ownedBy": "custom",
+      "created": 1626777600,
+      "supportsChatCompletions": false
+    },
+    {
+      "id": "kling-v3-omni",
+      "object": "model",
+      "ownedBy": "custom",
+      "created": 1626777600,
+      "supportsChatCompletions": false
+    },
+    {
+      "id": "kling-video-o1",
+      "object": "model",
+      "ownedBy": "custom",
+      "created": 1626777600,
+      "supportsChatCompletions": false
+    },
+    {
+      "id": "gemini-3-pro-image-preview-official",
+      "object": "model",
+      "ownedBy": "custom",
+      "created": 1626777600,
+      "supportsChatCompletions": false
+    },
+    {
+      "id": "kling-v3",
+      "object": "model",
+      "ownedBy": "custom",
+      "created": 1626777600,
+      "supportsChatCompletions": false
+    },
+    {
+      "id": "seedance-2-mini",
+      "object": "model",
+      "ownedBy": "custom",
+      "created": 1626777600,
+      "supportsChatCompletions": false
+    },
+    {
+      "id": "viduq3-pro",
+      "object": "model",
+      "ownedBy": "custom",
+      "created": 1626777600,
+      "supportsChatCompletions": false
+    },
+    {
+      "id": "wan2.6-flash",
+      "object": "model",
+      "ownedBy": "custom",
+      "created": 1626777600,
+      "supportsChatCompletions": false
+    },
+    {
+      "id": "claude-sonnet-5",
+      "object": "model",
+      "ownedBy": "custom",
+      "created": 1626777600,
+      "supportsChatCompletions": true
+    },
+    {
+      "id": "MiniMax-Hailuo-2.3-Fast",
+      "object": "model",
+      "ownedBy": "custom",
+      "created": 1626777600,
+      "supportsChatCompletions": true
+    },
+    {
+      "id": "gemini-3.5-thinking",
+      "object": "model",
+      "ownedBy": "custom",
+      "created": 1626777600,
+      "supportsChatCompletions": true
+    },
+    {
+      "id": "gemini_omni_flash",
+      "object": "model",
+      "ownedBy": "custom",
+      "created": 1626777600,
+      "supportsChatCompletions": true
+    },
+    {
+      "id": "nano_banana_2",
+      "object": "model",
+      "ownedBy": "custom",
+      "created": 1626777600,
+      "supportsChatCompletions": false
+    },
+    {
+      "id": "nano_banana_pro",
+      "object": "model",
+      "ownedBy": "custom",
+      "created": 1626777600,
+      "supportsChatCompletions": false
+    },
+    {
+      "id": "kimi-k2.5",
+      "object": "model",
+      "ownedBy": "kimi",
+      "created": 1626777600,
+      "supportsChatCompletions": true
+    },
+    {
+      "id": "flux-2-pro",
+      "object": "model",
+      "ownedBy": "custom",
+      "created": 1626777600,
+      "supportsChatCompletions": false
+    },
+    {
+      "id": "gemini-3.1-flash-image-preview",
+      "object": "model",
+      "ownedBy": "custom",
+      "created": 1626777600,
+      "supportsChatCompletions": false
+    },
+    {
+      "id": "gemini-3.1-flash-lite",
+      "object": "model",
+      "ownedBy": "custom",
+      "created": 1626777600,
+      "supportsChatCompletions": true
+    },
+    {
+      "id": "gemini-3.1-flash-lite-preview-official",
+      "object": "model",
+      "ownedBy": "custom",
+      "created": 1626777600,
+      "supportsChatCompletions": true
+    },
+    {
+      "id": "glm-5.1",
+      "object": "model",
+      "ownedBy": "custom",
+      "created": 1626777600,
+      "supportsChatCompletions": true
+    },
+    {
+      "id": "gpt-audio-1.5-official",
+      "object": "model",
+      "ownedBy": "custom",
+      "created": 1626777600,
+      "supportsChatCompletions": false
+    },
+    {
+      "id": "gpt-4o-image",
+      "object": "model",
+      "ownedBy": "custom",
+      "created": 1626777600,
+      "supportsChatCompletions": false
+    },
+    {
+      "id": "gemini-2.0-flash-official",
+      "object": "model",
+      "ownedBy": "custom",
+      "created": 1626777600,
+      "supportsChatCompletions": true
+    },
+    {
+      "id": "gemini-3-flash",
+      "object": "model",
+      "ownedBy": "custom",
+      "created": 1626777600,
+      "supportsChatCompletions": true
+    },
+    {
+      "id": "gemini-3-flash-official",
+      "object": "model",
+      "ownedBy": "custom",
+      "created": 1626777600,
+      "supportsChatCompletions": true
+    },
+    {
+      "id": "gemini-3-pro-official",
+      "object": "model",
+      "ownedBy": "custom",
+      "created": 1626777600,
+      "supportsChatCompletions": true
+    },
+    {
+      "id": "gemini-3.5-flash",
+      "object": "model",
+      "ownedBy": "ai studio chat",
+      "created": 1626777600,
+      "supportsChatCompletions": true
+    },
+    {
+      "id": "grok-4.3",
+      "object": "model",
+      "ownedBy": "custom",
+      "created": 1626777600,
+      "supportsChatCompletions": false
+    },
+    {
+      "id": "qwen3.7-max",
+      "object": "model",
+      "ownedBy": "custom",
+      "created": 1626777600,
+      "supportsChatCompletions": true
+    },
+    {
+      "id": "seedance-2",
+      "object": "model",
+      "ownedBy": "custom",
+      "created": 1626777600,
+      "supportsChatCompletions": false
+    },
+    {
+      "id": "gemini-3-pro-preview-official",
+      "object": "model",
+      "ownedBy": "custom",
+      "created": 1626777600,
+      "supportsChatCompletions": true
+    },
+    {
+      "id": "gpt-5.4-mini",
+      "object": "model",
+      "ownedBy": "custom",
+      "created": 1626777600,
+      "supportsChatCompletions": true
+    },
+    {
+      "id": "gpt-image-2-vip",
+      "object": "model",
+      "ownedBy": "custom",
+      "created": 1626777600,
+      "supportsChatCompletions": false
+    },
+    {
+      "id": "grok-video-1.5-preview",
+      "object": "model",
+      "ownedBy": "custom",
+      "created": 1626777600,
+      "supportsChatCompletions": false
+    },
+    {
+      "id": "qwen3-max",
+      "object": "model",
+      "ownedBy": "ali",
+      "created": 1626777600,
+      "supportsChatCompletions": true
+    },
+    {
+      "id": "qwen3.5-flash",
+      "object": "model",
+      "ownedBy": "ali",
+      "created": 1626777600,
+      "supportsChatCompletions": true
+    },
+    {
+      "id": "veo3.1-lite",
+      "object": "model",
+      "ownedBy": "custom",
+      "created": 1626777600,
+      "supportsChatCompletions": false
+    },
+    {
+      "id": "kimi-k2-6",
+      "object": "model",
+      "ownedBy": "custom",
+      "created": 1626777600,
+      "supportsChatCompletions": true
+    },
+    {
+      "id": "gemini-2.5-flash-lite-official",
+      "object": "model",
+      "ownedBy": "custom",
+      "created": 1626777600,
+      "supportsChatCompletions": true
+    },
+    {
+      "id": "gemini-3-pro-image-preview",
+      "object": "model",
+      "ownedBy": "custom",
+      "created": 1626777600,
+      "supportsChatCompletions": false
+    },
+    {
+      "id": "gemini-3.1-flash-image-preview-official",
+      "object": "model",
+      "ownedBy": "custom",
+      "created": 1626777600,
+      "supportsChatCompletions": false
+    },
+    {
+      "id": "gpt-5.3-codex",
+      "object": "model",
+      "ownedBy": "CodexReverse",
+      "created": 1626777600,
+      "supportsChatCompletions": true
+    },
+    {
+      "id": "nano_banana",
+      "object": "model",
+      "ownedBy": "custom",
+      "created": 1626777600,
+      "supportsChatCompletions": false
+    },
+    {
+      "id": "sora-2-vvip",
+      "object": "model",
+      "ownedBy": "custom",
+      "created": 1626777600,
+      "supportsChatCompletions": false
+    },
+    {
+      "id": "doubao-seedance-1-0-pro-quality",
+      "object": "model",
+      "ownedBy": "custom",
+      "created": 1626777600,
+      "supportsChatCompletions": true
+    },
+    {
+      "id": "doubao-seedream-4-0",
+      "object": "model",
+      "ownedBy": "custom",
+      "created": 1626777600,
+      "supportsChatCompletions": true
+    },
+    {
+      "id": "gemini-2.5-flash-image-preview",
+      "object": "model",
+      "ownedBy": "custom",
+      "created": 1626777600,
+      "supportsChatCompletions": false
+    },
+    {
+      "id": "flux-kontext-pro",
+      "object": "model",
+      "ownedBy": "custom",
+      "created": 1626777600,
+      "supportsChatCompletions": false
+    },
+    {
+      "id": "deepseek-v4-flash",
+      "object": "model",
+      "ownedBy": "custom",
+      "created": 1626777600,
+      "supportsChatCompletions": true
+    },
+    {
+      "id": "MiniMax-M2.5",
+      "object": "model",
+      "ownedBy": "minimax",
+      "created": 1626777600,
+      "supportsChatCompletions": true
+    },
+    {
+      "id": "claude-opus-4-7",
+      "object": "model",
+      "ownedBy": "custom",
+      "created": 1626777600,
+      "supportsChatCompletions": true
+    },
+    {
+      "id": "glm-5",
+      "object": "model",
+      "ownedBy": "glm",
+      "created": 1626777600,
+      "supportsChatCompletions": true
+    },
+    {
+      "id": "Veo3.1-quality-official",
+      "object": "model",
+      "ownedBy": "custom",
+      "created": 1626777600,
+      "supportsChatCompletions": false
+    },
+    {
+      "id": "gemini-2.5-pro",
+      "object": "model",
+      "ownedBy": "ai studio chat",
+      "created": 1626777600,
+      "supportsChatCompletions": true
+    },
+    {
+      "id": "gemini-3-flash-preview-official",
+      "object": "model",
+      "ownedBy": "custom",
+      "created": 1626777600,
+      "supportsChatCompletions": true
+    }
+  ],
+  "error": null,
+  "httpStatus": 200
+}

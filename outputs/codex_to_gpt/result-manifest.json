@@ -1,35 +1,62 @@
 {
-  "taskName": "deepseek_relationship_playbook_architecture_validation",
+  "taskName": "relay_model_benchmark_default_playbook_model_search",
   "versionName": "4.1.56",
   "versionCode": 475,
-  "currentOverallResult": "DEEPSEEK_PLAYBOOK_ARCHITECTURE_PASS",
-  "generatedAt": "2026-07-05T09:19:10+08:00",
+  "currentOverallResult": "RELAY_MODEL_BENCHMARK_COMPLETE_NO_RUNTIME_SWITCH",
+  "generatedAt": "2026-07-05T10:45:23+08:00",
   "userNeedsPhoneThisRound": false,
   "realDeviceSmokeResult": "NOT_REQUIRED",
   "apkGeneratedThisRound": false,
   "lanUpdateTouchedThisRound": false,
-  "relationshipPlaybookImplemented": true,
-  "relationshipPlaybookGeneratorImplemented": true,
-  "deepSeekProviderImplemented": true,
-  "deepSeekProviderImageInputSupported": false,
-  "modelRouterImplemented": true,
-  "playbookCacheImplemented": true,
-  "modelBenchmarkImplemented": true,
-  "offlineBenchmarkSampleCount": 260,
-  "characterArcSampleCount": 60,
-  "syntheticSampleCount": 200,
-  "recommendedDefaultModel": "deepseek-v4-flash",
-  "recommendedStrongModel": "gpt-5.5",
-  "deepseekV4FlashCliSmokeResult": "PASS",
-  "deepseekV4FlashLatencyMs": 9236,
-  "deepseekV4ProCliSmokeResult": "FAIL_LENGTH_TRUNCATED",
-  "deepseekV4ProLatencyMs": 27836,
-  "gpt54CliSmokeResult": "PASS",
-  "gpt54LatencyMs": 15127,
-  "gpt55CliSmokeResult": "PASS",
-  "gpt55LatencyMs": 25964,
-  "tests": {
-    "DeepSeekRelationshipPlaybookTest": "PASS"
+  "appUiChanged": false,
+  "apiKeyIncluded": false,
+  "availableRawModelCount": 111,
+  "availableTextModelCount": 68,
+  "testedModelCount": 10,
+  "sampleCountPerModel": 20,
+  "recommendedDefaultModel": null,
+  "recommendedStrongModel": null,
+  "closestStrongReference": "gpt-5.4",
+  "runtimeSwitchRecommended": false,
+  "deepseekV4ProRuntimeEnabled": false,
+  "perModelSummary": {
+    "deepseek-v4-flash": {
+      "contractPassRate": 20,
+      "responseParsedRate": 45,
+      "avgLatencyMs": 10577,
+      "runtimeEnabled": false
+    },
+    "kimi-k2.5": {
+      "contractPassRate": 65,
+      "arcRevealHitRate": 100,
+      "sendabilityPassRate": 75,
+      "avgLatencyMs": 19156,
+      "runtimeEnabled": false
+    },
+    "gpt-5.4": {
+      "contractPassRate": 85,
+      "routeCountPassRate": 85,
+      "sendabilityPassRate": 80,
+      "arcRevealHitRate": 80,
+      "avgLatencyMs": 24473,
+      "runtimeEnabled": false
+    },
+    "MiniMax-M2.5": {
+      "contractPassRate": 80,
+      "routeCountPassRate": 85,
+      "arcRevealHitRate": 80,
+      "avgLatencyMs": 20131,
+      "runtimeEnabled": false
+    }
+  },
+  "recommendedRouterPolicy": {
+    "LAST_ME": "LOCAL_WAIT",
+    "UNKNOWN": "LOCAL_CONTEXT_REQUIRED",
+    "normal OTHER": "KEEP_CURRENT_RUNTIME_MODEL",
+    "arc/reality/planning/future": "KEEP_CURRENT_RUNTIME_MODEL",
+    "validator fail": "KEEP_CURRENT_STRONG_MODEL",
+    "strongModel fail": "LOCAL_FALLBACK",
+    "timeout": "LOCAL_FALLBACK"
   },
   "files": [
     {
@@ -38,22 +65,22 @@
       "sendToGpt": true
     },
     {
-      "path": "outputs/gpt_review_inbox/deepseek-playbook-benchmark-for-gpt.md",
+      "path": "outputs/gpt_review_inbox/relay-available-models-for-gpt.md",
       "type": "markdown",
       "sendToGpt": true
     },
     {
-      "path": "outputs/gpt_review_inbox/deepseek-playbook-benchmark.json",
+      "path": "outputs/gpt_review_inbox/relay-available-models.json",
       "type": "json",
       "sendToGpt": true
     },
     {
-      "path": "outputs/gpt_review_inbox/deepseek-playbook-cli-smoke-for-gpt.md",
+      "path": "outputs/gpt_review_inbox/relay-model-benchmark-for-gpt.md",
       "type": "markdown",
       "sendToGpt": true
     },
     {
-      "path": "outputs/gpt_review_inbox/deepseek-playbook-cli-smoke.json",
+      "path": "outputs/gpt_review_inbox/relay-model-benchmark.json",
       "type": "json",
       "sendToGpt": true
     },
