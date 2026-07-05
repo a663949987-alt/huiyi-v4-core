@@ -833,6 +833,10 @@ class HuiyiRuntime private constructor(
                     lastEffectiveSpeaker = lastSpeaker.lastSpeaker,
                     decisionType = finalExpressDecision.decisionType.name,
                     routeCount = routes.size,
+                    routeTypesCsv = routes.joinToString(",") { it.routeType.name },
+                    expressSelfEligibilityEligible = dynamicResult.expressSelfEligibility?.eligible,
+                    expressSelfEligibilityMode = dynamicResult.expressSelfEligibility?.mode?.name ?: "NONE",
+                    expressSelfEligibilityBlockReason = dynamicResult.expressSelfEligibility?.blockReason?.name,
                     apiCalled = false,
                     panelAttached = true,
                     panelRenderSuccess = true,
@@ -1131,6 +1135,22 @@ class HuiyiRuntime private constructor(
             lastEffectiveSpeaker = dynamicResult.lastSpeakerDecision.lastSpeaker,
             decisionType = decision.decisionType.name,
             routeCount = dynamicResult.routes.size,
+            routeTypesCsv = dynamicResult.routes.joinToString(",") { it.routeType.name },
+            expressSelfEligibilityEligible = if (mode == DynamicPlaybookMode.EXPRESS_SELF) {
+                dynamicResult.expressSelfEligibility?.eligible
+            } else {
+                null
+            },
+            expressSelfEligibilityMode = if (mode == DynamicPlaybookMode.EXPRESS_SELF) {
+                dynamicResult.expressSelfEligibility?.mode?.name ?: "NONE"
+            } else {
+                "NONE"
+            },
+            expressSelfEligibilityBlockReason = if (mode == DynamicPlaybookMode.EXPRESS_SELF) {
+                dynamicResult.expressSelfEligibility?.blockReason?.name
+            } else {
+                null
+            },
             apiCalled = false,
             panelAttached = true,
             panelRenderSuccess = true,
@@ -1718,6 +1738,13 @@ class HuiyiRuntime private constructor(
         appendLine("- serviceReconnectWaitMs: ${trace.serviceReconnectWaitMs}")
         appendLine("- serviceReconnectSucceeded: ${trace.serviceReconnectSucceeded}")
         appendLine("- errorCode: ${trace.errorCode ?: NextSentenceErrorCode.NONE}")
+        appendLine("- lastEffectiveSpeaker: ${trace.lastEffectiveSpeaker ?: "none"}")
+        appendLine("- decisionType: ${trace.decisionType ?: "none"}")
+        appendLine("- routeCount: ${trace.routeCount}")
+        appendLine("- routeTypesCsv: ${trace.routeTypesCsv.ifBlank { "none" }}")
+        appendLine("- expressSelfEligibilityEligible: ${trace.expressSelfEligibilityEligible ?: "none"}")
+        appendLine("- expressSelfEligibilityMode: ${trace.expressSelfEligibilityMode}")
+        appendLine("- expressSelfEligibilityBlockReason: ${trace.expressSelfEligibilityBlockReason ?: "none"}")
         appendLine("- cloudAttempted: ${trace.apiCalled}")
         appendLine("- panelShown: ${trace.panelShown || trace.panelAttached}")
         appendLine("- userFacingMessage: ${trace.userFacingMessage ?: "none"}")
@@ -1736,8 +1763,18 @@ class HuiyiRuntime private constructor(
         "stage" to trace.stage.name,
         "terminalState" to trace.terminalState,
         "errorCode" to trace.errorCode?.name,
+        "parsedMessageCount" to trace.parsedMessageCount,
+        "effectiveMessageCount" to trace.effectiveMessageCount,
+        "lastEffectiveSpeaker" to trace.lastEffectiveSpeaker?.name,
+        "decisionType" to trace.decisionType,
+        "routeCount" to trace.routeCount,
+        "routeTypesCsv" to trace.routeTypesCsv,
+        "expressSelfEligibilityEligible" to trace.expressSelfEligibilityEligible,
+        "expressSelfEligibilityMode" to trace.expressSelfEligibilityMode,
+        "expressSelfEligibilityBlockReason" to trace.expressSelfEligibilityBlockReason,
         "cloudAttempted" to trace.apiCalled,
         "panelShown" to (trace.panelShown || trace.panelAttached),
+        "userFacingMessage" to trace.userFacingMessage,
         "activePackageAtClick" to trace.activePackageBeforeClick,
         "activeWindowTitleAtClick" to trace.activeWindowTitleAtClick,
         "rootAvailableAtClick" to trace.rootAvailableAtClick,

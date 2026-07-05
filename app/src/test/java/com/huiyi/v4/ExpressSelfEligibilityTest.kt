@@ -178,6 +178,31 @@ class ExpressSelfEligibilityTest {
         assertEquals("WINDOW_IS_DESKTOP_OR_LAUNCHER", eligibility?.blockedReason)
     }
 
+    @Test
+    fun V4161BugFixtureBlocksHuaweiDesktopLastMeRoutesTest() {
+        val result = engine().expressSelf(
+            request(
+                appPackage = "com.xiaoenai.app",
+                windowTitle = "\u534e\u4e3a\u684c\u9762",
+                targetAppSupported = false,
+                currentAppPackage = "com.huawei.android.launcher",
+                currentWindowTitleRedacted = "\u534e\u4e3a\u684c\u9762",
+                messages = recentLastMeMessages(),
+                lastUserMessageAgeMsOverride = 20_000L
+            )
+        )
+
+        assertEquals(false, result.expressSelfEligibility?.targetAppSupported)
+        assertEquals("\u534e\u4e3a\u684c\u9762", result.expressSelfEligibility?.currentWindowTitleRedacted)
+        assertEquals(Speaker.ME, result.expressSelfEligibility?.lastSpeaker)
+        assertEquals(false, result.expressSelfEligibility?.shouldReply)
+        assertEquals(false, result.expressSelfEligibility?.eligible)
+        assertEquals(false, result.routes.isNotEmpty())
+        assertNotEquals(TacticalDecisionType.NORMAL_REPLY, result.tacticalDecisionType)
+        assertEquals(0, result.routes.size)
+        assertEquals(false, result.cloudRefreshRecommended)
+    }
+
     private fun engine() = DynamicPlaybookEngine()
 
     private fun request(

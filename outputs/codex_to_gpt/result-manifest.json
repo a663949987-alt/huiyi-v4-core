@@ -1,10 +1,10 @@
 ﻿{
-    "taskName":  "express_self_eligibility_and_hold_back_fix",
+    "taskName":  "expressSelfEligibility_and_hold_back_fix",
     "versionName":  "4.1.62",
     "versionCode":  481,
-    "currentOverallResult":  "LOCAL_TEST_PASS_APK_GENERATED",
-    "generatedAt":  "2026-07-05T17:22:15.7804225+08:00",
-    "userNeedsPhoneThisRound":  true,
+    "currentOverallResult":  "EXPRESS_SELF_ELIGIBILITY_EMULATOR_PASS",
+    "generatedAt":  "2026-07-05T17:33:56+08:00",
+    "userNeedsPhoneThisRound":  false,
     "apkPath":  "outputs/update_server/huiyi-v4.1.62-debug.apk",
     "apkSha256":  "4355D08810DBE1B176FE754C0E946F82FD4297E2F097758056DBD5BA1F6C6247",
     "lanUpdateAvailable":  true,
@@ -16,11 +16,18 @@
     "coldStartAllowedAfterLongInactive":  true,
     "planningWindowArcRevealAllowed":  true,
     "v4161BugFixtureFixed":  true,
+    "emulatorDetected":  true,
+    "emulatorSerial":  "emulator-5554",
+    "expressSelfUnsupportedBlocked":  true,
+    "expressSelfRecentLastMeHoldBack":  true,
+    "expressSelfColdStartAllowed":  true,
+    "expressSelfPlanningArcReveal":  true,
     "tests":  {
                   "ExpressSelfEligibilityTest":  "PASS",
                   "DynamicPlaybookEngineTest":  "PASS",
                   "ExpressSelfUiLoopTest":  "PASS",
                   "assembleDebug":  "PASS",
-                  "fullAppUnitTests":  "PASS"
+                  "fullAppUnitTests":  "PASS",
+                  "emulatorExpressSelfEligibilitySmoke":  "PASS"
               }
 }

@@ -1,0 +1,50 @@
+﻿{
+    "taskName":  "expressSelfEligibility_and_hold_back_fix",
+    "versionName":  "4.1.62",
+    "versionCode":  481,
+    "generatedAt":  "2026-07-05T17:33:56",
+    "emulatorDetected":  true,
+    "emulatorSerial":  "emulator-5554",
+    "huiyiInstalled":  true,
+    "mockchatInstalled":  true,
+    "accessibilityEnabled":  true,
+    "overlayPermissionGranted":  true,
+    "unitTestsResult":  "PASS",
+    "fixtureTestsResult":  "PASS",
+    "expressSelfUnsupportedBlocked":  true,
+    "expressSelfRecentLastMeHoldBack":  true,
+    "expressSelfColdStartAllowed":  true,
+    "expressSelfPlanningArcReveal":  true,
+    "v4161BugFixtureFixed":  true,
+    "coldStartAssertionSource":  "ENGINE_FIXTURE_LONG_INACTIVE",
+    "lastMe":  {
+                   "terminalState":  "HOLD_BACK_PANEL",
+                   "decisionType":  "HOLD_BACK",
+                   "routeCount":  0,
+                   "cloudAttempted":  false,
+                   "expressSelfEligibilityMode":  "BLOCK_RECENT_LAST_ME",
+                   "expressSelfEligibilityEligible":  false
+               },
+    "lastOther":  {
+                      "terminalState":  "EXPRESS_SELF_PANEL",
+                      "decisionType":  "NORMAL_REPLY",
+                      "routeCount":  5,
+                      "cloudAttempted":  false,
+                      "routeTypesCsv":  "WARM_UP,SELF_STORY,ARC_REVEAL,CO_CREATION,COOL_DOWN",
+                      "expressSelfEligibilityMode":  "ALLOW_EXPRESS_SELF",
+                      "expressSelfEligibilityEligible":  true
+                  },
+    "desktop":  {
+                    "terminalState":  "CONTROLLED_FAIL_PANEL",
+                    "decisionType":  "PRE_ANALYSIS_CONTAMINATED",
+                    "routeCount":  0,
+                    "cloudAttempted":  false,
+                    "expressSelfEligibilityMode":  "BLOCK_UNTRUSTED_SNAPSHOT",
+                    "expressSelfEligibilityEligible":  false
+                },
+    "screenshotsPath":  "C:\\Users\\fbjdf\\Documents\\Codex\\2026-07-02\\new-chat-3\\outputs\\gpt_review_inbox\\express_self_eligibility_emulator_smoke",
+    "logcatPath":  "C:\\Users\\fbjdf\\Documents\\Codex\\2026-07-02\\new-chat-3\\outputs\\gpt_review_inbox\\express_self_eligibility_emulator_smoke\\express_self_eligibility_logcat.txt",
+    "userNeedsPhoneThisRound":  false,
+    "finalOverallResult":  "PASS",
+    "reason":  "EXPRESS_SELF_ELIGIBILITY_EMULATOR_AND_FIXTURE_PASS"
+}
