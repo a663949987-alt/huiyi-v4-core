@@ -4,6 +4,6 @@
     "apkUrl":  "huiyi-v4.1.62-debug.apk",
     "releaseNotes":  "v4.1.62: Express Self eligibility gate; blocks unsupported/desktop/untrusted/recent LAST_ME, shows HOLD_BACK, no active routes/cloud when blocked.",
     "forceUpdate":  false,
-    "sha256":  "4355D08810DBE1B176FE754C0E946F82FD4297E2F097758056DBD5BA1F6C6247",
-    "createdAt":  1783243143257
+    "sha256":  "1F1903263E4485FCA87A4251505D23E9432AECC8166D90FE22BFF88FBD38F10D",
+    "createdAt":  1783264233967
 }

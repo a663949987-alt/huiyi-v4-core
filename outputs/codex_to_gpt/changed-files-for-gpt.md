@@ -9,5 +9,8 @@
 - outputs/gpt_review_inbox/express_self_eligibility_emulator_smoke/
 - outputs/gpt_review_inbox/README_FOR_GPT.md
 - outputs/gpt_review_inbox/gpt-review-manifest.json
+- outputs/gpt_review_inbox/express-self-eligibility-report-for-gpt.md
+- outputs/gpt_review_inbox/express-self-eligibility-report.json
 - outputs/codex_to_gpt/README_FOR_GPT.md
 - outputs/codex_to_gpt/result-manifest.json
+- outputs/update_server/latest.json
