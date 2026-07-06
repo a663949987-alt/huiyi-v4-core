@@ -1,19 +1,25 @@
 {
-  "taskStatus": "COMPLETED",
-  "project": "Huiyi v4",
   "taskName": "dynamic_playbook_instant_cache_cloud_refresh_smoke",
   "versionName": "4.1.62",
   "versionCode": 481,
-  "createdBy": "User",
-  "userNeedsPhoneThisRound": false,
-  "realDeviceRequiredThisRound": false,
+  "generatedAt": "2026-07-06T08:00:23+08:00",
   "currentOverallResult": "DYNAMIC_PLAYBOOK_FULL_EMULATOR_PASS",
+  "userNeedsPhoneThisRound": false,
+  "emulatorDetected": true,
+  "emulatorSerial": "emulator-5554",
+  "huiyiInstalled": true,
+  "mockchatInstalled": true,
+  "accessibilityEnabled": true,
+  "overlayPermissionGranted": true,
   "nextSentenceReadsPlaybookPassiveNext": true,
   "passiveNextLatencyMs": 300,
   "passiveRoutesChinese": true,
+  "passiveFirstRouteCount": 5,
+  "passiveFirstSource": "LOCAL_PLAYBOOK_FALLBACK_PASSIVE_NEXT",
   "expressSelfReadsPlaybookActiveExpression": true,
   "activeExpressionLatencyMs": 300,
   "activeRoutesChinese": true,
+  "activeExpressionRouteCount": 3,
   "activeExpressionContainsArcReveal": true,
   "cloudRefreshBackgroundNonBlocking": true,
   "cloudRefreshAttempted": true,
@@ -22,12 +28,23 @@
   "playbookCacheUpdatedFromCloud": true,
   "nextClickReadsCloudEnhancedPlaybook": true,
   "staleCloudRefreshDiscarded": true,
+  "staleDiscardReason": "CHAT_KEY_CHANGED",
   "lastMeWaitPass": true,
-  "requiredReports": [
-    "outputs/gpt_review_inbox/dynamic-playbook-full-emulator-smoke-for-gpt.md",
-    "outputs/gpt_review_inbox/dynamic-playbook-full-emulator-smoke.json",
+  "lastMeCloudAttempted": false,
+  "lastMeRouteCount": 0,
+  "unitTests": {
+    "DynamicPlaybookEngineTest": "PASS",
+    "RealUsePackageAcceptanceTest": "PASS",
+    "ExpressSelfUiLoopTest": "PASS"
+  },
+  "build": {
+    "assembleDebug": "PASS",
+    "mockchatAssembleDebug": "PASS"
+  },
+  "reports": [
     "outputs/gpt_review_inbox/dynamic-playbook-emulator-smoke-for-gpt.md",
+    "outputs/gpt_review_inbox/dynamic-playbook-emulator-smoke-report.json",
     "outputs/gpt_review_inbox/dynamic-playbook-cloud-refresh-emulator-smoke-for-gpt.md",
-    "outputs/codex_to_gpt/result-manifest.json"
+    "outputs/gpt_review_inbox/dynamic-playbook-cloud-refresh-emulator-smoke.json"
   ]
 }

@@ -1,16 +1,18 @@
 # Changed Files For GPT
 
-- app/src/main/java/com/huiyi/v4/domain/pipeline/NextSentenceDiagnostics.kt
-- app/src/main/java/com/huiyi/v4/runtime/HuiyiRuntime.kt
-- app/src/test/java/com/huiyi/v4/ExpressSelfEligibilityTest.kt
-- scripts/run-emulator-express-self-eligibility-smoke.ps1
-- outputs/gpt_review_inbox/express-self-eligibility-emulator-smoke-for-gpt.md
-- outputs/gpt_review_inbox/express-self-eligibility-emulator-smoke.json
-- outputs/gpt_review_inbox/express_self_eligibility_emulator_smoke/
+- scripts/run-emulator-dynamic-playbook-smoke.ps1
+- scripts/run-emulator-dynamic-playbook-cloud-refresh-smoke.ps1
+- outputs/gpt_review_inbox/dynamic-playbook-full-emulator-smoke-for-gpt.md
+- outputs/gpt_review_inbox/dynamic-playbook-full-emulator-smoke.json
+- outputs/gpt_review_inbox/dynamic-playbook-emulator-smoke-for-gpt.md
+- outputs/gpt_review_inbox/dynamic-playbook-emulator-smoke-report.json
+- outputs/gpt_review_inbox/dynamic_playbook_emulator_smoke/
+- outputs/gpt_review_inbox/dynamic-playbook-cloud-refresh-emulator-smoke-for-gpt.md
+- outputs/gpt_review_inbox/dynamic-playbook-cloud-refresh-emulator-smoke.json
+- outputs/gpt_review_inbox/dynamic_playbook_cloud_refresh_emulator_smoke/
 - outputs/gpt_review_inbox/README_FOR_GPT.md
 - outputs/gpt_review_inbox/gpt-review-manifest.json
-- outputs/gpt_review_inbox/express-self-eligibility-report-for-gpt.md
-- outputs/gpt_review_inbox/express-self-eligibility-report.json
 - outputs/codex_to_gpt/README_FOR_GPT.md
 - outputs/codex_to_gpt/result-manifest.json
-- outputs/update_server/latest.json
+- outputs/gpt_to_codex/current-task.md
+- outputs/gpt_to_codex/current-task.json

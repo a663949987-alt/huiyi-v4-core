@@ -229,8 +229,8 @@ function Write-Reports($data) {
 # Dynamic Playbook Emulator Smoke Report
 
 - taskName: real_use_package_next_sentence_express_self_playbook
-- versionName: 4.1.61
-- versionCode: 480
+- versionName: 4.1.62
+- versionCode: 481
 - emulatorDetected: $($data.emulatorDetected)
 - emulatorSerial: $emulatorSerial
 - huiyiInstalled: $($data.huiyiInstalled)
@@ -266,8 +266,8 @@ function Write-Reports($data) {
 
     $realUse = [ordered]@{
         taskName = "real_use_package_next_sentence_express_self_playbook"
-        versionName = "4.1.61"
-        versionCode = 480
+        versionName = "4.1.62"
+        versionCode = 481
         emulatorDetected = $data.emulatorDetected
         emulatorSerial = $data.emulatorSerial
         huiyiInstalled = $data.huiyiInstalled
@@ -298,8 +298,8 @@ function Write-Reports($data) {
 # Real Use Emulator Smoke Report
 
 - taskName: real_use_package_next_sentence_express_self_playbook
-- versionName: 4.1.61
-- versionCode: 480
+- versionName: 4.1.62
+- versionCode: 481
 - emulatorDetected: $($realUse.emulatorDetected)
 - emulatorSerial: $($realUse.emulatorSerial)
 - huiyiInstalled: $($realUse.huiyiInstalled)
@@ -335,8 +335,8 @@ $serial = if ($serialMatch) { $serialMatch.Matches.Groups[1].Value } else { "" }
 
 $data = [ordered]@{
     taskName = "real_use_package_next_sentence_express_self_playbook"
-    versionName = "4.1.61"
-    versionCode = 480
+    versionName = "4.1.62"
+    versionCode = 481
     emulatorDetected = [bool]$serial
     emulatorSerial = $serial
     huiyiInstalled = $false

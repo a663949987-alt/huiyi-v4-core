@@ -2,30 +2,27 @@
 
 taskStatus: COMPLETED
 project: Huiyi v4
-taskName: late_cloud_result_return_after_soft_timeout_fix
-versionName: 4.1.56
-versionCode: 475
+taskName: dynamic_playbook_instant_cache_cloud_refresh_smoke
+versionName: 4.1.62
+versionCode: 481
 createdBy: User
-userNeedsPhoneThisRound: true
-realDeviceRequiredThisRound: true
-
-## Problem
-- User observed relay token consumption but no cloud result returned to the phone.
-- Latest phone feedback was version 4.1.52.
-- The trace showed cloudAttempted=true, cloudErrorCode=SOFT_TIMEOUT_PENDING, and decisionSource=LOCAL_FALLBACK.
-- Emulator reproduced a late cloud result being discarded with reason FOREGROUND_PACKAGE_CHANGED.
+userNeedsPhoneThisRound: false
+realDeviceRequiredThisRound: false
 
 ## Goals
-- Keep late cloud success alive after soft timeout.
-- Surface late cloud failure or contract failure back to runtime/report.
-- Do not discard valid late cloud result just because the panel was hidden.
-- Do not discard valid late cloud result on foreground package drift when session, snapshot, package, and window hash still match.
-- Preserve stale-session, snapshot, package, window hash, and contamination safety guards.
+
+- Next Sentence reads PlaybookCache.passiveNext and returns Chinese passive routes within 1 second.
+- Express Self reads PlaybookCache.activeExpression and returns Chinese character-arc/co-create routes within 1 second.
+- Cloud refresh runs in the background and does not block button output.
+- Emulator runs full dynamic playbook smoke before phone testing.
 
 ## Result
-- currentOverallResult: EMULATOR_LATE_CLOUD_PASS_LAN_APK_READY
+
+- currentOverallResult: DYNAMIC_PLAYBOOK_FULL_EMULATOR_PASS
 - unitTests: PASS
 - assembleDebug: PASS
-- emulatorLateCloudSmokeResult: PASS
-- LAN update: outputs/update_server/huiyi-v4.1.56-debug.apk
-- apkSha256: A48E30DEF6FB77F80CFAF14C2871B81C84494A5B4497B9BCF07211FED458B4B3
+- mockchatAssembleDebug: PASS
+- emulatorDynamicPlaybookInstantSmoke: PASS
+- emulatorDynamicPlaybookCloudRefreshSmoke: PASS
+- userNeedsPhoneThisRound: false
+- primaryReport: outputs/gpt_review_inbox/dynamic-playbook-full-emulator-smoke-for-gpt.md

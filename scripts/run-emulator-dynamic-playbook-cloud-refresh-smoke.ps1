@@ -236,8 +236,8 @@ function Write-Reports($data) {
 # Dynamic Playbook + Cloud Refresh Emulator Smoke
 
 - taskName: dynamic_playbook_cloud_refresh_emulator_smoke
-- versionName: 4.1.61
-- versionCode: 480
+- versionName: 4.1.62
+- versionCode: 481
 - generatedAt: $($data.generatedAt)
 - emulatorDetected: $($data.emulatorDetected)
 - emulatorSerial: $($data.emulatorSerial)
@@ -275,8 +275,8 @@ function Write-Reports($data) {
 
 $data = [ordered]@{
     taskName = "dynamic_playbook_cloud_refresh_emulator_smoke"
-    versionName = "4.1.61"
-    versionCode = 480
+    versionName = "4.1.62"
+    versionCode = 481
     generatedAt = (Get-Date).ToString("o")
     emulatorDetected = $false
     emulatorSerial = $null

@@ -1,9 +1,9 @@
 ﻿# Dynamic Playbook + Cloud Refresh Emulator Smoke
 
 - taskName: dynamic_playbook_cloud_refresh_emulator_smoke
-- versionName: 4.1.61
-- versionCode: 480
-- generatedAt: 2026-07-05T16:33:23.2822788+08:00
+- versionName: 4.1.62
+- versionCode: 481
+- generatedAt: 2026-07-06T08:00:23.4926862+08:00
 - emulatorDetected: True
 - emulatorSerial: emulator-5554
 - huiyiInstalled: True

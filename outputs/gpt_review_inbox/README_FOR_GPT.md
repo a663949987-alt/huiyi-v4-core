@@ -1,11 +1,11 @@
 ﻿# Huiyi v4 GPT Review Inbox
 
 ## Current Task
-- taskName: expressSelfEligibility_and_hold_back_fix
+- taskName: dynamic_playbook_instant_cache_cloud_refresh_smoke
 - versionName: 4.1.62
 - versionCode: 481
-- currentOverallResult: EXPRESS_SELF_ELIGIBILITY_EMULATOR_PASS
-- generatedAt: 2026-07-05T17:33:56+08:00
+- currentOverallResult: DYNAMIC_PLAYBOOK_FULL_EMULATOR_PASS
+- generatedAt: 2026-07-06T08:00:23+08:00
 - userNeedsPhoneThisRound: false
 - userTestScope: no real phone test this round
 
@@ -18,18 +18,20 @@
 - updateManifest: outputs/update_server/latest.json
 
 ## Fix Summary
-- Express Self now has an eligibility gate before showing active routes.
-- Unsupported app / desktop / Huiyi panel / untrusted LAST_STABLE snapshot are blocked.
-- Recent LAST_ME enters HOLD_BACK instead of NORMAL_REPLY / ROUTE_PANEL.
-- Blocked Express Self has routeCount=0, routePanelShown=false, cloudAttempted=false.
-- One-tap feedback includes expressSelfEligibility fields for GPT review.
-- Emulator smoke ran on emulator-5554 and passed LAST_ME hold-back, LAST_OTHER ARC_REVEAL, and launcher/desktop block.
-- Cold-start long inactive is fixture-verified because emulator UI time travel is not available in MockChat.
+- 下一句 reads PlaybookCache.passiveNext and returns Chinese passive routes within 1 second.
+- 表达我 reads PlaybookCache.activeExpression and returns Chinese character-arc/co-create routes within 1 second.
+- Cloud refresh is background-only and does not block button output.
+- Emulator smoke ran on emulator-5554 and passed instant local path plus cloud refresh path.
+- Cloud refresh success updates PlaybookCache; next click reads CLOUD_ENHANCED_PLAYBOOK.
+- Stale cloud refresh is discarded when chatKey changes.
+- LAST_ME remains WAIT and skips cloud.
 
 ## GPT Should Inspect
-1. outputs/gpt_review_inbox/express-self-eligibility-emulator-smoke-for-gpt.md
-2. outputs/gpt_review_inbox/express-self-eligibility-emulator-smoke.json
-3. outputs/gpt_review_inbox/express-self-eligibility-report-for-gpt.md
-4. outputs/gpt_review_inbox/express-self-eligibility-report.json
-5. outputs/update_server/latest.json
-6. outputs/codex_to_gpt/result-manifest.json
+1. outputs/gpt_review_inbox/dynamic-playbook-full-emulator-smoke-for-gpt.md
+2. outputs/gpt_review_inbox/dynamic-playbook-full-emulator-smoke.json
+3. outputs/gpt_review_inbox/dynamic-playbook-emulator-smoke-for-gpt.md
+4. outputs/gpt_review_inbox/dynamic-playbook-emulator-smoke-report.json
+5. outputs/gpt_review_inbox/dynamic-playbook-cloud-refresh-emulator-smoke-for-gpt.md
+6. outputs/gpt_review_inbox/dynamic-playbook-cloud-refresh-emulator-smoke.json
+7. outputs/update_server/latest.json
+8. outputs/codex_to_gpt/result-manifest.json

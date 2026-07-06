@@ -1,8 +1,8 @@
 ﻿# Real Use Emulator Smoke Report
 
 - taskName: real_use_package_next_sentence_express_self_playbook
-- versionName: 4.1.61
-- versionCode: 480
+- versionName: 4.1.62
+- versionCode: 481
 - emulatorDetected: True
 - emulatorSerial: emulator-5554
 - huiyiInstalled: True
