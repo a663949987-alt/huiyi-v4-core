@@ -1,20 +1,21 @@
 # Codex to GPT Result
 
-- taskName: xiaoenai_window_title_branch_fix_before_phone
-- versionName: 4.1.67
-- versionCode: 486
-- currentOverallResult: XIAOENAI_WINDOW_BRANCH_FIX_LOCAL_PASS
+- taskName: xiaoenai_profile_generic_trial_before_phone
+- versionName: 4.1.68
+- versionCode: 487
+- currentOverallResult: XIAOENAI_GENERIC_TRIAL_FIXTURE_PASS
 - userNeedsPhoneThisRound: false
 - realDeviceSmokeResult: NOT_TESTED_THIS_ROUND
-- xiaoenaiNormalChatBranch: PASS
-- xiaoenaiNormalActual: ALLOW_GENERIC_TRIAL
-- staleHuaweiDesktopTitleIgnoredWhenCurrentPackageXiaoenai: true
-- huaweiDesktopBranch: PASS
-- huaweiDesktopActual: BLOCK_UNTRUSTED_SNAPSHOT
-- launcherPackageStillBlocks: true
+- XIAOENAI_NORMAL_CHAT_LAST_OTHER: PASS
+- XIAOENAI_NORMAL_CHAT_EXPRESS_SELF_PLANNING: PASS
+- XIAOENAI_DESKTOP_BLOCK: PASS
+- XIAOENAI_DESKTOP_LAST_STABLE_SNAPSHOT_BLOCK: PASS
+- XIAOENAI_LOW_CONFIDENCE_BLOCK: PASS
+- windowTitleHuaweiDesktopResult: BLOCK_UNTRUSTED_SNAPSHOT
+- windowTitleXiaoenaiResult: ALLOW_GENERIC_TRIAL
+- lastStableSnapshotContinuesAnalysisOnDesktop: false
 - targetedBranchTests: PASS
 - unitTests: PASS
 - assembleDebug: PASS
-- emulatorSmokeResult: NOT_RUN_FIXTURE_BRANCH_COVERAGE_USED
-- primaryReport: outputs/gpt_review_inbox/xiaoenai-window-branch-report-for-gpt.md
-- reportJson: outputs/gpt_review_inbox/xiaoenai-window-branch-report.json
+- primaryReport: outputs/gpt_review_inbox/xiaoenai-profile-generic-trial-report-for-gpt.md
+- reportJson: outputs/gpt_review_inbox/xiaoenai-profile-generic-trial-report.json

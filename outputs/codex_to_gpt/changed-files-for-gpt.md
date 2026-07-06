@@ -5,8 +5,8 @@
 - app/src/test/java/com/huiyi/v4/ExpressSelfEligibilityTest.kt
 - outputs/gpt_review_inbox/README_FOR_GPT.md
 - outputs/gpt_review_inbox/gpt-review-manifest.json
-- outputs/gpt_review_inbox/xiaoenai-window-branch-report-for-gpt.md
-- outputs/gpt_review_inbox/xiaoenai-window-branch-report.json
+- outputs/gpt_review_inbox/xiaoenai-profile-generic-trial-report-for-gpt.md
+- outputs/gpt_review_inbox/xiaoenai-profile-generic-trial-report.json
 - outputs/codex_to_gpt/README_FOR_GPT.md
 - outputs/codex_to_gpt/result-manifest.json
 - outputs/codex_to_gpt/changed-files-for-gpt.md
@@ -15,8 +15,9 @@
 
 ## Not Part Of This Change
 
-- No LightChatStateStore rewrite.
+- No cloud behavior change.
+- No character arc change.
 - No parser rewrite.
 - No session-state rewrite.
-- No new phone testing request.
+- No phone testing request.
 - No APK committed to public GitHub.

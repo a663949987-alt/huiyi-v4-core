@@ -222,16 +222,18 @@ class ExpressSelfEligibilityEvaluator {
         fun isDesktopOrPanelWindow(title: String?, packageName: String?): Boolean {
             val joined = listOfNotNull(title, packageName).joinToString(" ")
             if (joined.isBlank()) return false
-            val packageLooksLikeLauncher = packageName.orEmpty().contains("launcher", ignoreCase = true)
+            val titleText = title.orEmpty()
+            val packageText = packageName.orEmpty()
+            val packageLooksLikeLauncher = packageText.contains("launcher", ignoreCase = true) ||
+                packageText.equals("com.huawei.android.launcher", ignoreCase = true)
             val desktopMarkers = listOf(
                 "\u534e\u4e3a\u684c\u9762",
                 "\u684c\u9762",
                 "Launcher",
-                "launcher",
-                "com.huawei.android.launcher"
+                "launcher"
             )
             if (packageLooksLikeLauncher) return true
-            if (packageName.isNullOrBlank() && desktopMarkers.any { joined.contains(it, ignoreCase = true) }) {
+            if (desktopMarkers.any { titleText.contains(it, ignoreCase = true) }) {
                 return true
             }
             val ownPanelMarkers = listOf(
@@ -256,8 +258,7 @@ class ExpressSelfEligibilityEvaluator {
             if (request.appPackage != "com.xiaoenai.app") return false
             if (isDesktopOrPanelWindow(currentWindowTitle, currentPackage)) return false
             val titleLooksLikeXiaoenai = currentWindowTitle?.contains("\u5c0f\u6069\u7231", ignoreCase = true) == true
-            val packageLooksLikeXiaoenai = currentPackage == "com.xiaoenai.app"
-            if (!titleLooksLikeXiaoenai && !packageLooksLikeXiaoenai) return false
+            if (!titleLooksLikeXiaoenai) return false
             if (effectiveCount < GENERIC_TRIAL_MIN_EFFECTIVE_MESSAGES) return false
             return parserConfidence >= GENERIC_TRIAL_MIN_CONFIDENCE
         }

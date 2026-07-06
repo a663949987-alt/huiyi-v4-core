@@ -306,7 +306,7 @@ class ExpressSelfEligibilityTest {
     }
 
     @Test
-    fun V4166_XIAOENAI_NORMAL_CHAT_IGNORES_STALE_HUAWEI_DESKTOP_TITLE() {
+    fun XIAOENAI_DESKTOP_BLOCK() {
         val result = engine().expressSelf(
             request(
                 appPackage = "com.xiaoenai.app",
@@ -319,11 +319,33 @@ class ExpressSelfEligibilityTest {
             )
         )
 
-        assertEquals(true, result.expressSelfEligibility?.eligible)
-        assertEquals(ExpressSelfEligibilityMode.ALLOW_GENERIC_TRIAL, result.expressSelfEligibility?.mode)
-        assertEquals("GENERIC_TRIAL", result.expressSelfEligibility?.source)
-        assertEquals("com.xiaoenai.app", result.expressSelfEligibility?.currentAppPackage)
-        assertTrue(result.routes.isNotEmpty())
+        assertBlocked(result)
+        assertEquals(ExpressSelfEligibilityMode.BLOCK_UNTRUSTED_SNAPSHOT, result.expressSelfEligibility?.mode)
+        assertEquals(ExpressSelfBlockReason.WINDOW_IS_DESKTOP_OR_LAUNCHER, result.expressSelfEligibility?.blockReason)
+        assertEquals(0, result.routes.size)
+        assertFalse(result.cloudRefreshRecommended)
+    }
+
+    @Test
+    fun XIAOENAI_DESKTOP_LAST_STABLE_SNAPSHOT_DOES_NOT_ANALYZE() {
+        val result = engine().expressSelf(
+            request(
+                appPackage = "com.xiaoenai.app",
+                windowTitle = "\u534e\u4e3a\u684c\u9762",
+                currentAppPackage = "com.xiaoenai.app",
+                currentWindowTitleRedacted = "\u534e\u4e3a\u684c\u9762",
+                targetAppSupported = false,
+                parserConfidence = 82,
+                preAnalysisSnapshotSource = "LAST_STABLE_CHAT_SNAPSHOT_BEFORE_PANEL",
+                messages = stableXiaoenaiPlanningMessages()
+            )
+        )
+
+        assertBlocked(result)
+        assertEquals(ExpressSelfEligibilityMode.BLOCK_UNTRUSTED_SNAPSHOT, result.expressSelfEligibility?.mode)
+        assertEquals(ExpressSelfBlockReason.WINDOW_IS_DESKTOP_OR_LAUNCHER, result.expressSelfEligibility?.blockReason)
+        assertEquals(0, result.routes.size)
+        assertFalse(result.cloudRefreshRecommended)
     }
 
     @Test
@@ -343,6 +365,47 @@ class ExpressSelfEligibilityTest {
         assertBlocked(result)
         assertEquals(ExpressSelfEligibilityMode.BLOCK_UNTRUSTED_SNAPSHOT, result.expressSelfEligibility?.mode)
         assertEquals(ExpressSelfBlockReason.WINDOW_IS_DESKTOP_OR_LAUNCHER, result.expressSelfEligibility?.blockReason)
+    }
+
+    @Test
+    fun XIAOENAI_NORMAL_CHAT_LAST_OTHER_NEXT_SENTENCE_GENERIC_TRIAL_READY() {
+        val result = engine().nextSentence(
+            request(
+                appPackage = "com.xiaoenai.app",
+                windowTitle = "\u5c0f\u6069\u7231",
+                currentAppPackage = "com.xiaoenai.app",
+                currentWindowTitleRedacted = "\u5c0f\u6069\u7231",
+                targetAppSupported = false,
+                parserConfidence = 82,
+                messages = stableXiaoenaiPlanningMessages()
+            )
+        )
+
+        assertEquals(Speaker.OTHER, result.lastSpeakerDecision.lastSpeaker)
+        assertEquals(TacticalDecisionType.PASSIVE_NOT_READY, result.tacticalDecisionType)
+        assertTrue(result.passiveWaitPanelShown)
+        assertTrue(result.cloudRefreshRecommended)
+        assertEquals(0, result.routes.size)
+    }
+
+    @Test
+    fun XIAOENAI_NORMAL_CHAT_EXPRESS_SELF_PLANNING_GENERIC_TRIAL() {
+        val result = engine().expressSelf(
+            request(
+                appPackage = "com.xiaoenai.app",
+                windowTitle = "\u5c0f\u6069\u7231",
+                currentAppPackage = "com.xiaoenai.app",
+                currentWindowTitleRedacted = "\u5c0f\u6069\u7231",
+                targetAppSupported = false,
+                parserConfidence = 82,
+                messages = stableXiaoenaiPlanningMessages()
+            )
+        )
+
+        assertEquals(true, result.expressSelfEligibility?.eligible)
+        assertEquals(ExpressSelfEligibilityMode.ALLOW_GENERIC_TRIAL, result.expressSelfEligibility?.mode)
+        assertEquals("GENERIC_TRIAL", result.expressSelfEligibility?.source)
+        assertTrue(result.routes.isNotEmpty())
     }
 
     private fun engine() = DynamicPlaybookEngine()
