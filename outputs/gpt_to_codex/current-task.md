@@ -2,29 +2,25 @@
 
 taskStatus: COMPLETED
 project: Huiyi v4
-taskName: no_local_passive_routes_and_express_self_simplify
-versionName: 4.1.64
-versionCode: 483
+taskName: real_use_v4165_package_delivery
+versionName: 4.1.65
+versionCode: 484
 createdBy: User
-userNeedsPhoneThisRound: false
-realDeviceRequiredThisRound: false
+userNeedsPhoneThisRound: true
+realDeviceRequiredThisRound: true
 
 ## Goals
 
-- Disable local passive routes in 下一句.
-- Show passive wait panel when cloud/cache playbook is not ready.
-- Keep LAST_ME local WAIT.
-- Simplify 表达我 panel and collapse feedback by default.
-- Stabilize repeat clicks on 表达我.
-- Add 小恩爱 Generic Trial support.
+- Generate v4.1.65 combined real-use package.
+- Include v4.1.63 dynamic playbook combined package.
+- Include v4.1.64 no local passive routes, passive wait panel, simplified Express Self, stable repeat click, and Xiaoenai Generic Trial.
+- Update LAN latest.json to v4.1.65 / 484.
 
 ## Result
 
-- currentOverallResult: EMULATOR_PASS_NO_PHONE_REQUIRED
-- emulatorSmoke: PASS
-- nextSentenceCloudOnly: true
-- passiveWaitPanelShown: true
-- localPassiveRoutesShownToUser: false
-- expressSelfSimpleMode: true
-- expressSelfRepeatClickStable: true
-- primaryReport: outputs/gpt_review_inbox/passive-active-ux-cleanup-report-for-gpt.md
+- currentOverallResult: READY_FOR_PHONE_TEST_PRIVATE_LAN_APK
+- apkPath: outputs/update_server/huiyi-v4.1.65-debug.apk
+- apkCommittedToPublicGithub: false
+- privateApkContainsRelayConfig: true
+- latestJsonUpdated: true
+- primaryReport: outputs/gpt_review_inbox/real-use-v4165-package-report-for-gpt.md

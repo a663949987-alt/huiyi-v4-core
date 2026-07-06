@@ -1,22 +1,19 @@
-# Huiyi v4 GPT Review Inbox
+# Real Use v4.1.65 Package Report
 
-## Current Task
+## Basic Info
 
 - taskName: real_use_v4165_package_delivery
 - versionName: 4.1.65
 - versionCode: 484
+- generatedAt: 2026-07-06T10:09:16+08:00
 - currentOverallResult: READY_FOR_PHONE_TEST_PRIVATE_LAN_APK
 - userNeedsPhoneThisRound: true
-- realDeviceSmokeResult: PENDING_USER_TEST
-
-## Why This Round Exists
-
-v4.1.64 emulator validation passed, but `outputs/update_server/latest.json` still pointed to v4.1.63 / 482. This round only fixes the delivery package and LAN update manifest.
 
 ## Package
 
 - apkGenerated: true
 - apkPath: outputs/update_server/huiyi-v4.1.65-debug.apk
+- apkSizeBytes: 31547567
 - apkSha256: E9339A2B8E1C7B0B15DF33E4EEDA25A7E403EF4707F1D222066CCBFD61BE4139
 - apkDeliveredOutOfBand: true
 - apkCommittedToPublicGithub: false
@@ -37,27 +34,29 @@ v4.1.64 emulator validation passed, but `outputs/update_server/latest.json` stil
 - expressSelfRepeatClickStable: true
 - xiaoenaiGenericTrial: true
 
-## Primary Reports
+## Previous Validation Carried Into This Package
 
-1. outputs/gpt_review_inbox/real-use-v4165-package-report-for-gpt.md
-2. outputs/gpt_review_inbox/real-use-v4165-package-report.json
-3. outputs/gpt_review_inbox/passive-active-ux-cleanup-report-for-gpt.md
-4. outputs/gpt_review_inbox/passive-active-ux-cleanup-emulator-smoke-for-gpt.md
-
-## Verification Summary
-
-- assembleDebug: PASS
-- latestJsonPointsToExistingApk: true
-- secretScanResult: PRIVATE_RELAY_KEY_PRESENT_IN_APK_NOT_COMMITTED_TO_PUBLIC_GITHUB
 - v4164EmulatorSmoke: PASS
 - nextSentenceCloudOnly: true
 - passiveWaitPanelShown: true
 - localPassiveRoutesShownToUser: false
-- expressSelfSimpleMode: true
-- expressSelfRepeatClickStable: true
+- expressSelfFeedbackCollapsed: true
+- xiaoenaiHandled: GENERIC_TRIAL
 
-## User Action
+## Build Verification
 
-- userNeedsPhoneThisRound: true
-- User can update through LAN and test this package.
-- The APK is intentionally not committed to public GitHub because it contains private relay configuration.
+- assembleDebug: PASS
+- apkCopiedToUpdateServer: true
+- latestJsonPointsToExistingApk: true
+- secretScanResult: PRIVATE_RELAY_KEY_PRESENT_IN_APK_NOT_COMMITTED_TO_PUBLIC_GITHUB
+
+## User Test Scope
+
+User can now phone-test this round after updating through LAN. The APK is intentionally not committed to public GitHub because it contains private relay configuration.
+
+Expected behavior:
+- 下一句 LAST_OTHER with no cloud/cache verified playbook: show passive wait panel, no local fallback routes.
+- 下一句 LAST_ME: show wait message.
+- 表达我: simplified panel, at most 3 default routes, feedback collapsed by default.
+- 表达我 repeated click: stable result reuse.
+- 小恩爱: handled as Generic Trial when snapshot is stable.

@@ -1,17 +1,22 @@
 # Codex to GPT Result
 
-- taskName: no_local_passive_routes_and_express_self_simplify
-- versionName: 4.1.64
-- versionCode: 483
-- currentOverallResult: EMULATOR_PASS_NO_PHONE_REQUIRED
-- userNeedsPhoneThisRound: false
-- primaryReport: outputs/gpt_review_inbox/passive-active-ux-cleanup-report-for-gpt.md
-- reportJson: outputs/gpt_review_inbox/passive-active-ux-cleanup-report.json
-- emulatorSmokeReport: outputs/gpt_review_inbox/passive-active-ux-cleanup-emulator-smoke-for-gpt.md
-- emulatorSmokeJson: outputs/gpt_review_inbox/passive-active-ux-cleanup-emulator-smoke.json
-- nextSentenceCloudOnly: true
-- passiveWaitPanelShown: true
-- localPassiveRoutesShownToUser: false
+- taskName: real_use_v4165_package_delivery
+- versionName: 4.1.65
+- versionCode: 484
+- currentOverallResult: READY_FOR_PHONE_TEST_PRIVATE_LAN_APK
+- userNeedsPhoneThisRound: true
+- primaryReport: outputs/gpt_review_inbox/real-use-v4165-package-report-for-gpt.md
+- reportJson: outputs/gpt_review_inbox/real-use-v4165-package-report.json
+- apkPath: outputs/update_server/huiyi-v4.1.65-debug.apk
+- apkSha256: E9339A2B8E1C7B0B15DF33E4EEDA25A7E403EF4707F1D222066CCBFD61BE4139
+- apkDeliveredOutOfBand: true
+- apkCommittedToPublicGithub: false
+- privateApkContainsRelayConfig: true
+- lanUpdateAvailable: true
+- updateManifest: outputs/update_server/latest.json
+- latestJsonUpdated: true
+- noLocalPassiveRoutes: true
+- passiveWaitPanel: true
 - expressSelfSimpleMode: true
 - expressSelfRepeatClickStable: true
-- xiaoenaiHandled: GENERIC_TRIAL
+- xiaoenaiGenericTrial: true
