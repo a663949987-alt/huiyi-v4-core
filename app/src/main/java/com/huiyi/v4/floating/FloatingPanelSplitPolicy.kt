@@ -14,20 +14,21 @@ object FloatingPanelSplitPolicy {
     val personaFeedbackLabels = listOf("像我", "不像我", "太油", "太重", "太空", "太像汇报", "可发")
     val characterArcDetailLabels = listOf("人物弧光", "本轮动作", "这句话展示了你的哪一面", "不要说过头")
 
-    fun showsPersonaFeedback(mode: FloatingPanelMode): Boolean = mode == FloatingPanelMode.EXPRESS_SELF
+    fun showsPersonaFeedback(mode: FloatingPanelMode): Boolean = false
 
-    fun showsCharacterArcDetails(mode: FloatingPanelMode): Boolean = mode == FloatingPanelMode.EXPRESS_SELF
+    fun showsCharacterArcDetails(mode: FloatingPanelMode): Boolean = false
 
     fun showsExpressSelfEntry(mode: FloatingPanelMode): Boolean = mode == FloatingPanelMode.NEXT_SENTENCE
 
-    fun blocksLocalRoutesWhileCloudPending(mode: FloatingPanelMode): Boolean = false
+    fun blocksLocalRoutesWhileCloudPending(mode: FloatingPanelMode): Boolean = mode == FloatingPanelMode.NEXT_SENTENCE
 
     fun titleForNextSentence(cloudTrace: CloudAnalysisTrace?): String {
         val waitingForCloud = cloudTrace?.cloudErrorCode == NextSentencePendingCloudSessionPolicy.SOFT_TIMEOUT_PENDING
         return when {
             cloudTrace?.decisionSource == "CLOUD" -> "会意云端分析"
-            waitingForCloud -> "本地建议"
-            else -> "本地建议"
+            cloudTrace?.decisionSource == "CLOUD_ENHANCED_PLAYBOOK" -> "会意云端分析"
+            waitingForCloud -> "先等一下"
+            else -> "先等一下"
         }
     }
 }

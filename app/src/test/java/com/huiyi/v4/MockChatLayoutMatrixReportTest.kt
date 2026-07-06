@@ -110,7 +110,10 @@ class MockChatLayoutMatrixReportTest {
             MatrixScenario.LAST_OTHER -> when {
                 result.lastSpeakerDecision.lastSpeaker != Speaker.OTHER -> "last_other did not end on OTHER"
                 result.tacticalDecision.decisionType == TacticalDecisionType.WAIT -> "last_other became WAIT"
-                result.routes.size != 5 -> "last_other did not generate 5 routes"
+                result.tacticalDecision.decisionType != TacticalDecisionType.PASSIVE_NOT_READY -> "last_other did not wait for cloud playbook"
+                result.routes.isNotEmpty() -> "last_other exposed local passive routes"
+                result.localPassiveRoutesShownToUser -> "last_other showed local passive routes to user"
+                !result.passiveWaitPanelShown -> "last_other did not show passive wait panel"
                 else -> null
             }
             MatrixScenario.METADATA_TRAP -> when {
@@ -141,8 +144,9 @@ class MockChatLayoutMatrixReportTest {
                 }
             }
             MatrixScenario.LOW_EXPRESSION -> when {
-                result.tacticalDecision.decisionType != TacticalDecisionType.BOUNDARY_RESPECT -> "low_expression forced deep chat"
-                result.routes.size != 5 -> "low_expression should still provide low-pressure routes"
+                result.lastSpeakerDecision.lastSpeaker != Speaker.OTHER -> "low_expression did not end on OTHER"
+                result.tacticalDecision.decisionType != TacticalDecisionType.PASSIVE_NOT_READY -> "low_expression did not wait for cloud playbook"
+                result.routes.isNotEmpty() -> "low_expression exposed local passive routes"
                 else -> null
             }
             MatrixScenario.LONG_MULTILINE -> when {
@@ -159,13 +163,17 @@ class MockChatLayoutMatrixReportTest {
             MatrixScenario.UNKNOWN_BOUNDS -> when {
                 messages.none { it.speaker == Speaker.UNKNOWN && it.speakerReason == "ambiguous_center_bounds" } -> "unknown bubble was not UNKNOWN"
                 result.routes.isNotEmpty() -> "unknown_bounds generated routes"
-                result.tacticalDecision.decisionType != TacticalDecisionType.CONTEXT_REQUIRED -> "unknown_bounds did not block high confidence"
+                result.tacticalDecision.decisionType !in setOf(
+                    TacticalDecisionType.CONTEXT_REQUIRED,
+                    TacticalDecisionType.PASSIVE_NOT_READY
+                ) -> "unknown_bounds did not block high confidence"
                 else -> null
             }
             MatrixScenario.TIME_AT_BOTTOM -> when {
                 messages.filter { it.metadataType != MetadataType.UI_CONTROL }.lastOrNull()?.metadataType != MetadataType.TIME -> "bottom chat-area element is not time metadata"
                 result.lastSpeakerDecision.lastSpeaker != Speaker.OTHER -> "bottom time polluted LastSpeakerDecision"
-                result.routes.size != 5 -> "time_at_bottom did not keep last effective OTHER routes"
+                result.tacticalDecision.decisionType != TacticalDecisionType.PASSIVE_NOT_READY -> "time_at_bottom did not wait for cloud playbook"
+                result.routes.isNotEmpty() -> "time_at_bottom exposed local passive routes"
                 else -> null
             }
         }

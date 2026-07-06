@@ -339,6 +339,17 @@ fun FloatingTacticalPanel(
         if (decision.decisionType == TacticalDecisionType.CONTEXT_REQUIRED) {
             item { ContextRequiredCard(decision.coreInsight) }
         }
+        if (decision.decisionType == TacticalDecisionType.PASSIVE_NOT_READY) {
+            item {
+                Card(modifier = Modifier.fillMaxWidth()) {
+                    Column(Modifier.padding(14.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                        Text("先等一下")
+                        Text("会意还在看这段局面，暂时不建议硬回。")
+                        Text("云端预案还没准备好，先别急着发。")
+                    }
+                }
+            }
+        }
         item {
             Text("会意雷达")
             Spacer(Modifier.height(8.dp))
@@ -388,12 +399,12 @@ fun FloatingTacticalPanel(
                 }
             }
         } else {
-            items(routes) { route ->
+            items(if (expressSelfMode) routes.take(3) else routes) { route ->
                 ReplyRouteCard(
                     runtime = runtime,
                     route = route,
-                    showCharacterArcDetails = expressSelfMode,
-                    showPersonaFeedback = expressSelfMode
+                    showCharacterArcDetails = false,
+                    showPersonaFeedback = false
                 )
             }
         }

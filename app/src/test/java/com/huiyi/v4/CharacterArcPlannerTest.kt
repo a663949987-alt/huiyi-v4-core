@@ -155,7 +155,7 @@ class CharacterArcPlannerTest {
         assertNotNull(state.suggestedArcCard)
         assertFalse(FloatingPanelSplitPolicy.showsCharacterArcDetails(FloatingPanelMode.NEXT_SENTENCE))
         assertFalse(FloatingPanelSplitPolicy.showsPersonaFeedback(FloatingPanelMode.NEXT_SENTENCE))
-        assertTrue(FloatingPanelSplitPolicy.showsCharacterArcDetails(FloatingPanelMode.EXPRESS_SELF))
+        assertFalse(FloatingPanelSplitPolicy.showsCharacterArcDetails(FloatingPanelMode.EXPRESS_SELF))
     }
 
     private fun lightMessage(

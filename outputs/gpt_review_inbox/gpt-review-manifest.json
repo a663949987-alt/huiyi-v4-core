@@ -1,24 +1,44 @@
 {
   "project": "huiyi-v4",
-  "phoneBundleIncluded": true,
-  "oneTapFeedbackIncluded": true,
-  "uploadedFromPhone": true,
-  "latestPhoneUploadAt": "2026-07-06T00:46:15.657842+00:00",
-  "latestPhoneSessionId": "7a2e7fdc-9823-4f5b-8485-3c3b9ff2f93c",
-  "githubCommitHash": "6d87fb80362619754b6cf60bf040e6c088dd9619",
-  "githubReviewPath": "outputs/gpt_review_inbox/phone/latest/",
-  "realDeviceTested": true,
-  "latestPhoneConclusion": {
-    "sessionId": "7a2e7fdc-9823-4f5b-8485-3c3b9ff2f93c",
-    "terminalState": "CONTROLLED_FAIL_PANEL",
-    "appPackage": "com.xiaoenai.app",
-    "actualLastSpeaker": "ME",
-    "decisionType": "PRE_ANALYSIS_CONTAMINATED",
-    "routeCount": 0,
-    "waitPanelShown": false,
-    "routePanelShown": false,
-    "errorCode": "",
-    "userMarkedWrong": true,
-    "userCorrectionLastSpeaker": "NONE"
-  }
+  "taskName": "no_local_passive_routes_and_express_self_simplify",
+  "versionName": "4.1.64",
+  "versionCode": 483,
+  "currentOverallResult": "EMULATOR_PASS_NO_PHONE_REQUIRED",
+  "generatedAt": "2026-07-06T09:39:26+08:00",
+  "userNeedsPhoneThisRound": false,
+  "realDeviceSmokeResult": "NOT_REQUIRED_THIS_ROUND",
+  "unitTests": "PASS",
+  "emulatorSmoke": "PASS",
+  "nextSentenceCloudOnly": true,
+  "passiveWaitPanelShown": true,
+  "localPassiveRoutesShownToUser": false,
+  "expressSelfSimpleMode": true,
+  "expressSelfRepeatClickStable": true,
+  "xiaoenaiHandled": "GENERIC_TRIAL",
+  "files": [
+    {
+      "path": "outputs/gpt_review_inbox/passive-active-ux-cleanup-report-for-gpt.md",
+      "type": "report",
+      "sendToGpt": true,
+      "description": "Main v4.1.64 passive/active UX cleanup report"
+    },
+    {
+      "path": "outputs/gpt_review_inbox/passive-active-ux-cleanup-report.json",
+      "type": "json",
+      "sendToGpt": true,
+      "description": "Machine-readable v4.1.64 cleanup report"
+    },
+    {
+      "path": "outputs/gpt_review_inbox/passive-active-ux-cleanup-emulator-smoke-for-gpt.md",
+      "type": "report",
+      "sendToGpt": true,
+      "description": "Emulator smoke evidence"
+    },
+    {
+      "path": "outputs/gpt_review_inbox/passive-active-ux-cleanup-emulator-smoke.json",
+      "type": "json",
+      "sendToGpt": true,
+      "description": "Machine-readable emulator smoke evidence"
+    }
+  ]
 }

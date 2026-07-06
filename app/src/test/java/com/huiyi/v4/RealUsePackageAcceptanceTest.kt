@@ -56,7 +56,7 @@ class RealUsePackageAcceptanceTest {
     }
 
     @Test
-    fun NextSentenceLastOtherShowsChinesePassiveRoutesWithoutPersonaFeedbackTest() {
+    fun NextSentenceLastOtherDoesNotExposeLocalPassiveRoutesTest() {
         val result = DynamicPlaybookEngine().nextSentence(
             request(
                 messages = listOf(
@@ -66,8 +66,12 @@ class RealUsePackageAcceptanceTest {
             )
         )
 
-        assertTrue(result.routes.size in 3..5)
-        assertChineseRoutes(result.routes)
+        assertEquals(TacticalDecisionType.PASSIVE_NOT_READY, result.tacticalDecisionType)
+        assertTrue(result.routes.isEmpty())
+        assertTrue(result.localPassiveRoutesGenerated)
+        assertFalse(result.localPassiveRoutesShownToUser)
+        assertTrue(result.passiveWaitPanelShown)
+        assertEquals("PASSIVE_WAIT_FOR_CLOUD_PLAYBOOK", result.decisionSource)
         assertTrue(result.routes.none { it.routeType == ReplyRouteType.ARC_REVEAL })
         assertFalse(FloatingPanelSplitPolicy.showsPersonaFeedback(FloatingPanelMode.NEXT_SENTENCE))
         assertFalse(FloatingPanelSplitPolicy.showsCharacterArcDetails(FloatingPanelMode.NEXT_SENTENCE))
@@ -86,15 +90,18 @@ class RealUsePackageAcceptanceTest {
         )
         val summary = RoutePanelDisplayText.expressSelfSummaryLines(result.arcProgressState, result.routes)
 
-        assertTrue(result.routes.size in 3..5)
+        assertTrue(result.routes.size in 1..3)
         assertChineseRoutes(result.routes)
+        assertTrue(result.expressSelfPanelSimpleMode)
+        assertFalse(result.expressSelfFeedbackDefaultVisible)
+        assertTrue(result.expressSelfFeedbackCollapsed)
+        assertTrue(result.expressSelfDefaultRouteCount <= 3)
         assertTrue(summary.any { it.startsWith("\u8868\u8fbe\u6a21\u5f0f\uff1a") })
         assertTrue(summary.any { it.startsWith("\u5f53\u524d\u6bcd\u9898\uff1a") })
         assertTrue(summary.any { it.startsWith("\u4e3a\u4ec0\u4e48\u8fd9\u6b21\u53ef\u4ee5\u8bf4\uff1a") })
         assertTrue(summary.any { it.startsWith("\u8fd9\u6b21\u522b\u600e\u4e48\u8bf4\uff1a") })
         assertTrue(result.routes.any { it.routeType == ReplyRouteType.ARC_REVEAL })
         assertTrue(result.routes.any { it.routeType == ReplyRouteType.SELF_STORY })
-        assertTrue(result.routes.any { it.routeType == ReplyRouteType.CO_CREATION })
     }
 
     @Test
@@ -131,7 +138,11 @@ class RealUsePackageAcceptanceTest {
             val next = engine.nextSentence(request(messages = messages, expressionLedger = ledger))
             val express = engine.expressSelf(request(messages = messages, expressionLedger = ledger))
             englishLeakCount += englishLeakCount(next.routes + express.routes)
-            if (next.tacticalDecisionType == TacticalDecisionType.WAIT || next.routes.size in 3..5) nextSentencePassCount += 1
+            if (
+                next.tacticalDecisionType == TacticalDecisionType.WAIT ||
+                next.tacticalDecisionType == TacticalDecisionType.PASSIVE_NOT_READY ||
+                next.routes.size in 3..5
+            ) nextSentencePassCount += 1
             if (express.routes.size in 1..5 || express.expressSelfEligibility?.eligible == false) expressSelfPassCount += 1
             if (express.routes.any { it.routeType == ReplyRouteType.ARC_REVEAL }) arcRevealScenarioPassCount += 1
             if (express.nextMoveType.name == "WITHDRAW") holdBackScenarioPassCount += 1

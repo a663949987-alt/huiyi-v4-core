@@ -13,6 +13,7 @@ class ReplyRouteGenerator {
     fun generate(context: ChatSceneContext, decision: TacticalDecision): List<ReplyRoute> {
         val base = when (decision.decisionType) {
             TacticalDecisionType.WAIT -> waitRoutes()
+            TacticalDecisionType.PASSIVE_NOT_READY -> emptyList()
             TacticalDecisionType.VOICE_SUMMARY_REQUIRED -> voiceRoutes()
             TacticalDecisionType.CONTEXT_REQUIRED -> contextRoutes()
             TacticalDecisionType.BOUNDARY_RESPECT,

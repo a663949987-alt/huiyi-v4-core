@@ -1,29 +1,30 @@
-﻿# GPT -> Codex Current Task
+# GPT -> Codex Current Task
 
 taskStatus: COMPLETED
 project: Huiyi v4
-taskName: real_use_dynamic_playbook_express_self_combined_package
-versionName: 4.1.63
-versionCode: 482
+taskName: no_local_passive_routes_and_express_self_simplify
+versionName: 4.1.64
+versionCode: 483
 createdBy: User
-userNeedsPhoneThisRound: true
-realDeviceRequiredThisRound: true
+userNeedsPhoneThisRound: false
+realDeviceRequiredThisRound: false
 
 ## Goals
 
-- Resolve the 4.1.62 version conflict by shipping 4.1.63 / 482.
-- Combine expressSelfEligibility / HOLD_BACK with dynamic Playbook instant cache.
-- Keep cloud refresh in the background and discard stale refresh results.
+- Disable local passive routes in 下一句.
+- Show passive wait panel when cloud/cache playbook is not ready.
 - Keep LAST_ME local WAIT.
-- Keep 下一句 / 表达我 as separate buttons.
-- Publish the local LAN update package.
+- Simplify 表达我 panel and collapse feedback by default.
+- Stabilize repeat clicks on 表达我.
+- Add 小恩爱 Generic Trial support.
 
 ## Result
 
-- currentOverallResult: READY_FOR_REAL_DEVICE_TEST
-- dynamicPlaybookFullEmulatorSmoke: PASS
-- expressSelfEligibilityEmulatorSmoke: PASS
-- versionConflictResolved: true
-- apkPath: outputs/update_server/huiyi-v4.1.63-debug.apk
-- userNeedsPhoneThisRound: true
-- primaryReport: outputs/gpt_review_inbox/real-use-combined-package-report-for-gpt.md
+- currentOverallResult: EMULATOR_PASS_NO_PHONE_REQUIRED
+- emulatorSmoke: PASS
+- nextSentenceCloudOnly: true
+- passiveWaitPanelShown: true
+- localPassiveRoutesShownToUser: false
+- expressSelfSimpleMode: true
+- expressSelfRepeatClickStable: true
+- primaryReport: outputs/gpt_review_inbox/passive-active-ux-cleanup-report-for-gpt.md

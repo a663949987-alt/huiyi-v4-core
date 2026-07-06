@@ -141,10 +141,11 @@ class CloudAnalysisMvpSafetyGateTest {
     fun LastOtherCloudTimeoutFallsBackToLocalTest() = runTest {
         val result = pipeline(lastOtherMessages(), FakeCloudService(error = CloudAnalysisException("TIMEOUT"))).run(emptyPersona()).getOrThrow()
 
-        assertEquals("LOCAL_FALLBACK", result.cloudTrace.decisionSource)
-        assertTrue(result.cloudTrace.cloudFallbackUsed)
+        assertEquals("PASSIVE_WAIT_FOR_CLOUD_PLAYBOOK", result.cloudTrace.decisionSource)
+        assertFalse(result.cloudTrace.cloudFallbackUsed)
         assertEquals("TIMEOUT", result.cloudTrace.cloudErrorCode)
-        assertEquals(5, result.routes.size)
+        assertEquals(TacticalDecisionType.PASSIVE_NOT_READY, result.tacticalDecision.decisionType)
+        assertEquals(0, result.routes.size)
         assertFalse(result.apiCalled)
     }
 
@@ -168,12 +169,13 @@ class CloudAnalysisMvpSafetyGateTest {
             advanceTimeBy(60L)
             val initialResult = pipelineRun.await()
 
-            assertEquals("LOCAL_FALLBACK", initialResult.cloudTrace.decisionSource)
+            assertEquals("PASSIVE_WAIT_FOR_CLOUD_PLAYBOOK", initialResult.cloudTrace.decisionSource)
             assertEquals("SOFT_TIMEOUT_PENDING", initialResult.cloudTrace.cloudErrorCode)
             assertEquals("PENDING", initialResult.cloudTrace.cloudContractValidationResult)
             assertTrue(initialResult.cloudTrace.cloudRequestActuallySent)
             assertTrue(initialResult.cloudTrace.apiCalled)
-            assertEquals(5, initialResult.routes.size)
+            assertEquals(TacticalDecisionType.PASSIVE_NOT_READY, initialResult.tacticalDecision.decisionType)
+            assertEquals(0, initialResult.routes.size)
             assertEquals(0, lateResults.size)
 
             cloud.completeSuccess()
@@ -219,11 +221,11 @@ class CloudAnalysisMvpSafetyGateTest {
 
             assertEquals(1, lateResults.size)
             assertEquals("late-failure-session", lateResults.single().sessionId)
-            assertEquals("LOCAL_FALLBACK", lateResults.single().trace.decisionSource)
-            assertTrue(lateResults.single().trace.cloudFallbackUsed)
+            assertEquals("PASSIVE_WAIT_FOR_CLOUD_PLAYBOOK", lateResults.single().trace.decisionSource)
+            assertFalse(lateResults.single().trace.cloudFallbackUsed)
             assertEquals("CLOUD_CONTRACT_VIOLATION", lateResults.single().trace.cloudErrorCode)
             assertEquals("FAIL", lateResults.single().trace.cloudContractValidationResult)
-            assertEquals(5, lateResults.single().routes.size)
+            assertEquals(0, lateResults.single().routes.size)
         } finally {
             lateScope.cancel()
         }
@@ -233,22 +235,24 @@ class CloudAnalysisMvpSafetyGateTest {
     fun CloudSchemaInvalidFallsBackToLocalTest() = runTest {
         val result = pipeline(lastOtherMessages(), FakeCloudService(error = CloudAnalysisException("CLOUD_SCHEMA_INVALID"))).run(emptyPersona()).getOrThrow()
 
-        assertEquals("LOCAL_FALLBACK", result.cloudTrace.decisionSource)
-        assertTrue(result.cloudTrace.cloudFallbackUsed)
+        assertEquals("PASSIVE_WAIT_FOR_CLOUD_PLAYBOOK", result.cloudTrace.decisionSource)
+        assertFalse(result.cloudTrace.cloudFallbackUsed)
         assertEquals("CLOUD_SCHEMA_INVALID", result.cloudTrace.cloudErrorCode)
         assertEquals("FAIL", result.cloudTrace.cloudContractValidationResult)
-        assertEquals(5, result.routes.size)
+        assertEquals(TacticalDecisionType.PASSIVE_NOT_READY, result.tacticalDecision.decisionType)
+        assertEquals(0, result.routes.size)
     }
 
     @Test
     fun CloudContractViolationFallsBackToLocalTest() = runTest {
         val result = pipeline(lastOtherMessages(), FakeCloudService(error = CloudAnalysisException("CLOUD_CONTRACT_VIOLATION"))).run(emptyPersona()).getOrThrow()
 
-        assertEquals("LOCAL_FALLBACK", result.cloudTrace.decisionSource)
-        assertTrue(result.cloudTrace.cloudFallbackUsed)
+        assertEquals("PASSIVE_WAIT_FOR_CLOUD_PLAYBOOK", result.cloudTrace.decisionSource)
+        assertFalse(result.cloudTrace.cloudFallbackUsed)
         assertEquals("CLOUD_CONTRACT_VIOLATION", result.cloudTrace.cloudErrorCode)
         assertEquals("FAIL", result.cloudTrace.cloudContractValidationResult)
-        assertEquals(5, result.routes.size)
+        assertEquals(TacticalDecisionType.PASSIVE_NOT_READY, result.tacticalDecision.decisionType)
+        assertEquals(0, result.routes.size)
     }
 
     @Test
@@ -256,9 +260,10 @@ class CloudAnalysisMvpSafetyGateTest {
         val result = pipeline(lastOtherMessages(), FakeCloudService(CloudAnalysisConfig(cloudEnabled = false, endpoint = ""))).run(emptyPersona()).getOrThrow()
 
         assertEquals("CLOUD_NOT_CONFIGURED", result.cloudTrace.cloudSkippedReason)
-        assertEquals("LOCAL_FALLBACK", result.cloudTrace.decisionSource)
+        assertEquals("PASSIVE_WAIT_FOR_CLOUD_PLAYBOOK", result.cloudTrace.decisionSource)
         assertFalse(result.cloudTrace.cloudAttempted)
-        assertEquals(5, result.routes.size)
+        assertEquals(TacticalDecisionType.PASSIVE_NOT_READY, result.tacticalDecision.decisionType)
+        assertEquals(0, result.routes.size)
     }
 
     @Test
@@ -269,10 +274,11 @@ class CloudAnalysisMvpSafetyGateTest {
         ).run(emptyPersona()).getOrThrow()
 
         assertEquals("RELAY_API_KEY_MISSING", result.cloudTrace.cloudSkippedReason)
-        assertEquals("LOCAL_FALLBACK", result.cloudTrace.decisionSource)
+        assertEquals("PASSIVE_WAIT_FOR_CLOUD_PLAYBOOK", result.cloudTrace.decisionSource)
         assertFalse(result.cloudTrace.cloudAttempted)
         assertFalse(result.cloudTrace.relayApiKeyConfigured)
-        assertEquals(5, result.routes.size)
+        assertEquals(TacticalDecisionType.PASSIVE_NOT_READY, result.tacticalDecision.decisionType)
+        assertEquals(0, result.routes.size)
     }
 
     @Test
@@ -308,10 +314,11 @@ class CloudAnalysisMvpSafetyGateTest {
             )
         ).run(emptyPersona()).getOrThrow()
 
-        assertEquals("LOCAL_FALLBACK", result.cloudTrace.decisionSource)
-        assertTrue(result.cloudTrace.cloudFallbackUsed)
+        assertEquals("PASSIVE_WAIT_FOR_CLOUD_PLAYBOOK", result.cloudTrace.decisionSource)
+        assertFalse(result.cloudTrace.cloudFallbackUsed)
         assertEquals("CLOUD_SCHEMA_INVALID", result.cloudTrace.cloudErrorCode)
-        assertEquals(5, result.routes.size)
+        assertEquals(TacticalDecisionType.PASSIVE_NOT_READY, result.tacticalDecision.decisionType)
+        assertEquals(0, result.routes.size)
     }
 
     @Test
@@ -322,7 +329,8 @@ class CloudAnalysisMvpSafetyGateTest {
         assertEquals("RELAY_API_KEY_INSECURE_STORAGE", result.cloudTrace.cloudSkippedReason)
         assertFalse(result.cloudTrace.cloudAttempted)
         assertEquals(0, cloud.callCount)
-        assertEquals(5, result.routes.size)
+        assertEquals(TacticalDecisionType.PASSIVE_NOT_READY, result.tacticalDecision.decisionType)
+        assertEquals(0, result.routes.size)
     }
 
     @Test
@@ -343,7 +351,7 @@ class CloudAnalysisMvpSafetyGateTest {
 
         assertFalse(result.cloudTrace.cloudAttempted)
         assertEquals("UNSUPPORTED_APP", result.cloudTrace.cloudSkippedReason)
-        assertEquals("LOCAL_FALLBACK", result.cloudTrace.decisionSource)
+        assertEquals("PASSIVE_WAIT_FOR_CLOUD_PLAYBOOK", result.cloudTrace.decisionSource)
         assertEquals(0, cloud.callCount)
     }
 
@@ -377,13 +385,13 @@ class CloudAnalysisMvpSafetyGateTest {
         ).run(emptyPersona()).getOrThrow()
 
         assertEquals(Speaker.OTHER, result.lastSpeakerDecision.lastSpeaker)
-        assertEquals("LOCAL_FALLBACK", result.cloudTrace.decisionSource)
+        assertEquals("PASSIVE_WAIT_FOR_CLOUD_PLAYBOOK", result.cloudTrace.decisionSource)
         assertTrue(result.cloudTrace.cloudAttempted)
-        assertTrue(result.cloudTrace.cloudFallbackUsed)
+        assertFalse(result.cloudTrace.cloudFallbackUsed)
         assertEquals("TIMEOUT", result.cloudTrace.cloudErrorCode)
         assertTrue(result.cloudTrace.cloudNetworkFailureVisibleToUser)
-        assertEquals(TacticalDecisionType.NORMAL_REPLY, result.tacticalDecision.decisionType)
-        assertEquals(5, result.routes.size)
+        assertEquals(TacticalDecisionType.PASSIVE_NOT_READY, result.tacticalDecision.decisionType)
+        assertEquals(0, result.routes.size)
         assertEquals(1, cloud.callCount)
     }
 
@@ -666,9 +674,9 @@ class CloudAnalysisMvpSafetyGateTest {
     fun CloudFailureDoesNotShowGenericAnalysisFailedTest() = runTest {
         val result = pipeline(lastOtherMessages(), FakeCloudService(error = CloudAnalysisException("NETWORK"))).run(emptyPersona()).getOrThrow()
 
-        assertEquals("LOCAL_FALLBACK", result.cloudTrace.decisionSource)
-        assertEquals(5, result.routes.size)
-        assertEquals(TacticalDecisionType.NORMAL_REPLY, result.tacticalDecision.decisionType)
+        assertEquals("PASSIVE_WAIT_FOR_CLOUD_PLAYBOOK", result.cloudTrace.decisionSource)
+        assertEquals(0, result.routes.size)
+        assertEquals(TacticalDecisionType.PASSIVE_NOT_READY, result.tacticalDecision.decisionType)
     }
 
     @Test
@@ -733,12 +741,13 @@ class CloudAnalysisMvpSafetyGateTest {
             FakeCloudService(error = CloudAnalysisException("NETWORK", likelyCause = "DNS_FAILED", requestActuallySent = true))
         ).run(emptyPersona()).getOrThrow()
 
-        assertEquals("LOCAL_FALLBACK", result.cloudTrace.decisionSource)
+        assertEquals("PASSIVE_WAIT_FOR_CLOUD_PLAYBOOK", result.cloudTrace.decisionSource)
         assertEquals("NETWORK", result.cloudTrace.cloudErrorCode)
         assertTrue(result.cloudTrace.cloudNetworkFailureVisibleToUser)
         assertTrue(result.cloudTrace.cloudRequestActuallySent)
         assertEquals("DNS_FAILED", result.cloudTrace.cloudFailureLikelyCause)
-        assertEquals(5, result.routes.size)
+        assertEquals(0, result.routes.size)
+        assertEquals(TacticalDecisionType.PASSIVE_NOT_READY, result.tacticalDecision.decisionType)
     }
 
     @Test

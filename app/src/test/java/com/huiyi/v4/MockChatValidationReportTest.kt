@@ -114,7 +114,10 @@ class MockChatValidationReportTest {
             MockChatScenario.LAST_OTHER ->
                 result.lastSpeakerDecision.lastSpeaker == Speaker.OTHER &&
                     result.lastSpeakerDecision.shouldReply &&
-                    result.routes.size == 5
+                    result.tacticalDecision.decisionType == TacticalDecisionType.PASSIVE_NOT_READY &&
+                    result.routes.isEmpty() &&
+                    !result.localPassiveRoutesShownToUser &&
+                    result.passiveWaitPanelShown
 
             MockChatScenario.METADATA_TRAP ->
                 metadata.any { it.metadataType == MetadataType.HEADER } &&
@@ -132,13 +135,17 @@ class MockChatValidationReportTest {
 
             MockChatScenario.UNKNOWN_BOUNDS ->
                 messages.any { it.speaker == Speaker.UNKNOWN && it.speakerReason == "ambiguous_center_bounds" } &&
-                    result.tacticalDecision.decisionType == TacticalDecisionType.CONTEXT_REQUIRED &&
+                    result.tacticalDecision.decisionType in setOf(
+                        TacticalDecisionType.CONTEXT_REQUIRED,
+                        TacticalDecisionType.PASSIVE_NOT_READY
+                    ) &&
                     result.routes.isEmpty()
 
             MockChatScenario.LOW_EXPRESSION ->
-                result.tacticalDecision.decisionType == TacticalDecisionType.BOUNDARY_RESPECT &&
-                    result.tacticalDecision.influenceProfile.intensity.name == "LOW" &&
-                    result.routes.any { it.message.contains("先忙") || it.message.contains("吃点东西") || it.message.contains("晚点") }
+                result.lastSpeakerDecision.lastSpeaker == Speaker.OTHER &&
+                    result.tacticalDecision.decisionType == TacticalDecisionType.PASSIVE_NOT_READY &&
+                    result.routes.isEmpty() &&
+                    !result.localPassiveRoutesShownToUser
         }
     }
 

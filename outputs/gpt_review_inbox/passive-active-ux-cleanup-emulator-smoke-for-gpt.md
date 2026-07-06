@@ -1,0 +1,33 @@
+﻿# Passive Active UX Cleanup Emulator Smoke
+
+- taskName: no_local_passive_routes_and_express_self_simplify
+- versionName: 4.1.64
+- versionCode: 483
+- emulatorDetected: True
+- emulatorSerial: emulator-5554
+- huiyiInstalled: True
+- mockchatInstalled: True
+- accessibilityEnabled: True
+- overlayPermissionGranted: True
+- overlayWindowVisible: True
+- nextSentenceCloudOnly: True
+- passiveWaitPanelShown: True
+- nextSentenceTerminalState: PASSIVE_WAIT_PANEL
+- nextSentenceDecisionType: PASSIVE_NOT_READY
+- nextSentenceRouteCount: 0
+- localPassiveRoutesShownToUser: False
+- nextSentenceHasNoPersonaFeedback: True
+- expressSelfSimpleMode: True
+- expressSelfFeedbackCollapsedByDefault: True
+- expressSelfDefaultRouteCountMaxThree: True
+- expressSelfFirstTerminalState: EXPRESS_SELF_PANEL
+- expressSelfFirstRouteCount: 3
+- expressSelfRepeatTerminalState: EXPRESS_SELF_PANEL
+- expressSelfRepeatRouteCount: 3
+- expressSelfRepeatClickStable: True
+- xiaoenaiHandled: GENERIC_TRIAL_UNIT_TEST_PASS
+- assertionSource: DIRECT_FLOATING_SERVICE_ACTION_AND_UI_XML
+- screenshotsPath: outputs/gpt_review_inbox/passive_active_ux_cleanup_emulator_smoke
+- logcatPath: outputs/gpt_review_inbox/passive_active_ux_cleanup_emulator_smoke/passive_active_ux_cleanup_logcat.txt
+- overallResult: PASS
+- reason: EMULATOR_UI_SMOKE_PASS

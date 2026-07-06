@@ -99,16 +99,22 @@ class FloatingResultPanelController(
                 container.addView(text("你已经回过了，先等对方。"))
                 addNextSentenceFooter(container)
             }
+            TacticalDecisionType.PASSIVE_NOT_READY -> {
+                container.addView(titleText("先等一下"))
+                container.addView(text("会意还在看这段局面，暂时不建议硬回。"))
+                container.addView(smallText("云端预案还没准备好，先别急着发。"))
+                addNextSentenceFooter(container)
+            }
             else -> {
                 val waitingForCloud = result?.cloudTrace?.cloudErrorCode == NextSentencePendingCloudSessionPolicy.SOFT_TIMEOUT_PENDING
                 container.addView(titleText(FloatingPanelSplitPolicy.titleForNextSentence(result?.cloudTrace)))
                 cloudStatusLine(result)?.let { container.addView(smallText(it)) }
                 if (routes.isEmpty()) {
-                    if (waitingForCloud) {
-                        container.addView(text("本地建议正在准备，云端回来会自动刷新。"))
+                    container.addView(text(if (waitingForCloud) {
+                        "会意还在看这段局面，云端回来会自动刷新。"
                     } else {
-                        container.addView(text("这次还没拿到可用回复，请点一下聊天窗口后再试。"))
-                    }
+                        "云端预案还没准备好，先别急着发。"
+                    }))
                 } else {
                     addReplyChoices(
                         container = container,
@@ -224,7 +230,8 @@ class FloatingResultPanelController(
     ) {
         val showCharacterArcDetails = FloatingPanelSplitPolicy.showsCharacterArcDetails(mode)
         val showPersonaFeedback = FloatingPanelSplitPolicy.showsPersonaFeedback(mode)
-        routes.take(5).forEachIndexed { index, route ->
+        val limit = if (mode == FloatingPanelMode.EXPRESS_SELF) 3 else 5
+        routes.take(limit).forEachIndexed { index, route ->
             val label = if (mode == FloatingPanelMode.NEXT_SENTENCE) {
                 passiveRouteHeader(route, index)
             } else {
@@ -378,13 +385,14 @@ class FloatingResultPanelController(
         if (cloud.cloudErrorCode == NextSentencePendingCloudSessionPolicy.SOFT_TIMEOUT_PENDING) {
             return "云端还在后台等，回来会自动刷新。"
         }
-        if (cloud.cloudErrorCode == "NETWORK") return "云端连接不稳，先给你本地备选。"
+        if (cloud.cloudErrorCode == "NETWORK") return "云端连接不稳，先别急着发。"
         return when {
             cloud.decisionSource == "CLOUD" -> null
-            cloud.cloudFallbackUsed -> "云端暂不可用，先给你本地备选。"
+            cloud.decisionSource == "CLOUD_ENHANCED_PLAYBOOK" -> null
+            cloud.cloudFallbackUsed -> "云端暂不可用，先等一下。"
             cloud.cloudSkippedReason == "CLOUD_NOT_CONFIGURED" ||
                 cloud.cloudSkippedReason == "RELAY_API_KEY_MISSING" ||
-                cloud.cloudSkippedReason == "RELAY_API_KEY_INSECURE_STORAGE" -> "云端未就绪，先给你本地备选。"
+                cloud.cloudSkippedReason == "RELAY_API_KEY_INSECURE_STORAGE" -> "云端未就绪，先别急着发。"
             else -> null
         }
     }

@@ -306,15 +306,16 @@ class PreconfiguredCloudRealUseMvpTest {
         ).run(emptyPersona()).getOrThrow()
 
         assertEquals(2, client.callCount)
-        assertEquals("LOCAL_FALLBACK", result.cloudTrace.decisionSource)
-        assertTrue(result.cloudTrace.cloudFallbackUsed)
+        assertEquals("PASSIVE_WAIT_FOR_CLOUD_PLAYBOOK", result.cloudTrace.decisionSource)
+        assertFalse(result.cloudTrace.cloudFallbackUsed)
         assertEquals("TIMEOUT", result.cloudTrace.cloudErrorCode)
         assertTrue(result.cloudTrace.cloudNetworkFailureVisibleToUser)
         assertTrue(result.cloudTrace.cloudEscalated)
         assertEquals("TIMEOUT", result.cloudTrace.cloudEscalationReason)
         assertEquals("gpt-5.4", result.cloudTrace.cloudPrimaryModel)
         assertEquals("gpt-5.5", result.cloudTrace.cloudFinalModel)
-        assertEquals(5, result.routes.size)
+        assertEquals(TacticalDecisionType.PASSIVE_NOT_READY, result.tacticalDecision.decisionType)
+        assertEquals(0, result.routes.size)
     }
 
     @Test
@@ -329,13 +330,14 @@ class PreconfiguredCloudRealUseMvpTest {
         assertEquals(1, client.callCount)
         assertEquals(90_000L, client.timeouts.single())
         assertTrue(client.bodies.single().contains("\"model\":\"gpt-5.5\""))
-        assertEquals("LOCAL_FALLBACK", result.cloudTrace.decisionSource)
-        assertTrue(result.cloudTrace.cloudFallbackUsed)
+        assertEquals("PASSIVE_WAIT_FOR_CLOUD_PLAYBOOK", result.cloudTrace.decisionSource)
+        assertFalse(result.cloudTrace.cloudFallbackUsed)
         assertEquals("TIMEOUT", result.cloudTrace.cloudErrorCode)
         assertFalse(result.cloudTrace.cloudEscalated)
         assertEquals("gpt-5.5", result.cloudTrace.cloudPrimaryModel)
         assertEquals("gpt-5.5", result.cloudTrace.cloudFinalModel)
-        assertEquals(5, result.routes.size)
+        assertEquals(TacticalDecisionType.PASSIVE_NOT_READY, result.tacticalDecision.decisionType)
+        assertEquals(0, result.routes.size)
     }
 
     @Test
@@ -345,9 +347,10 @@ class PreconfiguredCloudRealUseMvpTest {
             repository = CloudAnalysisRepository(relayConfig(), RecordingCloudClient("not json"))
         ).run(emptyPersona()).getOrThrow()
 
-        assertEquals("LOCAL_FALLBACK", result.cloudTrace.decisionSource)
-        assertTrue(result.cloudTrace.cloudFallbackUsed)
-        assertEquals(5, result.routes.size)
+        assertEquals("PASSIVE_WAIT_FOR_CLOUD_PLAYBOOK", result.cloudTrace.decisionSource)
+        assertFalse(result.cloudTrace.cloudFallbackUsed)
+        assertEquals(TacticalDecisionType.PASSIVE_NOT_READY, result.tacticalDecision.decisionType)
+        assertEquals(0, result.routes.size)
     }
 
     private fun pipeline(

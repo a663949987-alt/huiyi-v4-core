@@ -34,6 +34,7 @@ enum class ExpressSelfEligibilityMode {
     ALLOW_EXPRESS_SELF,
     ALLOW_COLD_START,
     ALLOW_ELEVATE_MEANING,
+    ALLOW_GENERIC_TRIAL,
     HOLD_BACK,
     BLOCK_UNSUPPORTED_CONTEXT,
     BLOCK_UNTRUSTED_SNAPSHOT,
@@ -61,8 +62,8 @@ class ExpressSelfEligibilityEvaluator {
         playbook: RelationshipPlaybook,
         arcProgress: ArcProgressState
     ): ExpressSelfEligibility {
-        val targetSupported = request.targetAppSupported
-            ?: request.appPackage.orEmpty() in supportedChatPackages
+        val explicitTargetSupported = request.targetAppSupported
+            ?: (request.appPackage.orEmpty() in supportedChatPackages)
         val parserConfidence = request.parserConfidence.coerceIn(0, 100)
         val currentPackage = request.currentAppPackage ?: request.appPackage
         val currentWindowTitle = request.currentWindowTitleRedacted ?: request.windowTitle
@@ -85,6 +86,14 @@ class ExpressSelfEligibilityEvaluator {
         val repeatRisk = request.repeatRiskOverride ?: playbook.expressionModeSelection?.repeatRisk?.name.orEmpty()
             .ifBlank { ExpressionRepeatRisk.LOW.name }
         val expressionMode = playbook.expressionModeSelection?.expressionMode
+        val genericTrial = genericChatTrial(
+            request = request,
+            currentPackage = currentPackage,
+            currentWindowTitle = currentWindowTitle,
+            effectiveCount = effectiveCount,
+            parserConfidence = parserConfidence
+        )
+        val targetSupported = explicitTargetSupported || genericTrial
         val expressionWindowExists = arcProgress.currentExpressionWindow.exists ||
             playbook.characterArcPlan.exists ||
             expressionMode in setOf(
@@ -102,7 +111,7 @@ class ExpressSelfEligibilityEvaluator {
             mode = ExpressSelfEligibilityMode.BLOCK_NO_CHAT_STATE,
             blockReason = ExpressSelfBlockReason.CHAT_STATE_MISSING,
             confidence = parserConfidence,
-            source = request.preAnalysisSnapshotSource,
+            source = if (genericTrial) "GENERIC_TRIAL" else request.preAnalysisSnapshotSource,
             currentAppPackage = currentPackage,
             currentWindowTitleRedacted = currentWindowTitle,
             targetAppSupported = targetSupported,
@@ -140,7 +149,7 @@ class ExpressSelfEligibilityEvaluator {
                     blockReason = ExpressSelfBlockReason.SNAPSHOT_UNTRUSTED
                 )
 
-            !targetSupported && parserConfidence < HIGH_CONFIDENCE -> base.copy(
+            !targetSupported -> base.copy(
                 mode = ExpressSelfEligibilityMode.BLOCK_UNSUPPORTED_CONTEXT,
                 blockReason = ExpressSelfBlockReason.UNSUPPORTED_APP
             )
@@ -167,10 +176,10 @@ class ExpressSelfEligibilityEvaluator {
 
             lastSpeaker == Speaker.OTHER && expressionWindowExists -> base.copy(
                 eligible = true,
-                mode = if (expressionMode == ExpressionMode.ELEVATE_MEANING) {
-                    ExpressSelfEligibilityMode.ALLOW_ELEVATE_MEANING
-                } else {
-                    ExpressSelfEligibilityMode.ALLOW_EXPRESS_SELF
+                mode = when {
+                    genericTrial -> ExpressSelfEligibilityMode.ALLOW_GENERIC_TRIAL
+                    expressionMode == ExpressionMode.ELEVATE_MEANING -> ExpressSelfEligibilityMode.ALLOW_ELEVATE_MEANING
+                    else -> ExpressSelfEligibilityMode.ALLOW_EXPRESS_SELF
                 },
                 blockReason = null
             )
@@ -190,6 +199,7 @@ class ExpressSelfEligibilityEvaluator {
 
     companion object {
         const val HIGH_CONFIDENCE: Int = 85
+        const val GENERIC_TRIAL_MIN_CONFIDENCE: Int = 70
         const val COLD_START_MIN_AGE_MS: Long = 30 * 60 * 1000L
         const val RECENT_SELF_EXPRESSION_LIMIT: Int = 2
         const val RECENT_SELF_EXPRESSION_WINDOW_MS: Long = 30 * 60 * 1000L
@@ -216,6 +226,21 @@ class ExpressSelfEligibilityEvaluator {
                 "com.huawei.android.launcher"
             )
             return markers.any { joined.contains(it, ignoreCase = true) }
+        }
+
+        private fun genericChatTrial(
+            request: DynamicPlaybookRequest,
+            currentPackage: String?,
+            currentWindowTitle: String?,
+            effectiveCount: Int,
+            parserConfidence: Int
+        ): Boolean {
+            if (request.appPackage.orEmpty() in supportedChatPackages) return false
+            if (request.appPackage != "com.xiaoenai.app") return false
+            if (isDesktopOrPanelWindow(currentWindowTitle, currentPackage)) return false
+            if (currentWindowTitle?.contains("\u5c0f\u6069\u7231", ignoreCase = true) != true) return false
+            if (effectiveCount < 3) return false
+            return parserConfidence >= GENERIC_TRIAL_MIN_CONFIDENCE
         }
     }
 }

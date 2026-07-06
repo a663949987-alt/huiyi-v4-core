@@ -683,6 +683,18 @@ class HuiyiRuntime private constructor(
     }
 
     fun runExpressSelf(clickAck: NextSentenceClickAck = NextSentenceClickAck()): String {
+        reusableExpressSelfResult()?.let { reusable ->
+            mutableState.update {
+                it.copy(
+                    latestPipelineResult = reusable,
+                    floatingPanelMode = FloatingPanelMode.EXPRESS_SELF,
+                    panelVisible = true,
+                    lastError = null,
+                    nextSentenceUiState = NextSentenceUiState.RESULT
+                )
+            }
+            return reusable.sessionId ?: UUID.randomUUID().toString()
+        }
         val sessionId = UUID.randomUUID().toString()
         val beforeRuntime = AccessibilityRuntimeReader.read(appContext)
         val beforeOverlay = OverlayStateStore.state.value
@@ -804,6 +816,15 @@ class HuiyiRuntime private constructor(
                     decisionTypeFamily = "EXPRESS_SELF",
                     expressSelfArcProgressState = dynamicResult.arcProgressState,
                     expressSelfEligibility = dynamicResult.expressSelfEligibility,
+                    expressSelfFeedbackDefaultVisible = dynamicResult.expressSelfFeedbackDefaultVisible,
+                    expressSelfFeedbackCollapsed = dynamicResult.expressSelfFeedbackCollapsed,
+                    expressSelfDefaultRouteCount = dynamicResult.expressSelfDefaultRouteCount,
+                    expressSelfPanelSimpleMode = dynamicResult.expressSelfPanelSimpleMode,
+                    expressSelfResultCacheHit = dynamicResult.expressSelfResultCacheHit,
+                    expressSelfRepeatClickCount = dynamicResult.expressSelfRepeatClickCount,
+                    expressSelfSameSceneStable = dynamicResult.expressSelfSameSceneStable,
+                    expressSelfReusedPreviousResult = dynamicResult.expressSelfReusedPreviousResult,
+                    expressSelfRepeatBlockedReason = dynamicResult.expressSelfRepeatBlockedReason,
                     cloudTrace = CloudAnalysisTrace(
                         activeSessionId = sessionId,
                         cloudRequestSessionId = null,
@@ -902,6 +923,22 @@ class HuiyiRuntime private constructor(
         return sessionId
     }
 
+    private fun reusableExpressSelfResult(): CurrentScreenPipelineResult? {
+        val current = mutableState.value
+        if (current.floatingPanelMode != FloatingPanelMode.EXPRESS_SELF) return null
+        val result = current.latestPipelineResult ?: return null
+        if (result.sessionTerminalState !in setOf("EXPRESS_SELF_PANEL", "HOLD_BACK_PANEL")) return null
+        val endedAt = result.analysisEndedAt.takeIf { it > 0L } ?: return null
+        if (System.currentTimeMillis() - endedAt > 10 * 60 * 1000L) return null
+        return result.copy(
+            expressSelfResultCacheHit = true,
+            expressSelfRepeatClickCount = result.expressSelfRepeatClickCount + 1,
+            expressSelfSameSceneStable = true,
+            expressSelfReusedPreviousResult = true,
+            expressSelfRepeatBlockedReason = null
+        )
+    }
+
     private fun expressSelfRoutes(routes: List<ReplyRoute>): List<ReplyRoute> {
         val activeTypes = setOf(
             ReplyRouteType.ARC_REVEAL,
@@ -952,12 +989,6 @@ class HuiyiRuntime private constructor(
         val dynamicResult = when (mode) {
             DynamicPlaybookMode.NEXT_SENTENCE -> dynamicPlaybookEngine.nextSentence(request)
             DynamicPlaybookMode.EXPRESS_SELF -> dynamicPlaybookEngine.expressSelf(request)
-        }
-        if (mode == DynamicPlaybookMode.NEXT_SENTENCE &&
-            dynamicResult.tacticalDecisionType != TacticalDecisionType.WAIT &&
-            dynamicResult.routes.isEmpty()
-        ) {
-            return false
         }
         renderDynamicPlaybookResult(
             stable = stable,
@@ -1071,6 +1102,21 @@ class HuiyiRuntime private constructor(
             lightListenUsed = true,
             expressSelfArcProgressState = if (mode == DynamicPlaybookMode.EXPRESS_SELF) dynamicResult.arcProgressState else null,
             expressSelfEligibility = if (mode == DynamicPlaybookMode.EXPRESS_SELF) dynamicResult.expressSelfEligibility else null,
+            passiveRouteDisplaySource = if (mode == DynamicPlaybookMode.NEXT_SENTENCE) dynamicResult.passiveRouteDisplaySource else "NONE",
+            localPassiveRoutesGenerated = if (mode == DynamicPlaybookMode.NEXT_SENTENCE) dynamicResult.localPassiveRoutesGenerated else false,
+            localPassiveRoutesShownToUser = if (mode == DynamicPlaybookMode.NEXT_SENTENCE) dynamicResult.localPassiveRoutesShownToUser else false,
+            passiveWaitPanelShown = if (mode == DynamicPlaybookMode.NEXT_SENTENCE) dynamicResult.passiveWaitPanelShown else false,
+            cloudPlaybookAvailable = if (mode == DynamicPlaybookMode.NEXT_SENTENCE) dynamicResult.cloudPlaybookAvailable else false,
+            cloudPlaybookAgeMs = if (mode == DynamicPlaybookMode.NEXT_SENTENCE) dynamicResult.cloudPlaybookAgeMs else null,
+            expressSelfFeedbackDefaultVisible = if (mode == DynamicPlaybookMode.EXPRESS_SELF) dynamicResult.expressSelfFeedbackDefaultVisible else false,
+            expressSelfFeedbackCollapsed = if (mode == DynamicPlaybookMode.EXPRESS_SELF) dynamicResult.expressSelfFeedbackCollapsed else true,
+            expressSelfDefaultRouteCount = if (mode == DynamicPlaybookMode.EXPRESS_SELF) dynamicResult.expressSelfDefaultRouteCount else 0,
+            expressSelfPanelSimpleMode = if (mode == DynamicPlaybookMode.EXPRESS_SELF) dynamicResult.expressSelfPanelSimpleMode else false,
+            expressSelfResultCacheHit = if (mode == DynamicPlaybookMode.EXPRESS_SELF) dynamicResult.expressSelfResultCacheHit else false,
+            expressSelfRepeatClickCount = if (mode == DynamicPlaybookMode.EXPRESS_SELF) dynamicResult.expressSelfRepeatClickCount else 0,
+            expressSelfSameSceneStable = if (mode == DynamicPlaybookMode.EXPRESS_SELF) dynamicResult.expressSelfSameSceneStable else true,
+            expressSelfReusedPreviousResult = if (mode == DynamicPlaybookMode.EXPRESS_SELF) dynamicResult.expressSelfReusedPreviousResult else false,
+            expressSelfRepeatBlockedReason = if (mode == DynamicPlaybookMode.EXPRESS_SELF) dynamicResult.expressSelfRepeatBlockedReason else null,
             cloudTrace = CloudAnalysisTrace(
                 activeSessionId = sessionId,
                 preAnalysisSnapshotId = stable.capturedAt.toString(),
@@ -1082,6 +1128,7 @@ class HuiyiRuntime private constructor(
                 cloudSkippedReason = when {
                     dynamicResult.expressSelfEligibility?.eligible == false -> "EXPRESS_SELF_${dynamicResult.expressSelfEligibility.mode.name}"
                     decision.decisionType == TacticalDecisionType.WAIT -> "LAST_SPEAKER_ME_WAIT"
+                    dynamicResult.passiveWaitPanelShown -> "PASSIVE_WAIT_FOR_CLOUD_PLAYBOOK"
                     dynamicResult.cloudRefreshRecommended -> "CLOUD_REFRESH_BACKGROUND_OPTIONAL"
                     else -> "PLAYBOOK_CACHE_OR_LOCAL_FALLBACK"
                 },
@@ -1198,6 +1245,8 @@ class HuiyiRuntime private constructor(
             decisionType = result.tacticalDecisionType,
             situation = if (wait) {
                 "last_speaker_me_wait"
+            } else if (result.tacticalDecisionType == TacticalDecisionType.PASSIVE_NOT_READY) {
+                "passive_cloud_playbook_not_ready"
             } else if (expressBlocked) {
                 "express_self_eligibility_blocked:${result.expressSelfEligibility?.mode?.name}"
             } else {
@@ -1205,6 +1254,8 @@ class HuiyiRuntime private constructor(
             },
             coreInsight = if (wait) {
                 "LAST_ME safety gate remains highest priority."
+            } else if (result.tacticalDecisionType == TacticalDecisionType.PASSIVE_NOT_READY) {
+                "Local passive routes are generated only as internal placeholders and are not shown to the user."
             } else if (expressBlocked) {
                 "Express Self is blocked until the chat state is trusted and there is a real expression window."
             } else {
@@ -1212,6 +1263,8 @@ class HuiyiRuntime private constructor(
             },
             userLikelyMistake = if (wait) {
                 "Adding another message before the other person replies."
+            } else if (result.tacticalDecisionType == TacticalDecisionType.PASSIVE_NOT_READY) {
+                "Sending a local generic reply before the cloud playbook is ready."
             } else if (expressBlocked) {
                 "Forcing self-expression from an unsupported, stale, or recent LAST_ME state."
             } else {
@@ -1219,6 +1272,8 @@ class HuiyiRuntime private constructor(
             },
             bestMove = if (wait) {
                 "\u4f60\u5df2\u7ecf\u56de\u8fc7\u4e86\uff0c\u5148\u7b49\u5bf9\u65b9\u3002"
+            } else if (result.tacticalDecisionType == TacticalDecisionType.PASSIVE_NOT_READY) {
+                "\u4f1a\u610f\u8fd8\u5728\u770b\u8fd9\u6bb5\u5c40\u9762\uff0c\u6682\u65f6\u4e0d\u5efa\u8bae\u786c\u56de\u3002"
             } else if (holdBack) {
                 "\u8fd9\u8f6e\u5148\u522b\u6025\u7740\u8868\u8fbe\u81ea\u5df1\uff0c\u5148\u7ed9\u5bf9\u65b9\u4e00\u70b9\u7a7a\u95f4\u3002"
             } else if (expressBlocked) {
@@ -1228,6 +1283,8 @@ class HuiyiRuntime private constructor(
             },
             avoidMoves = if (wait) {
                 listOf("do not call cloud", "do not show routes")
+            } else if (result.tacticalDecisionType == TacticalDecisionType.PASSIVE_NOT_READY) {
+                listOf("do not show local passive routes", "do not show English templates", "do not say analysis failed")
             } else if (expressBlocked) {
                 listOf("do not show active routes", "do not call cloud", "do not reuse stale snapshot")
             } else {
@@ -1261,6 +1318,7 @@ class HuiyiRuntime private constructor(
         return when {
             mode == DynamicPlaybookMode.EXPRESS_SELF -> "EXPRESS_SELF_PANEL"
             decision.decisionType == TacticalDecisionType.WAIT -> "WAIT_PANEL"
+            decision.decisionType == TacticalDecisionType.PASSIVE_NOT_READY -> "PASSIVE_WAIT_PANEL"
             dynamicResult.routes.isNotEmpty() -> "ROUTE_PANEL"
             else -> terminalStateFor(decision.decisionType)
         }
@@ -1589,6 +1647,7 @@ class HuiyiRuntime private constructor(
     private fun terminalStateFor(type: TacticalDecisionType): String = when (type) {
         TacticalDecisionType.WAIT -> "WAIT_PANEL"
         TacticalDecisionType.HOLD_BACK -> "HOLD_BACK_PANEL"
+        TacticalDecisionType.PASSIVE_NOT_READY -> "PASSIVE_WAIT_PANEL"
         TacticalDecisionType.CHAT_WINDOW_NOT_FOUND,
         TacticalDecisionType.PRE_ANALYSIS_CONTAMINATED -> "CONTROLLED_FAIL"
         TacticalDecisionType.CONTEXT_REQUIRED,
@@ -1599,6 +1658,7 @@ class HuiyiRuntime private constructor(
     private fun decisionTypeFamily(type: TacticalDecisionType): String = when (type) {
         TacticalDecisionType.WAIT -> "WAIT"
         TacticalDecisionType.HOLD_BACK -> "HOLD_BACK"
+        TacticalDecisionType.PASSIVE_NOT_READY -> "PASSIVE_WAIT"
         TacticalDecisionType.CHAT_WINDOW_NOT_FOUND,
         TacticalDecisionType.PRE_ANALYSIS_CONTAMINATED -> "CONTROLLED_FAIL"
         TacticalDecisionType.CONTEXT_REQUIRED,

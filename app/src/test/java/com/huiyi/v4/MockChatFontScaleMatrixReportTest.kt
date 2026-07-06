@@ -120,8 +120,9 @@ class MockChatFontScaleMatrixReportTest {
                     result.routes.isNotEmpty()
                 ) return "font_large/extra_large last_me failed"
                 FontMatrixScenario.LAST_OTHER -> if (result.lastSpeakerDecision.lastSpeaker != Speaker.OTHER ||
-                    result.tacticalDecision.decisionType == TacticalDecisionType.WAIT ||
-                    result.routes.size != 5
+                    result.tacticalDecision.decisionType != TacticalDecisionType.PASSIVE_NOT_READY ||
+                    result.routes.isNotEmpty() ||
+                    result.localPassiveRoutesShownToUser
                 ) return "font_large/extra_large last_other failed"
                 else -> Unit
             }
@@ -138,7 +139,9 @@ class MockChatFontScaleMatrixReportTest {
             }
             FontMatrixScenario.LAST_OTHER -> when {
                 result.lastSpeakerDecision.lastSpeaker != Speaker.OTHER -> "last_other did not end on OTHER"
-                result.routes.size != 5 -> "last_other did not produce 5 routes"
+                result.tacticalDecision.decisionType != TacticalDecisionType.PASSIVE_NOT_READY -> "last_other did not wait for cloud playbook"
+                result.routes.isNotEmpty() -> "last_other exposed local passive routes"
+                result.localPassiveRoutesShownToUser -> "last_other showed local passive routes"
                 else -> null
             }
             FontMatrixScenario.METADATA_TRAP -> when {
@@ -152,8 +155,9 @@ class MockChatFontScaleMatrixReportTest {
                 else -> null
             }
             FontMatrixScenario.LOW_EXPRESSION -> when {
-                result.tacticalDecision.decisionType != TacticalDecisionType.BOUNDARY_RESPECT -> "low_expression forced deep chat"
-                result.routes.size != 5 -> "low_expression did not provide low-pressure routes"
+                result.lastSpeakerDecision.lastSpeaker != Speaker.OTHER -> "low_expression did not end on OTHER"
+                result.tacticalDecision.decisionType != TacticalDecisionType.PASSIVE_NOT_READY -> "low_expression did not wait for cloud playbook"
+                result.routes.isNotEmpty() -> "low_expression exposed local passive routes"
                 else -> null
             }
         }

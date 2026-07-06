@@ -41,7 +41,7 @@ class DynamicPlaybookEngineTest {
     }
 
     @Test
-    fun LastOtherNextSentenceUsesPassiveCacheAndStaysCleanTest() {
+    fun NextSentenceDoesNotShowLocalPassiveRoutesTest() {
         val engine = DynamicPlaybookEngine()
         val req = request(
             mode = DynamicPlaybookMode.NEXT_SENTENCE,
@@ -52,14 +52,20 @@ class DynamicPlaybookEngineTest {
         val second = engine.nextSentence(req)
 
         assertEquals(Speaker.OTHER, first.lastSpeakerDecision.lastSpeaker)
-        assertEquals(TacticalDecisionType.NORMAL_REPLY, first.tacticalDecisionType)
-        assertEquals(5, first.routes.size)
+        assertEquals(TacticalDecisionType.PASSIVE_NOT_READY, first.tacticalDecisionType)
+        assertEquals(0, first.routes.size)
+        assertTrue(first.localPassiveRoutesGenerated)
+        assertFalse(first.localPassiveRoutesShownToUser)
+        assertTrue(first.passiveWaitPanelShown)
+        assertFalse(first.cloudPlaybookAvailable)
+        assertEquals("NONE", first.passiveRouteDisplaySource)
+        assertEquals("PASSIVE_WAIT_FOR_CLOUD_PLAYBOOK", first.decisionSource)
         assertTrue(first.localFallbackUsed)
         assertTrue(second.cacheHit)
-        assertEquals(5, second.routes.size)
+        assertEquals(0, second.routes.size)
+        assertFalse(second.localPassiveRoutesShownToUser)
         assertTrue(second.routes.none { it.routeType == ReplyRouteType.ARC_REVEAL })
         assertTrue(second.routes.none { it.routeType == ReplyRouteType.SELF_STORY })
-        assertChineseSendableRoutes(second.routes)
         assertTrue(second.oneClickImmediateResultPass)
     }
 
@@ -74,14 +80,19 @@ class DynamicPlaybookEngineTest {
         val first = engine.expressSelf(req)
         val second = engine.expressSelf(req)
 
-        assertTrue(first.routes.size in 3..5)
+        assertTrue(first.routes.size in 1..3)
         assertTrue(first.routes.any { it.routeType == ReplyRouteType.ARC_REVEAL })
         assertTrue(first.routes.any { it.routeType == ReplyRouteType.SELF_STORY })
-        assertTrue(first.routes.any { it.routeType == ReplyRouteType.CO_CREATION })
-        assertTrue(first.routes.any { it.routeType == ReplyRouteType.COOL_DOWN })
         assertChineseSendableRoutes(first.routes)
+        assertTrue(first.expressSelfPanelSimpleMode)
+        assertFalse(first.expressSelfFeedbackDefaultVisible)
+        assertTrue(first.expressSelfFeedbackCollapsed)
+        assertTrue(first.expressSelfDefaultRouteCount <= 3)
         assertTrue(first.cloudRefreshRecommended)
         assertTrue(second.cacheHit)
+        assertTrue(second.expressSelfResultCacheHit)
+        assertTrue(second.expressSelfReusedPreviousResult)
+        assertTrue(second.expressSelfSameSceneStable)
         assertTrue(second.oneClickImmediateResultPass)
     }
 
@@ -117,7 +128,7 @@ class DynamicPlaybookEngineTest {
             messages = planningMessages()
         )
         val initial = engine.nextSentence(req)
-        val cloudRoute = initial.routes.first().copy(
+        val cloudRoute = initial.playbook.passiveNext.first().copy(
             id = "cloud-passive-1",
             name = "云端接话",
             message = "我懂你的意思，我们先按舒服的节奏慢慢来。"
@@ -143,6 +154,9 @@ class DynamicPlaybookEngineTest {
         assertTrue(outcome.cacheReplaced)
         assertFalse(outcome.staleRefreshDiscarded)
         assertEquals("CLOUD_ENHANCED_PLAYBOOK", afterRefresh.decisionSource)
+        assertEquals("CLOUD_VERIFIED_PASSIVE_NEXT", afterRefresh.passiveRouteDisplaySource)
+        assertTrue(afterRefresh.cloudPlaybookAvailable)
+        assertFalse(afterRefresh.localPassiveRoutesShownToUser)
         assertEquals("我懂你的意思，我们先按舒服的节奏慢慢来。", afterRefresh.routes.first().message)
     }
 

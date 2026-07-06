@@ -52,37 +52,42 @@ class LiaoqiRealUseMvpTest {
     }
 
     @Test
-    fun LastOtherAlwaysShowsFiveRoutesTest() = runTest {
+    fun LastOtherWithoutCloudPlaybookShowsPassiveWaitTest() = runTest {
         val result = pipeline(lastOtherMessages(), null).run(emptyPersona()).getOrThrow()
 
         assertEquals(Speaker.OTHER, result.lastSpeakerDecision.lastSpeaker)
-        assertEquals(5, result.routes.size)
-        assertEquals("LOCAL_FALLBACK", result.cloudTrace.decisionSource)
+        assertEquals(0, result.routes.size)
+        assertEquals(TacticalDecisionType.PASSIVE_NOT_READY, result.tacticalDecision.decisionType)
+        assertEquals("PASSIVE_WAIT_FOR_CLOUD_PLAYBOOK", result.cloudTrace.decisionSource)
+        assertFalse(result.localPassiveRoutesShownToUser)
+        assertTrue(result.passiveWaitPanelShown)
     }
 
     @Test
-    fun CloudFailureFallsBackToLocalRoutesTest() = runTest {
+    fun CloudFailureShowsPassiveWaitWithoutLocalRoutesTest() = runTest {
         val result = pipeline(
             lastOtherMessages(),
             FakeCloudService(error = CloudAnalysisException("NETWORK"))
         ).run(emptyPersona()).getOrThrow()
 
         assertEquals(Speaker.OTHER, result.lastSpeakerDecision.lastSpeaker)
-        assertEquals(5, result.routes.size)
-        assertTrue(result.cloudTrace.cloudFallbackUsed)
-        assertEquals("LOCAL_FALLBACK", result.cloudTrace.decisionSource)
+        assertEquals(0, result.routes.size)
+        assertFalse(result.cloudTrace.cloudFallbackUsed)
+        assertEquals(TacticalDecisionType.PASSIVE_NOT_READY, result.tacticalDecision.decisionType)
+        assertEquals("PASSIVE_WAIT_FOR_CLOUD_PLAYBOOK", result.cloudTrace.decisionSource)
     }
 
     @Test
     fun NextSentenceNeverStaysLoadingForeverTest() = runTest {
         val result = pipeline(lastOtherMessages(), null).run(emptyPersona()).getOrThrow()
         val displayed = result.copy(
-            routePanelShown = result.routes.size == 5,
+            routePanelShown = result.routes.isNotEmpty(),
             loadingStillVisibleAfterTimeout = false
         )
 
         assertFalse(displayed.loadingStillVisibleAfterTimeout)
-        assertTrue(displayed.routePanelShown)
+        assertTrue(displayed.passiveWaitPanelShown)
+        assertFalse(displayed.routePanelShown)
     }
 
     @Test
@@ -104,7 +109,8 @@ class LiaoqiRealUseMvpTest {
         val second = pipeline(lastOtherMessages(), null).run(emptyPersona()).getOrThrow()
 
         assertEquals("WAIT_PANEL", record.terminalState)
-        assertEquals(5, second.routes.size)
+        assertEquals(0, second.routes.size)
+        assertEquals(TacticalDecisionType.PASSIVE_NOT_READY, second.tacticalDecision.decisionType)
         assertEquals(Speaker.OTHER, second.lastSpeakerDecision.lastSpeaker)
     }
 

@@ -75,6 +75,21 @@ data class CurrentScreenPipelineResult(
     val lightListenUsed: Boolean = false,
     val expressSelfArcProgressState: ArcProgressState? = null,
     val expressSelfEligibility: ExpressSelfEligibility? = null,
+    val passiveRouteDisplaySource: String = "NONE",
+    val localPassiveRoutesGenerated: Boolean = false,
+    val localPassiveRoutesShownToUser: Boolean = false,
+    val passiveWaitPanelShown: Boolean = false,
+    val cloudPlaybookAvailable: Boolean = false,
+    val cloudPlaybookAgeMs: Long? = null,
+    val expressSelfFeedbackDefaultVisible: Boolean = false,
+    val expressSelfFeedbackCollapsed: Boolean = true,
+    val expressSelfDefaultRouteCount: Int = 0,
+    val expressSelfPanelSimpleMode: Boolean = false,
+    val expressSelfResultCacheHit: Boolean = false,
+    val expressSelfRepeatClickCount: Int = 0,
+    val expressSelfSameSceneStable: Boolean = true,
+    val expressSelfReusedPreviousResult: Boolean = false,
+    val expressSelfRepeatBlockedReason: String? = null,
     val cloudTrace: CloudAnalysisTrace = CloudAnalysisTrace()
 )
 
@@ -214,6 +229,16 @@ class CurrentScreenPipelineUseCase(
                 sessionId = sessionId,
                 lightListenBackfillCount = lightListenBackfill.size,
                 lightListenUsed = lightListenBackfill.isNotEmpty(),
+                passiveRouteDisplaySource = if (cloudResult.trace.decisionSource == "CLOUD") {
+                    "CLOUD_VERIFIED_PASSIVE_NEXT"
+                } else {
+                    "NONE"
+                },
+                localPassiveRoutesGenerated = localRoutes.isNotEmpty(),
+                localPassiveRoutesShownToUser = false,
+                passiveWaitPanelShown = cloudResult.decision.decisionType == TacticalDecisionType.PASSIVE_NOT_READY,
+                cloudPlaybookAvailable = cloudResult.trace.decisionSource == "CLOUD",
+                cloudPlaybookAgeMs = null,
                 cloudTrace = cloudResult.trace.withSessionBinding(
                     activeSessionId = sessionId,
                     preAnalysisSnapshotId = preAnalysisSnapshotId,
@@ -284,16 +309,20 @@ class CurrentScreenPipelineUseCase(
                     recentVisualEvidence = recentVisualEvidence
                 )
             }
-            return CloudPipelineResult(localDecision, localRoutes, CloudAnalysisTrace.skipped(config, "UNSUPPORTED_APP", "LOCAL_FALLBACK"))
+            localSpecialNoRouteResult(config, "UNSUPPORTED_APP", localDecision, lastSpeaker)?.let { return it }
+            return passiveNotReadyResult(config, "UNSUPPORTED_APP")
         }
         if (service == null || !config.cloudEnabled || !config.endpointConfigured) {
-            return CloudPipelineResult(localDecision, localRoutes, CloudAnalysisTrace.skipped(config, "CLOUD_NOT_CONFIGURED", "LOCAL_FALLBACK"))
+            localSpecialNoRouteResult(config, "CLOUD_NOT_CONFIGURED", localDecision, lastSpeaker)?.let { return it }
+            return passiveNotReadyResult(config, "CLOUD_NOT_CONFIGURED")
         }
         if (!config.relayApiKeyConfigured) {
-            return CloudPipelineResult(localDecision, localRoutes, CloudAnalysisTrace.skipped(config, "RELAY_API_KEY_MISSING", "LOCAL_FALLBACK"))
+            localSpecialNoRouteResult(config, "RELAY_API_KEY_MISSING", localDecision, lastSpeaker)?.let { return it }
+            return passiveNotReadyResult(config, "RELAY_API_KEY_MISSING")
         }
         if (!config.relayApiKeyStoredSecurely) {
-            return CloudPipelineResult(localDecision, localRoutes, CloudAnalysisTrace.skipped(config, "RELAY_API_KEY_INSECURE_STORAGE", "LOCAL_FALLBACK"))
+            localSpecialNoRouteResult(config, "RELAY_API_KEY_INSECURE_STORAGE", localDecision, lastSpeaker)?.let { return it }
+            return passiveNotReadyResult(config, "RELAY_API_KEY_INSECURE_STORAGE")
         }
         if (lastSpeaker.lastSpeaker != Speaker.OTHER || localRoutes.size != 5) {
             val visualEvidence = visualEvidenceForCloud(config, visualCloudAllowed)
@@ -314,7 +343,8 @@ class CurrentScreenPipelineUseCase(
                     recentVisualEvidence = recentVisualEvidence
                 )
             }
-            return CloudPipelineResult(localDecision, localRoutes, CloudAnalysisTrace.skipped(config, "LOCAL_CONTEXT_REQUIRED", "LOCAL_FALLBACK"))
+            localSpecialNoRouteResult(config, "LOCAL_CONTEXT_REQUIRED", localDecision, lastSpeaker)?.let { return it }
+            return passiveNotReadyResult(config, "LOCAL_CONTEXT_REQUIRED")
         }
         val visualEvidence = visualEvidenceForCloud(config, visualCloudAllowed)
         return analyzeWithCloud(
@@ -506,8 +536,14 @@ class CurrentScreenPipelineUseCase(
                 } else {
                     "NOT_RUN"
                 }
-                val fallbackDecision = cloudFailureFallbackDecision(lastSpeaker, localDecision, localRoutes, code)
-                val fallbackRoutes = if (fallbackDecision === localDecision) {
+                val fallbackDecision = if (lastSpeaker.lastSpeaker == Speaker.OTHER && !lastSpeaker.unknownSpeaker) {
+                    passiveNotReadyDecision(code)
+                } else {
+                    cloudFailureFallbackDecision(lastSpeaker, localDecision, localRoutes, code)
+                }
+                val fallbackRoutes = if (fallbackDecision.decisionType == TacticalDecisionType.PASSIVE_NOT_READY) {
+                    emptyList()
+                } else if (fallbackDecision === localDecision) {
                     localRoutes
                 } else {
                     routeGenerator.generate(context, fallbackDecision)
@@ -527,6 +563,13 @@ class CurrentScreenPipelineUseCase(
                         escalated = cloudError?.escalated ?: false,
                         escalationReason = cloudError?.escalationReason,
                         primaryLatencyMs = cloudError?.primaryLatencyMs
+                    ).copy(
+                        decisionSource = if (fallbackDecision.decisionType == TacticalDecisionType.PASSIVE_NOT_READY) {
+                            "PASSIVE_WAIT_FOR_CLOUD_PLAYBOOK"
+                        } else {
+                            "LOCAL_FALLBACK"
+                        },
+                        cloudFallbackUsed = fallbackDecision.decisionType != TacticalDecisionType.PASSIVE_NOT_READY
                     ).withSessionBinding(
                         activeSessionId = sessionId,
                         preAnalysisSnapshotId = preAnalysisSnapshotId,
@@ -552,8 +595,14 @@ class CurrentScreenPipelineUseCase(
         context: ChatSceneContext,
         startedAt: Long
     ): CloudPipelineResult {
-        val fallbackDecision = cloudFailureFallbackDecision(lastSpeaker, localDecision, localRoutes, "SOFT_TIMEOUT_PENDING")
-        val fallbackRoutes = if (fallbackDecision === localDecision) {
+        val fallbackDecision = if (lastSpeaker.lastSpeaker == Speaker.OTHER && !lastSpeaker.unknownSpeaker) {
+            passiveNotReadyDecision("SOFT_TIMEOUT_PENDING")
+        } else {
+            cloudFailureFallbackDecision(lastSpeaker, localDecision, localRoutes, "SOFT_TIMEOUT_PENDING")
+        }
+        val fallbackRoutes = if (fallbackDecision.decisionType == TacticalDecisionType.PASSIVE_NOT_READY) {
+            emptyList()
+        } else if (fallbackDecision === localDecision) {
             localRoutes
         } else {
             routeGenerator.generate(context, fallbackDecision)
@@ -574,7 +623,13 @@ class CurrentScreenPipelineUseCase(
                 modelCalled = true,
                 apiCalled = true,
                 cloudNetworkFailureVisibleToUser = false,
-                cloudFailureLikelyCause = "PENDING"
+                cloudFailureLikelyCause = "PENDING",
+                decisionSource = if (fallbackDecision.decisionType == TacticalDecisionType.PASSIVE_NOT_READY) {
+                    "PASSIVE_WAIT_FOR_CLOUD_PLAYBOOK"
+                } else {
+                    "LOCAL_FALLBACK"
+                },
+                cloudFallbackUsed = fallbackDecision.decisionType != TacticalDecisionType.PASSIVE_NOT_READY
             ).withSessionBinding(
                 activeSessionId = sessionId,
                 preAnalysisSnapshotId = preAnalysisSnapshotId,
@@ -622,6 +677,54 @@ class CurrentScreenPipelineUseCase(
         val decision: TacticalDecision,
         val routes: List<ReplyRoute>,
         val trace: CloudAnalysisTrace
+    )
+
+    private fun passiveNotReadyResult(config: CloudAnalysisConfig, reason: String): CloudPipelineResult =
+        CloudPipelineResult(
+            passiveNotReadyDecision(reason),
+            emptyList(),
+            CloudAnalysisTrace.skipped(config, reason, "PASSIVE_WAIT_FOR_CLOUD_PLAYBOOK")
+        )
+
+    private fun localSpecialNoRouteResult(
+        config: CloudAnalysisConfig,
+        reason: String,
+        localDecision: TacticalDecision,
+        lastSpeaker: LastSpeakerDecision
+    ): CloudPipelineResult? {
+        val lastContent = lastSpeaker.lastEffectiveMessage?.content
+        val contextRequiredForNonText = localDecision.decisionType == TacticalDecisionType.CONTEXT_REQUIRED &&
+            lastContent !is MessageContent.Text
+        val keepLocal = localDecision.decisionType in setOf(
+            TacticalDecisionType.VOICE_SUMMARY_REQUIRED,
+            TacticalDecisionType.PRE_ANALYSIS_CONTAMINATED,
+            TacticalDecisionType.CHAT_WINDOW_NOT_FOUND
+        ) || contextRequiredForNonText
+        if (!keepLocal) return null
+        return CloudPipelineResult(
+            localDecision,
+            emptyList(),
+            CloudAnalysisTrace.skipped(config, reason, "LOCAL_SPECIAL_DECISION")
+        )
+    }
+
+    private fun passiveNotReadyDecision(reason: String): TacticalDecision = TacticalDecision(
+        decisionType = TacticalDecisionType.PASSIVE_NOT_READY,
+        situation = "云端预案未准备好。",
+        coreInsight = "下一句禁用本地 passive 话术；没有云端或可信缓存时只显示等待面板。",
+        userLikelyMistake = "为了快而发送文不对题的本地模板。",
+        bestMove = "会意还在看这段局面，暂时不建议硬回。",
+        avoidMoves = listOf("不要展示本地话术", "不要显示分析失败", "不要输出英文模板"),
+        coCreationOpportunity = null,
+        shouldUseUserStory = false,
+        selectedStoryCardIds = emptyList(),
+        influenceProfile = InfluenceProfile(
+            intensity = InfluenceIntensity.LOW,
+            riskLevel = RiskLevel.LOW,
+            riskWarning = reason,
+            fallbackMove = "云端预案还没准备好，先别急着发。"
+        ),
+        fallbackMove = "云端预案还没准备好，先别急着发。"
     )
 
     private fun lastMeWaitDecision(): TacticalDecision = TacticalDecision(

@@ -46,6 +46,12 @@ data class NextSentenceFlightRecord(
     val routeCount: Int,
     val waitPanelShown: Boolean,
     val routePanelShown: Boolean,
+    val passiveRouteDisplaySource: String = "NONE",
+    val localPassiveRoutesGenerated: Boolean = false,
+    val localPassiveRoutesShownToUser: Boolean = false,
+    val passiveWaitPanelShown: Boolean = false,
+    val cloudPlaybookAvailable: Boolean = false,
+    val cloudPlaybookAgeMs: Long? = null,
     val contextRequiredPanelShown: Boolean,
     val loadingStillVisible: Boolean,
     val apiCalled: Boolean,
@@ -137,7 +143,16 @@ data class NextSentenceFlightRecord(
     val recentSelfExpressionCount: Int? = null,
     val repeatRisk: String = "UNKNOWN",
     val expressSelfAllowedReason: String = "NONE",
-    val expressSelfBlockedReason: String = "NONE"
+    val expressSelfBlockedReason: String = "NONE",
+    val expressSelfFeedbackDefaultVisible: Boolean = false,
+    val expressSelfFeedbackCollapsed: Boolean = true,
+    val expressSelfDefaultRouteCount: Int = 0,
+    val expressSelfPanelSimpleMode: Boolean = false,
+    val expressSelfResultCacheHit: Boolean = false,
+    val expressSelfRepeatClickCount: Int = 0,
+    val expressSelfSameSceneStable: Boolean = true,
+    val expressSelfReusedPreviousResult: Boolean = false,
+    val expressSelfRepeatBlockedReason: String? = null
 ) {
     fun withFeedback(feedback: UserFeedbackMark): NextSentenceFlightRecord = copy(userFeedback = feedback)
 
@@ -313,8 +328,13 @@ object NextSentenceFlightRecordFactory {
             terminalState = result.sessionTerminalState.takeIf { it != "UNKNOWN" } ?: terminalStateFor(decisionType),
             appPackage = capture?.snapshot?.appPackage ?: "unknown",
             windowTitlePreAnalysisRedacted = capture?.snapshot?.windowTitle?.redactPrivateText(120) ?: "unknown",
-            targetAppSupported = capture?.snapshot?.appPackage == "com.bajiao.im.liaoqi" || capture?.snapshot?.appPackage == "com.huiyi.mockchat",
-            adapterName = if (capture?.snapshot?.appPackage == "com.bajiao.im.liaoqi") "LiaoqiRealParser" else "GenericVisualBubbleParser",
+            targetAppSupported = expressSelfEligibility?.targetAppSupported
+                ?: (capture?.snapshot?.appPackage == "com.bajiao.im.liaoqi" || capture?.snapshot?.appPackage == "com.huiyi.mockchat"),
+            adapterName = when {
+                capture?.snapshot?.appPackage == "com.bajiao.im.liaoqi" -> "LiaoqiRealParser"
+                expressSelfEligibility?.source == "GENERIC_TRIAL" -> "GenericChatTrial"
+                else -> "GenericVisualBubbleParser"
+            },
             parserName = capture?.parserName ?: "NONE",
             preAnalysisSnapshotCaptured = capture != null,
             postPanelSnapshotCaptured = result.resultShownAsOverlay,
@@ -325,6 +345,12 @@ object NextSentenceFlightRecordFactory {
             routeCount = result.routes.size,
             waitPanelShown = result.waitPanelShown || decisionType == TacticalDecisionType.WAIT,
             routePanelShown = result.routePanelShown || result.routes.isNotEmpty(),
+            passiveRouteDisplaySource = result.passiveRouteDisplaySource,
+            localPassiveRoutesGenerated = result.localPassiveRoutesGenerated,
+            localPassiveRoutesShownToUser = result.localPassiveRoutesShownToUser,
+            passiveWaitPanelShown = result.passiveWaitPanelShown || decisionType == TacticalDecisionType.PASSIVE_NOT_READY,
+            cloudPlaybookAvailable = result.cloudPlaybookAvailable,
+            cloudPlaybookAgeMs = result.cloudPlaybookAgeMs,
             contextRequiredPanelShown = decisionType in setOf(TacticalDecisionType.CONTEXT_REQUIRED, TacticalDecisionType.VOICE_SUMMARY_REQUIRED),
             loadingStillVisible = false,
             apiCalled = result.apiCalled,
@@ -403,7 +429,16 @@ object NextSentenceFlightRecordFactory {
             recentSelfExpressionCount = expressSelfEligibility?.recentSelfExpressionCount,
             repeatRisk = expressSelfEligibility?.repeatRisk ?: "UNKNOWN",
             expressSelfAllowedReason = expressSelfEligibility?.allowedReason ?: "NONE",
-            expressSelfBlockedReason = expressSelfEligibility?.blockedReason ?: "NONE"
+            expressSelfBlockedReason = expressSelfEligibility?.blockedReason ?: "NONE",
+            expressSelfFeedbackDefaultVisible = result.expressSelfFeedbackDefaultVisible,
+            expressSelfFeedbackCollapsed = result.expressSelfFeedbackCollapsed,
+            expressSelfDefaultRouteCount = result.expressSelfDefaultRouteCount,
+            expressSelfPanelSimpleMode = result.expressSelfPanelSimpleMode,
+            expressSelfResultCacheHit = result.expressSelfResultCacheHit,
+            expressSelfRepeatClickCount = result.expressSelfRepeatClickCount,
+            expressSelfSameSceneStable = result.expressSelfSameSceneStable,
+            expressSelfReusedPreviousResult = result.expressSelfReusedPreviousResult,
+            expressSelfRepeatBlockedReason = result.expressSelfRepeatBlockedReason
         ).withComputedConsistency()
     }
 
@@ -499,6 +534,7 @@ object NextSentenceFlightRecordFactory {
     private fun terminalStateFor(type: TacticalDecisionType): String = when (type) {
         TacticalDecisionType.WAIT -> "WAIT_PANEL"
         TacticalDecisionType.HOLD_BACK -> "HOLD_BACK_PANEL"
+        TacticalDecisionType.PASSIVE_NOT_READY -> "PASSIVE_WAIT_PANEL"
         TacticalDecisionType.CHAT_WINDOW_NOT_FOUND,
         TacticalDecisionType.PRE_ANALYSIS_CONTAMINATED -> "CONTROLLED_FAIL"
         TacticalDecisionType.CONTEXT_REQUIRED,
@@ -509,6 +545,7 @@ object NextSentenceFlightRecordFactory {
     private fun decisionTypeFamily(type: TacticalDecisionType): String = when (type) {
         TacticalDecisionType.WAIT -> "WAIT"
         TacticalDecisionType.HOLD_BACK -> "HOLD_BACK"
+        TacticalDecisionType.PASSIVE_NOT_READY -> "PASSIVE_WAIT"
         TacticalDecisionType.CHAT_WINDOW_NOT_FOUND,
         TacticalDecisionType.PRE_ANALYSIS_CONTAMINATED -> "CONTROLLED_FAIL"
         TacticalDecisionType.CONTEXT_REQUIRED,
@@ -786,6 +823,12 @@ class OneTapFeedbackExporter(
         appendLine("- routeCount: ${record.routeCount}")
         appendLine("- waitPanelShown: ${record.waitPanelShown}")
         appendLine("- routePanelShown: ${record.routePanelShown}")
+        appendLine("- passiveRouteDisplaySource: ${record.passiveRouteDisplaySource}")
+        appendLine("- localPassiveRoutesGenerated: ${record.localPassiveRoutesGenerated}")
+        appendLine("- localPassiveRoutesShownToUser: ${record.localPassiveRoutesShownToUser}")
+        appendLine("- passiveWaitPanelShown: ${record.passiveWaitPanelShown}")
+        appendLine("- cloudPlaybookAvailable: ${record.cloudPlaybookAvailable}")
+        appendLine("- cloudPlaybookAgeMs: ${record.cloudPlaybookAgeMs ?: "null"}")
         appendLine("- cloudEnabled: ${record.cloudEnabled}")
         appendLine("- cloudConfigured: ${record.cloudConfigured}")
         appendLine("- cloudContractImplemented: ${record.cloudContractImplemented}")
@@ -836,6 +879,15 @@ class OneTapFeedbackExporter(
         appendLine("- repeatRisk: ${record.repeatRisk}")
         appendLine("- expressSelfAllowedReason: ${record.expressSelfAllowedReason}")
         appendLine("- expressSelfBlockedReason: ${record.expressSelfBlockedReason}")
+        appendLine("- expressSelfFeedbackDefaultVisible: ${record.expressSelfFeedbackDefaultVisible}")
+        appendLine("- expressSelfFeedbackCollapsed: ${record.expressSelfFeedbackCollapsed}")
+        appendLine("- expressSelfDefaultRouteCount: ${record.expressSelfDefaultRouteCount}")
+        appendLine("- expressSelfPanelSimpleMode: ${record.expressSelfPanelSimpleMode}")
+        appendLine("- expressSelfResultCacheHit: ${record.expressSelfResultCacheHit}")
+        appendLine("- expressSelfRepeatClickCount: ${record.expressSelfRepeatClickCount}")
+        appendLine("- expressSelfSameSceneStable: ${record.expressSelfSameSceneStable}")
+        appendLine("- expressSelfReusedPreviousResult: ${record.expressSelfReusedPreviousResult}")
+        appendLine("- expressSelfRepeatBlockedReason: ${record.expressSelfRepeatBlockedReason ?: "none"}")
         appendLine("- usedFallbackSnapshot: ${record.usedFallbackSnapshot}")
         appendLine("- systemAccessibilityEnabled: ${record.systemAccessibilityEnabled}")
         appendLine("- serviceConnected: ${record.serviceConnected}")
@@ -900,12 +952,27 @@ class OneTapFeedbackExporter(
           "repeatRisk": "${escape(record.repeatRisk)}",
           "expressSelfAllowedReason": "${escape(record.expressSelfAllowedReason)}",
           "expressSelfBlockedReason": "${escape(record.expressSelfBlockedReason)}",
+          "expressSelfFeedbackDefaultVisible": ${record.expressSelfFeedbackDefaultVisible},
+          "expressSelfFeedbackCollapsed": ${record.expressSelfFeedbackCollapsed},
+          "expressSelfDefaultRouteCount": ${record.expressSelfDefaultRouteCount},
+          "expressSelfPanelSimpleMode": ${record.expressSelfPanelSimpleMode},
+          "expressSelfResultCacheHit": ${record.expressSelfResultCacheHit},
+          "expressSelfRepeatClickCount": ${record.expressSelfRepeatClickCount},
+          "expressSelfSameSceneStable": ${record.expressSelfSameSceneStable},
+          "expressSelfReusedPreviousResult": ${record.expressSelfReusedPreviousResult},
+          "expressSelfRepeatBlockedReason": ${record.expressSelfRepeatBlockedReason?.let { "\"${escape(it)}\"" } ?: "null"},
           "actualLastSpeaker": "${record.actualLastSpeaker}",
           "decisionType": "${record.decisionType}",
           "decisionTypeFamily": "${record.decisionTypeFamily}",
           "routeCount": ${record.routeCount},
           "waitPanelShown": ${record.waitPanelShown},
           "routePanelShown": ${record.routePanelShown},
+          "passiveRouteDisplaySource": "${escape(record.passiveRouteDisplaySource)}",
+          "localPassiveRoutesGenerated": ${record.localPassiveRoutesGenerated},
+          "localPassiveRoutesShownToUser": ${record.localPassiveRoutesShownToUser},
+          "passiveWaitPanelShown": ${record.passiveWaitPanelShown},
+          "cloudPlaybookAvailable": ${record.cloudPlaybookAvailable},
+          "cloudPlaybookAgeMs": ${record.cloudPlaybookAgeMs ?: "null"},
           "contextRequiredPanelShown": ${record.contextRequiredPanelShown},
           "cloudEnabled": ${record.cloudEnabled},
           "cloudConfigured": ${record.cloudConfigured},
@@ -977,7 +1044,7 @@ class OneTapFeedbackExporter(
         record.terminalState == "UNSUPPORTED_APP" -> "UNSUPPORTED_APP"
         record.terminalState == "TIMEOUT" -> "TIMEOUT"
         record.terminalState == "CONTROLLED_FAIL" -> "CONTROLLED_FAIL"
-        record.terminalState in setOf("ROUTE_PANEL", "WAIT_PANEL", "CONTEXT_REQUIRED_PANEL") -> "PASS"
+        record.terminalState in setOf("ROUTE_PANEL", "WAIT_PANEL", "PASSIVE_WAIT_PANEL", "CONTEXT_REQUIRED_PANEL") -> "PASS"
         else -> "UNKNOWN"
     }
 
@@ -989,6 +1056,7 @@ class OneTapFeedbackExporter(
         record.expressSelfClicked && record.expressSelfEligibilityEligible == false ->
             "Express Self was blocked because the current chat state is untrusted, the user just sent a message, or the app is unsupported. No active routes were shown."
         record.terminalState == "WAIT_PANEL" -> "last ME entered WAIT panel with zero routes."
+        record.terminalState == "PASSIVE_WAIT_PANEL" -> "No verified cloud playbook was ready; local passive routes were not shown."
         record.terminalState == "HOLD_BACK_PANEL" -> "Express Self entered HOLD_BACK with no active routes."
         record.terminalState == "ROUTE_PANEL" -> "reply routes were shown, routeCount=${record.routeCount}."
         record.terminalState == "TIMEOUT" -> "session timed out without a terminal state."

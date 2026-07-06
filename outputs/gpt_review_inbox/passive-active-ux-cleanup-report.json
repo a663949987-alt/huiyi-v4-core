@@ -1,0 +1,41 @@
+{
+  "taskName": "no_local_passive_routes_and_express_self_simplify",
+  "versionName": "4.1.64",
+  "versionCode": 483,
+  "generatedAt": "2026-07-06T09:39:26+08:00",
+  "currentOverallResult": "EMULATOR_PASS_NO_PHONE_REQUIRED",
+  "userNeedsPhoneThisRound": false,
+  "nextSentenceCloudOnly": true,
+  "passiveWaitPanelImplemented": true,
+  "passiveWaitPanelShown": true,
+  "passiveWaitPanelTitle": "先等一下",
+  "passiveWaitPanelDecisionType": "PASSIVE_NOT_READY",
+  "passiveWaitPanelTerminalState": "PASSIVE_WAIT_PANEL",
+  "localPassiveRoutesGenerated": true,
+  "localPassiveRoutesShownToUser": false,
+  "nextSentenceRouteCountWhenNoCloudPlaybook": 0,
+  "nextSentenceHasNoPersonaFeedback": true,
+  "lastMeLocalWaitPreserved": true,
+  "expressSelfPanelSimpleMode": true,
+  "expressSelfFeedbackDefaultVisible": false,
+  "expressSelfFeedbackCollapsed": true,
+  "expressSelfDefaultRouteCountMaxThree": true,
+  "expressSelfResultCacheImplemented": true,
+  "expressSelfRepeatClickStable": true,
+  "expressSelfRepeatDoesNotBecomeSnapshotUntrusted": true,
+  "xiaoenaiHandled": "GENERIC_TRIAL",
+  "xiaoenaiPackage": "com.xiaoenai.app",
+  "xiaoenaiWindowTitle": "小恩爱",
+  "xiaoenaiNotDesktopOrLauncher": true,
+  "tests": {
+    "unitTests": "PASS",
+    "appAssembleDebug": "PASS",
+    "mockchatAssembleDebug": "PASS",
+    "emulatorSmoke": "PASS"
+  },
+  "reports": {
+    "emulatorSmokeMarkdown": "outputs/gpt_review_inbox/passive-active-ux-cleanup-emulator-smoke-for-gpt.md",
+    "emulatorSmokeJson": "outputs/gpt_review_inbox/passive-active-ux-cleanup-emulator-smoke.json",
+    "screenshotsPath": "outputs/gpt_review_inbox/passive_active_ux_cleanup_emulator_smoke"
+  }
+}

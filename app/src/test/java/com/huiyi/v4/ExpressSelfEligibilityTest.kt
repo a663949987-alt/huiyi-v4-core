@@ -9,6 +9,7 @@ import com.huiyi.v4.domain.playbook.DynamicPlaybookMode
 import com.huiyi.v4.domain.playbook.DynamicPlaybookRequest
 import com.huiyi.v4.domain.playbook.ExpressionLedger
 import com.huiyi.v4.domain.playbook.ExpressSelfBlockReason
+import com.huiyi.v4.domain.playbook.ExpressSelfEligibilityEvaluator
 import com.huiyi.v4.domain.playbook.ExpressSelfEligibilityMode
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
@@ -109,7 +110,7 @@ class ExpressSelfEligibilityTest {
 
         assertEquals(true, result.expressSelfEligibility?.eligible)
         assertEquals(ExpressSelfEligibilityMode.ALLOW_COLD_START, result.expressSelfEligibility?.mode)
-        assertTrue(result.routes.size in 3..5)
+        assertTrue(result.routes.size in 1..3)
     }
 
     @Test
@@ -126,6 +127,63 @@ class ExpressSelfEligibilityTest {
             )
         )
         assertTrue(result.routes.any { it.routeType == ReplyRouteType.ARC_REVEAL })
+    }
+
+    @Test
+    fun XiaoenaiWindowTitleIsNotDesktopTest() {
+        val result = engine().expressSelf(
+            request(
+                appPackage = "com.xiaoenai.app",
+                windowTitle = "小恩爱",
+                currentAppPackage = "com.xiaoenai.app",
+                currentWindowTitleRedacted = "小恩爱",
+                targetAppSupported = false,
+                parserConfidence = 82,
+                messages = stableXiaoenaiPlanningMessages()
+            )
+        )
+
+        assertEquals(false, ExpressSelfEligibilityEvaluator.isDesktopOrPanelWindow("小恩爱", "com.xiaoenai.app"))
+        assertEquals(true, result.expressSelfEligibility?.targetAppSupported)
+        assertEquals("GENERIC_TRIAL", result.expressSelfEligibility?.source)
+    }
+
+    @Test
+    fun XiaoenaiGenericTrialAllowsStableChatTest() {
+        val result = engine().expressSelf(
+            request(
+                appPackage = "com.xiaoenai.app",
+                windowTitle = "小恩爱",
+                currentAppPackage = "com.xiaoenai.app",
+                currentWindowTitleRedacted = "小恩爱",
+                targetAppSupported = false,
+                parserConfidence = 82,
+                messages = stableXiaoenaiPlanningMessages()
+            )
+        )
+
+        assertEquals(true, result.expressSelfEligibility?.eligible)
+        assertEquals(ExpressSelfEligibilityMode.ALLOW_GENERIC_TRIAL, result.expressSelfEligibility?.mode)
+        assertTrue(result.routes.isNotEmpty())
+    }
+
+    @Test
+    fun GenericTrialBlocksLowConfidenceTest() {
+        val result = engine().expressSelf(
+            request(
+                appPackage = "com.xiaoenai.app",
+                windowTitle = "小恩爱",
+                currentAppPackage = "com.xiaoenai.app",
+                currentWindowTitleRedacted = "小恩爱",
+                targetAppSupported = false,
+                parserConfidence = 55,
+                messages = stableXiaoenaiPlanningMessages()
+            )
+        )
+
+        assertEquals(false, result.expressSelfEligibility?.eligible)
+        assertEquals(ExpressSelfEligibilityMode.BLOCK_UNSUPPORTED_CONTEXT, result.expressSelfEligibility?.mode)
+        assertEquals(ExpressSelfBlockReason.UNSUPPORTED_APP, result.expressSelfEligibility?.blockReason)
     }
 
     @Test
@@ -247,6 +305,13 @@ class ExpressSelfEligibilityTest {
     private fun recentLastMeMessages() = listOf(
         textNode("other-1", Speaker.OTHER, "I care about stable reality.", 1),
         textNode("me-1", Speaker.ME, "I prefer to make real plans step by step.", 2)
+    )
+
+    private fun stableXiaoenaiPlanningMessages() = listOf(
+        textNode("me-1", Speaker.ME, "我明白你的意思。", 1),
+        textNode("other-1", Speaker.OTHER, "这个事情还是要考虑现实和规划。", 2),
+        textNode("me-2", Speaker.ME, "嗯，我也觉得不能只靠嘴上说。", 3),
+        textNode("other-2", Speaker.OTHER, "稳定和以后也挺重要的。", 4)
     )
 
     private fun assertBlocked(result: com.huiyi.v4.domain.playbook.DynamicPlaybookResult) {

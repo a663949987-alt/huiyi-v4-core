@@ -66,6 +66,7 @@ enum class FixtureCategory(val id: String) {
 enum class PanelState {
     WAIT_PANEL,
     ROUTE_PANEL,
+    PASSIVE_WAIT_PANEL,
     CONTEXT_REQUIRED_PANEL,
     VOICE_SUMMARY_CARD,
     UNSUPPORTED_APP_PANEL,
@@ -351,6 +352,7 @@ class AccessibilityNodeFixtureReplayer(
             decision == TacticalDecisionType.PRE_ANALYSIS_CONTAMINATED ||
                 decision == TacticalDecisionType.CHAT_WINDOW_NOT_FOUND -> PanelState.CONTROLLED_FAIL_PANEL
             decision == TacticalDecisionType.WAIT -> PanelState.WAIT_PANEL
+            decision == TacticalDecisionType.PASSIVE_NOT_READY -> PanelState.PASSIVE_WAIT_PANEL
             decision == TacticalDecisionType.VOICE_SUMMARY_REQUIRED -> PanelState.VOICE_SUMMARY_CARD
             routeCount == 5 -> PanelState.ROUTE_PANEL
             else -> PanelState.CONTEXT_REQUIRED_PANEL

@@ -35,37 +35,37 @@ class PassiveActiveSplitTest {
     }
 
     @Test
-    fun ExpressSelfPanelShowsCharacterArcTest() {
-        assertTrue(FloatingPanelSplitPolicy.showsCharacterArcDetails(FloatingPanelMode.EXPRESS_SELF))
+    fun ExpressSelfPanelSimpleModeHidesCharacterArcDetailsByDefaultTest() {
+        assertFalse(FloatingPanelSplitPolicy.showsCharacterArcDetails(FloatingPanelMode.EXPRESS_SELF))
         assertTrue("人物弧光" in FloatingPanelSplitPolicy.characterArcDetailLabels)
     }
 
     @Test
-    fun ExpressSelfPanelShowsLikeMeFeedbackTest() {
-        assertTrue(FloatingPanelSplitPolicy.showsPersonaFeedback(FloatingPanelMode.EXPRESS_SELF))
+    fun ExpressSelfFeedbackCollapsedByDefaultTest() {
+        assertFalse(FloatingPanelSplitPolicy.showsPersonaFeedback(FloatingPanelMode.EXPRESS_SELF))
         assertTrue("像我" in FloatingPanelSplitPolicy.personaFeedbackLabels)
     }
 
     @Test
-    fun PassiveNextSentenceLocalFallbackShowsImmediatelyTest() {
+    fun LocalPassiveRoutesGeneratedButNotShownTest() {
         val context = passiveLastOtherContext()
         val decision = TacticalDecisionEngine().decide(context)
         val routes = ReplyRouteGenerator().generate(context, decision)
 
         assertEquals(Speaker.OTHER, context.lastMessage?.speaker)
         assertEquals(5, routes.size)
-        assertFalse(FloatingPanelSplitPolicy.blocksLocalRoutesWhileCloudPending(FloatingPanelMode.NEXT_SENTENCE))
+        assertTrue(FloatingPanelSplitPolicy.blocksLocalRoutesWhileCloudPending(FloatingPanelMode.NEXT_SENTENCE))
     }
 
     @Test
-    fun PassiveCloudTimeoutDoesNotBlockLocalRoutesTest() {
+    fun NextSentenceShowsPassiveWaitWhenNoCloudPlaybookTest() {
         val cloudTrace = CloudAnalysisTrace(
             cloudErrorCode = NextSentencePendingCloudSessionPolicy.SOFT_TIMEOUT_PENDING,
-            decisionSource = "LOCAL_FALLBACK"
+            decisionSource = "PASSIVE_WAIT_FOR_CLOUD_PLAYBOOK"
         )
 
-        assertEquals("本地建议", FloatingPanelSplitPolicy.titleForNextSentence(cloudTrace))
-        assertFalse(FloatingPanelSplitPolicy.blocksLocalRoutesWhileCloudPending(FloatingPanelMode.NEXT_SENTENCE))
+        assertEquals("先等一下", FloatingPanelSplitPolicy.titleForNextSentence(cloudTrace))
+        assertTrue(FloatingPanelSplitPolicy.blocksLocalRoutesWhileCloudPending(FloatingPanelMode.NEXT_SENTENCE))
     }
 
     @Test
@@ -98,7 +98,7 @@ class PassiveActiveSplitTest {
         val routes = ReplyRouteGenerator().generate(context, decision)
 
         assertTrue(routes.any { it.routeType == ReplyRouteType.ARC_REVEAL })
-        assertTrue(FloatingPanelSplitPolicy.showsCharacterArcDetails(FloatingPanelMode.EXPRESS_SELF))
+        assertFalse(FloatingPanelSplitPolicy.showsCharacterArcDetails(FloatingPanelMode.EXPRESS_SELF))
     }
 
     private fun passiveLastOtherContext() = ContextAssembler().assemble(
