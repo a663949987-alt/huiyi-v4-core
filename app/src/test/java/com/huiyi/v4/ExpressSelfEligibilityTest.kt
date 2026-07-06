@@ -43,6 +43,7 @@ class ExpressSelfEligibilityTest {
                 appPackage = "com.xiaoenai.app",
                 windowTitle = "\u534e\u4e3a\u684c\u9762",
                 targetAppSupported = false,
+                currentAppPackage = "com.huawei.android.launcher",
                 currentWindowTitleRedacted = "\u534e\u4e3a\u684c\u9762",
                 messages = recentLastMeMessages()
             )
@@ -222,6 +223,7 @@ class ExpressSelfEligibilityTest {
                 appPackage = "com.xiaoenai.app",
                 windowTitle = "\u534e\u4e3a\u684c\u9762",
                 targetAppSupported = false,
+                currentAppPackage = "com.huawei.android.launcher",
                 currentWindowTitleRedacted = "\u534e\u4e3a\u684c\u9762",
                 messages = recentLastMeMessages()
             )
@@ -231,6 +233,7 @@ class ExpressSelfEligibilityTest {
         assertEquals(false, eligibility?.eligible)
         assertEquals(false, eligibility?.targetAppSupported)
         assertEquals("\u534e\u4e3a\u684c\u9762", eligibility?.currentWindowTitleRedacted)
+        assertEquals("com.huawei.android.launcher", eligibility?.currentAppPackage)
         assertEquals(Speaker.ME, eligibility?.lastSpeaker)
         assertEquals(false, eligibility?.shouldReply)
         assertEquals("WINDOW_IS_DESKTOP_OR_LAUNCHER", eligibility?.blockedReason)
@@ -300,6 +303,46 @@ class ExpressSelfEligibilityTest {
         assertEquals(ExpressSelfEligibilityMode.ALLOW_GENERIC_TRIAL, result.expressSelfEligibility?.mode)
         assertEquals("GENERIC_TRIAL", result.expressSelfEligibility?.source)
         assertTrue(result.routes.isNotEmpty())
+    }
+
+    @Test
+    fun V4166_XIAOENAI_NORMAL_CHAT_IGNORES_STALE_HUAWEI_DESKTOP_TITLE() {
+        val result = engine().expressSelf(
+            request(
+                appPackage = "com.xiaoenai.app",
+                windowTitle = "\u534e\u4e3a\u684c\u9762",
+                currentAppPackage = "com.xiaoenai.app",
+                currentWindowTitleRedacted = "\u534e\u4e3a\u684c\u9762",
+                targetAppSupported = false,
+                parserConfidence = 82,
+                messages = stableXiaoenaiPlanningMessages()
+            )
+        )
+
+        assertEquals(true, result.expressSelfEligibility?.eligible)
+        assertEquals(ExpressSelfEligibilityMode.ALLOW_GENERIC_TRIAL, result.expressSelfEligibility?.mode)
+        assertEquals("GENERIC_TRIAL", result.expressSelfEligibility?.source)
+        assertEquals("com.xiaoenai.app", result.expressSelfEligibility?.currentAppPackage)
+        assertTrue(result.routes.isNotEmpty())
+    }
+
+    @Test
+    fun V4166_HUAWEI_DESKTOP_WITH_LAUNCHER_PACKAGE_STILL_BLOCKS() {
+        val result = engine().expressSelf(
+            request(
+                appPackage = "com.xiaoenai.app",
+                windowTitle = "\u534e\u4e3a\u684c\u9762",
+                currentAppPackage = "com.huawei.android.launcher",
+                currentWindowTitleRedacted = "\u534e\u4e3a\u684c\u9762",
+                targetAppSupported = false,
+                parserConfidence = 82,
+                messages = stableXiaoenaiPlanningMessages()
+            )
+        )
+
+        assertBlocked(result)
+        assertEquals(ExpressSelfEligibilityMode.BLOCK_UNTRUSTED_SNAPSHOT, result.expressSelfEligibility?.mode)
+        assertEquals(ExpressSelfBlockReason.WINDOW_IS_DESKTOP_OR_LAUNCHER, result.expressSelfEligibility?.blockReason)
     }
 
     private fun engine() = DynamicPlaybookEngine()

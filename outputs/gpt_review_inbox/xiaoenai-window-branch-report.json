@@ -1,0 +1,33 @@
+{
+  "taskName": "xiaoenai_window_title_branch_fix_before_phone",
+  "versionName": "4.1.67",
+  "versionCode": 486,
+  "generatedAt": "2026-07-06T12:10:24+08:00",
+  "currentOverallResult": "XIAOENAI_WINDOW_BRANCH_FIX_LOCAL_PASS",
+  "userNeedsPhoneThisRound": false,
+  "realDeviceSmokeResult": "NOT_TESTED_THIS_ROUND",
+  "xiaoenaiNormalChatBranch": {
+    "result": "PASS",
+    "appPackage": "com.xiaoenai.app",
+    "currentAppPackage": "com.xiaoenai.app",
+    "currentWindowTitleRedacted": "华为桌面",
+    "expected": "ALLOW_GENERIC_TRIAL_OR_XIAOENAI_PROFILE",
+    "actual": "ALLOW_GENERIC_TRIAL",
+    "source": "GENERIC_TRIAL",
+    "staleHuaweiDesktopTitleIgnored": true
+  },
+  "huaweiDesktopBranch": {
+    "result": "PASS",
+    "currentAppPackage": "com.huawei.android.launcher",
+    "currentWindowTitleRedacted": "华为桌面",
+    "expected": "BLOCK",
+    "actual": "BLOCK_UNTRUSTED_SNAPSHOT",
+    "blockReason": "WINDOW_IS_DESKTOP_OR_LAUNCHER"
+  },
+  "tests": {
+    "targetedBranchTests": "PASS",
+    "unitTests": "PASS",
+    "assembleDebug": "PASS",
+    "emulatorSmokeResult": "NOT_RUN_FIXTURE_BRANCH_COVERAGE_USED"
+  }
+}

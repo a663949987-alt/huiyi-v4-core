@@ -222,20 +222,27 @@ class ExpressSelfEligibilityEvaluator {
         fun isDesktopOrPanelWindow(title: String?, packageName: String?): Boolean {
             val joined = listOfNotNull(title, packageName).joinToString(" ")
             if (joined.isBlank()) return false
-            val markers = listOf(
+            val packageLooksLikeLauncher = packageName.orEmpty().contains("launcher", ignoreCase = true)
+            val desktopMarkers = listOf(
                 "\u534e\u4e3a\u684c\u9762",
                 "\u684c\u9762",
                 "Launcher",
                 "launcher",
+                "com.huawei.android.launcher"
+            )
+            if (packageLooksLikeLauncher) return true
+            if (packageName.isNullOrBlank() && desktopMarkers.any { joined.contains(it, ignoreCase = true) }) {
+                return true
+            }
+            val ownPanelMarkers = listOf(
                 "\u4f1a\u610f\u96f7\u8fbe",
                 "\u8fd9\u6b21\u4e0d\u5bf9",
                 "\u6ca1\u8bfb\u5230\u5f53\u524d\u804a\u5929",
                 "\u6ca1\u8bfb\u5230\u804a\u5929",
                 "\u8bf7\u56de\u5230\u804a\u8d77\u804a\u5929\u7a97\u53e3",
-                "\u9690\u85cf",
-                "com.huawei.android.launcher"
+                "\u9690\u85cf"
             )
-            return markers.any { joined.contains(it, ignoreCase = true) }
+            return ownPanelMarkers.any { joined.contains(it, ignoreCase = true) }
         }
 
         private fun genericChatTrial(
@@ -248,7 +255,9 @@ class ExpressSelfEligibilityEvaluator {
             if (request.appPackage.orEmpty() in supportedChatPackages) return false
             if (request.appPackage != "com.xiaoenai.app") return false
             if (isDesktopOrPanelWindow(currentWindowTitle, currentPackage)) return false
-            if (currentWindowTitle?.contains("\u5c0f\u6069\u7231", ignoreCase = true) != true) return false
+            val titleLooksLikeXiaoenai = currentWindowTitle?.contains("\u5c0f\u6069\u7231", ignoreCase = true) == true
+            val packageLooksLikeXiaoenai = currentPackage == "com.xiaoenai.app"
+            if (!titleLooksLikeXiaoenai && !packageLooksLikeXiaoenai) return false
             if (effectiveCount < GENERIC_TRIAL_MIN_EFFECTIVE_MESSAGES) return false
             return parserConfidence >= GENERIC_TRIAL_MIN_CONFIDENCE
         }
