@@ -1,47 +1,24 @@
 {
   "project": "huiyi-v4",
-  "taskName": "real_use_v4165_package_delivery",
-  "versionName": "4.1.65",
-  "versionCode": 484,
-  "currentOverallResult": "READY_FOR_PHONE_TEST_PRIVATE_LAN_APK",
-  "generatedAt": "2026-07-06T10:09:16+08:00",
-  "userNeedsPhoneThisRound": true,
-  "realDeviceSmokeResult": "PENDING_USER_TEST",
-  "apkGenerated": true,
-  "apkPath": "outputs/update_server/huiyi-v4.1.65-debug.apk",
-  "apkSha256": "E9339A2B8E1C7B0B15DF33E4EEDA25A7E403EF4707F1D222066CCBFD61BE4139",
-  "apkDeliveredOutOfBand": true,
-  "apkCommittedToPublicGithub": false,
-  "privateApkContainsRelayConfig": true,
-  "lanUpdateAvailable": true,
-  "latestJsonUpdated": true,
-  "latestJsonVersionName": "4.1.65",
-  "latestJsonVersionCode": 484,
-  "latestJsonApkUrl": "huiyi-v4.1.65-debug.apk",
-  "noLocalPassiveRoutes": true,
-  "passiveWaitPanel": true,
-  "expressSelfSimpleMode": true,
-  "expressSelfRepeatClickStable": true,
-  "xiaoenaiGenericTrial": true,
-  "secretScanResult": "PRIVATE_RELAY_KEY_PRESENT_IN_APK_NOT_COMMITTED_TO_PUBLIC_GITHUB",
-  "files": [
-    {
-      "path": "outputs/gpt_review_inbox/real-use-v4165-package-report-for-gpt.md",
-      "type": "report",
-      "sendToGpt": true,
-      "description": "Main v4.1.65 delivery package report"
-    },
-    {
-      "path": "outputs/gpt_review_inbox/real-use-v4165-package-report.json",
-      "type": "json",
-      "sendToGpt": true,
-      "description": "Machine-readable v4.1.65 delivery package report"
-    },
-    {
-      "path": "outputs/update_server/latest.json",
-      "type": "json",
-      "sendToGpt": true,
-      "description": "LAN update manifest pointing to v4.1.65"
-    }
-  ]
+  "phoneBundleIncluded": true,
+  "oneTapFeedbackIncluded": true,
+  "uploadedFromPhone": true,
+  "latestPhoneUploadAt": "2026-07-06T02:30:57.471848+00:00",
+  "latestPhoneSessionId": "3d1e0bd8-8cf1-4c9c-b3d0-ca69ed4f3e8f",
+  "githubCommitHash": "PENDING",
+  "githubReviewPath": "outputs/gpt_review_inbox/phone/latest/",
+  "realDeviceTested": true,
+  "latestPhoneConclusion": {
+    "sessionId": "3d1e0bd8-8cf1-4c9c-b3d0-ca69ed4f3e8f",
+    "terminalState": "CONTROLLED_FAIL_PANEL",
+    "appPackage": "com.xiaoenai.app",
+    "actualLastSpeaker": "OTHER",
+    "decisionType": "PRE_ANALYSIS_CONTAMINATED",
+    "routeCount": 0,
+    "waitPanelShown": false,
+    "routePanelShown": false,
+    "errorCode": "",
+    "userMarkedWrong": true,
+    "userCorrectionLastSpeaker": "NONE"
+  }
 }

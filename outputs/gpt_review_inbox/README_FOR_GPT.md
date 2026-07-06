@@ -1,63 +1,28 @@
 # Huiyi v4 GPT Review Inbox
 
-## Current Task
+## Source
+- phoneBundleIncluded: true
+- oneTapFeedbackIncluded: true
+- uploadedFromPhone: true
+- latestPhoneUploadAt: 2026-07-06T02:30:57.471848+00:00
+- latestPhoneSessionId: 3d1e0bd8-8cf1-4c9c-b3d0-ca69ed4f3e8f
+- githubCommitHash: PENDING
+- githubReviewPath: outputs/gpt_review_inbox/phone/latest/
+- realDeviceTested: true
 
-- taskName: real_use_v4165_package_delivery
-- versionName: 4.1.65
-- versionCode: 484
-- currentOverallResult: READY_FOR_PHONE_TEST_PRIVATE_LAN_APK
-- userNeedsPhoneThisRound: true
-- realDeviceSmokeResult: PENDING_USER_TEST
+## Latest Phone Conclusion
+- terminalState: CONTROLLED_FAIL_PANEL
+- appPackage: com.xiaoenai.app
+- actualLastSpeaker: OTHER
+- decisionType: PRE_ANALYSIS_CONTAMINATED
+- routeCount: 0
+- waitPanelShown: False
+- routePanelShown: False
+- errorCode: 
+- userMarkedWrong: True
+- userCorrectionLastSpeaker: NONE
 
-## Why This Round Exists
-
-v4.1.64 emulator validation passed, but `outputs/update_server/latest.json` still pointed to v4.1.63 / 482. This round only fixes the delivery package and LAN update manifest.
-
-## Package
-
-- apkGenerated: true
-- apkPath: outputs/update_server/huiyi-v4.1.65-debug.apk
-- apkSha256: E9339A2B8E1C7B0B15DF33E4EEDA25A7E403EF4707F1D222066CCBFD61BE4139
-- apkDeliveredOutOfBand: true
-- apkCommittedToPublicGithub: false
-- privateApkContainsRelayConfig: true
-- lanUpdateAvailable: true
-- latestJsonUpdated: true
-- latestJsonPath: outputs/update_server/latest.json
-- latestJsonVersionName: 4.1.65
-- latestJsonVersionCode: 484
-- latestJsonApkUrl: huiyi-v4.1.65-debug.apk
-
-## Included Fixes
-
-- includesV4163DynamicPlaybookCombinedPackage: true
-- noLocalPassiveRoutes: true
-- passiveWaitPanel: true
-- expressSelfSimpleMode: true
-- expressSelfRepeatClickStable: true
-- xiaoenaiGenericTrial: true
-
-## Primary Reports
-
-1. outputs/gpt_review_inbox/real-use-v4165-package-report-for-gpt.md
-2. outputs/gpt_review_inbox/real-use-v4165-package-report.json
-3. outputs/gpt_review_inbox/passive-active-ux-cleanup-report-for-gpt.md
-4. outputs/gpt_review_inbox/passive-active-ux-cleanup-emulator-smoke-for-gpt.md
-
-## Verification Summary
-
-- assembleDebug: PASS
-- latestJsonPointsToExistingApk: true
-- secretScanResult: PRIVATE_RELAY_KEY_PRESENT_IN_APK_NOT_COMMITTED_TO_PUBLIC_GITHUB
-- v4164EmulatorSmoke: PASS
-- nextSentenceCloudOnly: true
-- passiveWaitPanelShown: true
-- localPassiveRoutesShownToUser: false
-- expressSelfSimpleMode: true
-- expressSelfRepeatClickStable: true
-
-## User Action
-
-- userNeedsPhoneThisRound: true
-- User can update through LAN and test this package.
-- The APK is intentionally not committed to public GitHub because it contains private relay configuration.
+## GPT Should Inspect
+1. outputs/gpt_review_inbox/phone/latest/README_FOR_GPT.md
+2. outputs/gpt_review_inbox/phone/latest/one-tap-feedback-manifest.json
+3. outputs/gpt_review_inbox/phone/latest/latest-session/next-sentence-flight-record.json
