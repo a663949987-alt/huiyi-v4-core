@@ -5,6 +5,8 @@ import android.content.Intent
 import androidx.core.content.FileProvider
 import com.huiyi.v4.BuildConfig
 import com.huiyi.v4.accessibility.HuiyiAccessibilityService
+import com.huiyi.v4.domain.app.ChatAppProfileDetectionInput
+import com.huiyi.v4.domain.app.ChatAppProfileDetector
 import com.huiyi.v4.domain.model.Speaker
 import com.huiyi.v4.domain.model.TacticalDecisionType
 import com.huiyi.v4.domain.pipeline.CurrentScreenPipelineResult
@@ -328,6 +330,26 @@ object NextSentenceFlightRecordFactory {
         val capture = result.captureResult
         val decisionType = result.tacticalDecision.decisionType
         val expressSelfEligibility = result.expressSelfEligibility
+        val appProfile = capture?.let {
+            ChatAppProfileDetector.detect(
+                ChatAppProfileDetectionInput(
+                    appPackage = it.snapshot.appPackage,
+                    windowTitle = it.snapshot.windowTitle,
+                    currentAppPackage = it.currentRootPackageAtCapture ?: it.snapshot.appPackage,
+                    currentWindowTitle = it.snapshot.windowTitle,
+                    messages = it.messages,
+                    parserConfidence = it.messages
+                        .filter { message -> message.isEffectiveChatMessage && message.speaker in setOf(Speaker.ME, Speaker.OTHER) }
+                        .map { message -> message.speakerConfidence.coerceIn(0, 100) }
+                        .takeIf { values -> values.isNotEmpty() }
+                        ?.average()
+                        ?.toInt()
+                        ?: 0,
+                    sameAppPackageStable = it.currentRootPackageAtCapture.isNullOrBlank() ||
+                        it.currentRootPackageAtCapture == it.snapshot.appPackage
+                )
+            )
+        }
         val expressSelfClicked = result.decisionTypeFamily == "EXPRESS_SELF" ||
             result.sessionTerminalState in setOf("EXPRESS_SELF_PANEL", "HOLD_BACK_PANEL", "CONTROLLED_FAIL_PANEL")
         val startedAt = result.analysisStartedAt.takeIf { it > 0L } ?: trace.startedAt
@@ -341,10 +363,12 @@ object NextSentenceFlightRecordFactory {
             appPackage = capture?.snapshot?.appPackage ?: "unknown",
             windowTitlePreAnalysisRedacted = capture?.snapshot?.windowTitle?.redactPrivateText(120) ?: "unknown",
             targetAppSupported = expressSelfEligibility?.targetAppSupported
-                ?: (capture?.snapshot?.appPackage == "com.bajiao.im.liaoqi" || capture?.snapshot?.appPackage == "com.huiyi.mockchat"),
+                ?: (appProfile?.targetAppSupported ?: false),
             adapterName = when {
                 capture?.snapshot?.appPackage == "com.bajiao.im.liaoqi" -> "LiaoqiRealParser"
                 expressSelfEligibility?.source == "GENERIC_TRIAL" -> "GenericChatTrial"
+                appProfile?.source == "GENERIC_TRIAL" -> "GenericChatTrial"
+                appProfile?.targetAppSupported == true -> appProfile.profile.parserName
                 else -> "GenericVisualBubbleParser"
             },
             parserName = capture?.parserName ?: "NONE",

@@ -59,6 +59,8 @@ import com.huiyi.v4.accessibility.AccessibilityRuntimeReader
 import com.huiyi.v4.accessibility.AccessibilityRuntimeState
 import com.huiyi.v4.accessibility.accessibilityRuntimeMessage
 import com.huiyi.v4.floating.OverlayStateStore
+import com.huiyi.v4.domain.app.ChatAppProfileDetectionInput
+import com.huiyi.v4.domain.app.ChatAppProfileDetector
 import com.huiyi.v4.domain.pipeline.EvidencePackFiles
 import com.huiyi.v4.BuildConfig
 import com.huiyi.v4.domain.pipeline.toNextSentenceException
@@ -785,7 +787,14 @@ class HuiyiRuntime private constructor(
                     capturedAt = capture.snapshot.capturedAt,
                     sessionId = sessionId,
                     chatWindowHash = capture.snapshot.windowTitle.orEmpty(),
-                    targetAppSupported = capture.snapshot.appPackage in setOf("com.bajiao.im.liaoqi", "com.huiyi.mockchat"),
+                    targetAppSupported = detectChatAppSupport(
+                        appPackage = capture.snapshot.appPackage,
+                        windowTitle = capture.snapshot.windowTitle,
+                        currentAppPackage = beforeRuntime.currentPackage ?: capture.snapshot.appPackage,
+                        currentWindowTitle = beforeRuntime.currentWindowTitle ?: capture.snapshot.windowTitle,
+                        messages = messages,
+                        parserConfidence = 100
+                    ),
                     snapshotTrusted = capture.snapshot.appPackage !in setOf(null, appContext.packageName, "com.android.systemui"),
                     currentAppPackage = beforeRuntime.currentPackage ?: capture.snapshot.appPackage,
                     currentWindowTitleRedacted = beforeRuntime.currentWindowTitle ?: capture.snapshot.windowTitle,
@@ -996,7 +1005,14 @@ class HuiyiRuntime private constructor(
             capturedAt = stable.capturedAt,
             sessionId = sessionId,
             chatWindowHash = stable.nodesHash,
-            targetAppSupported = stable.packageName in setOf("com.bajiao.im.liaoqi", "com.huiyi.mockchat"),
+            targetAppSupported = detectChatAppSupport(
+                appPackage = stable.packageName,
+                windowTitle = stable.windowTitle,
+                currentAppPackage = currentPackageForTrust,
+                currentWindowTitle = runtimeAtClick.currentWindowTitle ?: stable.windowTitle,
+                messages = messages,
+                parserConfidence = 100
+            ),
             snapshotTrusted = true,
             currentAppPackage = currentPackageForTrust,
             currentWindowTitleRedacted = runtimeAtClick.currentWindowTitle ?: stable.windowTitle,
@@ -1030,6 +1046,25 @@ class HuiyiRuntime private constructor(
         if (rootPackage.contains("launcher", ignoreCase = true)) return false
         return false
     }
+
+    private fun detectChatAppSupport(
+        appPackage: String?,
+        windowTitle: String?,
+        currentAppPackage: String?,
+        currentWindowTitle: String?,
+        messages: List<com.huiyi.v4.domain.model.MessageNode>,
+        parserConfidence: Int
+    ): Boolean = ChatAppProfileDetector.detect(
+        ChatAppProfileDetectionInput(
+            appPackage = appPackage,
+            windowTitle = windowTitle,
+            currentAppPackage = currentAppPackage,
+            currentWindowTitle = currentWindowTitle,
+            messages = messages,
+            parserConfidence = parserConfidence,
+            sameAppPackageStable = currentAppPackage.isNullOrBlank() || currentAppPackage == appPackage
+        )
+    ).targetAppSupported
 
     private fun launchDynamicPlaybookCloudRefresh(request: DynamicPlaybookRequest) {
         scope.launch {

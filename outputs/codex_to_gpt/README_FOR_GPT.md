@@ -1,18 +1,19 @@
 # Codex to GPT Result
 
-- taskName: cloud_model_trace_and_ds_runtime_guard
-- versionName: 4.1.71
-- versionCode: 490
-- currentOverallResult: LOCAL_ROUTING_PASS_NO_PHONE_REQUIRED
-- generatedAt: 2026-07-06T18:12:00+08:00
-- userNeedsPhoneThisRound: false
-- realDeviceRequiredThisRound: false
-- cloudModelTraceImplemented: true
-- dsProRuntimeDisabled: true
-- dsFlashCheapDraftOnly: true
-- activeExpressionUsesStrongModel: true
-- arcRevealUsesStrongModel: true
+- taskName: xiaoenai_generic_trial_feedback_fix
+- versionName: 4.1.72
+- versionCode: 491
+- currentOverallResult: READY_FOR_PHONE_UPDATE_TEST
+- generatedAt: 2026-07-06T18:22:00+08:00
+- userNeedsPhoneThisRound: true
+- xiaoenaiNormalChatGenericTrial: true
+- xiaoenaiDesktopStillBlocked: true
+- oneTapFeedbackUsesChatAppProfileDetector: true
+- expressSelfClickedRecordReady: true
 - app:testDebugUnitTest: PASS
 - app:assembleDebug: PASS
-- primaryReport: outputs/gpt_review_inbox/cloud-model-trace-routing-report-for-gpt.md
-- reportJson: outputs/gpt_review_inbox/cloud-model-trace-routing-report.json
+- apkPath: outputs/update_server/huiyi-v4.1.72-debug.apk
+- latestJsonPath: outputs/update_server/latest.json
+- apkSha256: 9C570B53E9FABC7EED5FA1E1B2865D913919CA327836CF686F1AA659B48CFE23
+- primaryReport: outputs/gpt_review_inbox/xiaoenai-generic-trial-feedback-fix-report-for-gpt.md
+- reportJson: outputs/gpt_review_inbox/xiaoenai-generic-trial-feedback-fix-report.json

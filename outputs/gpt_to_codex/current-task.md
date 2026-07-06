@@ -2,28 +2,26 @@
 
 taskStatus: COMPLETED
 project: Huiyi v4
-taskName: cloud_model_trace_and_ds_runtime_guard
-versionName: 4.1.71
-versionCode: 490
+taskName: xiaoenai_generic_trial_feedback_fix
+versionName: 4.1.72
+versionCode: 491
 createdBy: User/GPT
-userNeedsPhoneThisRound: false
-realDeviceRequiredThisRound: false
+userNeedsPhoneThisRound: true
+realDeviceRequiredThisRound: true
 
 ## Goals
 
-- Add CloudModelTrace for cloud requests.
-- Show actual cloud model and request purpose in reports.
-- Disable DS Pro from runtime routing.
-- Restrict DS Flash to passive playbook cheap draft.
-- Route active expression and arc reveal to strong model.
+- Ensure Xiaoenai normal chat enters GENERIC_TRIAL / XIAOENAI_PROFILE-compatible path.
+- Keep Huawei desktop / launcher blocked.
+- Ensure Express Self one-tap feedback records expressSelfClicked=true.
+- Publish LAN update package.
 
 ## Result
 
-- currentOverallResult: LOCAL_ROUTING_PASS_NO_PHONE_REQUIRED
-- cloudModelTraceImplemented: true
-- dsProRuntimeDisabled: true
-- dsFlashCheapDraftOnly: true
-- activeExpressionUsesStrongModel: true
-- arcRevealUsesStrongModel: true
+- currentOverallResult: READY_FOR_PHONE_UPDATE_TEST
+- xiaoenaiNormalChatGenericTrial: true
+- expressSelfClickedRecordReady: true
+- latestJsonUpdated: true
+- apkPath: outputs/update_server/huiyi-v4.1.72-debug.apk
 - app:testDebugUnitTest: PASS
 - app:assembleDebug: PASS

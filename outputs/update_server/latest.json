@@ -1,9 +1,9 @@
 {
-    "versionName":  "4.1.71",
-    "versionCode":  490,
-    "apkUrl":  "huiyi-v4.1.71-debug.apk",
-    "releaseNotes":  "v4.1.71: Real-use candidate package combining full emulator matrix, Xiaoenai GenericTrial, multi chat AppProfile/GenericTrial/adaptation pack, no local passive routes, simplified Express Self, dynamic playbook cache/cloud refresh/stale discard, LAST_ME WAIT/HOLD_BACK, and status metadata filtering.",
-    "forceUpdate":  false,
-    "sha256":  "E22845C468790E0CC1FE21541CF8F122CF0DC1D7D66F94F5CD44EFC8C1496C95",
-    "createdAt":  1783330290139
+  "versionName": "4.1.72",
+  "versionCode": 491,
+  "apkUrl": "huiyi-v4.1.72-debug.apk",
+  "releaseNotes": "v4.1.72: Fix Xiaoenai normal chat GenericTrial support in runtime and one-tap feedback. Xiaoenai trusted chat pages now report targetAppSupported=true/GenericChatTrial, and Express Self feedback records expressSelfClicked=true.",
+  "forceUpdate": false,
+  "sha256": "9C570B53E9FABC7EED5FA1E1B2865D913919CA327836CF686F1AA659B48CFE23",
+  "createdAt": 1783333243792
 }

@@ -1,0 +1,34 @@
+{
+  "project": "huiyi-v4",
+  "taskName": "xiaoenai_generic_trial_feedback_fix",
+  "versionName": "4.1.72",
+  "versionCode": 491,
+  "generatedAt": "2026-07-06T18:22:00+08:00",
+  "currentOverallResult": "READY_FOR_PHONE_UPDATE_TEST",
+  "userNeedsPhoneThisRound": true,
+  "xiaoenaiNormalChatGenericTrial": true,
+  "xiaoenaiDesktopStillBlocked": true,
+  "runtimeHardcodedSupportListRemovedForDynamicPlaybook": true,
+  "oneTapFeedbackUsesChatAppProfileDetector": true,
+  "targetAppSupportedForXiaoenaiNormalChat": true,
+  "adapterNameForXiaoenaiNormalChat": "GenericChatTrial",
+  "expressSelfClickedRecordReady": true,
+  "tests": {
+    "XiaoenaiNormalChatFeedbackRecordUsesGenericTrialProfileTest": "PASS",
+    "ExpressSelfFeedbackRecordMarksExpressSelfClickedTest": "PASS",
+    "ExpressSelfEligibilityTest": "PASS",
+    "RealUseV4171CombinedPackageSmokeTest": "PASS",
+    "MultiAppProfileMatrixTest": "PASS",
+    "appTestDebugUnitTest": "PASS",
+    "appAssembleDebug": "PASS"
+  },
+  "updatePackage": {
+    "apkPath": "outputs/update_server/huiyi-v4.1.72-debug.apk",
+    "latestJsonPath": "outputs/update_server/latest.json",
+    "latestJsonVersionName": "4.1.72",
+    "latestJsonVersionCode": 491,
+    "latestJsonApkUrl": "huiyi-v4.1.72-debug.apk",
+    "apkSha256": "9C570B53E9FABC7EED5FA1E1B2865D913919CA327836CF686F1AA659B48CFE23",
+    "sha256MatchesLatestJson": true
+  }
+}

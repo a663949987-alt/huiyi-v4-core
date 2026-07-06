@@ -2,31 +2,34 @@
 
 ## Current Task
 
-- taskName: cloud_model_trace_and_ds_runtime_guard
-- versionName: 4.1.71
-- versionCode: 490
-- currentOverallResult: LOCAL_ROUTING_PASS_NO_PHONE_REQUIRED
-- generatedAt: 2026-07-06T18:12:00+08:00
-- userNeedsPhoneThisRound: false
-- realDeviceRequiredThisRound: false
+- taskName: xiaoenai_generic_trial_feedback_fix
+- versionName: 4.1.72
+- versionCode: 491
+- currentOverallResult: READY_FOR_PHONE_UPDATE_TEST
+- generatedAt: 2026-07-06T18:22:00+08:00
+- userNeedsPhoneThisRound: true
+- realDeviceRequiredThisRound: true
 
 ## Summary
 
-- CloudModelTrace added for every playbook cloud refresh request path.
-- Reports now show actualCloudModelUsed and purpose-specific model fields.
-- deepseek-v4-pro is disabled from runtime routing.
-- deepseek-v4-flash is limited to PASSIVE_PLAYBOOK cheap draft only.
-- ACTIVE_EXPRESSION and ARC_REVEAL use gpt-5.4 or configuredStrongModel.
-- DS Flash output may write PlaybookCache only after strict validation PASS.
+- Xiaoenai trusted chat pages now use ChatAppProfileDetector instead of an old hardcoded runtime whitelist.
+- Xiaoenai normal chat should report targetAppSupported=true and adapterName=GenericChatTrial.
+- Huawei desktop / launcher remains BLOCK.
+- Express Self one-tap feedback records now preserve expressSelfClicked=true.
+- LAN update package generated for v4.1.72.
 
 ## GPT Should Inspect
 
-1. outputs/gpt_review_inbox/cloud-model-trace-routing-report-for-gpt.md
-2. outputs/gpt_review_inbox/cloud-model-trace-routing-report.json
+1. outputs/gpt_review_inbox/xiaoenai-generic-trial-feedback-fix-report-for-gpt.md
+2. outputs/gpt_review_inbox/xiaoenai-generic-trial-feedback-fix-report.json
 3. outputs/codex_to_gpt/result-manifest.json
 
 ## Verification
 
 - app:testDebugUnitTest: PASS
 - app:assembleDebug: PASS
-- phoneTestRequired: false
+- latestJsonUpdated: true
+- latestJsonVersionName: 4.1.72
+- latestJsonVersionCode: 491
+- apkPath: outputs/update_server/huiyi-v4.1.72-debug.apk
+- apkSha256: 9C570B53E9FABC7EED5FA1E1B2865D913919CA327836CF686F1AA659B48CFE23

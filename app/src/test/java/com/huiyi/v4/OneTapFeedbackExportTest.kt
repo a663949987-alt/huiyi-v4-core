@@ -295,6 +295,68 @@ class OneTapFeedbackExportTest {
     }
 
     @Test
+    fun XiaoenaiNormalChatFeedbackRecordUsesGenericTrialProfileTest() {
+        val record = NextSentenceFlightRecordFactory.fromSuccess(
+            evidenceResult(
+                appPackage = "com.xiaoenai.app",
+                source = SampleSource.REAL_DEVICE_ACCESSIBILITY,
+                messages = listOf(
+                    textNode("o1", Speaker.OTHER, "这个事情也要规划好", 1),
+                    textNode("m2", Speaker.ME, "我也觉得要一步一步来", 2),
+                    textNode("o3", Speaker.OTHER, "嗯，稳定一点比较好", 3),
+                    textNode("m4", Speaker.ME, "那我先等你忙完", 4)
+                ),
+                includeRoutes = false,
+                windowTitle = "小恩爱"
+            ).copy(
+                sessionId = "xiaoenai-last-me",
+                analysisStartedAt = 100L,
+                analysisEndedAt = 250L,
+                analysisDurationMs = 150L,
+                waitPanelShown = true,
+                routePanelShown = false,
+                sessionTerminalState = "WAIT_PANEL",
+                decisionTypeFamily = "WAIT"
+            ),
+            NextSentenceSessionTrace("xiaoenai-last-me", 100L, endedAt = 250L)
+        )
+
+        assertTrue(record.targetAppSupported)
+        assertEquals("GenericChatTrial", record.adapterName)
+        assertFalse(record.expressSelfClicked)
+    }
+
+    @Test
+    fun ExpressSelfFeedbackRecordMarksExpressSelfClickedTest() {
+        val record = NextSentenceFlightRecordFactory.fromSuccess(
+            evidenceResult(
+                appPackage = "com.xiaoenai.app",
+                source = SampleSource.REAL_DEVICE_ACCESSIBILITY,
+                messages = listOf(
+                    textNode("m1", Speaker.ME, "我听懂你的意思", 1),
+                    textNode("o2", Speaker.OTHER, "这个事情也需要规划好", 2),
+                    textNode("o3", Speaker.OTHER, "稳定一点比较好", 3)
+                ),
+                includeRoutes = true,
+                windowTitle = "小恩爱"
+            ).copy(
+                sessionId = "xiaoenai-express-self",
+                analysisStartedAt = 100L,
+                analysisEndedAt = 260L,
+                analysisDurationMs = 160L,
+                routePanelShown = true,
+                sessionTerminalState = "EXPRESS_SELF_PANEL",
+                decisionTypeFamily = "EXPRESS_SELF"
+            ),
+            NextSentenceSessionTrace("xiaoenai-express-self", 100L, endedAt = 260L)
+        )
+
+        assertTrue(record.expressSelfClicked)
+        assertTrue(record.targetAppSupported)
+        assertEquals("GenericChatTrial", record.adapterName)
+    }
+
+    @Test
     fun HuiyiMomentAcceptedOnlyWhenPreAnalysisCleanTest() {
         val clean = routeRecord("clean").copy(decisionType = "HUIYI_MOMENT").withComputedConsistency()
         val contaminated = clean.copy(windowTitlePreAnalysisRedacted = "会意雷达 最后一句是我。").withComputedConsistency()
