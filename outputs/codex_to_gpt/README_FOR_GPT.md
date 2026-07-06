@@ -1,12 +1,16 @@
 ﻿# Codex to GPT Result
 
-- taskName: dynamic_playbook_instant_cache_cloud_refresh_smoke
-- versionName: 4.1.62
-- versionCode: 481
-- currentOverallResult: DYNAMIC_PLAYBOOK_FULL_EMULATOR_PASS
-- userNeedsPhoneThisRound: false
-- apkPath: outputs/update_server/huiyi-v4.1.62-debug.apk
-- apkSha256: 1F1903263E4485FCA87A4251505D23E9432AECC8166D90FE22BFF88FBD38F10D
-- primaryReport: outputs/gpt_review_inbox/dynamic-playbook-full-emulator-smoke-for-gpt.md
-- reportJson: outputs/gpt_review_inbox/dynamic-playbook-full-emulator-smoke.json
-- noPhoneTestThisRound: true
+- taskName: real_use_dynamic_playbook_express_self_combined_package
+- versionName: 4.1.63
+- versionCode: 482
+- currentOverallResult: READY_FOR_REAL_DEVICE_TEST
+- userNeedsPhoneThisRound: true
+- apkPath: outputs/update_server/huiyi-v4.1.63-debug.apk
+- apkSha256: 759B7B982F05658A12479512872AC6D1AD91B7AE58ACE53AAB65C1971CC75EF5
+- primaryReport: outputs/gpt_review_inbox/real-use-combined-package-report-for-gpt.md
+- reportJson: outputs/gpt_review_inbox/real-use-combined-package-report.json
+- updateManifest: outputs/update_server/latest.json
+- dynamicPlaybookFullEmulatorSmoke: PASS
+- expressSelfEligibilityEmulatorSmoke: PASS
+- versionConflictResolved: true
+- realDeviceSmoke: PENDING_USER_TEST

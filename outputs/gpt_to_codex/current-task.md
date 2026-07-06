@@ -1,28 +1,29 @@
-# GPT -> Codex Current Task
+﻿# GPT -> Codex Current Task
 
 taskStatus: COMPLETED
 project: Huiyi v4
-taskName: dynamic_playbook_instant_cache_cloud_refresh_smoke
-versionName: 4.1.62
-versionCode: 481
+taskName: real_use_dynamic_playbook_express_self_combined_package
+versionName: 4.1.63
+versionCode: 482
 createdBy: User
-userNeedsPhoneThisRound: false
-realDeviceRequiredThisRound: false
+userNeedsPhoneThisRound: true
+realDeviceRequiredThisRound: true
 
 ## Goals
 
-- Next Sentence reads PlaybookCache.passiveNext and returns Chinese passive routes within 1 second.
-- Express Self reads PlaybookCache.activeExpression and returns Chinese character-arc/co-create routes within 1 second.
-- Cloud refresh runs in the background and does not block button output.
-- Emulator runs full dynamic playbook smoke before phone testing.
+- Resolve the 4.1.62 version conflict by shipping 4.1.63 / 482.
+- Combine expressSelfEligibility / HOLD_BACK with dynamic Playbook instant cache.
+- Keep cloud refresh in the background and discard stale refresh results.
+- Keep LAST_ME local WAIT.
+- Keep 下一句 / 表达我 as separate buttons.
+- Publish the local LAN update package.
 
 ## Result
 
-- currentOverallResult: DYNAMIC_PLAYBOOK_FULL_EMULATOR_PASS
-- unitTests: PASS
-- assembleDebug: PASS
-- mockchatAssembleDebug: PASS
-- emulatorDynamicPlaybookInstantSmoke: PASS
-- emulatorDynamicPlaybookCloudRefreshSmoke: PASS
-- userNeedsPhoneThisRound: false
-- primaryReport: outputs/gpt_review_inbox/dynamic-playbook-full-emulator-smoke-for-gpt.md
+- currentOverallResult: READY_FOR_REAL_DEVICE_TEST
+- dynamicPlaybookFullEmulatorSmoke: PASS
+- expressSelfEligibilityEmulatorSmoke: PASS
+- versionConflictResolved: true
+- apkPath: outputs/update_server/huiyi-v4.1.63-debug.apk
+- userNeedsPhoneThisRound: true
+- primaryReport: outputs/gpt_review_inbox/real-use-combined-package-report-for-gpt.md
