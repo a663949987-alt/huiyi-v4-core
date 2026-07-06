@@ -24,7 +24,9 @@ import com.huiyi.v4.domain.model.Speaker
 import com.huiyi.v4.domain.model.TacticalDecision
 import com.huiyi.v4.domain.model.TacticalDecisionType
 import com.huiyi.v4.domain.model.UserPersonaCorpus
+import com.huiyi.v4.domain.playbook.CloudRequestPurpose
 import com.huiyi.v4.domain.playbook.ExpressSelfEligibility
+import com.huiyi.v4.domain.playbook.HuiyiOutputQualityGate
 import com.huiyi.v4.domain.capture.VisualDebugResult
 import com.huiyi.v4.domain.review.ChatReviewMemoryBuilder
 import com.huiyi.v4.domain.tactical.ReplyRouteGenerator
@@ -121,7 +123,8 @@ class CurrentScreenPipelineUseCase(
     private val appVersionCode: Int = 0,
     private val lateCloudScope: CoroutineScope? = null,
     private val lateCloudSoftTimeoutMs: Long = DEFAULT_LATE_CLOUD_SOFT_TIMEOUT_MS,
-    private val onLateCloudResult: ((LateCloudPipelineResult) -> Unit)? = null
+    private val onLateCloudResult: ((LateCloudPipelineResult) -> Unit)? = null,
+    private val outputQualityGate: HuiyiOutputQualityGate = HuiyiOutputQualityGate()
 ) {
     suspend fun run(
         userPersonaCorpus: UserPersonaCorpus,
@@ -534,18 +537,30 @@ class CurrentScreenPipelineUseCase(
     ): CloudPipelineResult {
         return serviceResult.fold(
             onSuccess = { output ->
+                val visibleRoutes = gateCloudVisibleRoutes(output.routes, config, context)
+                val gateRejected = output.routes.isNotEmpty() && visibleRoutes.isEmpty()
+                val visibleDecision = if (gateRejected) {
+                    passiveNotReadyDecision("QUALITY_GATE_REJECTED")
+                } else {
+                    output.decision
+                }
                 CloudPipelineResult(
-                    output.decision,
-                    output.routes,
-                    CloudAnalysisTrace.success(config, output)
-                        .withSessionBinding(
-                            activeSessionId = sessionId,
-                            preAnalysisSnapshotId = preAnalysisSnapshotId,
-                            chatPackage = chatPackage,
-                            chatWindowHash = chatWindowHash,
-                            cloudRequestSessionId = sessionId,
-                            cloudResponseSessionId = output.sessionId
-                        )
+                    visibleDecision,
+                    visibleRoutes,
+                    CloudAnalysisTrace.success(config, output).copy(
+                        decisionSource = if (gateRejected) "PASSIVE_WAIT_FOR_CLOUD_PLAYBOOK" else "CLOUD",
+                        cloudQualityGateResult = if (gateRejected) "FAIL" else "PASS",
+                        cloudQualityIssues = if (gateRejected) listOf("QUALITY_GATE_REJECTED") else emptyList(),
+                        playbookCacheWriteAllowed = !gateRejected,
+                        playbookCacheWriteBlockedReason = if (gateRejected) "QUALITY_GATE_REJECTED" else ""
+                    ).withSessionBinding(
+                        activeSessionId = sessionId,
+                        preAnalysisSnapshotId = preAnalysisSnapshotId,
+                        chatPackage = chatPackage,
+                        chatWindowHash = chatWindowHash,
+                        cloudRequestSessionId = sessionId,
+                        cloudResponseSessionId = output.sessionId
+                    )
                 )
             },
             onFailure = { error ->
@@ -563,15 +578,21 @@ class CurrentScreenPipelineUseCase(
                 } else {
                     cloudFailureFallbackDecision(lastSpeaker, localDecision, localRoutes, code)
                 }
-                val fallbackRoutes = if (fallbackDecision.decisionType == TacticalDecisionType.PASSIVE_NOT_READY) {
+                val rawFallbackRoutes = if (fallbackDecision.decisionType == TacticalDecisionType.PASSIVE_NOT_READY) {
                     emptyList()
                 } else if (fallbackDecision === localDecision) {
                     localRoutes
                 } else {
                     routeGenerator.generate(context, fallbackDecision)
                 }
+                val fallbackRoutes = gateLocalFallbackRoutes(rawFallbackRoutes, context)
+                val finalFallbackDecision = if (rawFallbackRoutes.isNotEmpty() && fallbackRoutes.isEmpty()) {
+                    passiveNotReadyDecision("QUALITY_GATE_REJECTED")
+                } else {
+                    fallbackDecision
+                }
                 CloudPipelineResult(
-                    fallbackDecision,
+                    finalFallbackDecision,
                     fallbackRoutes,
                     CloudAnalysisTrace.fallback(
                         config = config,
@@ -586,12 +607,18 @@ class CurrentScreenPipelineUseCase(
                         escalationReason = cloudError?.escalationReason,
                         primaryLatencyMs = cloudError?.primaryLatencyMs
                     ).copy(
-                        decisionSource = if (fallbackDecision.decisionType == TacticalDecisionType.PASSIVE_NOT_READY) {
+                        decisionSource = if (finalFallbackDecision.decisionType == TacticalDecisionType.PASSIVE_NOT_READY) {
                             "PASSIVE_WAIT_FOR_CLOUD_PLAYBOOK"
                         } else {
                             "LOCAL_FALLBACK"
                         },
-                        cloudFallbackUsed = fallbackDecision.decisionType != TacticalDecisionType.PASSIVE_NOT_READY
+                        cloudFallbackUsed = finalFallbackDecision.decisionType != TacticalDecisionType.PASSIVE_NOT_READY,
+                        cloudQualityGateResult = if (rawFallbackRoutes.isNotEmpty() && fallbackRoutes.isEmpty()) "FAIL" else validationResult,
+                        cloudQualityIssues = if (rawFallbackRoutes.isNotEmpty() && fallbackRoutes.isEmpty()) {
+                            listOf("QUALITY_GATE_REJECTED")
+                        } else {
+                            emptyList()
+                        }
                     ).withSessionBinding(
                         activeSessionId = sessionId,
                         preAnalysisSnapshotId = preAnalysisSnapshotId,
@@ -622,15 +649,21 @@ class CurrentScreenPipelineUseCase(
         } else {
             cloudFailureFallbackDecision(lastSpeaker, localDecision, localRoutes, "SOFT_TIMEOUT_PENDING")
         }
-        val fallbackRoutes = if (fallbackDecision.decisionType == TacticalDecisionType.PASSIVE_NOT_READY) {
+        val rawFallbackRoutes = if (fallbackDecision.decisionType == TacticalDecisionType.PASSIVE_NOT_READY) {
             emptyList()
         } else if (fallbackDecision === localDecision) {
             localRoutes
         } else {
             routeGenerator.generate(context, fallbackDecision)
         }
+        val fallbackRoutes = gateLocalFallbackRoutes(rawFallbackRoutes, context)
+        val finalFallbackDecision = if (rawFallbackRoutes.isNotEmpty() && fallbackRoutes.isEmpty()) {
+            passiveNotReadyDecision("QUALITY_GATE_REJECTED")
+        } else {
+            fallbackDecision
+        }
         return CloudPipelineResult(
-            fallbackDecision,
+            finalFallbackDecision,
             fallbackRoutes,
             CloudAnalysisTrace.fallback(
                 config = config,
@@ -646,12 +679,18 @@ class CurrentScreenPipelineUseCase(
                 apiCalled = true,
                 cloudNetworkFailureVisibleToUser = false,
                 cloudFailureLikelyCause = "PENDING",
-                decisionSource = if (fallbackDecision.decisionType == TacticalDecisionType.PASSIVE_NOT_READY) {
+                decisionSource = if (finalFallbackDecision.decisionType == TacticalDecisionType.PASSIVE_NOT_READY) {
                     "PASSIVE_WAIT_FOR_CLOUD_PLAYBOOK"
                 } else {
                     "LOCAL_FALLBACK"
                 },
-                cloudFallbackUsed = fallbackDecision.decisionType != TacticalDecisionType.PASSIVE_NOT_READY
+                cloudFallbackUsed = finalFallbackDecision.decisionType != TacticalDecisionType.PASSIVE_NOT_READY,
+                cloudQualityGateResult = if (rawFallbackRoutes.isNotEmpty() && fallbackRoutes.isEmpty()) "FAIL" else "PENDING",
+                cloudQualityIssues = if (rawFallbackRoutes.isNotEmpty() && fallbackRoutes.isEmpty()) {
+                    listOf("QUALITY_GATE_REJECTED")
+                } else {
+                    emptyList()
+                }
             ).withSessionBinding(
                 activeSessionId = sessionId,
                 preAnalysisSnapshotId = preAnalysisSnapshotId,
@@ -662,6 +701,51 @@ class CurrentScreenPipelineUseCase(
             )
         )
     }
+
+    private fun gateCloudVisibleRoutes(
+        routes: List<ReplyRoute>,
+        config: CloudAnalysisConfig,
+        context: ChatSceneContext
+    ): List<ReplyRoute> {
+        val sceneTags = sceneTagsFor(context)
+        val traced = routes.map { route ->
+            val source = if (route.routeSource == HuiyiOutputQualityGate.SOURCE_LEGACY_REPLY_GENERATOR) {
+                route.routeSource
+            } else {
+                HuiyiOutputQualityGate.SOURCE_CLOUD_VERIFIED_PASSIVE_NEXT
+            }
+            route.copy(
+                routeSource = source,
+                generatorName = route.generatorName.ifBlank { "CloudAnalysisService" },
+                modelName = route.modelName.ifBlank { config.model },
+                promptVersion = route.promptVersion.ifBlank { "huiyi-tactical-contract-v1" },
+                cacheSource = route.cacheSource.ifBlank { "CLOUD_DIRECT" }
+            )
+        }
+        val visible = outputQualityGate.visibleRoutes(
+            routes = traced,
+            requestPurpose = CloudRequestPurpose.PASSIVE_PLAYBOOK,
+            sceneTags = sceneTags
+        )
+        val setResult = outputQualityGate.assessRouteSet(
+            routes = visible,
+            requestPurpose = CloudRequestPurpose.PASSIVE_PLAYBOOK,
+            sceneTags = sceneTags
+        )
+        return if (setResult.pass) visible else emptyList()
+    }
+
+    private fun gateLocalFallbackRoutes(
+        routes: List<ReplyRoute>,
+        context: ChatSceneContext
+    ): List<ReplyRoute> = outputQualityGate.visibleRoutes(
+        routes = routes,
+        requestPurpose = CloudRequestPurpose.PASSIVE_PLAYBOOK,
+        sceneTags = sceneTagsFor(context)
+    )
+
+    private fun sceneTagsFor(context: ChatSceneContext): List<String> =
+        context.effectiveMessages.takeLast(8).mapNotNull { it.normalizedText }
 
     private fun cloudFailureFallbackDecision(
         lastSpeaker: LastSpeakerDecision,

@@ -180,6 +180,10 @@ class RelationshipPlaybookGenerator(
             route("light-question", "\u8f7b\u8f7b\u8ffd\u95ee", ReplyRouteType.DIRECT, "\u4f60\u73b0\u5728\u66f4\u5728\u610f\u7684\u662f\u4e8b\u60c5\u672c\u8eab\uff0c\u8fd8\u662f\u6015\u522b\u4eba\u6ca1\u7406\u89e3\u4f60\uff1f", RiskLevel.LOW),
             route("warm", "\u8f7b\u5fae\u5347\u6e29", ReplyRouteType.WARM_UP, "\u5176\u5b9e\u4f60\u613f\u610f\u8ddf\u6211\u8bf4\u8fd9\u4e9b\uff0c\u6211\u662f\u6709\u611f\u89c9\u5230\u7684\u3002", RiskLevel.MEDIUM),
             route("withdraw", "\u4f4e\u538b\u64a4\u9000", ReplyRouteType.COOL_DOWN, "\u90a3\u6211\u5148\u4e0d\u8ffd\u7740\u95ee\u4e86\uff0c\u4f60\u8212\u670d\u4e00\u70b9\u7684\u65f6\u5019\u6211\u4eec\u518d\u6162\u6162\u8bf4\u3002", risk)
+        ).withTrace(
+            routeSource = HuiyiOutputQualityGate.SOURCE_LOCAL_PLAYBOOK_FALLBACK_PASSIVE_NEXT,
+            promptVersion = "relationship-playbook-local-passive-v1",
+            cacheSource = "LOCAL_PLAYBOOK_FALLBACK"
         )
     }
 
@@ -201,6 +205,10 @@ class RelationshipPlaybookGenerator(
                     risk = risk,
                     selection = selection
                 )
+            ).withTrace(
+                routeSource = HuiyiOutputQualityGate.SOURCE_EXPRESS_SELF_ARC_PLANNER,
+                promptVersion = "express-self-arc-planner-v1",
+                cacheSource = "LOCAL_ARC_PLANNER"
             ).mapIndexed { index, item -> item.copy(recommended = index == 0) }
         }
 
@@ -265,6 +273,10 @@ class RelationshipPlaybookGenerator(
                 risk = risk,
                 selection = selection
             )
+        ).withTrace(
+            routeSource = HuiyiOutputQualityGate.SOURCE_EXPRESS_SELF_ARC_PLANNER,
+            promptVersion = "express-self-arc-planner-v1",
+            cacheSource = "LOCAL_ARC_PLANNER"
         ).mapIndexed { index, item -> item.copy(recommended = index == 0) }
     }
 
@@ -352,6 +364,21 @@ class RelationshipPlaybookGenerator(
         panelModeReason = selection?.reason,
         panelAvoidLine = selection?.selectedTheme?.avoidLine
     )
+
+    private fun List<ReplyRoute>.withTrace(
+        routeSource: String,
+        promptVersion: String,
+        cacheSource: String
+    ): List<ReplyRoute> = map { route ->
+        route.copy(
+            routeSource = routeSource,
+            generatorName = "RelationshipPlaybookGenerator",
+            promptVersion = promptVersion,
+            cacheSource = cacheSource,
+            qualityGatePass = false,
+            qualityGateRejectReason = ""
+        )
+    }
 
     private companion object {
         val pressureWords = listOf(

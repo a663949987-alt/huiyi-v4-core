@@ -111,7 +111,7 @@ class ExpressSelfEligibilityTest {
 
         assertEquals(true, result.expressSelfEligibility?.eligible)
         assertEquals(ExpressSelfEligibilityMode.ALLOW_COLD_START, result.expressSelfEligibility?.mode)
-        assertTrue(result.routes.size in 1..3)
+        assertTrue(result.routes.size in 3..5)
     }
 
     @Test

@@ -2,26 +2,27 @@
 
 taskStatus: COMPLETED
 project: Huiyi v4
-taskName: xiaoenai_generic_trial_feedback_fix
+taskName: remove_legacy_reply_routes_and_enforce_huiyi_output_gate
 versionName: 4.1.72
 versionCode: 491
 createdBy: User/GPT
-userNeedsPhoneThisRound: true
-realDeviceRequiredThisRound: true
+userNeedsPhoneThisRound: false
+realDeviceRequiredThisRound: false
 
 ## Goals
 
-- Ensure Xiaoenai normal chat enters GENERIC_TRIAL / XIAOENAI_PROFILE-compatible path.
-- Keep Huawei desktop / launcher blocked.
-- Ensure Express Self one-tap feedback records expressSelfClicked=true.
-- Publish LAN update package.
+- Remove legacy normal reply templates from user-visible panels.
+- Add HuiyiOutputQualityGate for visible routes and cloud/cache writes.
+- Require route source trace on every visible route.
+- Cover REAL_PLANNING_TRANSFER_ARMY_001 golden sample.
 
 ## Result
 
-- currentOverallResult: READY_FOR_PHONE_UPDATE_TEST
-- xiaoenaiNormalChatGenericTrial: true
-- expressSelfClickedRecordReady: true
-- latestJsonUpdated: true
-- apkPath: outputs/update_server/huiyi-v4.1.72-debug.apk
+- currentOverallResult: LOCAL_QUALITY_GATE_PASS_NO_PHONE_REQUIRED
+- legacyRouteGeneratorVisibleToUser: false
+- localPassiveRoutesShownToUser: false
+- legacyTemplatePhraseBlocked: true
+- planningScenarioNextSentenceWaitsWithoutCloud: true
+- planningScenarioExpressSelfArcReveal: true
 - app:testDebugUnitTest: PASS
 - app:assembleDebug: PASS

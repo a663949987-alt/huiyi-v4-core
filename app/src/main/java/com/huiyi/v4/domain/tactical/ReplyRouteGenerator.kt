@@ -139,7 +139,13 @@ class ReplyRouteGenerator {
         riskWarning = riskWarning ?: if (riskLevel != RiskLevel.LOW) "这条更主动，注意观察对方是否后撤。" else null,
         expectedEffect = "降低误判，推动当前聊天更稳。",
         fallbackMove = fallbackMove,
-        recommended = false
+        recommended = false,
+        routeSource = "LEGACY_REPLY_GENERATOR",
+        generatorName = "ReplyRouteGenerator",
+        promptVersion = "legacy-reply-generator-v1",
+        cacheSource = "NONE",
+        qualityGatePass = false,
+        qualityGateRejectReason = "LEGACY_ROUTE_SOURCE"
     )
 
     private companion object {

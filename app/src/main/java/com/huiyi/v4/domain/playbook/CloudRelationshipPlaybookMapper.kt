@@ -225,7 +225,11 @@ class CloudRelationshipPlaybookMapper {
             riskWarning = obj.string("riskWarning").ifBlank { null },
             expectedEffect = firstNonBlank(obj.string("why"), obj.string("reason")),
             fallbackMove = obj.string("fallbackMove").ifBlank { "如果对方没接住，就先降压收口。" },
-            recommended = index == 0
+            recommended = index == 0,
+            routeSource = HuiyiOutputQualityGate.SOURCE_CLOUD_ENHANCED_PLAYBOOK,
+            generatorName = "CloudRelationshipPlaybookMapper",
+            promptVersion = "relationship-playbook-cloud-v1",
+            cacheSource = "CLOUD_REFRESH"
         )
     }
 
@@ -381,6 +385,6 @@ class CloudRelationshipPlaybookMapper {
             "expiresWhen"
         )
         val cjkRegex = Regex("[\\u4e00-\\u9fff]")
-        val activeOnlyRouteTypes = setOf(ReplyRouteType.ARC_REVEAL, ReplyRouteType.SELF_STORY)
+        val activeOnlyRouteTypes = setOf(ReplyRouteType.ARC_REVEAL, ReplyRouteType.SELF_STORY, ReplyRouteType.CO_CREATION)
     }
 }

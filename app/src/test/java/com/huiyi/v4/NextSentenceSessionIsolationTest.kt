@@ -5,10 +5,14 @@ import com.huiyi.v4.domain.cloud.CloudAnalysisConfig
 import com.huiyi.v4.domain.cloud.CloudAnalysisInput
 import com.huiyi.v4.domain.cloud.CloudAnalysisOutput
 import com.huiyi.v4.domain.cloud.CloudAnalysisService
+import com.huiyi.v4.domain.model.InfluenceIntensity
 import com.huiyi.v4.domain.model.ReplyRoute
+import com.huiyi.v4.domain.model.ReplyRouteType
+import com.huiyi.v4.domain.model.RiskLevel
 import com.huiyi.v4.domain.model.Speaker
 import com.huiyi.v4.domain.model.TacticalDecisionType
 import com.huiyi.v4.domain.model.UserPersonaCorpus
+import com.huiyi.v4.domain.playbook.HuiyiOutputQualityGate
 import com.huiyi.v4.domain.pipeline.CloudResponseBinding
 import com.huiyi.v4.domain.pipeline.CurrentScreenCaptureResult
 import com.huiyi.v4.domain.pipeline.CurrentScreenCaptureUseCase
@@ -18,7 +22,6 @@ import com.huiyi.v4.domain.pipeline.NextSentenceSessionBinding
 import com.huiyi.v4.domain.pipeline.NextSentenceSessionGate
 import com.huiyi.v4.domain.pipeline.NextSentenceSessionTrace
 import com.huiyi.v4.domain.pipeline.SampleSource
-import com.huiyi.v4.domain.tactical.ReplyRouteGenerator
 import com.huiyi.v4.runtime.NextSentenceFlightRecordFactory
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
@@ -174,7 +177,7 @@ class NextSentenceSessionIsolationTest {
 
         override suspend fun analyze(input: CloudAnalysisInput): Result<CloudAnalysisOutput> {
             callCount += 1
-            val routes: List<ReplyRoute> = ReplyRouteGenerator().generate(input.context, input.localDecision)
+            val routes: List<ReplyRoute> = cloudSafeRoutes()
             return Result.success(
                 CloudAnalysisOutput(
                     sessionId = input.sessionId,
@@ -186,6 +189,41 @@ class NextSentenceSessionIsolationTest {
                     routes = routes,
                     latencyMs = 10L
                 )
+            )
+        }
+    }
+
+    private companion object {
+        fun cloudSafeRoutes(): List<ReplyRoute> = listOf(
+            "我懂你的意思，这件事先按舒服的节奏慢慢来。",
+            "先把现实部分看清楚就好，我们一步一步走稳一点。",
+            "你不用一下子解释完，我先接住你现在这个点。",
+            "这件事可以慢慢商量，先找一个不压迫的节奏。",
+            "如果现在有点重，就先收一下，等状态合适再继续聊。"
+        ).mapIndexed { index, message ->
+            ReplyRoute(
+                id = "cloud-$index",
+                name = "云端路线${index + 1}",
+                routeType = when (index) {
+                    0 -> ReplyRouteType.EMPATHY
+                    1 -> ReplyRouteType.STABLE
+                    2 -> ReplyRouteType.DIRECT
+                    3 -> ReplyRouteType.WARM_UP
+                    else -> ReplyRouteType.COOL_DOWN
+                },
+                tag = "cloud",
+                message = message,
+                intensity = InfluenceIntensity.LOW,
+                riskLevel = RiskLevel.LOW,
+                riskWarning = null,
+                expectedEffect = "云端验证过的低压接话",
+                fallbackMove = "先降压",
+                recommended = index == 0,
+                routeSource = HuiyiOutputQualityGate.SOURCE_CLOUD_VERIFIED_PASSIVE_NEXT,
+                generatorName = "FakeCloud",
+                modelName = "gpt-5.5",
+                promptVersion = "test-cloud-v1",
+                cacheSource = "CLOUD_DIRECT"
             )
         }
     }

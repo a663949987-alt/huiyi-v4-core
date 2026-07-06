@@ -1,12 +1,9 @@
 {
-  "taskStatus": "COMPLETED",
-  "project": "Huiyi v4",
+  "project": "huiyi-v4",
   "taskName": "remove_legacy_reply_routes_and_enforce_huiyi_output_gate",
   "versionName": "4.1.72",
   "versionCode": 491,
-  "createdBy": "User/GPT",
-  "userNeedsPhoneThisRound": false,
-  "realDeviceRequiredThisRound": false,
+  "generatedAt": "2026-07-06T18:46:15+08:00",
   "currentOverallResult": "LOCAL_QUALITY_GATE_PASS_NO_PHONE_REQUIRED",
   "legacyRouteGeneratorVisibleToUser": false,
   "localPassiveRoutesShownToUser": false,
@@ -16,11 +13,19 @@
   "qualityGateImplemented": true,
   "routeSourceTraceImplemented": true,
   "cloudResultsRequireQualityGate": true,
+  "cloudResultsRejectedBeforeCacheOnGateFail": true,
+  "routeSourceMissingBlocked": true,
+  "planningScenarioId": "REAL_PLANNING_TRANSFER_ARMY_001",
+  "planningNextSentenceTerminalState": "PASSIVE_WAIT_PANEL",
+  "planningNextSentenceRouteCount": 0,
+  "planningExpressSelfRequiredFamilies": [
+    "SELF_STORY",
+    "ARC_REVEAL",
+    "CO_CREATION"
+  ],
   "unitTests": "PASS",
   "assembleDebug": "PASS",
-  "requiredReports": [
-    "outputs/gpt_review_inbox/reply-quality-gate-report-for-gpt.md",
-    "outputs/gpt_review_inbox/reply-quality-gate-report.json",
-    "outputs/codex_to_gpt/result-manifest.json"
-  ]
+  "emulatorSmokeResult": "NOT_RUN_THIS_ROUND",
+  "realDeviceSmokeResult": "NOT_TESTED",
+  "userNeedsPhoneThisRound": false
 }

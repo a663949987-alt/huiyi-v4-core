@@ -98,7 +98,8 @@ class DynamicPlaybookEngine(
     private val generator: RelationshipPlaybookGenerator = RelationshipPlaybookGenerator(),
     private val lastSpeakerDecisionUseCase: LastSpeakerDecisionUseCase = LastSpeakerDecisionUseCase(),
     private val expressSelfEligibilityEvaluator: ExpressSelfEligibilityEvaluator = ExpressSelfEligibilityEvaluator(),
-    private val expressSelfResultCache: ExpressSelfResultCache = ExpressSelfResultCache()
+    private val expressSelfResultCache: ExpressSelfResultCache = ExpressSelfResultCache(),
+    private val outputQualityGate: HuiyiOutputQualityGate = HuiyiOutputQualityGate()
 ) {
     fun nextSentence(request: DynamicPlaybookRequest): DynamicPlaybookResult =
         resolve(request.copy(mode = DynamicPlaybookMode.NEXT_SENTENCE))
@@ -239,8 +240,23 @@ class DynamicPlaybookEngine(
         val localPassiveGenerated = playbook.passiveNext.any { it.routeType !in activeOnlyRouteTypes }
         val cloudPlaybookAvailable = playbook.source == RelationshipPlaybookSource.CLOUD_ENHANCED
         val passiveRoutes = if (cloudPlaybookAvailable) {
-            playbook.passiveNext
+            val traced = playbook.passiveNext
                 .filterNot { it.routeType in activeOnlyRouteTypes }
+                .map { route ->
+                    route.copy(
+                        routeSource = HuiyiOutputQualityGate.SOURCE_CLOUD_VERIFIED_PASSIVE_NEXT,
+                        generatorName = route.generatorName.ifBlank { "CloudRelationshipPlaybookMapper" },
+                        modelName = route.modelName.ifBlank { playbook.cloudModelTrace.actualModel },
+                        promptVersion = route.promptVersion.ifBlank { "relationship-playbook-cloud-v1" },
+                        playbookId = playbook.playbookId,
+                        cacheSource = "CLOUD_VERIFIED_PLAYBOOK_CACHE"
+                    )
+                }
+            outputQualityGate.visibleRoutes(
+                routes = traced,
+                requestPurpose = CloudRequestPurpose.PASSIVE_PLAYBOOK,
+                sceneTags = request.currentTopics + inferTopics(snapshot)
+            )
                 .take(5)
                 .mapIndexed { index, route -> route.copy(recommended = index == 0) }
         } else {
@@ -363,7 +379,7 @@ class DynamicPlaybookEngine(
             }
             return blocked
         }
-        val activeRoutes = playbook.activeExpression
+        val selectedActiveRoutes = playbook.activeExpression
             .ifEmpty {
                 generator.generate(
                     lightChatState = snapshot,
@@ -373,6 +389,43 @@ class DynamicPlaybookEngine(
                     expressionLedger = request.expressionLedger,
                     nowMillis = request.capturedAt
                 ).activeExpression
+            }
+        val activeRoutes = prioritizeExpressSelfRoutes(
+            routes = selectedActiveRoutes,
+            sceneTags = request.currentTopics + inferTopics(snapshot)
+        )
+            .map { route ->
+                route.copy(
+                    routeSource = route.routeSource.ifBlank { HuiyiOutputQualityGate.SOURCE_EXPRESS_SELF_ARC_PLANNER },
+                    generatorName = route.generatorName.ifBlank { "RelationshipPlaybookGenerator" },
+                    modelName = route.modelName.ifBlank {
+                        if (playbook.source == RelationshipPlaybookSource.CLOUD_ENHANCED) playbook.cloudModelTrace.actualModel else ""
+                    },
+                    promptVersion = route.promptVersion.ifBlank { "express-self-arc-planner-v1" },
+                    playbookId = playbook.playbookId,
+                    cacheSource = route.cacheSource.ifBlank {
+                        if (playbook.source == RelationshipPlaybookSource.CLOUD_ENHANCED) {
+                            "CLOUD_ENHANCED_PLAYBOOK_CACHE"
+                        } else {
+                            "LOCAL_ARC_PLANNER"
+                        }
+                    }
+                )
+            }
+            .let { traced ->
+                outputQualityGate.visibleRoutes(
+                    routes = traced,
+                    requestPurpose = CloudRequestPurpose.ACTIVE_EXPRESSION,
+                    sceneTags = request.currentTopics + inferTopics(snapshot)
+                )
+            }
+            .let { visible ->
+                val setResult = outputQualityGate.assessRouteSet(
+                    routes = visible,
+                    requestPurpose = CloudRequestPurpose.ACTIVE_EXPRESSION,
+                    sceneTags = request.currentTopics + inferTopics(snapshot)
+                )
+                if (setResult.pass) visible else emptyList()
             }
             .take(EXPRESS_SELF_DEFAULT_ROUTE_LIMIT)
             .mapIndexed { index, route -> route.copy(recommended = index == 0) }
@@ -434,6 +487,22 @@ class DynamicPlaybookEngine(
         else -> fallbackSource
     }
 
+    private fun prioritizeExpressSelfRoutes(
+        routes: List<ReplyRoute>,
+        sceneTags: List<String>
+    ): List<ReplyRoute> {
+        val requiresArc = outputQualityGate.requiresPlanningGrounding(sceneTags)
+        if (!requiresArc) return routes.take(EXPRESS_SELF_DEFAULT_ROUTE_LIMIT)
+        val requiredTypes = listOf(
+            ReplyRouteType.SELF_STORY,
+            ReplyRouteType.ARC_REVEAL,
+            ReplyRouteType.CO_CREATION
+        )
+        val required = requiredTypes.mapNotNull { type -> routes.firstOrNull { it.routeType == type } }
+        val rest = routes.filterNot { route -> required.any { it.id == route.id } }
+        return (required + rest).distinctBy { it.id }.take(EXPRESS_SELF_DEFAULT_ROUTE_LIMIT)
+    }
+
     private fun refreshTriggers(
         request: DynamicPlaybookRequest,
         snapshot: LightChatStableSnapshot,
@@ -468,8 +537,8 @@ class DynamicPlaybookEngine(
     }
 
     private companion object {
-        const val EXPRESS_SELF_DEFAULT_ROUTE_LIMIT = 3
-        val activeOnlyRouteTypes = setOf(ReplyRouteType.ARC_REVEAL, ReplyRouteType.SELF_STORY)
+        const val EXPRESS_SELF_DEFAULT_ROUTE_LIMIT = 5
+        val activeOnlyRouteTypes = setOf(ReplyRouteType.ARC_REVEAL, ReplyRouteType.SELF_STORY, ReplyRouteType.CO_CREATION)
         val arcTriggerTopics = setOf("reality", "planning", "stability", "future", "past", "responsibility")
         val topicRules = linkedMapOf(
             "planning" to listOf("planning", "plan", "\u89c4\u5212", "\u8ba1\u5212", "\u5b89\u6392"),

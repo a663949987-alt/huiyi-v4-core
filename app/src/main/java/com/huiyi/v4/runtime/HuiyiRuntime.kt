@@ -79,11 +79,13 @@ import com.huiyi.v4.domain.playbook.CloudPlaybookRefreshException
 import com.huiyi.v4.domain.playbook.CloudRequestPurpose
 import com.huiyi.v4.domain.playbook.DeepSeekProvider
 import com.huiyi.v4.domain.playbook.DeepSeekProviderConfig
+import com.huiyi.v4.domain.playbook.HuiyiOutputQualityGate
 import com.huiyi.v4.domain.playbook.ModelRouteTarget
 import com.huiyi.v4.domain.playbook.ModelRouter
 import com.huiyi.v4.domain.playbook.ModelRouterInput
 import com.huiyi.v4.domain.playbook.PlaybookRefreshScheduler
 import com.huiyi.v4.domain.playbook.RelationshipPlaybook
+import com.huiyi.v4.domain.playbook.RelationshipPlaybookSource
 import com.huiyi.v4.domain.tactical.ReplyRouteGenerator
 import com.huiyi.v4.domain.tactical.TacticalDecisionEngine
 import com.huiyi.v4.ui.HuiyiDemoState
@@ -1512,7 +1514,13 @@ class HuiyiRuntime private constructor(
                 localPlaybook = localPlaybook,
                 nowMillis = System.currentTimeMillis()
             )
-            parsed.copy(
+            val qualityChecked = requireCloudPlaybookQualityGate(
+                parsed = parsed,
+                request = request,
+                requestPurpose = requestPurpose,
+                modelTrace = modelTrace
+            )
+            qualityChecked.copy(
                 cloudModelTrace = modelTrace.withValidation(
                     result = "PASS",
                     cacheWriteAllowed = true
@@ -1529,6 +1537,73 @@ class HuiyiRuntime private constructor(
                 cause = error
             )
         }
+    }
+
+    private fun requireCloudPlaybookQualityGate(
+        parsed: RelationshipPlaybook,
+        request: DynamicPlaybookRequest,
+        requestPurpose: CloudRequestPurpose,
+        modelTrace: CloudModelTrace
+    ): RelationshipPlaybook {
+        val gate = HuiyiOutputQualityGate()
+        val sceneTags = request.currentTopics +
+            request.messages.takeLast(8).mapNotNull { it.normalizedText }
+        val traced = parsed.copy(
+            source = RelationshipPlaybookSource.CLOUD_ENHANCED,
+            passiveNext = parsed.passiveNext.map { route ->
+                route.copy(
+                    routeSource = HuiyiOutputQualityGate.SOURCE_CLOUD_ENHANCED_PLAYBOOK,
+                    generatorName = route.generatorName.ifBlank { "CloudRelationshipPlaybookMapper" },
+                    modelName = route.modelName.ifBlank { modelTrace.actualModel },
+                    promptVersion = route.promptVersion.ifBlank { "relationship-playbook-cloud-v1" },
+                    playbookId = parsed.playbookId,
+                    cacheSource = "CLOUD_REFRESH"
+                )
+            },
+            activeExpression = parsed.activeExpression.map { route ->
+                route.copy(
+                    routeSource = HuiyiOutputQualityGate.SOURCE_CLOUD_ENHANCED_PLAYBOOK,
+                    generatorName = route.generatorName.ifBlank { "CloudRelationshipPlaybookMapper" },
+                    modelName = route.modelName.ifBlank { modelTrace.actualModel },
+                    promptVersion = route.promptVersion.ifBlank { "relationship-playbook-cloud-v1" },
+                    playbookId = parsed.playbookId,
+                    cacheSource = "CLOUD_REFRESH"
+                )
+            }
+        )
+        val passiveGate = gate.assessRouteSet(
+            routes = traced.passiveNext,
+            requestPurpose = CloudRequestPurpose.PASSIVE_PLAYBOOK,
+            sceneTags = sceneTags
+        )
+        if (!passiveGate.pass) {
+            throw CloudPlaybookRefreshException(
+                message = passiveGate.rejectReason,
+                modelTrace = modelTrace.withValidation(
+                    result = "FAIL",
+                    cacheWriteAllowed = false,
+                    blockedReason = passiveGate.rejectReason
+                )
+            )
+        }
+        val activeGate = gate.assessRouteSet(
+            routes = traced.activeExpression,
+            requestPurpose = CloudRequestPurpose.ACTIVE_EXPRESSION,
+            sceneTags = sceneTags
+        )
+        if (!activeGate.pass) {
+            throw CloudPlaybookRefreshException(
+                message = activeGate.rejectReason,
+                modelTrace = modelTrace.withValidation(
+                    result = "FAIL",
+                    cacheWriteAllowed = false,
+                    blockedReason = activeGate.rejectReason
+                )
+            )
+        }
+        return traced.copy(
+            cloudModelTrace = modelTrace.copy(requestPurpose = requestPurpose)
+        )
     }
 
     private fun requestPurposeForPlaybookRefresh(

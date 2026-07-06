@@ -11,12 +11,16 @@ import com.huiyi.v4.domain.cloud.CloudTacticalResponseValidator
 import com.huiyi.v4.domain.cloud.CloudTacticalDecisionMapper
 import com.huiyi.v4.domain.context.ContextAssembler
 import com.huiyi.v4.domain.model.ReplyRoute
+import com.huiyi.v4.domain.model.InfluenceIntensity
+import com.huiyi.v4.domain.model.ReplyRouteType
+import com.huiyi.v4.domain.model.RiskLevel
 import com.huiyi.v4.domain.model.Speaker
 import com.huiyi.v4.domain.model.TacticalDecisionType
 import com.huiyi.v4.domain.modelprovider.OpenAICompatibleConfig
 import com.huiyi.v4.domain.modelprovider.OpenAICompatibleProvider
 import com.huiyi.v4.domain.modelprovider.TacticalPromptInput
 import com.huiyi.v4.domain.model.UserPersonaCorpus
+import com.huiyi.v4.domain.playbook.HuiyiOutputQualityGate
 import com.huiyi.v4.domain.pipeline.CurrentScreenCaptureResult
 import com.huiyi.v4.domain.pipeline.CurrentScreenCaptureUseCase
 import com.huiyi.v4.domain.pipeline.CurrentScreenPipelineUseCase
@@ -827,6 +831,41 @@ class CloudAnalysisMvpSafetyGateTest {
         }
     }
 
+    private companion object {
+    fun cloudSafeRoutes(prefix: String): List<ReplyRoute> = listOf(
+        "我懂你的意思，这件事先按舒服的节奏慢慢来，不急着下结论。",
+        "先把现实部分看清楚就好，我们一步一步走稳一点。",
+        "你不用一下子解释完，我先接住你现在说的这个点。",
+        "这件事可以慢慢商量，先找一个彼此都不压迫的节奏。",
+        "如果现在有点重，就先收一下，等状态合适再继续聊。"
+    ).mapIndexed { index, message ->
+        ReplyRoute(
+            id = "$prefix-$index",
+            name = "云端路线${index + 1}",
+            routeType = when (index) {
+                0 -> ReplyRouteType.EMPATHY
+                1 -> ReplyRouteType.STABLE
+                2 -> ReplyRouteType.DIRECT
+                3 -> ReplyRouteType.WARM_UP
+                else -> ReplyRouteType.COOL_DOWN
+            },
+            tag = "云端",
+            message = message,
+            intensity = InfluenceIntensity.LOW,
+            riskLevel = RiskLevel.LOW,
+            riskWarning = null,
+            expectedEffect = "云端验证过的低压接话",
+            fallbackMove = "先降压收口",
+            recommended = index == 0,
+            routeSource = HuiyiOutputQualityGate.SOURCE_CLOUD_VERIFIED_PASSIVE_NEXT,
+            generatorName = "FakeCloudService",
+            modelName = "gpt-5.5",
+            promptVersion = "test-cloud-v1",
+            cacheSource = "CLOUD_DIRECT"
+        )
+    }
+    }
+
     private class FakeCloudService(
         override val config: CloudAnalysisConfig = CloudAnalysisConfig(
             cloudEnabled = true,
@@ -841,8 +880,7 @@ class CloudAnalysisMvpSafetyGateTest {
         override suspend fun analyze(input: CloudAnalysisInput): Result<CloudAnalysisOutput> {
             callCount += 1
             error?.let { return Result.failure(it) }
-            val routes: List<ReplyRoute> = ReplyRouteGenerator().generate(input.context, input.localDecision)
-                .mapIndexed { index, route -> route.copy(id = "cloud-$index", tag = "浜戠") }
+            val routes: List<ReplyRoute> = cloudSafeRoutes("cloud")
             return Result.success(
                 CloudAnalysisOutput(
                     sessionId = input.sessionId,
@@ -877,8 +915,7 @@ class CloudAnalysisMvpSafetyGateTest {
         }
 
         fun completeSuccess() {
-            val routes = ReplyRouteGenerator().generate(latestInput.context, latestInput.localDecision)
-                .mapIndexed { index, route -> route.copy(id = "late-cloud-$index", tag = "云端") }
+            val routes = cloudSafeRoutes("late-cloud")
             response.complete(
                 Result.success(
                     CloudAnalysisOutput(

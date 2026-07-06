@@ -65,7 +65,7 @@ class RealUseV4171CombinedPackageSmokeTest {
         )
 
         assertEquals(true, result.expressSelfEligibility?.eligible)
-        assertTrue(result.routes.size in 1..3)
+        assertTrue(result.routes.size in 3..5)
         assertTrue(result.routes.any { it.routeType == ReplyRouteType.ARC_REVEAL })
         assertTrue(result.expressSelfPanelSimpleMode)
         assertFalse(result.expressSelfFeedbackDefaultVisible)

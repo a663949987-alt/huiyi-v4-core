@@ -302,8 +302,17 @@ data class ReplyRoute(
     val panelExpressionMode: String? = null,
     val panelArcTheme: String? = null,
     val panelModeReason: String? = null,
-    val panelAvoidLine: String? = null
+    val panelAvoidLine: String? = null,
+    val routeSource: String = "",
+    val generatorName: String = "",
+    val modelName: String = "",
+    val promptVersion: String = "",
+    val playbookId: String = "",
+    val cacheSource: String = "",
+    val qualityGatePass: Boolean = false,
+    val qualityGateRejectReason: String = ""
 ) {
+    val routeId: String get() = id
     val routeFamily: String get() = routeType.name
     val panelNextAction: String get() = when (routeType) {
         ReplyRouteType.EMPATHY -> "接住她"

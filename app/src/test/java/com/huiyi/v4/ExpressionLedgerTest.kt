@@ -52,7 +52,10 @@ class ExpressionLedgerTest {
 
         assertEquals(ExpressionMode.START_TOPIC, result.expressionModeSelection?.expressionMode)
         assertEquals("\u5f00\u573a", result.panelNextAction)
-        assertTrue(result.routes.any { it.name == "\u8f7b\u5f00\u573a" })
+        assertTrue(
+            result.routes.joinToString { "${it.id}:${it.name}:${it.routeType}:${it.qualityGateRejectReason}" },
+            result.routes.any { it.routeType == ReplyRouteType.WARM_UP || it.id.contains("start-topic") }
+        )
         assertTrue(result.routes.size in 3..5)
     }
 
