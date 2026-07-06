@@ -24,6 +24,7 @@ import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Test
 import java.io.File
+import java.io.FileNotFoundException
 
 class MockChatValidationReportTest {
     @Test
@@ -35,8 +36,8 @@ class MockChatValidationReportTest {
         }
 
         val out = outputDirectory()
-        File(out, "mockchat-current-screen-report-for-gpt.md").writeText(buildCurrentScreenReport(results), Charsets.UTF_8)
-        File(out, "mockchat-validation-report-for-gpt.md").writeText(buildValidationReport(results), Charsets.UTF_8)
+        writeReportText(File(out, "mockchat-current-screen-report-for-gpt.md"), buildCurrentScreenReport(results))
+        writeReportText(File(out, "mockchat-validation-report-for-gpt.md"), buildValidationReport(results))
 
         results.forEach { assertTrue("${it.scenario.id} should PASS", it.pass) }
     }
@@ -221,6 +222,25 @@ class MockChatValidationReportTest {
     private fun outputDirectory(): File {
         val output = if (File("settings.gradle.kts").exists()) File("outputs") else File("../outputs")
         return output.canonicalFile.apply { mkdirs() }
+    }
+
+    private fun writeReportText(file: File, text: String) {
+        repeat(3) { attempt ->
+            try {
+                file.writeText(text, Charsets.UTF_8)
+                return
+            } catch (error: FileNotFoundException) {
+                if (attempt == 2) {
+                    val fallback = File(
+                        file.parentFile,
+                        "${file.nameWithoutExtension}-${System.currentTimeMillis()}.${file.extension}"
+                    )
+                    fallback.writeText(text, Charsets.UTF_8)
+                    return
+                }
+                Thread.sleep(100)
+            }
+        }
     }
 }
 

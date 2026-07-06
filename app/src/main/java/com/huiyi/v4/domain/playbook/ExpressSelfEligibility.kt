@@ -1,5 +1,8 @@
 package com.huiyi.v4.domain.playbook
 
+import com.huiyi.v4.domain.app.ChatAppProfileDetectionInput
+import com.huiyi.v4.domain.app.ChatAppProfileDetector
+import com.huiyi.v4.domain.app.ChatAppSupportLevel
 import com.huiyi.v4.domain.context.ArcProgressState
 import com.huiyi.v4.domain.context.LightChatStableSnapshot
 import com.huiyi.v4.domain.model.Speaker
@@ -63,8 +66,7 @@ class ExpressSelfEligibilityEvaluator {
         playbook: RelationshipPlaybook,
         arcProgress: ArcProgressState
     ): ExpressSelfEligibility {
-        val explicitTargetSupported = request.targetAppSupported
-            ?: (request.appPackage.orEmpty() in supportedChatPackages)
+        val explicitTargetSupported = request.targetAppSupported == true
         val parserConfidence = request.parserConfidence.coerceIn(0, 100)
         val currentPackage = request.currentAppPackage ?: request.appPackage
         val currentWindowTitle = request.currentWindowTitleRedacted ?: request.windowTitle
@@ -87,14 +89,19 @@ class ExpressSelfEligibilityEvaluator {
         val repeatRisk = request.repeatRiskOverride ?: playbook.expressionModeSelection?.repeatRisk?.name.orEmpty()
             .ifBlank { ExpressionRepeatRisk.LOW.name }
         val expressionMode = playbook.expressionModeSelection?.expressionMode
-        val genericTrial = genericChatTrial(
-            request = request,
-            currentPackage = currentPackage,
-            currentWindowTitle = currentWindowTitle,
-            effectiveCount = effectiveCount,
-            parserConfidence = parserConfidence
+        val appProfile = ChatAppProfileDetector.detect(
+            ChatAppProfileDetectionInput(
+                appPackage = request.appPackage,
+                windowTitle = request.windowTitle,
+                currentAppPackage = currentPackage,
+                currentWindowTitle = currentWindowTitle,
+                messages = request.messages,
+                parserConfidence = parserConfidence
+            )
         )
-        val targetSupported = explicitTargetSupported || genericTrial
+        val genericTrial = appProfile.supportLevel == ChatAppSupportLevel.LEVEL_2_GENERIC_TRIAL
+        val targetSupported = appProfile.supportLevel != ChatAppSupportLevel.LEVEL_0_BLOCK &&
+            (explicitTargetSupported || appProfile.targetAppSupported)
         val expressionWindowExists = arcProgress.currentExpressionWindow.exists ||
             playbook.characterArcPlan.exists ||
             expressionMode in setOf(
@@ -112,7 +119,7 @@ class ExpressSelfEligibilityEvaluator {
             mode = ExpressSelfEligibilityMode.BLOCK_NO_CHAT_STATE,
             blockReason = ExpressSelfBlockReason.CHAT_STATE_MISSING,
             confidence = parserConfidence,
-            source = if (genericTrial) "GENERIC_TRIAL" else request.preAnalysisSnapshotSource,
+            source = if (genericTrial) "GENERIC_TRIAL" else appProfile.source.ifBlank { request.preAnalysisSnapshotSource },
             currentAppPackage = currentPackage,
             currentWindowTitleRedacted = currentWindowTitle,
             targetAppSupported = targetSupported,
@@ -132,7 +139,7 @@ class ExpressSelfEligibilityEvaluator {
                 blockReason = ExpressSelfBlockReason.CHAT_STATE_MISSING
             )
 
-            isDesktopOrPanelWindow(currentWindowTitle, currentPackage) -> base.copy(
+            appProfile.supportLevel == ChatAppSupportLevel.LEVEL_0_BLOCK -> base.copy(
                 mode = ExpressSelfEligibilityMode.BLOCK_UNTRUSTED_SNAPSHOT,
                 blockReason = ExpressSelfBlockReason.WINDOW_IS_DESKTOP_OR_LAUNCHER
             )
@@ -153,12 +160,12 @@ class ExpressSelfEligibilityEvaluator {
             !targetSupported -> base.copy(
                 mode = ExpressSelfEligibilityMode.BLOCK_UNSUPPORTED_CONTEXT,
                 blockReason = when {
-                    request.appPackage == "com.xiaoenai.app" &&
-                        currentWindowTitle?.contains("\u5c0f\u6069\u7231", ignoreCase = true) == true &&
-                        effectiveCount < GENERIC_TRIAL_MIN_EFFECTIVE_MESSAGES -> ExpressSelfBlockReason.CHAT_STATE_MISSING
-                    request.appPackage == "com.xiaoenai.app" &&
-                        currentWindowTitle?.contains("\u5c0f\u6069\u7231", ignoreCase = true) == true &&
-                        parserConfidence < GENERIC_TRIAL_MIN_CONFIDENCE -> ExpressSelfBlockReason.LOW_GENERIC_CONFIDENCE
+                    appProfile.reason == "INSUFFICIENT_EFFECTIVE_MESSAGES" &&
+                        appProfile.profile.id != "unsupported_adaptation_pack" -> ExpressSelfBlockReason.CHAT_STATE_MISSING
+                    appProfile.reason == "INSUFFICIENT_EFFECTIVE_MESSAGES" -> ExpressSelfBlockReason.UNSUPPORTED_APP
+                    appProfile.reason == "LOW_GENERIC_CONFIDENCE" -> ExpressSelfBlockReason.LOW_GENERIC_CONFIDENCE
+                    appProfile.reason == "WINDOW_TITLE_UNSTABLE" -> ExpressSelfBlockReason.UNSUPPORTED_APP
+                    appProfile.reason == "APP_PACKAGE_UNSTABLE" -> ExpressSelfBlockReason.UNSUPPORTED_APP
                     else -> ExpressSelfBlockReason.UNSUPPORTED_APP
                 }
             )
@@ -214,53 +221,8 @@ class ExpressSelfEligibilityEvaluator {
         const val RECENT_SELF_EXPRESSION_LIMIT: Int = 2
         const val RECENT_SELF_EXPRESSION_WINDOW_MS: Long = 30 * 60 * 1000L
 
-        val supportedChatPackages: Set<String> = setOf(
-            "com.bajiao.im.liaoqi",
-            "com.huiyi.mockchat"
-        )
-
         fun isDesktopOrPanelWindow(title: String?, packageName: String?): Boolean {
-            val joined = listOfNotNull(title, packageName).joinToString(" ")
-            if (joined.isBlank()) return false
-            val titleText = title.orEmpty()
-            val packageText = packageName.orEmpty()
-            val packageLooksLikeLauncher = packageText.contains("launcher", ignoreCase = true) ||
-                packageText.equals("com.huawei.android.launcher", ignoreCase = true)
-            val desktopMarkers = listOf(
-                "\u534e\u4e3a\u684c\u9762",
-                "\u684c\u9762",
-                "Launcher",
-                "launcher"
-            )
-            if (packageLooksLikeLauncher) return true
-            if (desktopMarkers.any { titleText.contains(it, ignoreCase = true) }) {
-                return true
-            }
-            val ownPanelMarkers = listOf(
-                "\u4f1a\u610f\u96f7\u8fbe",
-                "\u8fd9\u6b21\u4e0d\u5bf9",
-                "\u6ca1\u8bfb\u5230\u5f53\u524d\u804a\u5929",
-                "\u6ca1\u8bfb\u5230\u804a\u5929",
-                "\u8bf7\u56de\u5230\u804a\u8d77\u804a\u5929\u7a97\u53e3",
-                "\u9690\u85cf"
-            )
-            return ownPanelMarkers.any { joined.contains(it, ignoreCase = true) }
-        }
-
-        private fun genericChatTrial(
-            request: DynamicPlaybookRequest,
-            currentPackage: String?,
-            currentWindowTitle: String?,
-            effectiveCount: Int,
-            parserConfidence: Int
-        ): Boolean {
-            if (request.appPackage.orEmpty() in supportedChatPackages) return false
-            if (request.appPackage != "com.xiaoenai.app") return false
-            if (isDesktopOrPanelWindow(currentWindowTitle, currentPackage)) return false
-            val titleLooksLikeXiaoenai = currentWindowTitle?.contains("\u5c0f\u6069\u7231", ignoreCase = true) == true
-            if (!titleLooksLikeXiaoenai) return false
-            if (effectiveCount < GENERIC_TRIAL_MIN_EFFECTIVE_MESSAGES) return false
-            return parserConfidence >= GENERIC_TRIAL_MIN_CONFIDENCE
+            return ChatAppProfileDetector.isBlockedEnvironment(title, packageName)
         }
     }
 }

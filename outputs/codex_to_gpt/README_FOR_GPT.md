@@ -1,21 +1,33 @@
 # Codex to GPT Result
 
-- taskName: xiaoenai_profile_generic_trial_before_phone
-- versionName: 4.1.68
-- versionCode: 487
-- currentOverallResult: XIAOENAI_GENERIC_TRIAL_FIXTURE_PASS
+- taskName: multi_chat_app_profile_and_generic_trial_layer
+- versionName: 4.1.70
+- versionCode: 489
+- currentOverallResult: MULTI_APP_PROFILE_MATRIX_PASS
+- generatedAt: 2026-07-06T14:18:54+08:00
 - userNeedsPhoneThisRound: false
 - realDeviceSmokeResult: NOT_TESTED_THIS_ROUND
-- XIAOENAI_NORMAL_CHAT_LAST_OTHER: PASS
-- XIAOENAI_NORMAL_CHAT_EXPRESS_SELF_PLANNING: PASS
-- XIAOENAI_DESKTOP_BLOCK: PASS
-- XIAOENAI_DESKTOP_LAST_STABLE_SNAPSHOT_BLOCK: PASS
-- XIAOENAI_LOW_CONFIDENCE_BLOCK: PASS
-- windowTitleHuaweiDesktopResult: BLOCK_UNTRUSTED_SNAPSHOT
-- windowTitleXiaoenaiResult: ALLOW_GENERIC_TRIAL
-- lastStableSnapshotContinuesAnalysisOnDesktop: false
-- targetedBranchTests: PASS
-- unitTests: PASS
-- assembleDebug: PASS
-- primaryReport: outputs/gpt_review_inbox/xiaoenai-profile-generic-trial-report-for-gpt.md
-- reportJson: outputs/gpt_review_inbox/xiaoenai-profile-generic-trial-report.json
+- ChatAppProfileRegistry: PASS
+- ChatAppProfileDetector: PASS
+- GenericChatTrial: PASS
+- UnsupportedAppAdaptationExporter: PASS
+- AppProfileMatrixTests: PASS
+- app:testDebugUnitTest: PASS
+- app:assembleDebug: PASS
+- mockchat:assembleDebug: PASS
+- emulatorDetected: true
+- emulatorSerial: emulator-5554
+- launchedProfileScenarioCount: 63
+- liaoqi: LEVEL_3_DEDICATED_PROFILE PASS
+- xiaoenai: LEVEL_2_GENERIC_TRIAL PASS
+- wechatLike: LEVEL_2_GENERIC_TRIAL PASS
+- qqLike: LEVEL_2_GENERIC_TRIAL PASS
+- redbookLike: LEVEL_2_GENERIC_TRIAL PASS
+- datingLike: LEVEL_2_GENERIC_TRIAL PASS
+- webviewLowAccessibility: LEVEL_1_UNSUPPORTED_WITH_ADAPTATION_PACK PASS
+- launcher: LEVEL_0_BLOCK PASS
+- huiyiOverlay: LEVEL_0_BLOCK PASS
+- rawPrivateChatIncluded: false
+- primaryReport: outputs/gpt_review_inbox/multi-app-profile-matrix-for-gpt.md
+- matrixJson: outputs/gpt_review_inbox/multi-app-profile-matrix.json
+- adaptationPackReport: outputs/gpt_review_inbox/app-adaptation-pack-report-for-gpt.md

@@ -169,7 +169,8 @@ class RealUsePackageAcceptanceTest {
         capturedAt = 1000L,
         currentTopics = currentTopics,
         expressionLedger = expressionLedger,
-        chatWindowHash = "real-use-fixture"
+        chatWindowHash = "real-use-fixture",
+        targetAppSupported = true
     )
 
     private fun overExpressionLedger(): ExpressionLedger = ExpressionLedger(

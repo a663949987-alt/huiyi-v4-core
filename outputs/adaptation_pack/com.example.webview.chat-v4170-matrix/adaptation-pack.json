@@ -1,0 +1,24 @@
+{
+  "appPackage": "com.example.webview.chat",
+  "windowTitleRedacted": "WebView Chat",
+  "rootNodeSummary": [
+    "messageCount=2",
+    "effectiveCount=2",
+    "unknownCount=2"
+  ],
+  "visibleTextRedacted": [
+    "[redacted:6chars]",
+    "[redacted:6chars]"
+  ],
+  "candidateMessageRows": [
+    "unknown-1:UNKNOWN:[redacted:6chars]",
+    "unknown-2:UNKNOWN:[redacted:6chars]"
+  ],
+  "candidateLeftRightBounds": [],
+  "metadataCandidates": [],
+  "inputBoxCandidates": [],
+  "sendButtonCandidates": [],
+  "reasonWhyUnsupported": "LOW_GENERIC_CONFIDENCE",
+  "screenshotIncluded": false,
+  "rawPrivateChatIncluded": false
+}

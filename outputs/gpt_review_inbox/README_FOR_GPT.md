@@ -1,47 +1,72 @@
 # Huiyi v4 GPT Review Inbox
 
 ## Current Task
-- taskName: xiaoenai_profile_generic_trial_before_phone
-- versionName: 4.1.68
-- versionCode: 487
-- currentOverallResult: XIAOENAI_GENERIC_TRIAL_FIXTURE_PASS
-- generatedAt: 2026-07-06T13:46:11+08:00
+- taskName: multi_chat_app_profile_and_generic_trial_layer
+- versionName: 4.1.70
+- versionCode: 489
+- currentOverallResult: MULTI_APP_PROFILE_MATRIX_PASS
+- generatedAt: 2026-07-06T14:18:54+08:00
 - userNeedsPhoneThisRound: false
 - realDeviceSmokeResult: NOT_TESTED_THIS_ROUND
 
 ## Why This Task Exists
-- v4.1.66 phone evidence showed Xiaoenai Express Self was blocked because `windowTitlePreAnalysisRedacted=华为桌面`.
-- This round applies GPT's stricter rule: `华为桌面` means BLOCK, even if `appPackage=com.xiaoenai.app`.
-- Xiaoenai Generic Trial is allowed only when the current window/title is Xiaoenai chat-like, such as `windowTitle=小恩爱`.
+- User asked why Huiyi only handled Xiaoenai when other chat apps also need support.
+- This round upgrades the Xiaoenai-specific fix into a multi app profile layer.
+- App-specific work now stops at profile detection and conversation extraction; downstream strategy remains app independent.
 
-## Fixture Branch Result
-- XIAOENAI_NORMAL_CHAT_LAST_OTHER: PASS
-- XIAOENAI_NORMAL_CHAT_EXPRESS_SELF_PLANNING: PASS
-- XIAOENAI_DESKTOP_BLOCK: PASS
-- XIAOENAI_DESKTOP_LAST_STABLE_SNAPSHOT_BLOCK: PASS
-- XIAOENAI_LOW_CONFIDENCE_BLOCK: PASS
+## Implemented Layers
+- ChatAppProfileRegistry: PASS
+- ChatAppProfileDetector: PASS
+- GenericChatTrial: PASS
+- UnsupportedAppAdaptationExporter: PASS
+- AppProfile Matrix tests: PASS
+- app:testDebugUnitTest: PASS
+- app:assembleDebug: PASS
+- mockchat:assembleDebug: PASS
 
-## Key Assertions
-- `windowTitle=华为桌面` -> `BLOCK_UNTRUSTED_SNAPSHOT`
-- desktop block routeCount: 0
-- desktop block cloudAttempted: false
-- `windowTitle=小恩爱` + enough effective messages + confidence >= 70 -> `ALLOW_GENERIC_TRIAL`
-- low confidence Xiaoenai -> `LOW_GENERIC_CONFIDENCE`
-- no lastStableSnapshot analysis when current window is desktop
+## Matrix Summary
+- totalAppProfiles: 9
+- dedicatedProfileCount: 1
+- genericTrialPassCount: 5
+- unsupportedWithAdaptationPackCount: 1
+- blockCount: 2
+- liaoqiPass: true
+- xiaoenaiGenericTrialPass: true
+- wechatLikeGenericTrialPass: true
+- qqLikeGenericTrialPass: true
+- redbookLikeGenericTrialPass: true
+- datingLikeGenericTrialPass: true
+- webviewLowAccessibilityBlocked: true
+- launcherBlocked: true
+- huiyiOverlayBlocked: true
+- messageStatusMetadataFiltered: true
+- lastSpeakerAccuracy: 1.0
+- unknownRatioAverage: 0.0
 
-## Tests
-- targetedBranchTests: PASS
-- unitTests: PASS
-- assembleDebug: PASS
-- emulatorSmokeResult: NOT_RUN_FIXTURE_BRANCH_COVERAGE_USED
+## Emulator Matrix
+- emulatorDetected: true
+- emulatorSerial: emulator-5554
+- huiyiInstalled: true
+- mockchatInstalled: true
+- mockProfilesLaunched: liaoqi_like, xiaoenai_like, wechat_like, qq_like, redbook_like, dating_like, webview_like_low_accessibility, launcher_desktop, huiyi_overlay_contaminated
+- scenariosCovered: last_me, last_other, metadata_trap, read_receipt_status, voice_last_other, image_or_sticker, time_at_bottom
+- launchedProfileScenarioCount: 63
+
+## Safety
+- rawPrivateChatIncluded: false
+- screenshotsIncluded: false
+- unsupportedAppsGenerateRedactedAdaptationPack: true
+- desktopOrLauncherUsesLastStableSnapshot: false
+- huiyiOverlayUsesLastStableSnapshot: false
 
 ## Reports To Inspect
-1. outputs/gpt_review_inbox/xiaoenai-profile-generic-trial-report-for-gpt.md
-2. outputs/gpt_review_inbox/xiaoenai-profile-generic-trial-report.json
+1. outputs/gpt_review_inbox/multi-app-profile-matrix-for-gpt.md
+2. outputs/gpt_review_inbox/multi-app-profile-matrix.json
+3. outputs/gpt_review_inbox/app-adaptation-pack-report-for-gpt.md
+4. outputs/adaptation_pack/com.example.webview.chat-v4170-matrix/adaptation-pack.json
 
 ## Delivery Note
 - apkGeneratedForUserThisRound: false
 - userNeedsPhoneThisRound: false
-- phoneTestAllowedAfterThisFixturePass: true
-- apkCommittedToPublicGithub: false
+- phoneTestAllowedAfterThisMatrixPass: true
 - privateRelayConfigCommitted: false

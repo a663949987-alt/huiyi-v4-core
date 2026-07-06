@@ -347,7 +347,12 @@ class CloudAnalysisMvpSafetyGateTest {
     @Test
     fun UnsupportedAppSkipsCloudTest() = runTest {
         val cloud = FakeCloudService()
-        val result = pipeline(lastOtherMessages(), cloud, appPackage = "com.unsupported.chat").run(emptyPersona()).getOrThrow()
+        val lowConfidenceOtherMessages = listOf(
+            textNode("other-1", Speaker.OTHER, "hello", 1).copy(speakerConfidence = 35),
+            textNode("me-2", Speaker.ME, "I am here", 2).copy(speakerConfidence = 35),
+            textNode("other-3", Speaker.OTHER, "today was hard", 3).copy(speakerConfidence = 35)
+        )
+        val result = pipeline(lowConfidenceOtherMessages, cloud, appPackage = "com.unsupported.chat").run(emptyPersona()).getOrThrow()
 
         assertFalse(result.cloudTrace.cloudAttempted)
         assertEquals("UNSUPPORTED_APP", result.cloudTrace.cloudSkippedReason)

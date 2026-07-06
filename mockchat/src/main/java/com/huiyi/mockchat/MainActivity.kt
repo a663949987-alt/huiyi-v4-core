@@ -118,11 +118,16 @@ enum class MockChatLayoutProfile(
     val showAvatar: Boolean,
     val inputRich: Boolean
 ) {
+    LIAOQI_LIKE("liaoqi_like", "LIAOQI_LIKE", "白云蓝天", "上次在线时间07-02 18:06", Color(0xFFF4F1EC), Color.White, Color(0xFFBEE6A8), 12, true, true),
+    XIAOENAI_LIKE("xiaoenai_like", "XIAOENAI_LIKE", "小恩爱", "情侣空间", Color(0xFFFFF4F8), Color.White, Color(0xFFFFD6E7), 18, true, true),
     WECHAT_LIKE("wechat_like", "WECHAT_LIKE", "白云蓝天", "上次在线时间07-02 18:06", Color(0xFFF4F1EC), Color.White, Color(0xFFBEE6A8), 8, true, false),
     QQ_LIKE("qq_like", "QQ_LIKE", "蓝桥", "手机在线", Color(0xFFEFF6FF), Color(0xFFFFFFFF), Color(0xFFB8E5FF), 18, true, true),
     REDBOOK_DM_LIKE("redbook_like", "REDBOOK_DM_LIKE", "小鹿同学", "刚刚在线", Color(0xFFFFF7F7), Color.White, Color(0xFFFFE1E7), 14, true, true),
     DATING_APP_LIKE("dating_like", "DATING_APP_LIKE", "林夏", "资料完整度 82%", Color(0xFFFFFAF2), Color.White, Color(0xFFE8D8FF), 16, true, true),
     MINIMAL_CHAT_LIKE("minimal_like", "MINIMAL_CHAT_LIKE", "对话", "在线", Color(0xFFF7F7F5), Color(0xFFFDFDFB), Color(0xFFEDEDE8), 6, false, false),
+    WEBVIEW_LIKE_LOW_ACCESSIBILITY("webview_like_low_accessibility", "WEBVIEW_LIKE_LOW_ACCESSIBILITY", "WebView Chat", "custom view", Color(0xFFF1F1F1), Color(0xFFEAEAEA), Color(0xFFDCDCDC), 4, false, false),
+    LAUNCHER_DESKTOP("launcher_desktop", "LAUNCHER_DESKTOP", "华为桌面", "launcher", Color(0xFFF6F6F6), Color.White, Color(0xFFE0E0E0), 6, false, false),
+    HUIYI_OVERLAY_CONTAMINATED("huiyi_overlay_contaminated", "HUIYI_OVERLAY_CONTAMINATED", "会意雷达", "这次不对，发给 GPT", Color(0xFFF6F6F6), Color.White, Color(0xFFE0E0E0), 6, false, false),
     LIAOQI_HUAWEI_LARGE_TEXT("liaoqi_huawei_large_text", "LIAOQI_HUAWEI_LARGE_TEXT", "白云蓝天", "上次在线时间07-02 18:06", Color(0xFFF4F1EC), Color.White, Color(0xFFBEE6A8), 12, true, true)
 }
 

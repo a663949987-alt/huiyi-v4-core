@@ -1,6 +1,9 @@
 package com.huiyi.v4.domain.pipeline
 
 import com.huiyi.v4.data.HuiyiPersistenceRepository
+import com.huiyi.v4.domain.app.ChatAppProfileDetectionInput
+import com.huiyi.v4.domain.app.ChatAppProfileDetector
+import com.huiyi.v4.domain.app.ChatAppSupportLevel
 import com.huiyi.v4.domain.cloud.CloudAnalysisConfig
 import com.huiyi.v4.domain.cloud.CloudAnalysisException
 import com.huiyi.v4.domain.cloud.CloudAnalysisInput
@@ -161,8 +164,27 @@ class CurrentScreenPipelineUseCase(
             }
             val isLiaoqiRealUse = capture.snapshot.appPackage == "com.bajiao.im.liaoqi"
             val packageName = capture.snapshot.appPackage.orEmpty()
+            val appProfile = ChatAppProfileDetector.detect(
+                ChatAppProfileDetectionInput(
+                    appPackage = capture.snapshot.appPackage,
+                    windowTitle = capture.snapshot.windowTitle,
+                    currentAppPackage = capture.currentRootPackageAtCapture ?: capture.snapshot.appPackage,
+                    currentWindowTitle = capture.snapshot.windowTitle,
+                    messages = capture.messages,
+                    parserConfidence = capture.messages
+                        .filter { it.isEffectiveChatMessage && it.speaker in setOf(Speaker.ME, Speaker.OTHER) }
+                        .map { it.speakerConfidence.coerceIn(0, 100) }
+                        .takeIf { it.isNotEmpty() }
+                        ?.average()
+                        ?.toInt()
+                        ?: 0,
+                    sameAppPackageStable = capture.currentRootPackageAtCapture.isNullOrBlank() ||
+                        capture.currentRootPackageAtCapture == capture.snapshot.appPackage
+                )
+            )
             val visualCloudAllowed = packageName.isNotBlank() &&
-                packageName !in setOf("com.huiyi.v4", "com.android.systemui")
+                packageName !in setOf("com.huiyi.v4", "com.android.systemui") &&
+                appProfile.supportLevel != ChatAppSupportLevel.LEVEL_0_BLOCK
             val forceLastOtherRoutes = isLiaoqiRealUse && lastSpeaker.lastSpeaker == Speaker.OTHER
             val decision = when {
                 lastSpeaker.lastSpeaker == Speaker.ME -> lastMeWaitDecision()
@@ -189,7 +211,7 @@ class CurrentScreenPipelineUseCase(
             } else {
                 routeGenerator.generate(context, decision)
             }
-            val targetSupported = capture.snapshot.appPackage in setOf("com.bajiao.im.liaoqi", "com.huiyi.mockchat")
+            val targetSupported = appProfile.targetAppSupported
             val cloudResult = maybeAnalyzeWithCloud(
                 sessionId = sessionId,
                 preAnalysisSnapshotId = preAnalysisSnapshotId,
