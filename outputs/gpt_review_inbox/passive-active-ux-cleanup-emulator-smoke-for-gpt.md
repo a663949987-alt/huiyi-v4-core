@@ -1,8 +1,8 @@
 ﻿# Passive Active UX Cleanup Emulator Smoke
 
 - taskName: no_local_passive_routes_and_express_self_simplify
-- versionName: 4.1.64
-- versionCode: 483
+- versionName: 4.1.66
+- versionCode: 485
 - emulatorDetected: True
 - emulatorSerial: emulator-5554
 - huiyiInstalled: True

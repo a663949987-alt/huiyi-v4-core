@@ -924,10 +924,11 @@ class HuiyiRuntime private constructor(
     }
 
     private fun reusableExpressSelfResult(): CurrentScreenPipelineResult? {
+        if (!OverlayStateStore.state.value.resultPanelVisible) return null
         val current = mutableState.value
         if (current.floatingPanelMode != FloatingPanelMode.EXPRESS_SELF) return null
         val result = current.latestPipelineResult ?: return null
-        if (result.sessionTerminalState !in setOf("EXPRESS_SELF_PANEL", "HOLD_BACK_PANEL")) return null
+        if (result.sessionTerminalState != "EXPRESS_SELF_PANEL") return null
         val endedAt = result.analysisEndedAt.takeIf { it > 0L } ?: return null
         if (System.currentTimeMillis() - endedAt > 10 * 60 * 1000L) return null
         return result.copy(
@@ -964,12 +965,23 @@ class HuiyiRuntime private constructor(
         trace: NextSentenceSessionTrace,
         previousSessionId: String?
     ): Boolean {
-        val stable = HuiyiAccessibilityService.instance?.lastStableChatSnapshot() ?: return false
+        val service = HuiyiAccessibilityService.instance ?: return false
+        val stable = service.lastStableChatSnapshot() ?: return false
+        val currentRootPackage = service.currentRootPackageName()
+        if (!currentRootCanUseStableSnapshot(currentRootPackage, stable.packageName)) return false
         val messages = stable.normalizedMessages
             .filter { it.isEffectiveChatMessage && it.speaker != Speaker.SYSTEM }
         if (messages.isEmpty()) return false
         val persona = currentPersona()
         val runtimeAtClick = AccessibilityRuntimeReader.read(appContext)
+        val currentPackageForTrust = when {
+            currentRootPackage == stable.packageName -> stable.packageName
+            currentRootPackage == appContext.packageName -> stable.packageName
+            currentRootPackage.isNullOrBlank() -> runtimeAtClick.currentPackage
+                ?.takeUnless { it == appContext.packageName }
+                ?: stable.packageName
+            else -> currentRootPackage
+        }
         val request = DynamicPlaybookRequest(
             mode = mode,
             appPackage = stable.packageName,
@@ -981,7 +993,7 @@ class HuiyiRuntime private constructor(
             chatWindowHash = stable.nodesHash,
             targetAppSupported = stable.packageName in setOf("com.bajiao.im.liaoqi", "com.huiyi.mockchat"),
             snapshotTrusted = true,
-            currentAppPackage = runtimeAtClick.currentPackage ?: stable.packageName,
+            currentAppPackage = currentPackageForTrust,
             currentWindowTitleRedacted = runtimeAtClick.currentWindowTitle ?: stable.windowTitle,
             parserConfidence = 100,
             preAnalysisSnapshotSource = "LAST_STABLE_CHAT_SNAPSHOT_BEFORE_PANEL"
@@ -1002,6 +1014,16 @@ class HuiyiRuntime private constructor(
             launchDynamicPlaybookCloudRefresh(request)
         }
         return true
+    }
+
+    private fun currentRootCanUseStableSnapshot(currentRootPackage: String?, stablePackage: String): Boolean {
+        val rootPackage = currentRootPackage.orEmpty()
+        if (rootPackage.isBlank()) return true
+        if (rootPackage == stablePackage) return true
+        if (rootPackage == appContext.packageName) return true
+        if (rootPackage == "com.android.systemui") return true
+        if (rootPackage.contains("launcher", ignoreCase = true)) return false
+        return false
     }
 
     private fun launchDynamicPlaybookCloudRefresh(request: DynamicPlaybookRequest) {

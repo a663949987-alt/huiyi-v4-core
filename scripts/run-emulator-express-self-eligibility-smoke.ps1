@@ -242,8 +242,8 @@ function Write-Reports($data) {
 # Express Self Eligibility Emulator Smoke
 
 - taskName: expressSelfEligibility_and_hold_back_fix
-- versionName: 4.1.62
-- versionCode: 481
+- versionName: 4.1.66
+- versionCode: 485
 - generatedAt: $($data.generatedAt)
 - emulatorDetected: $($data.emulatorDetected)
 - emulatorSerial: $($data.emulatorSerial)
@@ -287,8 +287,8 @@ $serial = if ($serialMatch) { $serialMatch.Matches.Groups[1].Value } else { "" }
 
 $data = [ordered]@{
     taskName = "expressSelfEligibility_and_hold_back_fix"
-    versionName = "4.1.62"
-    versionCode = 481
+    versionName = "4.1.66"
+    versionCode = 485
     generatedAt = (Get-Date).ToString("s")
     emulatorDetected = [bool]$serial
     emulatorSerial = $serial

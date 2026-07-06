@@ -1,0 +1,204 @@
+﻿{
+    "taskName":  "full_emulator_matrix_before_user_phone",
+    "versionName":  "4.1.66",
+    "versionCode":  485,
+    "generatedAt":  "2026-07-06T11:15:38.7275585+08:00",
+    "emulatorDetected":  true,
+    "emulatorSerial":  "emulator-5554",
+    "huiyiInstalled":  true,
+    "mockchatInstalled":  true,
+    "accessibilityEnabled":  true,
+    "overlayPermissionGranted":  true,
+    "unitTestsResult":  "PASS",
+    "assembleDebugResult":  "PASS",
+    "passiveActiveSmokeResult":  "PASS",
+    "expressSelfEligibilitySmokeResult":  "PASS",
+    "dynamicCloudRefreshSmokeResult":  "PASS",
+    "fullEmulatorMatrixResult":  "PASS",
+    "totalScenarioCount":  22,
+    "p0ScenarioCount":  22,
+    "passedCount":  22,
+    "failedCount":  0,
+    "notRunCount":  0,
+    "allP0Passed":  true,
+    "failedScenarioCount":  0,
+    "userNeedsPhoneThisRound":  true,
+    "rows":  [
+                 {
+                     "id":  "A1",
+                     "area":  "next_sentence",
+                     "scenario":  "LAST_ME_WAIT_NO_ROUTES_NO_CLOUD",
+                     "result":  "PASS",
+                     "keyEvidence":  "dynamic smoke lastMeWaitPass=True lastMeCloudAttempted=False routeCount=0",
+                     "blocker":  ""
+                 },
+                 {
+                     "id":  "A2",
+                     "area":  "next_sentence",
+                     "scenario":  "LAST_OTHER_CLOUD_VERIFIED_CACHE_ROUTES",
+                     "result":  "PASS",
+                     "keyEvidence":  "dynamic smoke nextClickReadsCloudEnhancedPlaybook=True cloudEnhancedRouteCount=3",
+                     "blocker":  ""
+                 },
+                 {
+                     "id":  "A3",
+                     "area":  "next_sentence",
+                     "scenario":  "LAST_OTHER_NO_CLOUD_CACHE_PASSIVE_WAIT",
+                     "result":  "PASS",
+                     "keyEvidence":  "passive smoke terminalState=PASSIVE_WAIT_PANEL decisionType=PASSIVE_NOT_READY routeCount=0 localPassiveRoutesShownToUser=False",
+                     "blocker":  ""
+                 },
+                 {
+                     "id":  "A4",
+                     "area":  "next_sentence",
+                     "scenario":  "SLOW_CLOUD_NON_BLOCKING_WAIT_OR_CACHE",
+                     "result":  "PASS",
+                     "keyEvidence":  "combined smoke passiveWaitPanelShown=True cloudRefreshAttempted=True staleCloudRefreshDiscarded=True",
+                     "blocker":  ""
+                 },
+                 {
+                     "id":  "A5",
+                     "area":  "next_sentence",
+                     "scenario":  "CLOUD_FAILURE_NO_ANALYSIS_FAILED_NO_LOCAL_PASSIVE",
+                     "result":  "PASS",
+                     "keyEvidence":  "unit CloudNetworkFailureShowsVisibleFallbackReasonTest localPassiveRoutesShownToUser=False",
+                     "blocker":  ""
+                 },
+                 {
+                     "id":  "B1",
+                     "area":  "express_self",
+                     "scenario":  "LAST_ME_RECENT_HOLD_BACK",
+                     "result":  "PASS",
+                     "keyEvidence":  "express smoke terminalState=HOLD_BACK_PANEL decisionType=HOLD_BACK routeCount=0 cloudAttempted=False",
+                     "blocker":  ""
+                 },
+                 {
+                     "id":  "B2",
+                     "area":  "express_self",
+                     "scenario":  "LAST_OTHER_PLANNING_ARC_REVEAL_SIMPLE_PANEL",
+                     "result":  "PASS",
+                     "keyEvidence":  "express smoke routeTypesCsv=WARM_UP,SELF_STORY,ARC_REVEAL routeCount=3 eligibilityMode=ALLOW_EXPRESS_SELF",
+                     "blocker":  ""
+                 },
+                 {
+                     "id":  "B3",
+                     "area":  "express_self",
+                     "scenario":  "LONG_INACTIVE_COLD_START_LOW_PRESSURE",
+                     "result":  "PASS",
+                     "keyEvidence":  "unit ExpressSelfAllowsColdStartAfterLongInactiveTest coldStartAssertionSource=ENGINE_FIXTURE_LONG_INACTIVE",
+                     "blocker":  ""
+                 },
+                 {
+                     "id":  "B4",
+                     "area":  "express_self",
+                     "scenario":  "RECENT_OVER_EXPRESSION_HOLD_BACK",
+                     "result":  "PASS",
+                     "keyEvidence":  "unit ExpressSelfHoldBackAfterRecentSelfExpressionTest and ExpressionLedger hold back coverage",
+                     "blocker":  ""
+                 },
+                 {
+                     "id":  "B5",
+                     "area":  "express_self",
+                     "scenario":  "SAME_SCENE_REPEAT_CLICK_CACHE_STABLE",
+                     "result":  "PASS",
+                     "keyEvidence":  "passive-active smoke expressSelfRepeatClickStable=True repeatRouteCount=3",
+                     "blocker":  ""
+                 },
+                 {
+                     "id":  "B6",
+                     "area":  "express_self",
+                     "scenario":  "SWITCH_FACET_AND_ELEVATE_MEANING_STABLE",
+                     "result":  "PASS",
+                     "keyEvidence":  "unit ExpressionLedgerTest covers SWITCH_FACET and ELEVATE_MEANING",
+                     "blocker":  ""
+                 },
+                 {
+                     "id":  "C1",
+                     "area":  "untrusted_state",
+                     "scenario":  "LAUNCHER_DESKTOP_BLOCKS_ROUTES_AND_CLOUD",
+                     "result":  "PASS",
+                     "keyEvidence":  "express emulator desktop terminalState=CONTROLLED_FAIL_PANEL routeCount=0 cloudAttempted=False",
+                     "blocker":  ""
+                 },
+                 {
+                     "id":  "C2",
+                     "area":  "untrusted_state",
+                     "scenario":  "HUIYI_PANEL_CONTAMINATION_BLOCKS_ANALYSIS",
+                     "result":  "PASS",
+                     "keyEvidence":  "unit PreAnalysisTitleContaminationDetectedForOneTapPanelTest and PreAnalysisTitleWithWaitPhraseIsContaminatedTest",
+                     "blocker":  ""
+                 },
+                 {
+                     "id":  "C3",
+                     "area":  "untrusted_state",
+                     "scenario":  "LAST_STABLE_SNAPSHOT_WINDOW_MISMATCH_BLOCKS",
+                     "result":  "PASS",
+                     "keyEvidence":  "unit ExpressSelfBlocksUntrustedLastStableSnapshotTest",
+                     "blocker":  ""
+                 },
+                 {
+                     "id":  "D1",
+                     "area":  "xiaoenai_generic_trial",
+                     "scenario":  "XIAOENAI_STABLE_CHAT_HIGH_CONFIDENCE_GENERIC_TRIAL",
+                     "result":  "PASS",
+                     "keyEvidence":  "unit V4165_XIAOENAI_NORMAL_CHAT_GENERIC_TRIAL and XiaoenaiGenericTrialAllowsStableChatTest",
+                     "blocker":  ""
+                 },
+                 {
+                     "id":  "D2",
+                     "area":  "xiaoenai_generic_trial",
+                     "scenario":  "XIAOENAI_LOW_CONFIDENCE_PRECISE_BLOCK",
+                     "result":  "PASS",
+                     "keyEvidence":  "unit GenericTrialBlocksLowConfidenceTest expects LOW_GENERIC_CONFIDENCE not desktop",
+                     "blocker":  ""
+                 },
+                 {
+                     "id":  "D3",
+                     "area":  "xiaoenai_generic_trial",
+                     "scenario":  "XIAOENAI_STATUS_NODES_NOT_LAST_EFFECTIVE_MESSAGE",
+                     "result":  "PASS",
+                     "keyEvidence":  "unit status metadata tests cover read delivery checkmark not effective",
+                     "blocker":  ""
+                 },
+                 {
+                     "id":  "E1",
+                     "area":  "message_status_metadata",
+                     "scenario":  "READ_DELIVERED_CHECKMARK_FILTERED_AND_ATTACHED",
+                     "result":  "PASS",
+                     "keyEvidence":  "unit ReadReceiptNodeIsMetadataNotMessageTest DeliveryStatusAttachedToPreviousMeMessageTest StatusArtifactDoesNotBecomeEffectiveMessageTest",
+                     "blocker":  ""
+                 },
+                 {
+                     "id":  "E2",
+                     "area":  "message_status_metadata",
+                     "scenario":  "REAL_MESSAGE_BEFORE_STATUS_REMAINS_LAST_EFFECTIVE",
+                     "result":  "PASS",
+                     "keyEvidence":  "unit ReadReceiptDoesNotAffectLastSpeakerTest and LastMeWithReadReceiptStillWaitsTest",
+                     "blocker":  ""
+                 },
+                 {
+                     "id":  "F1",
+                     "area":  "cloud_refresh_stale_discard",
+                     "scenario":  "DYNAMIC_PLAYBOOK_CLOUD_REFRESH_UPDATES_CACHE",
+                     "result":  "PASS",
+                     "keyEvidence":  "dynamic cloud smoke attempted=True success=True contract=PASS cacheUpdated=True",
+                     "blocker":  ""
+                 },
+                 {
+                     "id":  "F2",
+                     "area":  "cloud_refresh_stale_discard",
+                     "scenario":  "CHAT_SWITCH_DISCARDS_OLD_CLOUD_REFRESH",
+                     "result":  "PASS",
+                     "keyEvidence":  "dynamic cloud smoke staleCloudRefreshDiscarded=True staleDiscardReason=CHAT_KEY_CHANGED",
+                     "blocker":  ""
+                 },
+                 {
+                     "id":  "F3",
+                     "area":  "cloud_refresh_stale_discard",
+                     "scenario":  "DOUBLE_CLICK_ONLY_ONE_ACTIVE_SESSION",
+                     "result":  "PASS",
+                     "keyEvidence":  "unit DoubleClickNextOnlyOneActiveSessionTest and OneClickOneTerminalPanelTest",
+                     "blocker":  ""
+                 }
+             ]
+}

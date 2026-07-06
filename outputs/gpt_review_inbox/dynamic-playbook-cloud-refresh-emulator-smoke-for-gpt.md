@@ -1,9 +1,9 @@
 ﻿# Dynamic Playbook + Cloud Refresh Emulator Smoke
 
 - taskName: dynamic_playbook_cloud_refresh_emulator_smoke
-- versionName: 4.1.62
-- versionCode: 481
-- generatedAt: 2026-07-06T08:00:23.4926862+08:00
+- versionName: 4.1.66
+- versionCode: 485
+- generatedAt: 2026-07-06T11:13:41.5803968+08:00
 - emulatorDetected: True
 - emulatorSerial: emulator-5554
 - huiyiInstalled: True
@@ -12,8 +12,8 @@
 - overlayPermissionGranted: True
 - localPlaybookFirstResultPass: True
 - passiveNextLatencyMs: 300
-- passiveFirstRouteCount: 5
-- passiveFirstSource: LOCAL_PLAYBOOK_FALLBACK_PASSIVE_NEXT
+- passiveFirstRouteCount: 0
+- passiveFirstSource: PASSIVE_WAIT_FOR_CLOUD_PLAYBOOK
 - activeExpressionLatencyMs: 300
 - activeExpressionRouteCount: 3
 - activeExpressionContainsArcReveal: True

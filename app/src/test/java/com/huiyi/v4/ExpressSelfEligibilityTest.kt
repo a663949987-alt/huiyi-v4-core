@@ -183,7 +183,7 @@ class ExpressSelfEligibilityTest {
 
         assertEquals(false, result.expressSelfEligibility?.eligible)
         assertEquals(ExpressSelfEligibilityMode.BLOCK_UNSUPPORTED_CONTEXT, result.expressSelfEligibility?.mode)
-        assertEquals(ExpressSelfBlockReason.UNSUPPORTED_APP, result.expressSelfEligibility?.blockReason)
+        assertEquals(ExpressSelfBlockReason.LOW_GENERIC_CONFIDENCE, result.expressSelfEligibility?.blockReason)
     }
 
     @Test
@@ -259,6 +259,47 @@ class ExpressSelfEligibilityTest {
         assertNotEquals(TacticalDecisionType.NORMAL_REPLY, result.tacticalDecisionType)
         assertEquals(0, result.routes.size)
         assertEquals(false, result.cloudRefreshRecommended)
+    }
+
+    @Test
+    fun V4165_XIAOENAI_HUAWEI_DESKTOP_EXPRESS_SELF_BLOCK() {
+        val result = engine().expressSelf(
+            request(
+                appPackage = "com.xiaoenai.app",
+                windowTitle = "\u534e\u4e3a\u684c\u9762",
+                targetAppSupported = false,
+                currentAppPackage = "com.huawei.android.launcher",
+                currentWindowTitleRedacted = "\u534e\u4e3a\u684c\u9762",
+                messages = recentLastMeMessages(),
+                lastUserMessageAgeMsOverride = 20_000L
+            )
+        )
+
+        assertEquals(false, result.expressSelfEligibility?.eligible)
+        assertEquals(ExpressSelfEligibilityMode.BLOCK_UNTRUSTED_SNAPSHOT, result.expressSelfEligibility?.mode)
+        assertEquals(ExpressSelfBlockReason.WINDOW_IS_DESKTOP_OR_LAUNCHER, result.expressSelfEligibility?.blockReason)
+        assertEquals(0, result.routes.size)
+        assertFalse(result.cloudRefreshRecommended)
+    }
+
+    @Test
+    fun V4165_XIAOENAI_NORMAL_CHAT_GENERIC_TRIAL() {
+        val result = engine().expressSelf(
+            request(
+                appPackage = "com.xiaoenai.app",
+                windowTitle = "\u5c0f\u6069\u7231",
+                currentAppPackage = "com.xiaoenai.app",
+                currentWindowTitleRedacted = "\u5c0f\u6069\u7231",
+                targetAppSupported = false,
+                parserConfidence = 82,
+                messages = stableXiaoenaiPlanningMessages()
+            )
+        )
+
+        assertEquals(true, result.expressSelfEligibility?.eligible)
+        assertEquals(ExpressSelfEligibilityMode.ALLOW_GENERIC_TRIAL, result.expressSelfEligibility?.mode)
+        assertEquals("GENERIC_TRIAL", result.expressSelfEligibility?.source)
+        assertTrue(result.routes.isNotEmpty())
     }
 
     private fun engine() = DynamicPlaybookEngine()

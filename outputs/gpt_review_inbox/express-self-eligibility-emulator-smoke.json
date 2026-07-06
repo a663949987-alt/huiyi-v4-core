@@ -1,8 +1,8 @@
 ﻿{
     "taskName":  "expressSelfEligibility_and_hold_back_fix",
-    "versionName":  "4.1.62",
-    "versionCode":  481,
-    "generatedAt":  "2026-07-05T17:33:56",
+    "versionName":  "4.1.66",
+    "versionCode":  485,
+    "generatedAt":  "2026-07-06T11:10:40",
     "emulatorDetected":  true,
     "emulatorSerial":  "emulator-5554",
     "huiyiInstalled":  true,
@@ -28,9 +28,9 @@
     "lastOther":  {
                       "terminalState":  "EXPRESS_SELF_PANEL",
                       "decisionType":  "NORMAL_REPLY",
-                      "routeCount":  5,
+                      "routeCount":  3,
                       "cloudAttempted":  false,
-                      "routeTypesCsv":  "WARM_UP,SELF_STORY,ARC_REVEAL,CO_CREATION,COOL_DOWN",
+                      "routeTypesCsv":  "WARM_UP,SELF_STORY,ARC_REVEAL",
                       "expressSelfEligibilityMode":  "ALLOW_EXPRESS_SELF",
                       "expressSelfEligibilityEligible":  true
                   },

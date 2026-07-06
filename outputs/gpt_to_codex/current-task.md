@@ -2,25 +2,31 @@
 
 taskStatus: COMPLETED
 project: Huiyi v4
-taskName: real_use_v4165_package_delivery
-versionName: 4.1.65
-versionCode: 484
+taskName: full_emulator_matrix_before_user_phone
+versionName: 4.1.66
+versionCode: 485
 createdBy: User
 userNeedsPhoneThisRound: true
-realDeviceRequiredThisRound: true
+realDeviceRequiredThisRound: false
 
 ## Goals
 
-- Generate v4.1.65 combined real-use package.
-- Include v4.1.63 dynamic playbook combined package.
-- Include v4.1.64 no local passive routes, passive wait panel, simplified Express Self, stable repeat click, and Xiaoenai Generic Trial.
-- Update LAN latest.json to v4.1.65 / 484.
+- Run a full emulator P0 acceptance matrix before allowing further user phone testing.
+- Cover next sentence, express self, untrusted state, Xiaoenai Generic Trial, message status metadata, cloud refresh, stale discard, and double-click/session isolation.
+- Generate full emulator matrix reports for GPT.
+- Keep APK private/out-of-band when it contains relay configuration.
 
 ## Result
 
-- currentOverallResult: READY_FOR_PHONE_TEST_PRIVATE_LAN_APK
-- apkPath: outputs/update_server/huiyi-v4.1.65-debug.apk
-- apkCommittedToPublicGithub: false
-- privateApkContainsRelayConfig: true
-- latestJsonUpdated: true
-- primaryReport: outputs/gpt_review_inbox/real-use-v4165-package-report-for-gpt.md
+- currentOverallResult: FULL_EMULATOR_MATRIX_PASS
+- fullEmulatorMatrixResult: PASS
+- totalScenarioCount: 22
+- p0ScenarioCount: 22
+- passedCount: 22
+- failedCount: 0
+- notRunCount: 0
+- allP0Passed: true
+- userNeedsPhoneThisRound: true
+- primaryReport: outputs/gpt_review_inbox/full-emulator-acceptance-matrix-for-gpt.md
+- reportJson: outputs/gpt_review_inbox/full-emulator-acceptance-matrix.json
+- localLanApkPath: outputs/update_server/huiyi-v4.1.66-debug.apk

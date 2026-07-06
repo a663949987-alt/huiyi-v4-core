@@ -44,6 +44,7 @@ enum class ExpressSelfEligibilityMode {
 
 enum class ExpressSelfBlockReason {
     UNSUPPORTED_APP,
+    LOW_GENERIC_CONFIDENCE,
     WINDOW_IS_DESKTOP_OR_LAUNCHER,
     SNAPSHOT_UNTRUSTED,
     LAST_SPEAKER_ME_TOO_RECENT,
@@ -151,7 +152,15 @@ class ExpressSelfEligibilityEvaluator {
 
             !targetSupported -> base.copy(
                 mode = ExpressSelfEligibilityMode.BLOCK_UNSUPPORTED_CONTEXT,
-                blockReason = ExpressSelfBlockReason.UNSUPPORTED_APP
+                blockReason = when {
+                    request.appPackage == "com.xiaoenai.app" &&
+                        currentWindowTitle?.contains("\u5c0f\u6069\u7231", ignoreCase = true) == true &&
+                        effectiveCount < GENERIC_TRIAL_MIN_EFFECTIVE_MESSAGES -> ExpressSelfBlockReason.CHAT_STATE_MISSING
+                    request.appPackage == "com.xiaoenai.app" &&
+                        currentWindowTitle?.contains("\u5c0f\u6069\u7231", ignoreCase = true) == true &&
+                        parserConfidence < GENERIC_TRIAL_MIN_CONFIDENCE -> ExpressSelfBlockReason.LOW_GENERIC_CONFIDENCE
+                    else -> ExpressSelfBlockReason.UNSUPPORTED_APP
+                }
             )
 
             lastSpeaker == Speaker.UNKNOWN -> base.copy(
@@ -200,6 +209,7 @@ class ExpressSelfEligibilityEvaluator {
     companion object {
         const val HIGH_CONFIDENCE: Int = 85
         const val GENERIC_TRIAL_MIN_CONFIDENCE: Int = 70
+        const val GENERIC_TRIAL_MIN_EFFECTIVE_MESSAGES: Int = 3
         const val COLD_START_MIN_AGE_MS: Long = 30 * 60 * 1000L
         const val RECENT_SELF_EXPRESSION_LIMIT: Int = 2
         const val RECENT_SELF_EXPRESSION_WINDOW_MS: Long = 30 * 60 * 1000L
@@ -239,7 +249,7 @@ class ExpressSelfEligibilityEvaluator {
             if (request.appPackage != "com.xiaoenai.app") return false
             if (isDesktopOrPanelWindow(currentWindowTitle, currentPackage)) return false
             if (currentWindowTitle?.contains("\u5c0f\u6069\u7231", ignoreCase = true) != true) return false
-            if (effectiveCount < 3) return false
+            if (effectiveCount < GENERIC_TRIAL_MIN_EFFECTIVE_MESSAGES) return false
             return parserConfidence >= GENERIC_TRIAL_MIN_CONFIDENCE
         }
     }

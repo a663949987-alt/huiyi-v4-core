@@ -213,8 +213,8 @@ function Write-Reports($data) {
 # Passive Active UX Cleanup Emulator Smoke
 
 - taskName: no_local_passive_routes_and_express_self_simplify
-- versionName: 4.1.64
-- versionCode: 483
+- versionName: 4.1.66
+- versionCode: 485
 - emulatorDetected: $($data.emulatorDetected)
 - emulatorSerial: $($data.emulatorSerial)
 - huiyiInstalled: $($data.huiyiInstalled)
@@ -254,8 +254,8 @@ $serial = if ($serialMatch) { $serialMatch.Matches.Groups[1].Value } else { "" }
 
 $data = [ordered]@{
     taskName = "no_local_passive_routes_and_express_self_simplify"
-    versionName = "4.1.64"
-    versionCode = 483
+    versionName = "4.1.66"
+    versionCode = 485
     emulatorDetected = [bool]$serial
     emulatorSerial = $serial
     huiyiInstalled = $false

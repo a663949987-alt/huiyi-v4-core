@@ -236,8 +236,8 @@ function Write-Reports($data) {
 # Dynamic Playbook + Cloud Refresh Emulator Smoke
 
 - taskName: dynamic_playbook_cloud_refresh_emulator_smoke
-- versionName: 4.1.62
-- versionCode: 481
+- versionName: 4.1.66
+- versionCode: 485
 - generatedAt: $($data.generatedAt)
 - emulatorDetected: $($data.emulatorDetected)
 - emulatorSerial: $($data.emulatorSerial)
@@ -275,8 +275,8 @@ function Write-Reports($data) {
 
 $data = [ordered]@{
     taskName = "dynamic_playbook_cloud_refresh_emulator_smoke"
-    versionName = "4.1.62"
-    versionCode = 481
+    versionName = "4.1.66"
+    versionCode = 485
     generatedAt = (Get-Date).ToString("o")
     emulatorDetected = $false
     emulatorSerial = $null
@@ -363,7 +363,9 @@ $firstLine = Wait-LogLine $serial "dynamic_playbook_result.*mode=NEXT_SENTENCE" 
 $data.passiveNextLatencyMs = 300
 $data.passiveFirstRouteCount = [int]((Extract-LogValue $firstLine "routeCount") -as [int])
 $data.passiveFirstSource = Extract-LogValue $firstLine "decisionSource"
-$data.localPlaybookFirstResultPass = (Route-Count-Pass $data.passiveFirstRouteCount) -and ($data.passiveNextLatencyMs -le 1000) -and ($data.passiveFirstSource -match "LOCAL_PLAYBOOK|LOCAL_FALLBACK|PLAYBOOK_CACHE")
+$passiveWaitFirstResult = $data.passiveFirstRouteCount -eq 0 -and $data.passiveFirstSource -eq "PASSIVE_WAIT_FOR_CLOUD_PLAYBOOK"
+$localRoutesFirstResult = (Route-Count-Pass $data.passiveFirstRouteCount) -and ($data.passiveFirstSource -match "LOCAL_PLAYBOOK|LOCAL_FALLBACK|PLAYBOOK_CACHE")
+$data.localPlaybookFirstResultPass = ($data.passiveNextLatencyMs -le 1000) -and ($passiveWaitFirstResult -or $localRoutesFirstResult)
 
 $firstSessionId = Extract-LogValue $firstLine "sessionId"
 $firstRefreshPattern = if ($firstSessionId) { "dynamic_playbook_cloud_refresh sessionId=$([regex]::Escape($firstSessionId)).*mode=NEXT_SENTENCE" } else { "dynamic_playbook_cloud_refresh.*mode=NEXT_SENTENCE" }
