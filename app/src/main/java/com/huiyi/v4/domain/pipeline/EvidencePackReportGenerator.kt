@@ -159,6 +159,17 @@ class EvidencePackReportGenerator {
             appendLine("- cloudRequestId: ${result.cloudTrace.cloudRequestId ?: "none"}")
             appendLine("- cloudContractVersion: ${result.cloudTrace.cloudContractVersion}")
             appendLine("- cloudContractValidationResult: ${result.cloudTrace.cloudContractValidationResult}")
+            appendLine("- actualCloudModelUsed: ${result.cloudTrace.actualCloudModelUsed.ifBlank { "unknown" }}")
+            appendLine("- passiveNextModelUsed: ${result.cloudTrace.passiveNextModelUsed.ifBlank { "unknown" }}")
+            appendLine("- expressSelfModelUsed: ${result.cloudTrace.expressSelfModelUsed.ifBlank { "unknown" }}")
+            appendLine("- arcRevealModelUsed: ${result.cloudTrace.arcRevealModelUsed.ifBlank { "unknown" }}")
+            appendLine("- deepAnalysisModelUsed: ${result.cloudTrace.deepAnalysisModelUsed.ifBlank { "unknown" }}")
+            appendLine("- routePurpose: ${result.cloudTrace.routePurpose.ifBlank { "unknown" }}")
+            appendLine("- selectedModel: ${result.cloudTrace.selectedModel.ifBlank { "unknown" }}")
+            appendLine("- routeReason: ${result.cloudTrace.routeReason.ifBlank { "unknown" }}")
+            appendLine("- routeTarget: ${result.cloudTrace.routeTarget.ifBlank { "unknown" }}")
+            appendLine("- playbookCacheWriteAllowed: ${result.cloudTrace.playbookCacheWriteAllowed}")
+            appendLine("- playbookCacheWriteBlockedReason: ${result.cloudTrace.playbookCacheWriteBlockedReason.ifBlank { "none" }}")
             appendLine("- overlayShownInTargetApp: ${result.overlayShownInTargetApp}")
             appendLine("- foregroundPackageWhenPanelShown: ${result.foregroundPackageWhenPanelShown ?: "unknown"}")
             appendLine("- huiyiActivityOpened: ${result.huiyiActivityOpened}")
@@ -577,6 +588,18 @@ class EvidencePackReportGenerator {
               "decisionSource": "${result.cloudTrace.decisionSource}",
               "cloudContractVersion": "${result.cloudTrace.cloudContractVersion}",
               "cloudContractValidationResult": "${result.cloudTrace.cloudContractValidationResult}",
+              "actualCloudModelUsed": "${escape(result.cloudTrace.actualCloudModelUsed)}",
+              "passiveNextModelUsed": "${escape(result.cloudTrace.passiveNextModelUsed)}",
+              "expressSelfModelUsed": "${escape(result.cloudTrace.expressSelfModelUsed)}",
+              "arcRevealModelUsed": "${escape(result.cloudTrace.arcRevealModelUsed)}",
+              "deepAnalysisModelUsed": "${escape(result.cloudTrace.deepAnalysisModelUsed)}",
+              "routePurpose": "${escape(result.cloudTrace.routePurpose)}",
+              "requestedModel": "${escape(result.cloudTrace.requestedModel)}",
+              "selectedModel": "${escape(result.cloudTrace.selectedModel)}",
+              "routeReason": "${escape(result.cloudTrace.routeReason)}",
+              "routeTarget": "${escape(result.cloudTrace.routeTarget)}",
+              "playbookCacheWriteAllowed": ${result.cloudTrace.playbookCacheWriteAllowed},
+              "playbookCacheWriteBlockedReason": "${escape(result.cloudTrace.playbookCacheWriteBlockedReason)}",
               "overlayShownInTargetApp": ${result.overlayShownInTargetApp},
               "foregroundPackageWhenPanelShown": "${escape(result.foregroundPackageWhenPanelShown ?: "unknown")}",
               "huiyiActivityOpened": ${result.huiyiActivityOpened},

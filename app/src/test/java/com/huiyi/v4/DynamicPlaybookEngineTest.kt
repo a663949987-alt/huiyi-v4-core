@@ -4,10 +4,13 @@ import com.huiyi.v4.domain.model.ReplyRouteType
 import com.huiyi.v4.domain.model.Speaker
 import com.huiyi.v4.domain.model.TacticalDecisionType
 import com.huiyi.v4.domain.persona.DefaultPersonaCorpus
+import com.huiyi.v4.domain.playbook.CloudModelTrace
 import com.huiyi.v4.domain.playbook.CloudPlaybookRefresher
+import com.huiyi.v4.domain.playbook.CloudRequestPurpose
 import com.huiyi.v4.domain.playbook.DynamicPlaybookEngine
 import com.huiyi.v4.domain.playbook.DynamicPlaybookMode
 import com.huiyi.v4.domain.playbook.DynamicPlaybookRequest
+import com.huiyi.v4.domain.playbook.ModelRouteTarget
 import com.huiyi.v4.domain.playbook.PlaybookRefreshScheduler
 import com.huiyi.v4.domain.playbook.RelationshipPlaybookSource
 import kotlinx.coroutines.runBlocking
@@ -106,7 +109,13 @@ class DynamicPlaybookEngineTest {
         val scheduler = PlaybookRefreshScheduler(
             engine = engine,
             cloudRefresher = CloudPlaybookRefresher { _, local ->
-                Result.success(local.copy(chatKey = "com.bajiao.im.liaoqi|another-chat", source = RelationshipPlaybookSource.CLOUD_ENHANCED))
+                Result.success(
+                    local.copy(
+                        chatKey = "com.bajiao.im.liaoqi|another-chat",
+                        source = RelationshipPlaybookSource.CLOUD_ENHANCED,
+                        cloudModelTrace = cloudTraceForTest(CloudRequestPurpose.ARC_REVEAL)
+                    )
+                )
             }
         )
 
@@ -139,7 +148,8 @@ class DynamicPlaybookEngineTest {
                 Result.success(
                     local.copy(
                         passiveNext = listOf(cloudRoute) + local.passiveNext.drop(1),
-                        source = RelationshipPlaybookSource.CLOUD_ENHANCED
+                        source = RelationshipPlaybookSource.CLOUD_ENHANCED,
+                        cloudModelTrace = cloudTraceForTest(CloudRequestPurpose.PASSIVE_PLAYBOOK)
                     )
                 )
             }
@@ -171,6 +181,17 @@ class DynamicPlaybookEngineTest {
         personaCorpus = persona,
         capturedAt = 1000L,
         chatWindowHash = "demo-hash"
+    )
+
+    private fun cloudTraceForTest(purpose: CloudRequestPurpose): CloudModelTrace = CloudModelTrace(
+        requestedModel = "gpt-5.4",
+        selectedModel = "gpt-5.4",
+        routeReason = "test_cloud_refresh",
+        routeTarget = ModelRouteTarget.GPT_STRONG,
+        requestPurpose = purpose,
+        cloudContractValidationResult = "PASS",
+        playbookCacheWriteAllowed = true,
+        playbookCacheWriteBlockedReason = ""
     )
 
     private fun planningMessages() = listOf(

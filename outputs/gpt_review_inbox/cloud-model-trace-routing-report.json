@@ -1,0 +1,61 @@
+{
+  "project": "huiyi-v4",
+  "taskName": "cloud_model_trace_and_ds_runtime_guard",
+  "versionName": "4.1.71",
+  "versionCode": 490,
+  "generatedAt": "2026-07-06T18:12:00+08:00",
+  "currentOverallResult": "LOCAL_ROUTING_PASS_NO_PHONE_REQUIRED",
+  "userNeedsPhoneThisRound": false,
+  "cloudModelTraceImplemented": true,
+  "fields": {
+    "requestedModel": true,
+    "selectedModel": true,
+    "providerType": true,
+    "routeReason": true,
+    "routeTarget": true,
+    "requestPurpose": true,
+    "cloudContractValidationResult": true,
+    "playbookCacheWriteAllowed": true,
+    "playbookCacheWriteBlockedReason": true
+  },
+  "reportFields": {
+    "actualCloudModelUsed": true,
+    "passiveNextModelUsed": true,
+    "expressSelfModelUsed": true,
+    "arcRevealModelUsed": true,
+    "deepAnalysisModelUsed": true
+  },
+  "routingPolicy": {
+    "lastMe": "LOCAL_WAIT",
+    "unknown": "LOCAL_CONTEXT_REQUIRED",
+    "normalOtherPassivePlaybook": "deepseek-v4-flash",
+    "activeExpression": "gpt-5.4_or_configuredStrongModel",
+    "arcReveal": "gpt-5.4_or_configuredStrongModel",
+    "deepAnalysis": "gpt-5.5",
+    "validatorFail": "GPT_STRONG_or_LOCAL_FALLBACK",
+    "dsProRuntimeEnabled": false
+  },
+  "guards": {
+    "dsFlashCheapDraftOnly": true,
+    "dsFlashAllowedForPassivePlaybook": true,
+    "dsFlashDefaultForActiveExpression": false,
+    "dsFlashDefaultForArcReveal": false,
+    "dsFlashCacheWriteRequiresStrictValidationPass": true,
+    "dsProRuntimeDisabled": true,
+    "validatorFailRoutesToDsPro": false
+  },
+  "safetyScan": {
+    "apiKeyExposedInReports": false,
+    "relayApiKeyValueCommitted": false,
+    "secretScanResult": "PASS_RUNTIME_VARIABLES_ONLY"
+  },
+  "tests": {
+    "ModelTraceRecordsActualModelTest": "PASS",
+    "ExpressSelfDoesNotDefaultToDsFlashWhenArcRevealRequiredTest": "PASS",
+    "DsProDisabledInRuntimeTest": "PASS",
+    "PassivePlaybookMayUseDsFlashCheapDraftTest": "PASS",
+    "ArcRevealUsesStrongOrConfiguredModelTest": "PASS",
+    "appTestDebugUnitTest": "PASS",
+    "appAssembleDebug": "PASS"
+  }
+}

@@ -71,10 +71,15 @@ import com.huiyi.v4.domain.playbook.DynamicPlaybookRequest
 import com.huiyi.v4.domain.playbook.DynamicPlaybookResult
 import com.huiyi.v4.domain.playbook.ExpressSelfEligibilityMode
 import com.huiyi.v4.domain.playbook.CloudRelationshipPlaybookMapper
+import com.huiyi.v4.domain.playbook.CloudModelTrace
 import com.huiyi.v4.domain.playbook.CloudPlaybookRefresher
-import com.huiyi.v4.domain.playbook.DeepSeekPlaybookModel
+import com.huiyi.v4.domain.playbook.CloudPlaybookRefreshException
+import com.huiyi.v4.domain.playbook.CloudRequestPurpose
 import com.huiyi.v4.domain.playbook.DeepSeekProvider
 import com.huiyi.v4.domain.playbook.DeepSeekProviderConfig
+import com.huiyi.v4.domain.playbook.ModelRouteTarget
+import com.huiyi.v4.domain.playbook.ModelRouter
+import com.huiyi.v4.domain.playbook.ModelRouterInput
 import com.huiyi.v4.domain.playbook.PlaybookRefreshScheduler
 import com.huiyi.v4.domain.playbook.RelationshipPlaybook
 import com.huiyi.v4.domain.tactical.ReplyRouteGenerator
@@ -1053,7 +1058,12 @@ class HuiyiRuntime private constructor(
                     "cacheReplaced=${outcome.cacheReplaced} " +
                     "staleRefreshDiscarded=${outcome.staleRefreshDiscarded} " +
                     "discardedReason=${outcome.discardedReason ?: "NONE"} " +
-                    "cloudContractValidation=${if (outcome.cloudSuccess) "PASS" else "FAIL"}"
+                    "cloudContractValidation=${outcome.cloudModelTrace.cloudContractValidationResult} " +
+                    "actualModel=${outcome.cloudModelTrace.actualModel.ifBlank { "NONE" }} " +
+                    "routePurpose=${outcome.cloudModelTrace.requestPurpose} " +
+                    "routeTarget=${outcome.cloudModelTrace.routeTarget} " +
+                    "cacheWriteAllowed=${outcome.cloudModelTrace.playbookCacheWriteAllowed} " +
+                    "cacheWriteBlockedReason=${outcome.cloudModelTrace.playbookCacheWriteBlockedReason.ifBlank { "NONE" }}"
             )
         }
     }
@@ -1161,6 +1171,32 @@ class HuiyiRuntime private constructor(
                 relayApiKeyStoredSecurely = settings.relayApiKeyStoredSecurely,
                 cloudPrimaryModel = settings.model,
                 cloudFinalModel = settings.model,
+                actualCloudModelUsed = dynamicResult.playbook.cloudModelTrace.actualModel,
+                passiveNextModelUsed = if (mode == DynamicPlaybookMode.NEXT_SENTENCE) {
+                    dynamicResult.playbook.cloudModelTrace.actualModel
+                } else {
+                    ""
+                },
+                expressSelfModelUsed = if (mode == DynamicPlaybookMode.EXPRESS_SELF) {
+                    dynamicResult.playbook.cloudModelTrace.actualModel
+                } else {
+                    ""
+                },
+                arcRevealModelUsed = if (
+                    mode == DynamicPlaybookMode.EXPRESS_SELF &&
+                    dynamicResult.playbook.cloudModelTrace.requestPurpose == CloudRequestPurpose.ARC_REVEAL
+                ) {
+                    dynamicResult.playbook.cloudModelTrace.actualModel
+                } else {
+                    ""
+                },
+                routePurpose = dynamicResult.playbook.cloudModelTrace.requestPurpose.name,
+                requestedModel = dynamicResult.playbook.cloudModelTrace.requestedModel,
+                selectedModel = dynamicResult.playbook.cloudModelTrace.selectedModel,
+                routeReason = dynamicResult.playbook.cloudModelTrace.routeReason,
+                routeTarget = dynamicResult.playbook.cloudModelTrace.routeTarget.name,
+                playbookCacheWriteAllowed = dynamicResult.playbook.cloudModelTrace.playbookCacheWriteAllowed,
+                playbookCacheWriteBlockedReason = dynamicResult.playbook.cloudModelTrace.playbookCacheWriteBlockedReason,
                 panelRenderedSessionId = sessionId
             )
         )
@@ -1372,6 +1408,29 @@ class HuiyiRuntime private constructor(
         if (!baseConfig.configuredAndEnabled) {
             return Result.failure(IllegalStateException("CLOUD_NOT_CONFIGURED"))
         }
+        val requestPurpose = requestPurposeForPlaybookRefresh(request, localPlaybook)
+        val configuredStrongModel = strongPlaybookModel(baseConfig.model)
+        val routeDecision = ModelRouter().route(
+            ModelRouterInput(
+                lastSpeaker = lastSpeaker.lastSpeaker ?: Speaker.UNKNOWN,
+                risk = localPlaybook.risk,
+                requestPurpose = requestPurpose,
+                configuredCheapDraftModel = "deepseek-v4-flash",
+                configuredStrongModel = configuredStrongModel,
+                deepAnalysisModel = "gpt-5.5",
+                dsFlashArcRuntimeEnabled = false
+            )
+        )
+        val selectedModel = routeDecision.model.orEmpty()
+        if (routeDecision.target !in setOf(ModelRouteTarget.DS_FLASH_PLAYBOOK, ModelRouteTarget.GPT_STRONG) || selectedModel.isBlank()) {
+            return Result.failure(IllegalStateException("MODEL_ROUTE_${routeDecision.target.name}"))
+        }
+        val modelTrace = CloudModelTrace.fromDecision(
+            decision = routeDecision,
+            requestedModel = baseConfig.model,
+            requestPurpose = requestPurpose,
+            providerType = baseConfig.providerType
+        )
         val input = cloudRelationshipPlaybookMapper.buildInput(
             request = request,
             localPlaybook = localPlaybook,
@@ -1381,24 +1440,82 @@ class HuiyiRuntime private constructor(
             DeepSeekProviderConfig(
                 baseUrl = baseConfig.endpoint,
                 apiKey = baseConfig.apiKey,
-                model = DeepSeekPlaybookModel.V4_FLASH,
+                model = selectedModel,
                 timeoutMs = baseConfig.timeoutMs.coerceIn(20_000L, 30_000L)
             )
         )
         val response = withContext(Dispatchers.IO) {
             provider.generate(input)
         }.getOrElse { error ->
-            return Result.failure(error)
+            return Result.failure(
+                CloudPlaybookRefreshException(
+                    message = error.message ?: "CLOUD_REQUEST_FAILED",
+                    modelTrace = modelTrace.withValidation(
+                        result = "NOT_RUN",
+                        cacheWriteAllowed = false,
+                        blockedReason = "REQUEST_FAILED"
+                    ),
+                    cause = error
+                )
+            )
         }
         if (response.httpStatus !in 200..299) {
-            return Result.failure(IllegalStateException("HTTP_${response.httpStatus}"))
+            return Result.failure(
+                CloudPlaybookRefreshException(
+                    message = "HTTP_${response.httpStatus}",
+                    modelTrace = modelTrace.withValidation(
+                        result = "NOT_RUN",
+                        cacheWriteAllowed = false,
+                        blockedReason = "HTTP_${response.httpStatus}"
+                    )
+                )
+            )
         }
         return runCatching {
-            cloudRelationshipPlaybookMapper.parseResponse(
+            val parsed = cloudRelationshipPlaybookMapper.parseResponse(
                 responseBody = response.responseBody,
                 localPlaybook = localPlaybook,
                 nowMillis = System.currentTimeMillis()
             )
+            parsed.copy(
+                cloudModelTrace = modelTrace.withValidation(
+                    result = "PASS",
+                    cacheWriteAllowed = true
+                )
+            )
+        }.recoverCatching { error ->
+            throw CloudPlaybookRefreshException(
+                message = error.message ?: "CLOUD_CONTRACT_VALIDATION_FAILED",
+                modelTrace = modelTrace.withValidation(
+                    result = "FAIL",
+                    cacheWriteAllowed = false,
+                    blockedReason = "CONTRACT_VALIDATION_FAILED"
+                ),
+                cause = error
+            )
+        }
+    }
+
+    private fun requestPurposeForPlaybookRefresh(
+        request: DynamicPlaybookRequest,
+        localPlaybook: RelationshipPlaybook
+    ): CloudRequestPurpose {
+        if (request.mode == DynamicPlaybookMode.EXPRESS_SELF && localPlaybook.characterArcPlan.exists) {
+            return CloudRequestPurpose.ARC_REVEAL
+        }
+        if (request.mode == DynamicPlaybookMode.EXPRESS_SELF) {
+            return CloudRequestPurpose.ACTIVE_EXPRESSION
+        }
+        return CloudRequestPurpose.PASSIVE_PLAYBOOK
+    }
+
+    private fun strongPlaybookModel(configuredModel: String): String {
+        val normalized = configuredModel.trim().lowercase()
+        return when {
+            normalized.isBlank() -> "gpt-5.4"
+            normalized.contains("deepseek-v4-flash") -> "gpt-5.4"
+            normalized.contains("deepseek-v4-pro") -> "gpt-5.4"
+            else -> configuredModel.trim()
         }
     }
 

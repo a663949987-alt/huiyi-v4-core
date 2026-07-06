@@ -17,7 +17,12 @@ data class ModelRouterInput(
     val risk: RiskLevel,
     val validatorPassed: Boolean = true,
     val userRequestedDeepAnalysis: Boolean = false,
-    val cloudFailed: Boolean = false
+    val cloudFailed: Boolean = false,
+    val requestPurpose: CloudRequestPurpose = CloudRequestPurpose.PASSIVE_PLAYBOOK,
+    val configuredCheapDraftModel: String = "deepseek-v4-flash",
+    val configuredStrongModel: String = "gpt-5.4",
+    val deepAnalysisModel: String = "gpt-5.5",
+    val dsFlashArcRuntimeEnabled: Boolean = false
 )
 
 data class ModelRouterDecision(
@@ -37,15 +42,25 @@ class ModelRouter {
         if (input.cloudFailed) {
             return ModelRouterDecision(ModelRouteTarget.LOCAL_FALLBACK, "cloud_fail", null)
         }
-        if (input.userRequestedDeepAnalysis) {
-            return ModelRouterDecision(ModelRouteTarget.GPT_STRONG, "user_deep_analysis", "gpt-5.5")
+        if (input.userRequestedDeepAnalysis || input.requestPurpose == CloudRequestPurpose.DEEP_ANALYSIS) {
+            return ModelRouterDecision(ModelRouteTarget.GPT_STRONG, "user_deep_analysis", input.deepAnalysisModel)
         }
         if (!input.validatorPassed) {
-            return ModelRouterDecision(ModelRouteTarget.DS_PRO, "validator_fail_try_stronger_playbook", "deepseek-v4-pro")
+            return ModelRouterDecision(ModelRouteTarget.GPT_STRONG, "validator_fail_use_strong_model", input.configuredStrongModel)
         }
         if (input.risk == RiskLevel.HIGH) {
-            return ModelRouterDecision(ModelRouteTarget.GPT_STRONG, "high_risk_needs_strong_model", "gpt-5.5")
+            return ModelRouterDecision(ModelRouteTarget.GPT_STRONG, "high_risk_needs_strong_model", input.deepAnalysisModel)
         }
-        return ModelRouterDecision(ModelRouteTarget.DS_FLASH_PLAYBOOK, "normal_other_background_playbook", "deepseek-v4-flash")
+        if (input.requestPurpose == CloudRequestPurpose.ACTIVE_EXPRESSION) {
+            return ModelRouterDecision(ModelRouteTarget.GPT_STRONG, "active_expression_needs_sendable_model", input.configuredStrongModel)
+        }
+        if (input.requestPurpose == CloudRequestPurpose.ARC_REVEAL) {
+            return if (input.dsFlashArcRuntimeEnabled) {
+                ModelRouterDecision(ModelRouteTarget.DS_FLASH_PLAYBOOK, "arc_reveal_ds_flash_benchmark_enabled", input.configuredCheapDraftModel)
+            } else {
+                ModelRouterDecision(ModelRouteTarget.GPT_STRONG, "arc_reveal_needs_strong_model", input.configuredStrongModel)
+            }
+        }
+        return ModelRouterDecision(ModelRouteTarget.DS_FLASH_PLAYBOOK, "normal_other_background_playbook", input.configuredCheapDraftModel)
     }
 }

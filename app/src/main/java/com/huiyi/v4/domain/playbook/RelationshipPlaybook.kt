@@ -41,7 +41,8 @@ data class RelationshipPlaybook(
     val chatKey: String? = null,
     val topicHash: String = "",
     val generatedAtMillis: Long = System.currentTimeMillis(),
-    val source: RelationshipPlaybookSource = RelationshipPlaybookSource.LOCAL_FALLBACK
+    val source: RelationshipPlaybookSource = RelationshipPlaybookSource.LOCAL_FALLBACK,
+    val cloudModelTrace: CloudModelTrace = CloudModelTrace.local()
 )
 
 data class PlaybookCharacterArcPlan(

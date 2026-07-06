@@ -26,7 +26,8 @@ data class PlaybookRefreshOutcome(
     val staleRefreshDiscarded: Boolean,
     val discardedReason: String?,
     val triggers: List<PlaybookRefreshTrigger>,
-    val cacheKey: PlaybookCacheKey?
+    val cacheKey: PlaybookCacheKey?,
+    val cloudModelTrace: CloudModelTrace = CloudModelTrace.local()
 )
 
 fun interface CloudPlaybookRefresher {
@@ -63,12 +64,16 @@ class PlaybookRefreshScheduler(
                 staleRefreshDiscarded = false,
                 discardedReason = null,
                 triggers = local.refreshTriggers,
-                cacheKey = local.cacheKey
+                cacheKey = local.cacheKey,
+                cloudModelTrace = CloudModelTrace.local("NO_CLOUD_REFRESHER")
             )
 
         val cloud = refresher.refresh(request, local.playbook)
         val cloudPlaybook = cloud.getOrNull()
         if (cloudPlaybook == null) {
+            val error = cloud.exceptionOrNull()
+            val trace = (error as? CloudPlaybookRefreshException)?.modelTrace
+                ?: CloudModelTrace.local(error?.message ?: "CLOUD_REFRESH_FAILED")
             return PlaybookRefreshOutcome(
                 refreshStarted = true,
                 localFallbackReady = true,
@@ -76,11 +81,13 @@ class PlaybookRefreshScheduler(
                 cloudSuccess = false,
                 cacheReplaced = false,
                 staleRefreshDiscarded = false,
-                discardedReason = cloud.exceptionOrNull()?.message,
+                discardedReason = error?.message,
                 triggers = local.refreshTriggers,
-                cacheKey = local.cacheKey
+                cacheKey = local.cacheKey,
+                cloudModelTrace = trace
             )
         }
+        val trace = cloudPlaybook.cloudModelTrace
         val currentChatKey = currentChatKeyProvider() ?: local.snapshot.chatKey
         if (cloudPlaybook.chatKey != null && cloudPlaybook.chatKey != currentChatKey) {
             return PlaybookRefreshOutcome(
@@ -92,7 +99,22 @@ class PlaybookRefreshScheduler(
                 staleRefreshDiscarded = true,
                 discardedReason = "CHAT_KEY_CHANGED",
                 triggers = local.refreshTriggers,
-                cacheKey = local.cacheKey
+                cacheKey = local.cacheKey,
+                cloudModelTrace = trace.blocked("CHAT_KEY_CHANGED")
+            )
+        }
+        if (!trace.playbookCacheWriteAllowed) {
+            return PlaybookRefreshOutcome(
+                refreshStarted = true,
+                localFallbackReady = true,
+                cloudAttempted = true,
+                cloudSuccess = false,
+                cacheReplaced = false,
+                staleRefreshDiscarded = false,
+                discardedReason = trace.playbookCacheWriteBlockedReason.ifBlank { "CACHE_WRITE_BLOCKED" },
+                triggers = local.refreshTriggers,
+                cacheKey = local.cacheKey,
+                cloudModelTrace = trace
             )
         }
         val key = engine.cache(cloudPlaybook.copy(source = RelationshipPlaybookSource.CLOUD_ENHANCED))
@@ -105,7 +127,8 @@ class PlaybookRefreshScheduler(
             staleRefreshDiscarded = false,
             discardedReason = null,
             triggers = local.refreshTriggers,
-            cacheKey = key
+            cacheKey = key,
+            cloudModelTrace = trace
         )
     }
 }

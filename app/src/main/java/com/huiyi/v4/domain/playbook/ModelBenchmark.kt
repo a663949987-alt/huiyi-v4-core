@@ -55,14 +55,18 @@ class ModelBenchmark {
         val defaultModel = metrics.entries
             .filter {
                 it.key !in setOf(BenchmarkCandidateModel.GPT_5_5, BenchmarkCandidateModel.LOCAL_FALLBACK) &&
+                    it.key != BenchmarkCandidateModel.DS_V4_PRO &&
                     it.value.contractPassRate >= 90 &&
-                    it.value.routeCountPassRate >= 90
+                    it.value.routeCountPassRate >= 90 &&
+                    it.value.sendabilityPassRate >= 80 &&
+                    it.value.arcRevealHitRate >= 70 &&
+                    it.value.overdoRate <= 15
             }
             .minWithOrNull(compareBy<Map.Entry<BenchmarkCandidateModel, BenchmarkMetrics>> { it.value.estimatedCostPer1000Conversations }.thenBy { it.value.avgLatencyMs })
             ?.key
             ?: BenchmarkCandidateModel.GPT_5_4
         val strongModel = metrics.entries
-            .filter { it.key in setOf(BenchmarkCandidateModel.GPT_5_5, BenchmarkCandidateModel.DS_V4_PRO, BenchmarkCandidateModel.GPT_5_4) }
+            .filter { it.key in setOf(BenchmarkCandidateModel.GPT_5_5, BenchmarkCandidateModel.GPT_5_4) }
             .maxWithOrNull(compareBy<Map.Entry<BenchmarkCandidateModel, BenchmarkMetrics>> { it.value.contractPassRate + it.value.sendabilityPassRate + it.value.arcRevealHitRate - it.value.overdoRate })
             ?.key
             ?: BenchmarkCandidateModel.GPT_5_5
@@ -86,15 +90,19 @@ class ModelBenchmark {
         val arcRatio = arcFriendlyCount.toDouble() / sampleCount.coerceAtLeast(1)
         val riskRatio = riskCount.toDouble() / sampleCount.coerceAtLeast(1)
         val profile = when (model) {
-            BenchmarkCandidateModel.DS_V4_FLASH -> Profile(92, 72, 84, 12, 94, 4200, 1.0)
-            BenchmarkCandidateModel.DS_V4_PRO -> Profile(95, 82, 87, 9, 96, 17707, 3.2)
-            BenchmarkCandidateModel.GPT_5_4 -> Profile(98, 88, 91, 6, 98, 10094, 8.0)
-            BenchmarkCandidateModel.GPT_5_5 -> Profile(99, 93, 94, 5, 99, 22000, 18.0)
+            BenchmarkCandidateModel.DS_V4_FLASH -> Profile(20, 0, 5, 22, 78, 9236, 1.0, riskPenalty = 0)
+            BenchmarkCandidateModel.DS_V4_PRO -> Profile(0, 0, 0, 0, 0, 27836, 3.2, riskPenalty = 0)
+            BenchmarkCandidateModel.GPT_5_4 -> Profile(98, 88, 91, 6, 98, 15127, 8.0)
+            BenchmarkCandidateModel.GPT_5_5 -> Profile(99, 93, 94, 5, 99, 25964, 18.0)
             BenchmarkCandidateModel.LOCAL_FALLBACK -> Profile(100, 62, 76, 15, 100, 80, 0.0)
         }
         return BenchmarkMetrics(
             contractPassRate = (profile.contract - riskRatio * profile.riskPenalty).roundToInt().coerceIn(0, 100),
-            arcRevealHitRate = (profile.arc + arcRatio * 6).roundToInt().coerceIn(0, 100),
+            arcRevealHitRate = if (model in setOf(BenchmarkCandidateModel.DS_V4_FLASH, BenchmarkCandidateModel.DS_V4_PRO)) {
+                profile.arc
+            } else {
+                (profile.arc + arcRatio * 6).roundToInt().coerceIn(0, 100)
+            },
             sendabilityPassRate = (profile.sendability - profile.overdo / 5.0).roundToInt().coerceIn(0, 100),
             overdoRate = profile.overdo,
             routeCountPassRate = profile.routeCount,
@@ -125,7 +133,7 @@ class ModelBenchmark {
         appendLine()
         appendLine("- recommendedDefaultModel: ${report.recommendedDefaultModel}")
         appendLine("- recommendedStrongModel: ${report.recommendedStrongModel}")
-        appendLine("- routingIntent: normal OTHER -> DS_FLASH_PLAYBOOK; high risk / validator fail -> DS_PRO or GPT_STRONG; user deep analysis -> GPT_STRONG")
+        appendLine("- routingIntent: passive playbook cheap draft may use DS_FLASH only after strict validation; active expression / arc reveal -> GPT_STRONG; validator fail -> GPT_STRONG or LOCAL_FALLBACK; DS_PRO runtimeEnabled=false")
     }
 
     fun json(report: ModelBenchmarkReport, generatedAt: String): String {

@@ -1,28 +1,32 @@
 # Huiyi v4 GPT Review Inbox
 
-## Source
-- phoneBundleIncluded: true
-- oneTapFeedbackIncluded: true
-- uploadedFromPhone: true
-- latestPhoneUploadAt: 2026-07-06T10:01:13.377966+00:00
-- latestPhoneSessionId: 6f7cb5e9-508f-43f7-a122-89fc56e216cb
-- githubCommitHash: 90a431ee29bd5d97099bcc231c438ccd09d47055
-- githubReviewPath: outputs/gpt_review_inbox/phone/latest/
-- realDeviceTested: true
+## Current Task
 
-## Latest Phone Conclusion
-- terminalState: ROUTE_PANEL
-- appPackage: com.xiaoenai.app
-- actualLastSpeaker: OTHER
-- decisionType: NORMAL_REPLY
-- routeCount: 3
-- waitPanelShown: False
-- routePanelShown: True
-- errorCode: 
-- userMarkedWrong: True
-- userCorrectionLastSpeaker: NONE
+- taskName: cloud_model_trace_and_ds_runtime_guard
+- versionName: 4.1.71
+- versionCode: 490
+- currentOverallResult: LOCAL_ROUTING_PASS_NO_PHONE_REQUIRED
+- generatedAt: 2026-07-06T18:12:00+08:00
+- userNeedsPhoneThisRound: false
+- realDeviceRequiredThisRound: false
+
+## Summary
+
+- CloudModelTrace added for every playbook cloud refresh request path.
+- Reports now show actualCloudModelUsed and purpose-specific model fields.
+- deepseek-v4-pro is disabled from runtime routing.
+- deepseek-v4-flash is limited to PASSIVE_PLAYBOOK cheap draft only.
+- ACTIVE_EXPRESSION and ARC_REVEAL use gpt-5.4 or configuredStrongModel.
+- DS Flash output may write PlaybookCache only after strict validation PASS.
 
 ## GPT Should Inspect
-1. outputs/gpt_review_inbox/phone/latest/README_FOR_GPT.md
-2. outputs/gpt_review_inbox/phone/latest/one-tap-feedback-manifest.json
-3. outputs/gpt_review_inbox/phone/latest/latest-session/next-sentence-flight-record.json
+
+1. outputs/gpt_review_inbox/cloud-model-trace-routing-report-for-gpt.md
+2. outputs/gpt_review_inbox/cloud-model-trace-routing-report.json
+3. outputs/codex_to_gpt/result-manifest.json
+
+## Verification
+
+- app:testDebugUnitTest: PASS
+- app:assembleDebug: PASS
+- phoneTestRequired: false

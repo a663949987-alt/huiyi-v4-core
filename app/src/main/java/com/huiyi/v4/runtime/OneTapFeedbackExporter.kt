@@ -124,6 +124,18 @@ data class NextSentenceFlightRecord(
     val relayApiKeyExposedInApk: Boolean = false,
     val cloudPrimaryModel: String = "",
     val cloudFinalModel: String = "",
+    val actualCloudModelUsed: String = "",
+    val passiveNextModelUsed: String = "",
+    val expressSelfModelUsed: String = "",
+    val arcRevealModelUsed: String = "",
+    val deepAnalysisModelUsed: String = "",
+    val routePurpose: String = "",
+    val requestedModel: String = "",
+    val selectedModel: String = "",
+    val routeReason: String = "",
+    val routeTarget: String = "",
+    val playbookCacheWriteAllowed: Boolean = false,
+    val playbookCacheWriteBlockedReason: String = "",
     val cloudEscalated: Boolean = false,
     val cloudEscalationReason: String? = null,
     val cloudQualityGateResult: String = "NOT_RUN",
@@ -410,6 +422,18 @@ object NextSentenceFlightRecordFactory {
             relayApiKeyExposedInApk = result.cloudTrace.relayApiKeyExposedInApk,
             cloudPrimaryModel = result.cloudTrace.cloudPrimaryModel,
             cloudFinalModel = result.cloudTrace.cloudFinalModel,
+            actualCloudModelUsed = result.cloudTrace.actualCloudModelUsed,
+            passiveNextModelUsed = result.cloudTrace.passiveNextModelUsed,
+            expressSelfModelUsed = result.cloudTrace.expressSelfModelUsed,
+            arcRevealModelUsed = result.cloudTrace.arcRevealModelUsed,
+            deepAnalysisModelUsed = result.cloudTrace.deepAnalysisModelUsed,
+            routePurpose = result.cloudTrace.routePurpose,
+            requestedModel = result.cloudTrace.requestedModel,
+            selectedModel = result.cloudTrace.selectedModel,
+            routeReason = result.cloudTrace.routeReason,
+            routeTarget = result.cloudTrace.routeTarget,
+            playbookCacheWriteAllowed = result.cloudTrace.playbookCacheWriteAllowed,
+            playbookCacheWriteBlockedReason = result.cloudTrace.playbookCacheWriteBlockedReason,
             cloudEscalated = result.cloudTrace.cloudEscalated,
             cloudEscalationReason = result.cloudTrace.cloudEscalationReason,
             cloudQualityGateResult = result.cloudTrace.cloudQualityGateResult,
@@ -677,6 +701,17 @@ class OneTapFeedbackExporter(
         appendLine("- cloudLatencyMs: ${record.cloudLatencyMs ?: "null"}")
         appendLine("- cloudPrimaryModel: ${record.cloudPrimaryModel.ifBlank { "unknown" }}")
         appendLine("- cloudFinalModel: ${record.cloudFinalModel.ifBlank { "unknown" }}")
+        appendLine("- actualCloudModelUsed: ${record.actualCloudModelUsed.ifBlank { "unknown" }}")
+        appendLine("- passiveNextModelUsed: ${record.passiveNextModelUsed.ifBlank { "unknown" }}")
+        appendLine("- expressSelfModelUsed: ${record.expressSelfModelUsed.ifBlank { "unknown" }}")
+        appendLine("- arcRevealModelUsed: ${record.arcRevealModelUsed.ifBlank { "unknown" }}")
+        appendLine("- deepAnalysisModelUsed: ${record.deepAnalysisModelUsed.ifBlank { "unknown" }}")
+        appendLine("- routePurpose: ${record.routePurpose.ifBlank { "unknown" }}")
+        appendLine("- selectedModel: ${record.selectedModel.ifBlank { "unknown" }}")
+        appendLine("- routeReason: ${record.routeReason.ifBlank { "unknown" }}")
+        appendLine("- routeTarget: ${record.routeTarget.ifBlank { "unknown" }}")
+        appendLine("- playbookCacheWriteAllowed: ${record.playbookCacheWriteAllowed}")
+        appendLine("- playbookCacheWriteBlockedReason: ${record.playbookCacheWriteBlockedReason.ifBlank { "none" }}")
         appendLine("- cloudEscalated: ${record.cloudEscalated}")
         appendLine("- cloudEscalationReason: ${record.cloudEscalationReason ?: "none"}")
         appendLine("- cloudQualityGateResult: ${record.cloudQualityGateResult}")
@@ -771,6 +806,18 @@ class OneTapFeedbackExporter(
             "cloudLatencyMs": ${record.cloudLatencyMs ?: "null"},
             "cloudPrimaryModel": "${escape(record.cloudPrimaryModel)}",
             "cloudFinalModel": "${escape(record.cloudFinalModel)}",
+            "actualCloudModelUsed": "${escape(record.actualCloudModelUsed)}",
+            "passiveNextModelUsed": "${escape(record.passiveNextModelUsed)}",
+            "expressSelfModelUsed": "${escape(record.expressSelfModelUsed)}",
+            "arcRevealModelUsed": "${escape(record.arcRevealModelUsed)}",
+            "deepAnalysisModelUsed": "${escape(record.deepAnalysisModelUsed)}",
+            "routePurpose": "${escape(record.routePurpose)}",
+            "requestedModel": "${escape(record.requestedModel)}",
+            "selectedModel": "${escape(record.selectedModel)}",
+            "routeReason": "${escape(record.routeReason)}",
+            "routeTarget": "${escape(record.routeTarget)}",
+            "playbookCacheWriteAllowed": ${record.playbookCacheWriteAllowed},
+            "playbookCacheWriteBlockedReason": "${escape(record.playbookCacheWriteBlockedReason)}",
             "cloudEscalated": ${record.cloudEscalated},
             "cloudEscalationReason": ${record.cloudEscalationReason?.let { "\"${escape(it)}\"" } ?: "null"},
             "cloudQualityGateResult": "${escape(record.cloudQualityGateResult)}",
@@ -849,6 +896,17 @@ class OneTapFeedbackExporter(
         appendLine("- cloudFailureLikelyCause: ${record.cloudFailureLikelyCause}")
         appendLine("- cloudContractVersion: ${record.cloudContractVersion}")
         appendLine("- cloudContractValidationResult: ${record.cloudContractValidationResult}")
+        appendLine("- actualCloudModelUsed: ${record.actualCloudModelUsed.ifBlank { "unknown" }}")
+        appendLine("- passiveNextModelUsed: ${record.passiveNextModelUsed.ifBlank { "unknown" }}")
+        appendLine("- expressSelfModelUsed: ${record.expressSelfModelUsed.ifBlank { "unknown" }}")
+        appendLine("- arcRevealModelUsed: ${record.arcRevealModelUsed.ifBlank { "unknown" }}")
+        appendLine("- deepAnalysisModelUsed: ${record.deepAnalysisModelUsed.ifBlank { "unknown" }}")
+        appendLine("- routePurpose: ${record.routePurpose.ifBlank { "unknown" }}")
+        appendLine("- selectedModel: ${record.selectedModel.ifBlank { "unknown" }}")
+        appendLine("- routeReason: ${record.routeReason.ifBlank { "unknown" }}")
+        appendLine("- routeTarget: ${record.routeTarget.ifBlank { "unknown" }}")
+        appendLine("- playbookCacheWriteAllowed: ${record.playbookCacheWriteAllowed}")
+        appendLine("- playbookCacheWriteBlockedReason: ${record.playbookCacheWriteBlockedReason.ifBlank { "none" }}")
         appendLine("- cloudLatencyMs: ${record.cloudLatencyMs ?: "null"}")
         appendLine("- cloudErrorCode: ${record.cloudErrorCode ?: "none"}")
         appendLine("- loadingStillVisible: ${record.loadingStillVisible}")
@@ -993,6 +1051,18 @@ class OneTapFeedbackExporter(
           "cloudLatencyMs": ${record.cloudLatencyMs ?: "null"},
           "cloudPrimaryModel": "${escape(record.cloudPrimaryModel)}",
           "cloudFinalModel": "${escape(record.cloudFinalModel)}",
+          "actualCloudModelUsed": "${escape(record.actualCloudModelUsed)}",
+          "passiveNextModelUsed": "${escape(record.passiveNextModelUsed)}",
+          "expressSelfModelUsed": "${escape(record.expressSelfModelUsed)}",
+          "arcRevealModelUsed": "${escape(record.arcRevealModelUsed)}",
+          "deepAnalysisModelUsed": "${escape(record.deepAnalysisModelUsed)}",
+          "routePurpose": "${escape(record.routePurpose)}",
+          "requestedModel": "${escape(record.requestedModel)}",
+          "selectedModel": "${escape(record.selectedModel)}",
+          "routeReason": "${escape(record.routeReason)}",
+          "routeTarget": "${escape(record.routeTarget)}",
+          "playbookCacheWriteAllowed": ${record.playbookCacheWriteAllowed},
+          "playbookCacheWriteBlockedReason": "${escape(record.playbookCacheWriteBlockedReason)}",
           "cloudEscalated": ${record.cloudEscalated},
           "cloudEscalationReason": ${record.cloudEscalationReason?.let { "\"${escape(it)}\"" } ?: "null"},
           "cloudQualityGateResult": "${escape(record.cloudQualityGateResult)}",

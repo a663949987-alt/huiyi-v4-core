@@ -1,24 +1,22 @@
 {
   "project": "huiyi-v4",
-  "phoneBundleIncluded": true,
-  "oneTapFeedbackIncluded": true,
-  "uploadedFromPhone": true,
-  "latestPhoneUploadAt": "2026-07-06T10:01:13.377966+00:00",
-  "latestPhoneSessionId": "6f7cb5e9-508f-43f7-a122-89fc56e216cb",
-  "githubCommitHash": "90a431ee29bd5d97099bcc231c438ccd09d47055",
-  "githubReviewPath": "outputs/gpt_review_inbox/phone/latest/",
-  "realDeviceTested": true,
-  "latestPhoneConclusion": {
-    "sessionId": "6f7cb5e9-508f-43f7-a122-89fc56e216cb",
-    "terminalState": "ROUTE_PANEL",
-    "appPackage": "com.xiaoenai.app",
-    "actualLastSpeaker": "OTHER",
-    "decisionType": "NORMAL_REPLY",
-    "routeCount": 3,
-    "waitPanelShown": false,
-    "routePanelShown": true,
-    "errorCode": "",
-    "userMarkedWrong": true,
-    "userCorrectionLastSpeaker": "NONE"
-  }
+  "taskName": "cloud_model_trace_and_ds_runtime_guard",
+  "versionName": "4.1.71",
+  "versionCode": 490,
+  "currentOverallResult": "LOCAL_ROUTING_PASS_NO_PHONE_REQUIRED",
+  "generatedAt": "2026-07-06T18:12:00+08:00",
+  "userNeedsPhoneThisRound": false,
+  "realDeviceRequiredThisRound": false,
+  "cloudModelTraceImplemented": true,
+  "dsProRuntimeDisabled": true,
+  "dsFlashCheapDraftOnly": true,
+  "activeExpressionUsesStrongModel": true,
+  "arcRevealUsesStrongModel": true,
+  "unitTests": "PASS",
+  "assembleDebug": "PASS",
+  "reports": [
+    "outputs/gpt_review_inbox/cloud-model-trace-routing-report-for-gpt.md",
+    "outputs/gpt_review_inbox/cloud-model-trace-routing-report.json",
+    "outputs/codex_to_gpt/result-manifest.json"
+  ]
 }

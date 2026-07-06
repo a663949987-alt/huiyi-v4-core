@@ -9,7 +9,14 @@ import java.util.concurrent.TimeUnit
 
 enum class DeepSeekPlaybookModel(val modelId: String) {
     V4_FLASH("deepseek-v4-flash"),
-    V4_PRO("deepseek-v4-pro")
+    V4_PRO("deepseek-v4-pro"),
+    GPT_5_4("gpt-5.4"),
+    GPT_5_5("gpt-5.5");
+
+    companion object {
+        fun fromModelId(modelId: String): DeepSeekPlaybookModel =
+            entries.firstOrNull { it.modelId.equals(modelId.trim(), ignoreCase = true) } ?: GPT_5_4
+    }
 }
 
 data class NormalizedConversationJson(
@@ -19,7 +26,7 @@ data class NormalizedConversationJson(
 data class DeepSeekProviderConfig(
     val baseUrl: String,
     val apiKey: String,
-    val model: DeepSeekPlaybookModel = DeepSeekPlaybookModel.V4_FLASH,
+    val model: String = DeepSeekPlaybookModel.GPT_5_4.modelId,
     val timeoutMs: Long = 20_000L
 )
 
@@ -38,7 +45,7 @@ class DeepSeekProvider(
 ) {
     fun buildRequestBody(input: NormalizedConversationJson): String = """
         {
-          "model": "${config.model.modelId}",
+          "model": "${config.model}",
           "max_tokens": 3500,
           "temperature": 0.25,
           "response_format": {"type": "json_object"},

@@ -9,7 +9,9 @@ import com.huiyi.v4.domain.model.RiskLevel
 import com.huiyi.v4.domain.model.Speaker
 import com.huiyi.v4.domain.persona.DefaultPersonaCorpus
 import com.huiyi.v4.domain.playbook.BenchmarkCandidateModel
+import com.huiyi.v4.domain.playbook.CloudModelTrace
 import com.huiyi.v4.domain.playbook.CloudRelationshipPlaybookMapper
+import com.huiyi.v4.domain.playbook.CloudRequestPurpose
 import com.huiyi.v4.domain.playbook.DeepSeekPlaybookModel
 import com.huiyi.v4.domain.playbook.DeepSeekProvider
 import com.huiyi.v4.domain.playbook.DeepSeekProviderConfig
@@ -88,9 +90,96 @@ class DeepSeekRelationshipPlaybookTest {
             router.route(ModelRouterInput(lastSpeaker = Speaker.OTHER, risk = RiskLevel.HIGH)).target
         )
         assertEquals(
-            ModelRouteTarget.DS_PRO,
+            ModelRouteTarget.GPT_STRONG,
             router.route(ModelRouterInput(lastSpeaker = Speaker.OTHER, risk = RiskLevel.LOW, validatorPassed = false)).target
         )
+    }
+
+    @Test
+    fun ModelTraceRecordsActualModelTest() {
+        val decision = ModelRouter().route(
+            ModelRouterInput(
+                lastSpeaker = Speaker.OTHER,
+                risk = RiskLevel.LOW,
+                requestPurpose = CloudRequestPurpose.ARC_REVEAL,
+                configuredStrongModel = "gpt-5.4"
+            )
+        )
+
+        val trace = CloudModelTrace.fromDecision(
+            decision = decision,
+            requestedModel = "deepseek-v4-flash",
+            requestPurpose = CloudRequestPurpose.ARC_REVEAL
+        ).withValidation("PASS", cacheWriteAllowed = true)
+
+        assertEquals("deepseek-v4-flash", trace.requestedModel)
+        assertEquals("gpt-5.4", trace.selectedModel)
+        assertEquals("gpt-5.4", trace.actualModel)
+        assertEquals(ModelRouteTarget.GPT_STRONG, trace.routeTarget)
+        assertEquals(CloudRequestPurpose.ARC_REVEAL, trace.requestPurpose)
+        assertEquals("PASS", trace.cloudContractValidationResult)
+        assertTrue(trace.playbookCacheWriteAllowed)
+    }
+
+    @Test
+    fun ExpressSelfDoesNotDefaultToDsFlashWhenArcRevealRequiredTest() {
+        val decision = ModelRouter().route(
+            ModelRouterInput(
+                lastSpeaker = Speaker.OTHER,
+                risk = RiskLevel.LOW,
+                requestPurpose = CloudRequestPurpose.ARC_REVEAL,
+                configuredStrongModel = "gpt-5.4"
+            )
+        )
+
+        assertEquals(ModelRouteTarget.GPT_STRONG, decision.target)
+        assertEquals("gpt-5.4", decision.model)
+        assertFalse(decision.model == "deepseek-v4-flash")
+    }
+
+    @Test
+    fun DsProDisabledInRuntimeTest() {
+        val decision = ModelRouter().route(
+            ModelRouterInput(
+                lastSpeaker = Speaker.OTHER,
+                risk = RiskLevel.LOW,
+                validatorPassed = false,
+                configuredStrongModel = "gpt-5.4"
+            )
+        )
+
+        assertEquals(ModelRouteTarget.GPT_STRONG, decision.target)
+        assertEquals("gpt-5.4", decision.model)
+        assertFalse(decision.model == "deepseek-v4-pro")
+    }
+
+    @Test
+    fun PassivePlaybookMayUseDsFlashCheapDraftTest() {
+        val decision = ModelRouter().route(
+            ModelRouterInput(
+                lastSpeaker = Speaker.OTHER,
+                risk = RiskLevel.LOW,
+                requestPurpose = CloudRequestPurpose.PASSIVE_PLAYBOOK
+            )
+        )
+
+        assertEquals(ModelRouteTarget.DS_FLASH_PLAYBOOK, decision.target)
+        assertEquals("deepseek-v4-flash", decision.model)
+    }
+
+    @Test
+    fun ArcRevealUsesStrongOrConfiguredModelTest() {
+        val decision = ModelRouter().route(
+            ModelRouterInput(
+                lastSpeaker = Speaker.OTHER,
+                risk = RiskLevel.LOW,
+                requestPurpose = CloudRequestPurpose.ARC_REVEAL,
+                configuredStrongModel = "gpt-5.4"
+            )
+        )
+
+        assertEquals(ModelRouteTarget.GPT_STRONG, decision.target)
+        assertEquals("gpt-5.4", decision.model)
     }
 
     @Test
@@ -129,7 +218,7 @@ class DeepSeekRelationshipPlaybookTest {
             DeepSeekProviderConfig(
                 baseUrl = "https://toapis.com/v1",
                 apiKey = "runtime-only",
-                model = DeepSeekPlaybookModel.V4_FLASH
+                model = DeepSeekPlaybookModel.V4_FLASH.modelId
             )
         )
 
@@ -187,21 +276,22 @@ class DeepSeekRelationshipPlaybookTest {
     }
 
     @Test
-    fun ModelBenchmarkUsesArcAndSyntheticSamplesAndRecommendsDeepSeekFlashTest() {
+    fun ModelBenchmarkUsesArcAndSyntheticSamplesAndDisablesDeepSeekFlashForArcRuntimeTest() {
         val report = ModelBenchmark().run(
             cliLatencyOverrides = mapOf(
-                BenchmarkCandidateModel.DS_V4_FLASH to 4200,
-                BenchmarkCandidateModel.DS_V4_PRO to 17707,
-                BenchmarkCandidateModel.GPT_5_4 to 10094
+                BenchmarkCandidateModel.DS_V4_FLASH to 9236,
+                BenchmarkCandidateModel.DS_V4_PRO to 27836,
+                BenchmarkCandidateModel.GPT_5_4 to 15127
             )
         )
 
         assertEquals(260, report.sampleCount)
         assertEquals(60, report.characterArcSampleCount)
         assertEquals(200, report.syntheticSampleCount)
-        assertEquals("deepseek-v4-flash", report.recommendedDefaultModel)
+        assertEquals("gpt-5.4", report.recommendedDefaultModel)
         assertEquals("gpt-5.5", report.recommendedStrongModel)
-        assertTrue(report.modelMetrics.getValue(BenchmarkCandidateModel.DS_V4_FLASH).contractPassRate >= 90)
+        assertEquals(20, report.modelMetrics.getValue(BenchmarkCandidateModel.DS_V4_FLASH).contractPassRate)
+        assertEquals(0, report.modelMetrics.getValue(BenchmarkCandidateModel.DS_V4_FLASH).arcRevealHitRate)
         assertTrue(report.modelMetrics.getValue(BenchmarkCandidateModel.GPT_5_4).sendabilityPassRate > report.modelMetrics.getValue(BenchmarkCandidateModel.DS_V4_FLASH).sendabilityPassRate)
         assertTrue(ModelBenchmark().json(report, "2026-07-05T00:00:00+08:00").contains("estimatedCostPer1000Conversations"))
     }

@@ -1,21 +1,18 @@
-﻿# Codex to GPT Result
+# Codex to GPT Result
 
-- taskName: real_use_multi_app_dynamic_playbook_package
+- taskName: cloud_model_trace_and_ds_runtime_guard
 - versionName: 4.1.71
 - versionCode: 490
-- currentOverallResult: READY_FOR_PHONE_TEST_PRIVATE_LAN_APK
-- generatedAt: 2026-07-06T17:32:49+08:00
-- userNeedsPhoneThisRound: true
-- combinedSmokeResult: PASS
+- currentOverallResult: LOCAL_ROUTING_PASS_NO_PHONE_REQUIRED
+- generatedAt: 2026-07-06T18:12:00+08:00
+- userNeedsPhoneThisRound: false
+- realDeviceRequiredThisRound: false
+- cloudModelTraceImplemented: true
+- dsProRuntimeDisabled: true
+- dsFlashCheapDraftOnly: true
+- activeExpressionUsesStrongModel: true
+- arcRevealUsesStrongModel: true
 - app:testDebugUnitTest: PASS
 - app:assembleDebug: PASS
-- mockchat:assembleDebug: PASS
-- multiAppProfileMatrix: PASS
-- apkPath: outputs/update_server/huiyi-v4.1.71-debug.apk
-- apkSha256: E22845C468790E0CC1FE21541CF8F122CF0DC1D7D66F94F5CD44EFC8C1496C95
-- latestJsonPath: outputs/update_server/latest.json
-- latestJsonApkUrl: huiyi-v4.1.71-debug.apk
-- apkCommittedToPublicGithub: false
-- privateApkContainsRelayConfig: true
-- primaryReport: outputs/gpt_review_inbox/real-use-v4171-package-report-for-gpt.md
-- reportJson: outputs/gpt_review_inbox/real-use-v4171-package-report.json
+- primaryReport: outputs/gpt_review_inbox/cloud-model-trace-routing-report-for-gpt.md
+- reportJson: outputs/gpt_review_inbox/cloud-model-trace-routing-report.json
