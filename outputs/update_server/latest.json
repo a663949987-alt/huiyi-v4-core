@@ -1,9 +1,9 @@
 {
-  "versionName": "4.1.65",
-  "versionCode": 484,
-  "apkUrl": "huiyi-v4.1.65-debug.apk",
-  "releaseNotes": "v4.1.65: Combined real-use package including v4.1.63 dynamic playbook package, v4.1.64 no local passive routes, passive wait panel, simplified Express Self, stable Express Self repeat clicks, and Xiaoenai Generic Trial.",
-  "forceUpdate": false,
-  "sha256": "E9339A2B8E1C7B0B15DF33E4EEDA25A7E403EF4707F1D222066CCBFD61BE4139",
-  "createdAt": 1783303756822
+    "versionName":  "4.1.71",
+    "versionCode":  490,
+    "apkUrl":  "huiyi-v4.1.71-debug.apk",
+    "releaseNotes":  "v4.1.71: Real-use candidate package combining full emulator matrix, Xiaoenai GenericTrial, multi chat AppProfile/GenericTrial/adaptation pack, no local passive routes, simplified Express Self, dynamic playbook cache/cloud refresh/stale discard, LAST_ME WAIT/HOLD_BACK, and status metadata filtering.",
+    "forceUpdate":  false,
+    "sha256":  "E22845C468790E0CC1FE21541CF8F122CF0DC1D7D66F94F5CD44EFC8C1496C95",
+    "createdAt":  1783330290139
 }

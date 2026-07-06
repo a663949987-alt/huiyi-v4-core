@@ -2,9 +2,9 @@
 
 ## Basic Info
 - taskName: multi_chat_app_profile_and_generic_trial_layer
-- versionName: 4.1.70
-- versionCode: 489
-- generatedAt: 2026-07-06T14:22:18+08:00
+- versionName: 4.1.71
+- versionCode: 490
+- generatedAt: 2026-07-06T17:31:07+08:00
 - overallResult: MULTI_APP_PROFILE_MATRIX_PASS
 - matrixResult: PASS
 - userNeedsPhoneThisRound: false

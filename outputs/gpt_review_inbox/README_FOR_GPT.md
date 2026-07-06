@@ -1,72 +1,49 @@
-# Huiyi v4 GPT Review Inbox
+﻿# Huiyi v4 GPT Review Inbox
 
 ## Current Task
-- taskName: multi_chat_app_profile_and_generic_trial_layer
-- versionName: 4.1.70
-- versionCode: 489
-- currentOverallResult: MULTI_APP_PROFILE_MATRIX_PASS
-- generatedAt: 2026-07-06T14:18:54+08:00
-- userNeedsPhoneThisRound: false
-- realDeviceSmokeResult: NOT_TESTED_THIS_ROUND
+- taskName: real_use_multi_app_dynamic_playbook_package
+- versionName: 4.1.71
+- versionCode: 490
+- currentOverallResult: READY_FOR_PHONE_TEST_PRIVATE_LAN_APK
+- generatedAt: 2026-07-06T17:32:49+08:00
+- userNeedsPhoneThisRound: true
+- realDeviceSmokeResult: PENDING_USER_PHONE_TEST
 
-## Why This Task Exists
-- User asked why Huiyi only handled Xiaoenai when other chat apps also need support.
-- This round upgrades the Xiaoenai-specific fix into a multi app profile layer.
-- App-specific work now stops at profile detection and conversation extraction; downstream strategy remains app independent.
+## Package
+- apkPath: outputs/update_server/huiyi-v4.1.71-debug.apk
+- apkSha256: E22845C468790E0CC1FE21541CF8F122CF0DC1D7D66F94F5CD44EFC8C1496C95
+- latestJsonPath: outputs/update_server/latest.json
+- latestJsonVersionName: 4.1.71
+- latestJsonVersionCode: 490
+- latestJsonApkUrl: huiyi-v4.1.71-debug.apk
+- latestJsonUpdated: true
+- apkGenerated: true
+- apkDeliveredOutOfBand: true
+- apkCommittedToPublicGithub: false
+- privateApkContainsRelayConfig: true
 
-## Implemented Layers
-- ChatAppProfileRegistry: PASS
-- ChatAppProfileDetector: PASS
-- GenericChatTrial: PASS
-- UnsupportedAppAdaptationExporter: PASS
-- AppProfile Matrix tests: PASS
+## Combined Smoke
+- combinedSmokeResult: PASS
 - app:testDebugUnitTest: PASS
 - app:assembleDebug: PASS
 - mockchat:assembleDebug: PASS
-
-## Matrix Summary
-- totalAppProfiles: 9
-- dedicatedProfileCount: 1
-- genericTrialPassCount: 5
-- unsupportedWithAdaptationPackCount: 1
-- blockCount: 2
-- liaoqiPass: true
-- xiaoenaiGenericTrialPass: true
-- wechatLikeGenericTrialPass: true
-- qqLikeGenericTrialPass: true
-- redbookLikeGenericTrialPass: true
-- datingLikeGenericTrialPass: true
-- webviewLowAccessibilityBlocked: true
-- launcherBlocked: true
-- huiyiOverlayBlocked: true
-- messageStatusMetadataFiltered: true
-- lastSpeakerAccuracy: 1.0
-- unknownRatioAverage: 0.0
-
-## Emulator Matrix
-- emulatorDetected: true
+- multiAppProfileMatrix: PASS
+- emulatorDetected: True
 - emulatorSerial: emulator-5554
-- huiyiInstalled: true
-- mockchatInstalled: true
-- mockProfilesLaunched: liaoqi_like, xiaoenai_like, wechat_like, qq_like, redbook_like, dating_like, webview_like_low_accessibility, launcher_desktop, huiyi_overlay_contaminated
-- scenariosCovered: last_me, last_other, metadata_trap, read_receipt_status, voice_last_other, image_or_sticker, time_at_bottom
-- launchedProfileScenarioCount: 63
 
-## Safety
-- rawPrivateChatIncluded: false
-- screenshotsIncluded: false
-- unsupportedAppsGenerateRedactedAdaptationPack: true
-- desktopOrLauncherUsesLastStableSnapshot: false
-- huiyiOverlayUsesLastStableSnapshot: false
+## Required Smoke Items
+- 下一句 LAST_ME WAIT: PASS
+- 下一句 LAST_OTHER no local passive routes: PASS
+- 表达我 planning/stability ARC_REVEAL: PASS
+- 表达我 recent LAST_ME HOLD_BACK: PASS
+- 小恩爱正常聊天 GenericTrial: PASS
+- 小恩爱/桌面 BLOCK: PASS
+- wechatLike/qqLike/redbookLike/datingLike GenericTrial: PASS
+- webviewLowAccessibility adaptation pack: PASS
+- launcher/huiyiOverlay BLOCK: PASS
 
 ## Reports To Inspect
-1. outputs/gpt_review_inbox/multi-app-profile-matrix-for-gpt.md
-2. outputs/gpt_review_inbox/multi-app-profile-matrix.json
-3. outputs/gpt_review_inbox/app-adaptation-pack-report-for-gpt.md
-4. outputs/adaptation_pack/com.example.webview.chat-v4170-matrix/adaptation-pack.json
-
-## Delivery Note
-- apkGeneratedForUserThisRound: false
-- userNeedsPhoneThisRound: false
-- phoneTestAllowedAfterThisMatrixPass: true
-- privateRelayConfigCommitted: false
+1. outputs/gpt_review_inbox/real-use-v4171-package-report-for-gpt.md
+2. outputs/gpt_review_inbox/real-use-v4171-package-report.json
+3. outputs/gpt_review_inbox/multi-app-profile-matrix-for-gpt.md
+4. outputs/gpt_review_inbox/multi-app-profile-matrix.json

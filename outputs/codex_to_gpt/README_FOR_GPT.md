@@ -1,33 +1,21 @@
-# Codex to GPT Result
+﻿# Codex to GPT Result
 
-- taskName: multi_chat_app_profile_and_generic_trial_layer
-- versionName: 4.1.70
-- versionCode: 489
-- currentOverallResult: MULTI_APP_PROFILE_MATRIX_PASS
-- generatedAt: 2026-07-06T14:18:54+08:00
-- userNeedsPhoneThisRound: false
-- realDeviceSmokeResult: NOT_TESTED_THIS_ROUND
-- ChatAppProfileRegistry: PASS
-- ChatAppProfileDetector: PASS
-- GenericChatTrial: PASS
-- UnsupportedAppAdaptationExporter: PASS
-- AppProfileMatrixTests: PASS
+- taskName: real_use_multi_app_dynamic_playbook_package
+- versionName: 4.1.71
+- versionCode: 490
+- currentOverallResult: READY_FOR_PHONE_TEST_PRIVATE_LAN_APK
+- generatedAt: 2026-07-06T17:32:49+08:00
+- userNeedsPhoneThisRound: true
+- combinedSmokeResult: PASS
 - app:testDebugUnitTest: PASS
 - app:assembleDebug: PASS
 - mockchat:assembleDebug: PASS
-- emulatorDetected: true
-- emulatorSerial: emulator-5554
-- launchedProfileScenarioCount: 63
-- liaoqi: LEVEL_3_DEDICATED_PROFILE PASS
-- xiaoenai: LEVEL_2_GENERIC_TRIAL PASS
-- wechatLike: LEVEL_2_GENERIC_TRIAL PASS
-- qqLike: LEVEL_2_GENERIC_TRIAL PASS
-- redbookLike: LEVEL_2_GENERIC_TRIAL PASS
-- datingLike: LEVEL_2_GENERIC_TRIAL PASS
-- webviewLowAccessibility: LEVEL_1_UNSUPPORTED_WITH_ADAPTATION_PACK PASS
-- launcher: LEVEL_0_BLOCK PASS
-- huiyiOverlay: LEVEL_0_BLOCK PASS
-- rawPrivateChatIncluded: false
-- primaryReport: outputs/gpt_review_inbox/multi-app-profile-matrix-for-gpt.md
-- matrixJson: outputs/gpt_review_inbox/multi-app-profile-matrix.json
-- adaptationPackReport: outputs/gpt_review_inbox/app-adaptation-pack-report-for-gpt.md
+- multiAppProfileMatrix: PASS
+- apkPath: outputs/update_server/huiyi-v4.1.71-debug.apk
+- apkSha256: E22845C468790E0CC1FE21541CF8F122CF0DC1D7D66F94F5CD44EFC8C1496C95
+- latestJsonPath: outputs/update_server/latest.json
+- latestJsonApkUrl: huiyi-v4.1.71-debug.apk
+- apkCommittedToPublicGithub: false
+- privateApkContainsRelayConfig: true
+- primaryReport: outputs/gpt_review_inbox/real-use-v4171-package-report-for-gpt.md
+- reportJson: outputs/gpt_review_inbox/real-use-v4171-package-report.json

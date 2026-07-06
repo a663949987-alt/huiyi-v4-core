@@ -8,6 +8,9 @@ $ErrorActionPreference = "Continue"
 $root = Split-Path -Parent $PSScriptRoot
 $reportDir = Join-Path $root "outputs\gpt_review_inbox"
 New-Item -ItemType Directory -Force -Path $reportDir | Out-Null
+$appGradleText = Get-Content -Path (Join-Path $root "app\build.gradle.kts") -Raw -Encoding UTF8
+$versionName = [regex]::Match($appGradleText, 'versionName\s*=\s*"([^"]+)"').Groups[1].Value
+$versionCode = [int][regex]::Match($appGradleText, 'versionCode\s*=\s*(\d+)').Groups[1].Value
 
 function Find-Adb {
     if ($AdbPath -and (Test-Path $AdbPath)) { return (Resolve-Path $AdbPath).Path }
@@ -74,8 +77,8 @@ $generatedAt = Get-Date -Format "yyyy-MM-ddTHH:mm:sszzz"
 $json = @"
 {
   "taskName": "multi_chat_app_profile_and_generic_trial_layer",
-  "versionName": "4.1.70",
-  "versionCode": 489,
+  "versionName": "$versionName",
+  "versionCode": $versionCode,
   "generatedAt": "$generatedAt",
   "overallResult": "$overall",
   "matrixResult": "$matrixResult",
@@ -114,8 +117,8 @@ $md = @"
 
 ## Basic Info
 - taskName: multi_chat_app_profile_and_generic_trial_layer
-- versionName: 4.1.70
-- versionCode: 489
+- versionName: $versionName
+- versionCode: $versionCode
 - generatedAt: $generatedAt
 - overallResult: $overall
 - matrixResult: $matrixResult

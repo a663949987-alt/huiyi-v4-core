@@ -1,30 +1,24 @@
-{
-  "taskStatus": "COMPLETED",
-  "project": "Huiyi v4",
-  "taskName": "multi_chat_app_profile_and_generic_trial_layer",
-  "versionName": "4.1.70",
-  "versionCode": 489,
-  "createdBy": "User/GPT",
-  "userNeedsPhoneThisRound": false,
-  "realDeviceRequiredThisRound": false,
-  "currentOverallResult": "MULTI_APP_PROFILE_MATRIX_PASS",
-  "chatAppProfileRegistry": "PASS",
-  "chatAppProfileDetector": "PASS",
-  "genericChatTrial": "PASS",
-  "unsupportedAppAdaptationExporter": "PASS",
-  "appProfileMatrixTests": "PASS",
-  "xiaoenaiNormalChatGenericTrial": "PASS",
-  "mockAppStylesGenericTrial": "PASS",
-  "launcherOverlayBlock": "PASS",
-  "adaptationPackGeneratedForUnsupportedApp": "PASS",
-  "rawPrivateChatIncluded": false,
-  "unitTests": "PASS",
-  "assembleDebug": "PASS",
-  "mockchatAssembleDebug": "PASS",
-  "requiredReports": [
-    "outputs/gpt_review_inbox/multi-app-profile-matrix-for-gpt.md",
-    "outputs/gpt_review_inbox/multi-app-profile-matrix.json",
-    "outputs/gpt_review_inbox/app-adaptation-pack-report-for-gpt.md",
-    "outputs/codex_to_gpt/result-manifest.json"
-  ]
+﻿{
+    "taskStatus":  "COMPLETED",
+    "project":  "Huiyi v4",
+    "taskName":  "real_use_multi_app_dynamic_playbook_package",
+    "versionName":  "4.1.71",
+    "versionCode":  490,
+    "createdBy":  "User/GPT",
+    "userNeedsPhoneThisRound":  true,
+    "realDeviceRequiredThisRound":  true,
+    "currentOverallResult":  "READY_FOR_PHONE_TEST_PRIVATE_LAN_APK",
+    "combinedSmokeResult":  "PASS",
+    "latestJsonUpdated":  true,
+    "apkGenerated":  true,
+    "apkPath":  "outputs/update_server/huiyi-v4.1.71-debug.apk",
+    "unitTests":  "PASS",
+    "assembleDebug":  "PASS",
+    "mockchatAssembleDebug":  "PASS",
+    "multiAppProfileMatrix":  "PASS",
+    "requiredReports":  [
+                            "outputs/gpt_review_inbox/real-use-v4171-package-report-for-gpt.md",
+                            "outputs/gpt_review_inbox/real-use-v4171-package-report.json",
+                            "outputs/codex_to_gpt/result-manifest.json"
+                        ]
 }
